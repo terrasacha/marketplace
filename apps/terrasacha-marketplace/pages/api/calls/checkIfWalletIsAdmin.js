@@ -1,4 +1,4 @@
-import { checkIfWalletIsAdmin } from '../../../backend/index'
+import { checkIfWalletIsAdmin } from "@marketplaces/data-access"
 
 export default async function handler(req,res){
     let response = await checkIfWalletIsAdmin(req.query.data)

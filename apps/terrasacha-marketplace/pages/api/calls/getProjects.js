@@ -1,4 +1,4 @@
-import { getProjects } from '../../../backend/index';
+import { getProjects } from "@marketplaces/data-access"
 
 export default async function handler(req, res) {
     try {

@@ -5,7 +5,7 @@ import {
   getImagesCategories,
   getProject,
   getProjectData,
-} from '../../../backend';
+} from '@marketplaces/data-access';
 import { Transition } from '@headlessui/react';
 import PageHeader from '../../../components/common/PageHeader';
 import { MyPage } from '../../../components/common/types';

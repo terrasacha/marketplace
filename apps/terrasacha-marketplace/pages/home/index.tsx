@@ -1,5 +1,5 @@
 import React from 'react';
-import { getCategories, getProjects } from '../../backend';
+import { getCategories, getProjects } from '@marketplaces/data-access';
 import HomeContainer from '../../components/home-page/HomeContainer';
 import { MyPage } from '../../components/common/types';
 

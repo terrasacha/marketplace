@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import Link from 'next/link';
-import { getImagesCategories } from '../../backend';
+import { getImagesCategories } from '@marketplaces/data-access';
 import { getActualPeriod } from '../../utils/generic/getActualPeriod';
 
 interface CardProjectProps {

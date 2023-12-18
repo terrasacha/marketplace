@@ -1,118 +1,138 @@
 import { UTxO } from "@meshsdk/core";
 import axios from "axios";
-import { Category } from "myTypes";
-import { Amplify } from 'aws-amplify';
-import awsconfig from '../src/aws-exports';
-import { signUp, confirmSignUp, type ConfirmSignUpInput, signIn, type SignInInput, signOut, resetPassword, type ResetPasswordInput, confirmResetPassword, type ConfirmResetPasswordInput } from 'aws-amplify/auth';
-/* import { integer } from "aws-sdk/clients/cloudfront"; */
-import { getProduct } from "../lib/customQueries";
-/* const AWS = require("aws-sdk");
-
-AWS.config.update(awsconfig); */
-
-Amplify.configure(awsconfig);
-
-//Auth AWS
-
-type SignUpParameters = {
-  username: string;
-  password: string;
-  email: string;
-  phoneNumber: string;
-  role: string;
-};
-
-export async function signUpAuth({ username, password, email, role }: SignUpParameters) {
-  try {
-        const response = await signUp({ 
-          username,
-          password,
-          options: {
-            userAttributes: {
-              email,
-              'custom:role': role  
+const getProduct = /* GraphQL */ `
+  query GetProduct($id: ID!) {
+    getProduct(id: $id) {
+      id
+      name
+      description
+      isActive
+      order
+      status
+      timeOnVerification
+      projectReadiness
+      categoryID
+      transactions {
+        items {
+          id
+        }
+      }
+      userProducts {
+        items {
+          user {
+            id
+            role
+            name
+          }
+        }
+      }
+      productFeatures {
+        items {
+          id
+          value
+          isToBlockChain
+          order
+          isOnMainCard
+          isResult
+          productID
+          verifications {
+            items {
+              userVerifierID
+              userVerifiedID
+              verificationComments {
+                items {
+                  comment
+                  createdAt
+                  id
+                  isCommentByVerifier
+                }
+              }
+              userVerified {
+                name
+              }
+              userVerifier {
+                name
+              }
+              id
             }
           }
-          })
-        const userPayload = {
-          username,
-          role,
-          email
+          documents {
+            items {
+              id
+              url
+              isApproved
+              docHash
+              data
+              isUploadedToBlockChain
+              productFeatureID
+              signed
+              signedHash
+              status
+              timeStamp
+              userID
+            }
+          }
+          feature {
+            name
+            isVerifable
+          }
+          featureID
+          createdAt
+          updatedAt
         }
-        const responseUser = await createUser(userPayload)
-        return response
-  } catch (error) {
-    throw error
+        nextToken
+      }
+      createdAt
+      updatedAt
+    }
   }
+`;
+
+//Auth AWS
+type Image = {
+  id: string;
+  productID: string;
+  title: string;
+  imageURL: string;
+  imageURLToDisplay: string;
+  format: string;
+  carouselDescription: string;
 }
 
-export async function confirmSignUpAuth({ username, confirmationCode }: ConfirmSignUpInput) {
-  try {
-    let result = await confirmSignUp({username, confirmationCode});
-    return result
-  } catch (error) {
-    throw error
-  }
+type Project = {
+  id: string;
+  description: string;
+  categoryID: string;
+  name: string;
+  status: string;
+  updatedAt: Date;
+  createdAt: Date;
+  images: { items: [Image] };
+  amountToBuy: string;
 }
 
-
-export async function signInAuth({ username, password }: SignInInput) {
-  try {
-    const user = await signIn({ username, password })
-    return user
-  } catch (error) {
-    throw error
-  }
+type Category = {
+  id: string;
+  name: string;
+  products: { items: [Project] };
 }
-
-
-export async function signOutAuth() {
-  try {
-    await signOut();
-  } catch (error) {
-    console.log('error signing out: ', error);
-  }
-}
-
-export async function forgotPassword({username} : ResetPasswordInput) {
-  try {
-    const data = await resetPassword({username});
-    console.log(data, 'forgotPassword')
-    return data
-  } catch(err) {
-    throw err
-  }
-};
-
-export async function forgotPasswordSubmit({
-  username,
-  confirmationCode,
-  newPassword
-}: ConfirmResetPasswordInput) {
-  try {
-    await confirmResetPassword({ username, confirmationCode, newPassword });
-    return {code: "Success", message: "Password changed successfully"}
-  } catch(err) {
-    throw err
-  }
-};
 
 const instance = axios.create({
   baseURL: `/api/`,
   withCredentials: true,
 });
-const awsAppSyncApiKey: string = process.env.secrets
-  ? JSON.parse(process.env.secrets).API_KEY_PLATAFORMA
-  : process.env.NEXT_PUBLIC_API_KEY_PLATAFORMA;
+const awsAppSyncApiKey: string = process.env['secrets']
+  ? JSON.parse(process.env['secrets']).API_KEY_PLATAFORMA
+  : process.env['NEXT_PUBLIC_API_KEY_PLATAFORMA'];
 let graphqlEndpoint: string;
-if (process.env.NEXT_PUBLIC_graphqlEndpoint) {
-  graphqlEndpoint = process.env.NEXT_PUBLIC_graphqlEndpoint;
+if (process.env['NEXT_PUBLIC_graphqlEndpoint']) {
+  graphqlEndpoint = process.env['NEXT_PUBLIC_graphqlEndpoint'];
 } else {
   throw new Error(`Parameter graphqlEndpoint not found`);
 }
 let s3BucketName: string;
-if (process.env.NEXT_PUBLIC_s3BucketName) {
-  s3BucketName = process.env.NEXT_PUBLIC_s3BucketName;
+if (process.env['NEXT_PUBLIC_s3BucketName']) {
+  s3BucketName = process.env['NEXT_PUBLIC_s3BucketName'];
 } else {
   throw new Error(`Parameter graphqlEndpoint not found`);
 }
@@ -472,7 +492,7 @@ export async function getProjectData(projectId: string) {
 }
 
 export async function getProject(projectId: string) {
-  console.log('getProject')
+  console.log(graphqlEndpoint)
   const response = await axios.post(
     graphqlEndpoint,
     {

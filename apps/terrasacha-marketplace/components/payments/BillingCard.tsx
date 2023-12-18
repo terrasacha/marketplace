@@ -16,7 +16,7 @@ import {
   createMintingTransaction,
   createTransaction,
   sign,
-} from '../../backend';
+} from '@marketplaces/data-access';
 import { cardanoscan } from '../../backend/mint';
 import { BlockfrostProvider } from '@meshsdk/core';
 import Link from 'next/link';
