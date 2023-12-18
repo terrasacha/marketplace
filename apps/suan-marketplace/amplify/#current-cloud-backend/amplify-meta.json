@@ -1,0 +1,49 @@
+{
+  "providers": {
+    "awscloudformation": {
+      "AuthRoleName": "amplify-kiosuanwalletnjsapp-prod-170319-authRole",
+      "UnauthRoleArn": "arn:aws:iam::036134507423:role/amplify-kiosuanwalletnjsapp-prod-170319-unauthRole",
+      "AuthRoleArn": "arn:aws:iam::036134507423:role/amplify-kiosuanwalletnjsapp-prod-170319-authRole",
+      "Region": "us-east-1",
+      "DeploymentBucketName": "amplify-kiosuanwalletnjsapp-prod-170319-deployment",
+      "UnauthRoleName": "amplify-kiosuanwalletnjsapp-prod-170319-unauthRole",
+      "StackName": "amplify-kiosuanwalletnjsapp-prod-170319",
+      "StackId": "arn:aws:cloudformation:us-east-1:036134507423:stack/amplify-kiosuanwalletnjsapp-prod-170319/b9582040-79a1-11ee-96cc-12d7f31fccfd",
+      "AmplifyAppId": "d37asa0l0olxrx"
+    }
+  },
+  "auth": {
+    "kiosuanwalletnjsapp0c07f185": {
+      "service": "Cognito",
+      "serviceType": "imported",
+      "providerPlugin": "awscloudformation",
+      "dependsOn": [],
+      "customAuth": false,
+      "output": {
+        "UserPoolId": "us-east-1_DFaBfYrB1",
+        "UserPoolName": "kiosuanbcrjsappa6accc93_userpool_a6accc93-dev",
+        "AppClientID": "5llsqe9bsaq5jls57blv6v1bjc",
+        "AppClientIDWeb": "5nhkci304gu0ckt550eo6l0103",
+        "IdentityPoolId": "us-east-1:c366b219-5782-41e7-8fc0-af0da888e27b",
+        "IdentityPoolName": "kiosuanbcrjsappa6accc93_identitypool_a6accc93__dev"
+      },
+      "frontendAuthConfig": {
+        "socialProviders": [],
+        "usernameAttributes": [],
+        "signupAttributes": [
+          "EMAIL"
+        ],
+        "passwordProtectionSettings": {
+          "passwordPolicyMinLength": 8,
+          "passwordPolicyCharacters": []
+        },
+        "mfaConfiguration": "OFF",
+        "mfaTypes": [],
+        "verificationMechanisms": [
+          "EMAIL"
+        ]
+      },
+      "lastPushTimeStamp": "2023-12-04T14:38:14.729Z"
+    }
+  }
+}

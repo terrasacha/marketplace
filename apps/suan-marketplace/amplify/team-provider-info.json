@@ -1,0 +1,32 @@
+{
+  "prod": {
+    "awscloudformation": {
+      "AuthRoleName": "amplify-kiosuanwalletnjsapp-prod-170319-authRole",
+      "UnauthRoleArn": "arn:aws:iam::036134507423:role/amplify-kiosuanwalletnjsapp-prod-170319-unauthRole",
+      "AuthRoleArn": "arn:aws:iam::036134507423:role/amplify-kiosuanwalletnjsapp-prod-170319-authRole",
+      "Region": "us-east-1",
+      "DeploymentBucketName": "amplify-kiosuanwalletnjsapp-prod-170319-deployment",
+      "UnauthRoleName": "amplify-kiosuanwalletnjsapp-prod-170319-unauthRole",
+      "StackName": "amplify-kiosuanwalletnjsapp-prod-170319",
+      "StackId": "arn:aws:cloudformation:us-east-1:036134507423:stack/amplify-kiosuanwalletnjsapp-prod-170319/b9582040-79a1-11ee-96cc-12d7f31fccfd",
+      "AmplifyAppId": "d37asa0l0olxrx"
+    },
+    "categories": {
+      "auth": {
+        "kiosuanwalletnjsapp0c07f185": {
+          "userPoolId": "us-east-1_DFaBfYrB1",
+          "userPoolName": "kiosuanbcrjsappa6accc93_userpool_a6accc93-dev",
+          "webClientId": "5nhkci304gu0ckt550eo6l0103",
+          "nativeClientId": "5llsqe9bsaq5jls57blv6v1bjc",
+          "identityPoolId": "us-east-1:c366b219-5782-41e7-8fc0-af0da888e27b",
+          "identityPoolName": "kiosuanbcrjsappa6accc93_identitypool_a6accc93__dev",
+          "allowUnauthenticatedIdentities": true,
+          "authRoleArn": "arn:aws:iam::036134507423:role/amplify-kiosuanbcrjsapp-dev-145518-authRole",
+          "authRoleName": "amplify-kiosuanbcrjsapp-dev-145518-authRole",
+          "unauthRoleArn": "arn:aws:iam::036134507423:role/amplify-kiosuanbcrjsapp-dev-145518-unauthRole",
+          "unauthRoleName": "amplify-kiosuanbcrjsapp-dev-145518-unauthRole"
+        }
+      }
+    }
+  }
+}
