@@ -2,7 +2,7 @@ import { UTxO } from "@meshsdk/core";
 import axios from "axios";
 import { Category } from "myTypes";
 import { Amplify } from 'aws-amplify';
-import awsconfig from '../aws-config/aws-exports';
+import awsconfig from '../src/aws-exports';
 import { signUp, confirmSignUp, type ConfirmSignUpInput, signIn, type SignInInput, signOut, resetPassword, type ResetPasswordInput, confirmResetPassword, type ConfirmResetPasswordInput } from 'aws-amplify/auth';
 /* import { integer } from "aws-sdk/clients/cloudfront"; */
 import { getProduct } from "../lib/customQueries";

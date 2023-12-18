@@ -14,7 +14,7 @@ import { Layouts } from '../components/common/Layouts';
 import TelegramFloatingButton from '../components/TelegramFloatingButton';
 import { Amplify } from 'aws-amplify';
 
-import config from '../aws-config/aws-exports';
+import config from '../src/aws-exports';
 
 Amplify.configure(config);
 
