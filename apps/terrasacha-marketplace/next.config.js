@@ -12,6 +12,19 @@ const nextConfig = {
     // See: https://github.com/gregberge/svgr
     svgr: false,
   },
+  reactStrictMode: true,
+  webpack: function (config, options) {
+    config.experiments = {
+      asyncWebAssembly: true,
+      layers: true,
+    };
+    return config;
+  },
+  images: {
+    domains: [
+      'kiosuanbcrjsappcad3eb2dd1b14457b491c910d5aa45dd145518-dev.s3.amazonaws.com',
+    ],
+  },
 };
 
 const plugins = [
