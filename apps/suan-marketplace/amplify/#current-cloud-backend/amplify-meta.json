@@ -1,19 +1,19 @@
 {
   "providers": {
     "awscloudformation": {
-      "AuthRoleName": "amplify-kiosuanwalletnjsapp-prod-170319-authRole",
-      "UnauthRoleArn": "arn:aws:iam::036134507423:role/amplify-kiosuanwalletnjsapp-prod-170319-unauthRole",
-      "AuthRoleArn": "arn:aws:iam::036134507423:role/amplify-kiosuanwalletnjsapp-prod-170319-authRole",
+      "AuthRoleName": "amplify-suanmarketplace-dev-24130-authRole",
+      "UnauthRoleArn": "arn:aws:iam::036134507423:role/amplify-suanmarketplace-dev-24130-unauthRole",
+      "AuthRoleArn": "arn:aws:iam::036134507423:role/amplify-suanmarketplace-dev-24130-authRole",
       "Region": "us-east-1",
-      "DeploymentBucketName": "amplify-kiosuanwalletnjsapp-prod-170319-deployment",
-      "UnauthRoleName": "amplify-kiosuanwalletnjsapp-prod-170319-unauthRole",
-      "StackName": "amplify-kiosuanwalletnjsapp-prod-170319",
-      "StackId": "arn:aws:cloudformation:us-east-1:036134507423:stack/amplify-kiosuanwalletnjsapp-prod-170319/b9582040-79a1-11ee-96cc-12d7f31fccfd",
-      "AmplifyAppId": "d37asa0l0olxrx"
+      "DeploymentBucketName": "amplify-suanmarketplace-dev-24130-deployment",
+      "UnauthRoleName": "amplify-suanmarketplace-dev-24130-unauthRole",
+      "StackName": "amplify-suanmarketplace-dev-24130",
+      "StackId": "arn:aws:cloudformation:us-east-1:036134507423:stack/amplify-suanmarketplace-dev-24130/1ab197b0-9d68-11ee-9c52-0eae16ecbef1",
+      "AmplifyAppId": "dxi2fvcozws8o"
     }
   },
   "auth": {
-    "kiosuanwalletnjsapp0c07f185": {
+    "suanmarketplacebcdf233d": {
       "service": "Cognito",
       "serviceType": "imported",
       "providerPlugin": "awscloudformation",
@@ -23,9 +23,7 @@
         "UserPoolId": "us-east-1_DFaBfYrB1",
         "UserPoolName": "kiosuanbcrjsappa6accc93_userpool_a6accc93-dev",
         "AppClientID": "5llsqe9bsaq5jls57blv6v1bjc",
-        "AppClientIDWeb": "5nhkci304gu0ckt550eo6l0103",
-        "IdentityPoolId": "us-east-1:c366b219-5782-41e7-8fc0-af0da888e27b",
-        "IdentityPoolName": "kiosuanbcrjsappa6accc93_identitypool_a6accc93__dev"
+        "AppClientIDWeb": "5nhkci304gu0ckt550eo6l0103"
       },
       "frontendAuthConfig": {
         "socialProviders": [],
@@ -43,7 +41,7 @@
           "EMAIL"
         ]
       },
-      "lastPushTimeStamp": "2023-12-04T14:38:14.729Z"
+      "lastPushTimeStamp": "2023-12-18T05:48:12.274Z"
     }
   }
 }

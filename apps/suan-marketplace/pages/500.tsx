@@ -1,7 +1,7 @@
-import { MyPage } from '@/components/common/types';
+import { MyPage } from '../components/common/types';
 const Custom500: MyPage = () => {
-    return <h1>500 - Server-side error occurred</h1>
-  }
+  return <h1>500 - Server-side error occurred</h1>;
+};
 
 export default Custom500;
-Custom500.Layout = 'NoLayout'
+Custom500.Layout = 'NoLayout';

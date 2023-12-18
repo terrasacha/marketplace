@@ -1,5 +1,14 @@
 import React from 'react';
-import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer } from 'recharts';
+import {
+  BarChart,
+  Bar,
+  XAxis,
+  YAxis,
+  CartesianGrid,
+  Tooltip,
+  Legend,
+  ResponsiveContainer,
+} from 'recharts';
 
 interface TransactionData {
   tokenName: string;
@@ -42,37 +51,53 @@ const AreaChartComponent: React.FC<AreaChartProps> = ({ selectedElement }) => {
   const { transactionDetails } = selectedElement;
 
   // Obtener el histórico de precios del token
-  const historicalDataFeature = transactionDetails[0].product.productFeatures.items.find(item => item.featureID === "GLOBAL_TOKEN_HISTORICAL_DATA");
-  const historicalData = historicalDataFeature ? JSON.parse(historicalDataFeature.value) : [];
+  const historicalDataFeature =
+    transactionDetails[0].product.productFeatures.items.find(
+      (item) => item.featureID === 'GLOBAL_TOKEN_HISTORICAL_DATA'
+    );
+  const historicalData = historicalDataFeature
+    ? JSON.parse(historicalDataFeature.value)
+    : [];
 
   // Preparar los datos para el gráfico
-  const chartData = historicalData.map((valueObj: { date: string; price: number }) => ({
-    date: valueObj.date,
-    price: valueObj.price,
-  }));
+  const chartData = historicalData.map(
+    (valueObj: { date: string; price: number }) => ({
+      date: valueObj.date,
+      price: valueObj.price,
+    })
+  );
 
   return (
     <ResponsiveContainer width="100%" height={300}>
-      <BarChart  data={chartData}>
+      <BarChart data={chartData}>
         <CartesianGrid strokeDasharray="3 3" />
         <XAxis
           dataKey="date"
           tickFormatter={(date) => {
-            const options = { year: 'numeric', month: '2-digit', day: '2-digit' } as Intl.DateTimeFormatOptions;
+            const options = {
+              year: 'numeric',
+              month: '2-digit',
+              day: '2-digit',
+            } as Intl.DateTimeFormatOptions;
             return new Date(date).toLocaleDateString('es-ES', options);
           }}
         />
         <YAxis dataKey="price" />
         <Tooltip />
         {/* <Legend /> */}
-        <Bar dataKey="price" fill="#2e7d96" barSize={60} shape={(props) => (
-          <RoundBar
-            x={props.x}
-            y={props.y}
-            width={props.width}
-            height={props.height}
-          />
-        )} />
+        <Bar
+          dataKey="price"
+          fill="#2e7d96"
+          barSize={60}
+          shape={(props: any) => (
+            <RoundBar
+              x={props.x}
+              y={props.y}
+              width={props.width}
+              height={props.height}
+            />
+          )}
+        />
       </BarChart>
     </ResponsiveContainer>
   );
@@ -91,7 +116,15 @@ const RoundBar: React.FC<RoundBarProps> = (props) => {
   const { x, y, width, height } = props;
   return (
     <g>
-      <rect x={x} y={y} width={width} height={height} rx={8} ry={8} fill="#2e7d96" />
+      <rect
+        x={x}
+        y={y}
+        width={width}
+        height={height}
+        rx={8}
+        ry={8}
+        fill="#2e7d96"
+      />
     </g>
   );
 };

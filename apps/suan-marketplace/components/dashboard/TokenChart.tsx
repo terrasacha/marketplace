@@ -1,7 +1,15 @@
 // Grafica de volumen
 
 import React from 'react';
-import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer} from 'recharts';
+import {
+  BarChart,
+  Bar,
+  XAxis,
+  YAxis,
+  CartesianGrid,
+  Tooltip,
+  ResponsiveContainer,
+} from 'recharts';
 
 interface TransactionData {
   tokenName: string;
@@ -38,25 +46,29 @@ interface AreaChartProps {
 }
 
 const BarChartComponent: React.FC<AreaChartProps> = ({ selectedElement }) => {
-
   if (!selectedElement) {
     return null; // Manejar el caso cuando no se ha seleccionado ningún elemento
   }
   const { transactionDetails } = selectedElement;
 
-
   // Obtener el histórico de precios del token
-  const historicalDataFeature = transactionDetails[0].product.productFeatures.items.find(item => item.featureID === "GLOBAL_TOKEN_HISTORICAL_DATA");
-  const historicalData = historicalDataFeature ? JSON.parse(historicalDataFeature.value) : [];
+  const historicalDataFeature =
+    transactionDetails[0].product.productFeatures.items.find(
+      (item) => item.featureID === 'GLOBAL_TOKEN_HISTORICAL_DATA'
+    );
+  const historicalData = historicalDataFeature
+    ? JSON.parse(historicalDataFeature.value)
+    : [];
 
   // Preparar los datos para el gráfico
-  const chartData = historicalData.map((valueObj: { date: string; amount: number }) => ({
-    date: valueObj.date,
-    amount: valueObj.amount,
-  }));
+  const chartData = historicalData.map(
+    (valueObj: { date: string; amount: number }) => ({
+      date: valueObj.date,
+      amount: valueObj.amount,
+    })
+  );
 
-
-  console.log(chartData, "barra volumen")
+  console.log(chartData, 'barra volumen');
 
   return (
     <ResponsiveContainer width="100%" height={300}>
@@ -65,21 +77,30 @@ const BarChartComponent: React.FC<AreaChartProps> = ({ selectedElement }) => {
         <XAxis
           dataKey="date"
           tickFormatter={(date) => {
-            const options = { year: 'numeric', month: '2-digit', day: '2-digit' } as Intl.DateTimeFormatOptions;
+            const options = {
+              year: 'numeric',
+              month: '2-digit',
+              day: '2-digit',
+            } as Intl.DateTimeFormatOptions;
             return new Date(date).toLocaleDateString('es-ES', options);
           }}
         />
         <YAxis dataKey="amount" />
         <Tooltip />
         {/* <Legend /> */}
-        <Bar dataKey="amount" fill="#2e966a" barSize={60} shape={(props) => (
-          <RoundBar
-            x={props.x}
-            y={props.y}
-            width={props.width}
-            height={props.height}
-          />
-        )} />
+        <Bar
+          dataKey="amount"
+          fill="#2e966a"
+          barSize={60}
+          shape={(props: any) => (
+            <RoundBar
+              x={props.x}
+              y={props.y}
+              width={props.width}
+              height={props.height}
+            />
+          )}
+        />
       </BarChart>
     </ResponsiveContainer>
   );
@@ -98,7 +119,15 @@ const RoundBar: React.FC<RoundBarProps> = (props) => {
   const { x, y, width, height } = props;
   return (
     <g>
-      <rect x={x} y={y} width={width} height={height} rx={8} ry={8} fill="#2e966a" />
+      <rect
+        x={x}
+        y={y}
+        width={width}
+        height={height}
+        rx={8}
+        ry={8}
+        fill="#2e966a"
+      />
     </g>
   );
 };
