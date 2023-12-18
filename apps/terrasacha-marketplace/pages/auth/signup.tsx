@@ -1,0 +1,30 @@
+import React, { useState, useEffect } from 'react';
+import SignUpForm from '../../components/auth/SignUpForm';
+import Title from '../../components/auth/Title';
+import ConfirmPassword from '../../components/auth/ConfirmPassword';
+import { MyPage } from '../../components/common/types';
+import { signUpAuth } from '../../backend';
+
+const Signup: MyPage = (props: any) => {
+  const [signUpStatus, setSignUpStatus] = useState('signup');
+  const handleSetSignUpStatus = (data: string) => {
+    setSignUpStatus(data);
+  };
+  return (
+    <div
+      className="w-full h-screen flex justify-center items-center bg-slate-200"
+      style={{
+        backgroundImage: `url(/images/home-page/fondo_signup.jpg)`,
+        backgroundPosition: 'center',
+      }}
+    >
+      <div className="h-auto w-[90%] lg:w-[90%] 2xl:w-[80%] 3xl:w-[70%] flex justify-center 2xl:justify-between">
+        <Title />
+        <SignUpForm handleSetSignUpStatus={handleSetSignUpStatus} />
+      </div>
+    </div>
+  );
+};
+
+export default Signup;
+Signup.Layout = 'NoLayout';

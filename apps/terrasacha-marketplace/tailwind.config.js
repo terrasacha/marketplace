@@ -1,9 +1,17 @@
 module.exports = {
-  mode: 'jit',
-  content: ['./*/**/*.{js,ts,jsx,tsx,html,css}',
-    ],
+  content: [
+    "/node_modules/flowbite-react/**/*.{js,jsx,ts,tsx}",
+    "/node_modules/flowbite/**/*.{js,jsx,ts,tsx}",
+    './*/**/*.{js,ts,jsx,tsx,html,css}'
+  ],
   theme: {
-    extend: {},
+    extend: {
+      height: {
+        '300': '300px',
+      },
+    },
   },
-  plugins: [],
+  plugins: [
+    require('flowbite/plugin')
+  ],
 };

@@ -1,0 +1,20 @@
+{
+  "dev": {
+    "awscloudformation": {
+      "AuthRoleName": "amplify-terrasachamarketplac-dev-111505-authRole",
+      "UnauthRoleArn": "arn:aws:iam::036134507423:role/amplify-terrasachamarketplac-dev-111505-unauthRole",
+      "AuthRoleArn": "arn:aws:iam::036134507423:role/amplify-terrasachamarketplac-dev-111505-authRole",
+      "Region": "us-east-1",
+      "DeploymentBucketName": "amplify-terrasachamarketplac-dev-111505-deployment",
+      "UnauthRoleName": "amplify-terrasachamarketplac-dev-111505-unauthRole",
+      "StackName": "amplify-terrasachamarketplac-dev-111505",
+      "StackId": "arn:aws:cloudformation:us-east-1:036134507423:stack/amplify-terrasachamarketplac-dev-111505/d9c50730-9daf-11ee-ae90-121c7c03ae79",
+      "AmplifyAppId": "dpthnm0kh5f8o"
+    },
+    "categories": {
+      "auth": {
+        "terrasachamarketplacbeb13ca4": {}
+      }
+    }
+  }
+}
