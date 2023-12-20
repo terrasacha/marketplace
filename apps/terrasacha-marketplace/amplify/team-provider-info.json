@@ -13,11 +13,11 @@
     },
     "categories": {
       "auth": {
-        "terrasachamarketplac41f8ccea": {
-          "userPoolId": "us-east-1_6iiGRRqTC",
-          "userPoolName": "nxapplication2617aeee3_userpool_617aeee3-dev",
-          "webClientId": "175ptndrfgu27ovql6siqfamkp",
-          "nativeClientId": "2pktffivovvsjucetj384l8vdq"
+        "terrasachamarketplac76d15e14": {
+          "userPoolId": "us-east-1_DFaBfYrB1",
+          "userPoolName": "kiosuanbcrjsappa6accc93_userpool_a6accc93-dev",
+          "webClientId": "5nhkci304gu0ckt550eo6l0103",
+          "nativeClientId": "5llsqe9bsaq5jls57blv6v1bjc"
         }
       }
     }

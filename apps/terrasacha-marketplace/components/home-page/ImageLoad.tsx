@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react';
 import Image from 'next/image';
-import { getImages } from '@marketplaces/data-access';
+import { getImages } from '../../backend'; //@marketplaces/data-access
 
 export default function S3Image(props: any) {
   const [imageData, setImageData] = useState<string | undefined>(undefined);

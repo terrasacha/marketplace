@@ -1,6 +1,6 @@
 {
   "auth": {
-    "terrasachamarketplac41f8ccea": {
+    "terrasachamarketplac76d15e14": {
       "customAuth": false,
       "dependsOn": [],
       "providerPlugin": "awscloudformation",
@@ -9,35 +9,35 @@
     }
   },
   "parameters": {
-    "AMPLIFY_auth_terrasachamarketplac41f8ccea_nativeClientId": {
+    "AMPLIFY_auth_terrasachamarketplac76d15e14_nativeClientId": {
       "usedBy": [
         {
           "category": "auth",
-          "resourceName": "terrasachamarketplac41f8ccea"
+          "resourceName": "terrasachamarketplac76d15e14"
         }
       ]
     },
-    "AMPLIFY_auth_terrasachamarketplac41f8ccea_userPoolId": {
+    "AMPLIFY_auth_terrasachamarketplac76d15e14_userPoolId": {
       "usedBy": [
         {
           "category": "auth",
-          "resourceName": "terrasachamarketplac41f8ccea"
+          "resourceName": "terrasachamarketplac76d15e14"
         }
       ]
     },
-    "AMPLIFY_auth_terrasachamarketplac41f8ccea_userPoolName": {
+    "AMPLIFY_auth_terrasachamarketplac76d15e14_userPoolName": {
       "usedBy": [
         {
           "category": "auth",
-          "resourceName": "terrasachamarketplac41f8ccea"
+          "resourceName": "terrasachamarketplac76d15e14"
         }
       ]
     },
-    "AMPLIFY_auth_terrasachamarketplac41f8ccea_webClientId": {
+    "AMPLIFY_auth_terrasachamarketplac76d15e14_webClientId": {
       "usedBy": [
         {
           "category": "auth",
-          "resourceName": "terrasachamarketplac41f8ccea"
+          "resourceName": "terrasachamarketplac76d15e14"
         }
       ]
     }

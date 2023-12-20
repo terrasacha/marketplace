@@ -85,14 +85,6 @@ const GenerateWordsStep = (props: any) => {
           </div>
           <div className="flex w-full justify-end mt-6">
             <Button
-              className="px-8"
-              color="gray"
-              onClick={() => setCurrentSection(1)}
-            >
-              Vover
-            </Button>
-
-            <Button
               className="px-8 ml-4"
               disabled={!isChecked}
               onClick={() => setCurrentSection(3)}

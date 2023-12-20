@@ -1,5 +1,5 @@
 import React, { useEffect, useContext } from 'react';
-import { getImagesCategories, getProject } from '@marketplaces/data-access';
+import { getImagesCategories, getProject } from '../../../../backend'; //@marketplaces/data-access
 import PaymentPage from '../../../../components/payments/PaymentPage';
 import PageHeader from '../../../../components/common/PageHeader';
 import ProjectInfoContext from '../../../../store/projectinfo-context';
