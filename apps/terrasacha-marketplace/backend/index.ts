@@ -235,7 +235,7 @@ export async function getProjects() {
       graphqlEndpoint,
       {
         query: `query getProjects {
-          listProducts(filter: {isActive: {eq: true}}) {
+          listProducts(filter: {isActive: {eq: true}, showOn: {eq: "Terrasacha"}}) {
             nextToken
             items {
               id
@@ -246,6 +246,7 @@ export async function getProjects() {
               }
               name
               status
+              showOn
               updatedAt
               createdAt
               images {
