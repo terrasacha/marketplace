@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import Link from 'next/link';
 import Image from 'next/image';
 import { useRouter } from 'next/router';
+
 const initialStateErrors = { loginError: '' };
 
 export interface LoginFormProps {
@@ -56,7 +57,9 @@ const LoginForm = (props: LoginFormProps) => {
           alt={`${appName} Logo`}
         />
       </div>
-      <h2 className="text-3xl font-normal pb-2">Bienvenido a {appName}</h2>
+      <h2 className="text-3xl font-normal pb-2 text-red-500">
+        Bienvenido a {appName}
+      </h2>
       <h4 className="text-1xl font-normal">Ingrese sus datos</h4>
       <p
         className={`${
