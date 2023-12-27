@@ -1,6 +1,6 @@
 /* import LoginForm from '../../components/auth/LogInForm'; */
 import { MyPage } from '../../components/common/types';
-import { LoginForm, Title } from '@marketplaces/ui-lib/server';
+import { LoginForm, Title } from '@marketplaces/ui-lib';
 import { signInAuth } from '../../backend';
 const Login = (props: any) => {
   return (
