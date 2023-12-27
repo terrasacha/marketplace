@@ -1,5 +1,4 @@
 import React, { useState, useEffect } from 'react';
-import ConfirmPassword from '../../components/auth/ConfirmPassword';
 import { MyPage } from '../../components/common/types';
 import { signUpAuth } from '../../backend';
 import { SignUpForm, Title } from '@marketplaces/ui-lib';
