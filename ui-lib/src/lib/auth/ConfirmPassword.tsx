@@ -2,8 +2,16 @@
 import React, { useState } from 'react';
 import Link from 'next/link';
 import Image from 'next/image';
-import { forgotPassword, forgotPasswordSubmit } from '../../backend';
 import { useRouter } from 'next/router';
+
+export interface ConfirmPasswordProps {
+  logo: string;
+  widthLogo: number;
+  heightLogo: number;
+  appName: string;
+  forgotPasswordSubmit: any;
+  forgotPassword: any;
+}
 const initialStateErrors = { usernameError: '' };
 const initialStateloginForm = { username: '' };
 const initialStateLoginFormRecovery = {
@@ -11,7 +19,15 @@ const initialStateLoginFormRecovery = {
   confirmationCode: '',
   newPassword: '',
 };
-const ConfirmPassword = () => {
+const ConfirmPassword = (props: ConfirmPasswordProps) => {
+  const {
+    logo,
+    widthLogo,
+    heightLogo,
+    appName,
+    forgotPassword,
+    forgotPasswordSubmit,
+  } = props;
   const router = useRouter();
   const [loginForm, setLoginForm] = useState<any>(initialStateloginForm);
   const [errors, setErrors] = useState<any>(initialStateErrors);
@@ -69,11 +85,10 @@ const ConfirmPassword = () => {
     <div className="bg-white rounded-2xl w-[35rem] max-w-[35rem] 2xl:w-[38%] py-10 px-12 sm:px-20 h-auto flex flex-col justify-center">
       <div className="w-full flex justify-center mb-8">
         <Image
-          src="/images/home-page/suan-logo.png"
-          width={200}
-          height={20}
-          className="h-20"
-          alt="SUAN Logo"
+          src={logo}
+          width={widthLogo}
+          height={heightLogo}
+          alt={`${appName} Logo`}
         />
       </div>
       {actualStep === 1 && (

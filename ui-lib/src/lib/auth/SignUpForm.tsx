@@ -2,16 +2,28 @@
 import React, { useState, useEffect } from 'react';
 import Image from 'next/image';
 import Link from 'next/link';
-import { signUpAuth } from '../../backend';
 import { useRouter } from 'next/router';
 import { Label, Select } from 'flowbite-react';
 
 interface SignUpFormProps {
   handleSetSignUpStatus: (data: string) => void;
+  logo: string;
+  widthLogo: number;
+  heightLogo: number;
+  appName: string;
+  signUpAuth: any;
 }
 const initialStateErrors = { confirmPassword: '', createUserError: '' };
 
-const SignUpForm: React.FC<SignUpFormProps> = ({ handleSetSignUpStatus }) => {
+const SignUpForm = (props: SignUpFormProps) => {
+  const {
+    handleSetSignUpStatus,
+    logo,
+    widthLogo,
+    heightLogo,
+    appName,
+    signUpAuth,
+  } = props;
   const router = useRouter();
   const [signupForm, setSignupForm] = useState<any>({
     username: '',
@@ -47,8 +59,8 @@ const SignUpForm: React.FC<SignUpFormProps> = ({ handleSetSignUpStatus }) => {
       }));
     }
     signUpAuth(signupForm)
-      .then((data) => handleSetSignUpStatus('confirmpassword'))
-      .catch((error) => {
+      .then((data: any) => handleSetSignUpStatus('confirmpassword'))
+      .catch((error: any) => {
         if (error.name === 'UsernameExistsException') {
           return setErrors((preForm: any) => ({
             ...preForm,
@@ -67,11 +79,10 @@ const SignUpForm: React.FC<SignUpFormProps> = ({ handleSetSignUpStatus }) => {
     <div className="bg-white rounded-2xl w-[35rem] max-w-[35rem] 2xl:w-[38%] py-10 px-12 sm:px-20 h-auto flex flex-col justify-center">
       <div className="w-full flex justify-center mb-8">
         <Image
-          src="/images/home-page/suan-logo.png"
-          width={200}
-          height={20}
-          className="h-20"
-          alt="SUAN Logo"
+          src={logo}
+          width={widthLogo}
+          height={heightLogo}
+          alt={`${appName} logo`}
         />
       </div>
       <h2 className="text-3xl font-normal pb-2">Regístrate</h2>

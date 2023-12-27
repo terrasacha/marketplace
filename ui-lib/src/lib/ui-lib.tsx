@@ -1,16 +1,5 @@
-import styles from './ui-lib.module.css';
-
-/* eslint-disable-next-line */
-export interface UiLibProps {
-  className?: string;
-}
-
-export function UiLib(props: UiLibProps) {
-  return (
-    <div /* className={styles['container']} */ className={props.className}>
-      <h1>Welcome to UiLib!</h1>
-    </div>
-  );
-}
-
-export default UiLib;
+import LoginForm from './auth/LoginForm';
+import SignUpForm from './auth/SignUpForm';
+import Title from './auth/Title';
+import ConfirmPassword from './auth/ConfirmPassword';
+export { LoginForm, SignUpForm, Title, ConfirmPassword };

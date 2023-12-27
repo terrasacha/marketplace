@@ -1,11 +1,20 @@
-// components/LoginForm.tsx
 import React, { useState } from 'react';
 import Link from 'next/link';
 import Image from 'next/image';
-import { signInAuth } from '../../backend';
 import { useRouter } from 'next/router';
 const initialStateErrors = { loginError: '' };
-const LoginForm = () => {
+
+export interface LoginFormProps {
+  logo: string;
+  widthLogo: number;
+  heightLogo: number;
+  signInAuth: any;
+  appName: string;
+}
+
+const LoginForm = (props: LoginFormProps) => {
+  const { logo, widthLogo, heightLogo, appName } = props;
+  const { signInAuth } = props;
   const router = useRouter();
   const [loginForm, setLoginForm] = useState<any>({
     username: '',
@@ -22,7 +31,7 @@ const LoginForm = () => {
   };
   const submitForm = async () => {
     signInAuth(loginForm)
-      .then((data) => {
+      .then((data: any) => {
         if (data) {
           const isFromGenerateWallet =
             router.query.fromGenerateWallet === 'true';
@@ -30,7 +39,7 @@ const LoginForm = () => {
           return router.push('/');
         }
       })
-      .catch((error) => {
+      .catch((error: any) => {
         setErrors((preForm: any) => ({
           ...preForm,
           loginError: error.name,
@@ -41,14 +50,13 @@ const LoginForm = () => {
     <div className="bg-white rounded-2xl w-[35rem] max-w-[35rem] 2xl:w-[38%] py-10 px-12 sm:px-20 h-auto flex flex-col justify-center">
       <div className="w-full flex justify-center mb-8">
         <Image
-          src="/images/home-page/suan-logo.png"
-          width={200}
-          height={20}
-          className="h-20"
-          alt="SUAN Logo"
+          src={logo}
+          width={widthLogo}
+          height={heightLogo}
+          alt={`${appName} Logo`}
         />
       </div>
-      <h2 className="text-3xl font-normal pb-2">Bienvenido a Suan</h2>
+      <h2 className="text-3xl font-normal pb-2">Bienvenido a {appName}</h2>
       <h4 className="text-1xl font-normal">Ingrese sus datos</h4>
       <p
         className={`${
@@ -129,5 +137,4 @@ const LoginForm = () => {
     </div>
   );
 };
-
 export default LoginForm;

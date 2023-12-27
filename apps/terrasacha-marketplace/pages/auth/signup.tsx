@@ -1,10 +1,8 @@
 import React, { useState, useEffect } from 'react';
-import SignUpForm from '../../components/auth/SignUpForm';
-import Title from '../../components/auth/Title';
 import ConfirmPassword from '../../components/auth/ConfirmPassword';
 import { MyPage } from '../../components/common/types';
 import { signUpAuth } from '../../backend';
-
+import { SignUpForm, Title } from '@marketplaces/ui-lib';
 const Signup: MyPage = (props: any) => {
   const [signUpStatus, setSignUpStatus] = useState('signup');
   const handleSetSignUpStatus = (data: string) => {
@@ -20,7 +18,14 @@ const Signup: MyPage = (props: any) => {
     >
       <div className="h-auto w-[90%] lg:w-[90%] 2xl:w-[80%] 3xl:w-[70%] flex justify-center 2xl:justify-between">
         <Title />
-        <SignUpForm handleSetSignUpStatus={handleSetSignUpStatus} />
+        <SignUpForm
+          handleSetSignUpStatus={handleSetSignUpStatus}
+          logo="/images/home-page/terrasacha_logo_principal.png"
+          widthLogo={250}
+          heightLogo={20}
+          signUpAuth={signUpAuth}
+          appName="Terrasacha"
+        />
       </div>
     </div>
   );

@@ -3,7 +3,6 @@ import React, { useState, useEffect } from 'react';
 import { Button } from 'flowbite-react';
 import Link from 'next/link';
 import { getCurrentUser } from 'aws-amplify/auth';
-import { UiLib } from '@marketplaces/ui-lib';
 const WelcomeCard = (props: any) => {
   const [isAuthenticated, setIsAuthenticated] = useState(null) as any;
 
@@ -65,7 +64,6 @@ const WelcomeCard = (props: any) => {
         <Button className="w-full" color="light">
           Generar billetera
         </Button>
-        <UiLib className="bg-red-500" />
       </Link>
     </div>
   );
