@@ -15,7 +15,9 @@
     "skipDefaultLibCheck": true,
     "baseUrl": ".",
     "paths": {
-      "@marketplaces/data-access": ["data-access/src/index.ts"]
+      "@marketplaces/data-access": ["data-access/src/index.ts"],
+      "@marketplaces/ui-lib": ["ui-lib/src/index.ts"],
+      "@marketplaces/ui-lib/server": ["ui-lib/src/server.ts"]
     }
   },
   "exclude": ["node_modules", "tmp"]
