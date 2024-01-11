@@ -1,6 +1,6 @@
 import React from 'react';
 import { getCategories, getProjects } from '../../backend'; // @marketplaces/data-access
-import HomeContainer from '../../components/home-page/HomeContainer';
+import HomeContainer from '@terrasacha/components/home-page/HomeContainer';
 import { MyPage } from '../../components/common/types';
 
 const Home: MyPage = (props: any) => {
