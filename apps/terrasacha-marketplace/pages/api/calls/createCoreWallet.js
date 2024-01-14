@@ -1,4 +1,4 @@
-import { createCoreWallet } from "../../../backend" //@marketplaces/data-access
+import { createCoreWallet } from '../../../backend/index'
 
 export default async function handler(req,res){
     const response = await createCoreWallet(req.query.walletID, req.query.walletName)

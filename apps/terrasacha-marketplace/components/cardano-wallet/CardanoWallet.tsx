@@ -24,7 +24,7 @@ export default function CardanoWallet() {
           disconnect()
           sessionStorage.removeItem('preferredWalletSuan')
           router.push('/')
-           }} color="failure">
+           }} color="failure" className="m3">
           <WalletOffIcon className="mr-2 h-5 w-5"></WalletOffIcon>
           Desconectar
         </Button>

@@ -2,7 +2,6 @@ import React, { useState, useEffect } from 'react';
 import Link from 'next/link';
 import Image from 'next/image';
 import { useRouter } from 'next/router';
-import { getProjects } from '@marketplaces/data-access';
 const initialStateErrors = { loginError: '' };
 
 export interface LoginFormProps {
@@ -124,14 +123,6 @@ const LoginForm = (props: LoginFormProps) => {
           ¿Olvidaste tu contraseña?
         </Link>
       </p>
-      <button
-        className="px-4 py-2 border font-light"
-        onClick={() => {
-          getProjects().then((data) => console.log(data));
-        }}
-      >
-        Get Projects
-      </button>
     </div>
   );
 };

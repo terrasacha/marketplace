@@ -1,7 +1,7 @@
 // pages/dashboard/index.tsx
 import Dashboard from '../../components/dashboard/Dashboard';
-import { getTransactions } from '@marketplaces/data-access';
-import { MyPage } from '../../components/common/types';
+import { getTransactions } from '@terrasacha/backend';
+import { MyPage } from '@terrasacha/components/common/types';
 
 const DashboardPage: MyPage = (props: any) => {
   const transactions = props.transactions;

@@ -11,7 +11,7 @@ import {
   Transaction,
 } from "@meshsdk/core";
 
-import { bankWalletAddress } from "../../../backend/mint";
+import { bankWalletAddress } from "@terrasacha/backend/mint";
 /* import { integer } from "aws-sdk/clients/cloudfront"; */
 
 export default async function handler(

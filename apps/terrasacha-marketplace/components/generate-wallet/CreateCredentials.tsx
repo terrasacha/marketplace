@@ -2,7 +2,7 @@ import React, { useState, useContext } from 'react';
 import { Button } from 'flowbite-react';
 import { FaPen } from 'react-icons/fa';
 import { BsFillEyeFill, BsFillEyeSlashFill } from 'react-icons/bs';
-import NewWalletContext from '../../store/generate-new-wallet-context';
+import NewWalletContext from '@terrasacha/store/generate-new-wallet-context';
 import { set } from 'lodash';
 
 const deafultState = { walletname: '', password: '', passwordConfirm: '' };
@@ -67,7 +67,9 @@ const CreateCredentials = (props: any) => {
   return (
     <div>
       <section className="flex justify-between pb-2">
-        <h2 className="text-2xl font-semibold">Crea tu billetera de Cardano</h2>
+        <h2 className="text-2xl font-semibold text-center w-full">
+          Crea tu billetera de Cardano
+        </h2>
       </section>
       <label className="font-semibold text-slate-600">
         Nombre de la billetera{' '}
@@ -152,7 +154,7 @@ const CreateCredentials = (props: any) => {
           </p>
         </div>
       </div>
-      <div className="flex w-full justify-end mt-6">
+      <div className="flex w-full justify-center mt-6">
         <Button
           className="px-8"
           color="gray"

@@ -1,6 +1,6 @@
 {
   "auth": {
-    "terrasachamarketplac76d15e14": {
+    "kiosuanwalletnjsapp0c07f185": {
       "customAuth": false,
       "dependsOn": [],
       "providerPlugin": "awscloudformation",
@@ -9,35 +9,91 @@
     }
   },
   "parameters": {
-    "AMPLIFY_auth_terrasachamarketplac76d15e14_nativeClientId": {
+    "AMPLIFY_auth_kiosuanwalletnjsapp0c07f185_allowUnauthenticatedIdentities": {
       "usedBy": [
         {
           "category": "auth",
-          "resourceName": "terrasachamarketplac76d15e14"
+          "resourceName": "kiosuanwalletnjsapp0c07f185"
         }
       ]
     },
-    "AMPLIFY_auth_terrasachamarketplac76d15e14_userPoolId": {
+    "AMPLIFY_auth_kiosuanwalletnjsapp0c07f185_authRoleArn": {
       "usedBy": [
         {
           "category": "auth",
-          "resourceName": "terrasachamarketplac76d15e14"
+          "resourceName": "kiosuanwalletnjsapp0c07f185"
         }
       ]
     },
-    "AMPLIFY_auth_terrasachamarketplac76d15e14_userPoolName": {
+    "AMPLIFY_auth_kiosuanwalletnjsapp0c07f185_authRoleName": {
       "usedBy": [
         {
           "category": "auth",
-          "resourceName": "terrasachamarketplac76d15e14"
+          "resourceName": "kiosuanwalletnjsapp0c07f185"
         }
       ]
     },
-    "AMPLIFY_auth_terrasachamarketplac76d15e14_webClientId": {
+    "AMPLIFY_auth_kiosuanwalletnjsapp0c07f185_identityPoolId": {
       "usedBy": [
         {
           "category": "auth",
-          "resourceName": "terrasachamarketplac76d15e14"
+          "resourceName": "kiosuanwalletnjsapp0c07f185"
+        }
+      ]
+    },
+    "AMPLIFY_auth_kiosuanwalletnjsapp0c07f185_identityPoolName": {
+      "usedBy": [
+        {
+          "category": "auth",
+          "resourceName": "kiosuanwalletnjsapp0c07f185"
+        }
+      ]
+    },
+    "AMPLIFY_auth_kiosuanwalletnjsapp0c07f185_nativeClientId": {
+      "usedBy": [
+        {
+          "category": "auth",
+          "resourceName": "kiosuanwalletnjsapp0c07f185"
+        }
+      ]
+    },
+    "AMPLIFY_auth_kiosuanwalletnjsapp0c07f185_unauthRoleArn": {
+      "usedBy": [
+        {
+          "category": "auth",
+          "resourceName": "kiosuanwalletnjsapp0c07f185"
+        }
+      ]
+    },
+    "AMPLIFY_auth_kiosuanwalletnjsapp0c07f185_unauthRoleName": {
+      "usedBy": [
+        {
+          "category": "auth",
+          "resourceName": "kiosuanwalletnjsapp0c07f185"
+        }
+      ]
+    },
+    "AMPLIFY_auth_kiosuanwalletnjsapp0c07f185_userPoolId": {
+      "usedBy": [
+        {
+          "category": "auth",
+          "resourceName": "kiosuanwalletnjsapp0c07f185"
+        }
+      ]
+    },
+    "AMPLIFY_auth_kiosuanwalletnjsapp0c07f185_userPoolName": {
+      "usedBy": [
+        {
+          "category": "auth",
+          "resourceName": "kiosuanwalletnjsapp0c07f185"
+        }
+      ]
+    },
+    "AMPLIFY_auth_kiosuanwalletnjsapp0c07f185_webClientId": {
+      "usedBy": [
+        {
+          "category": "auth",
+          "resourceName": "kiosuanwalletnjsapp0c07f185"
         }
       ]
     }

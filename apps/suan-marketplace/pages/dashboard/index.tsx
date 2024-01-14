@@ -1,7 +1,7 @@
 // pages/dashboard/index.tsx
 import Dashboard from '../../components/dashboard/Dashboard';
-import { getTransactions } from '../../backend';
-import { MyPage } from '../../components/common/types';
+import { getTransactions } from '@suan//backend';
+import { MyPage } from '@suan//components/common/types';
 
 const DashboardPage: MyPage = (props: any) => {
   const transactions = props.transactions;

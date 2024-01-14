@@ -6,18 +6,18 @@ import { OrderDetailSection } from './OrderDetailSection';
 import { SelectPaymentMethodSection } from './SelectPaymentMethodSection';
 import { useWallet } from '@meshsdk/react';
 import { useEffect, useState } from 'react';
-import { coingeckoPrices } from '../../utils/suan/oracle';
-import { featureMapping } from '../../utils/suan/mappings';
-import { getIpfsUrlHash } from '../../utils/generic/ipfs';
-import { splitLongValues, txHashLink } from '../../utils/generic/conversions';
-import ProjectInfoContext from '../../store/projectinfo-context';
+import { coingeckoPrices } from '@suan//utils/suan/oracle';
+import { featureMapping } from '@suan//utils/suan/mappings';
+import { getIpfsUrlHash } from '@suan//utils/generic/ipfs';
+import { splitLongValues, txHashLink } from '@suan//utils/generic/conversions';
+import ProjectInfoContext from '@suan//store/projectinfo-context';
 import AlertMessage from '../common/AlertMessage';
 import {
   createMintingTransaction,
   createTransaction,
   sign,
-} from '../../backend';
-import { cardanoscan } from '../../backend/mint';
+} from '@suan//backend';
+import { cardanoscan } from '@suan//backend/mint';
 import { BlockfrostProvider } from '@meshsdk/core';
 import Link from 'next/link';
 

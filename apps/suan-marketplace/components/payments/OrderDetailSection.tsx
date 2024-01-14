@@ -40,7 +40,7 @@ export function OrderDetailSection({
           </div>
           <div className="flex justify-between">
             <span>Precio</span>
-            <span>{tokenPrice || 0} {tokenCurrency}</span>
+            <span>{tokenPrice.toLocaleString("es-CO") || 0} {tokenCurrency}</span>
           </div>
           <div className="flex justify-between">
             <span>Cantidad</span>
@@ -49,14 +49,14 @@ export function OrderDetailSection({
           <div className="flex justify-between">
             <span>Subtotal</span>
             <span>
-              {subTotalUSD || 0} {tokenCurrency} {selectedMethod === "Cardano" && "≈ " + (subTotalADA || 0) + " ADAs"}
+              {(subTotalUSD || 0).toLocaleString("es-CO")} {tokenCurrency} {selectedMethod === "Cardano" && "≈ " + (subTotalADA || 0).toLocaleString("es-CO") + " ADAs"}
             </span>
           </div>
           {
             selectedMethod === "Cardano" && (
               <div className="flex justify-between">
                 <span>Network Fees</span>
-                <span>{feesUSD || 0} {tokenCurrency} ≈ {feesADA || 0} ADAs</span>
+                <span>{(feesUSD || 0).toLocaleString("es-CO")} {tokenCurrency} ≈ {(feesADA || 0).toLocaleString("es-CO")} ADAs</span>
               </div>
             )
           }
@@ -64,7 +64,7 @@ export function OrderDetailSection({
             selectedMethod === "CC" && (
               <div className="flex justify-between">
                 <span>Fees</span>
-                <span>{feesUSD || 0} {tokenCurrency}</span>
+                <span>{(feesUSD || 0).toLocaleString("es-CO")} {tokenCurrency}</span>
               </div>
             )
           }
@@ -72,7 +72,7 @@ export function OrderDetailSection({
           <div className="flex justify-between items-center">
             <span className="text-2xl">Total</span>
             <span className="font-bold">
-              {!selectedMethod ? subTotalUSD || 0: totalUSD || 0} {tokenCurrency} {selectedMethod === "Cardano" && "≈ " + (totalADA || 0) + " ADAs"}
+              {!selectedMethod ? (subTotalUSD || 0).toLocaleString("es-CO") : (totalUSD || 0).toLocaleString("es-CO")} {tokenCurrency} {selectedMethod === "Cardano" && "≈ " + (totalADA || 0).toLocaleString("es-CO") + " ADAs"}
             </span>
           </div>
         </div>
@@ -80,7 +80,7 @@ export function OrderDetailSection({
       {exchangeRate && (
         <div className="text-right">
           <span className="text-xs text-right">
-            1 ADAs ≈ {exchangeRate} {tokenCurrency}
+            1 ADAs ≈ {exchangeRate.toLocaleString("es-CO")} {tokenCurrency}
           </span>
         </div>
       )}

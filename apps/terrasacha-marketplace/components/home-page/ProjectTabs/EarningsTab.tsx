@@ -1,9 +1,9 @@
 const EarningsTab: React.FC<any> = ({ earningsData }) => {
   return (
-    <ul className="info-list flex justify-around sm:flex-row flex-col">
+    <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
       {earningsData.map((item: any, index: number) => {
         return (
-          <li key={index}>
+          <div key={index}>
             <div className="item-icon"></div>
             <div className="item-info flex my-2 py-2">
               <svg
@@ -25,10 +25,10 @@ const EarningsTab: React.FC<any> = ({ earningsData }) => {
                 <p className="item-infoTitle text-[#484848]">{item.CONCEPTO}</p>
               </div>
             </div>
-          </li>
+          </div>
         );
       })}
-    </ul>
+    </div>
   );
 };
 

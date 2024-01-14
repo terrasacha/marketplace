@@ -1,7 +1,7 @@
 'use client';
 
-import { BillingCard } from '../../components/payments/BillingCard';
-import { BuyTokenCard } from '../../components/payments/BuyTokenCard';
+import { BillingCard } from '@terrasacha/components/payments/BillingCard';
+import { BuyTokenCard } from '@terrasacha/components/payments/BuyTokenCard';
 import { useState } from 'react';
 
 export default function PaymentPage({}) {

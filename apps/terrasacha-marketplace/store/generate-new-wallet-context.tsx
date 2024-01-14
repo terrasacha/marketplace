@@ -10,8 +10,9 @@ export function NewWalletProvider({ children }: { children: React.ReactNode }) {
   }) as any[];
   const [words, setWords] = useState(null) as any[];
   const [loading, setLoading] = useState(false) as any[];
-  const array = Array(24).fill("");
-  const [recoveryWords, setRecoveryWords] = useState(array) as any[];
+  const [recoveryWords, setRecoveryWords] = useState(
+    Array(24).fill("")
+  ) as any[];
   const [nextRecoveryWordIndex, setNextRecoveryWordIndex] = useState(
     recoveryWords.indexOf("")
   ) as any[];

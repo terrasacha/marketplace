@@ -15,11 +15,11 @@
     "skipDefaultLibCheck": true,
     "baseUrl": ".",
     "paths": {
-      "@terrasacha/*": ["apps/terrasacha-marketplace/*"],
-      "@suan/*": ["apps/suan-marketplace/*"],
       "@marketplaces/data-access": ["data-access/src/index.ts"],
       "@marketplaces/ui-lib": ["ui-lib/src/index.ts"],
-      "@marketplaces/ui-lib/server": ["ui-lib/src/server.ts"]
+      "@marketplaces/ui-lib/server": ["ui-lib/src/server.ts"],
+      "@suan/*": ["apps/suan-marketplace/*"],
+      "@terrasacha/*": ["apps/terrasacha-marketplace/*"]
     }
   },
   "exclude": ["node_modules", "tmp"]

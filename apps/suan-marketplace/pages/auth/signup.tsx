@@ -1,9 +1,9 @@
 import React, { useState, useEffect } from 'react';
-import SignUpForm from '../../components/auth/SignUpForm';
-import Title from '../../components/auth/Title';
-import ConfirmPassword from '../../components/auth/ConfirmPassword';
-import { MyPage } from '../../components/common/types';
-import { signUpAuth } from '../../backend';
+import dynamic from 'next/dynamic';
+const SignUpForm = dynamic(() => import('@suan//components/auth/SignUpForm'));
+import Title from '@suan//components/auth/Title';
+import { MyPage } from '@suan//components/common/types';
+import Image from 'next/image';
 
 const Signup: MyPage = (props: any) => {
   const [signUpStatus, setSignUpStatus] = useState('signup');
@@ -11,14 +11,15 @@ const Signup: MyPage = (props: any) => {
     setSignUpStatus(data);
   };
   return (
-    <div
-      className="w-full h-screen flex justify-center items-center bg-slate-200"
-      style={{
-        backgroundImage: `url(/images/home-page/fondo_signup.jpg)`,
-        backgroundPosition: 'center',
-      }}
-    >
-      <div className="h-auto w-[90%] lg:w-[90%] 2xl:w-[80%] 3xl:w-[70%] flex justify-center 2xl:justify-between">
+    <div className="w-full min-h-screen flex justify-center items-center bg-slate-200">
+      <Image
+        priority={true}
+        src="/images/home-page/fondo_signup.avif"
+        alt="landing-suan-image"
+        fill
+        style={{ objectFit: 'cover', objectPosition: 'center', zIndex: '0' }}
+      />
+      <div className="h-auto w-[90%] lg:w-[90%] 2xl:w-[80%] 3xl:w-[70%] flex justify-center 2xl:justify-between z-10">
         <Title />
         <SignUpForm handleSetSignUpStatus={handleSetSignUpStatus} />
       </div>

@@ -1,13 +1,13 @@
-import WordsContainer from '../../components/generate-wallet/WordsContainer';
+import WordsContainer from '@suan//components/generate-wallet/WordsContainer';
 import React, { useContext, useState } from 'react';
 import { Checkbox, Label, Button } from 'flowbite-react';
 import GenerateWordsStep from './GenerateWordsStep';
-import { NewWalletProvider } from '../../store/generate-new-wallet-context';
+import { NewWalletProvider } from '@suan//store/generate-new-wallet-context';
 import PasteWordsStep from './PasteWordsStep';
 import CreateCredentials from './CreateCredentials';
 
 const NewWallet = (props: any) => {
-  const [currentSection, setCurrentSection] = useState(1) as any[];
+  const [currentSection, setCurrentSection] = useState(2) as any[];
   return (
     <NewWalletProvider>
       <div className="bg-white rounded-2xl py-10 px-12 sm:px-8  flex flex-col justify-center">

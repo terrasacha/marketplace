@@ -1,7 +1,7 @@
-import React, { useState, useEffect } from 'react';
-import CardProject from './CardProject';
-import Pagination from '../home-page/paginationProject';
-import { Range } from 'react-range';
+import React, { useState, useEffect } from "react";
+import CardProject from "./CardProject";
+import Pagination from "../home-page/paginationProject";
+import { Range } from "react-range";
 
 const PAGE_SIZE = 9; // Number of projects per page
 interface ProductFeature {
@@ -9,12 +9,11 @@ interface ProductFeature {
   value: any;
 }
 
-export default function HomeContainer(props: { projects: any[], env: any }) {
+export default function HomeContainer(props: { projects: any[]; env: any }) {
   const { projects } = props;
-  
   function getTokenPrice(project: any): any {
     const tokenFeature = project.productFeatures.items.find(
-      (item: any) => item.featureID === 'GLOBAL_TOKEN_PRICE'
+      (item: any) => item.featureID === "GLOBAL_TOKEN_PRICE"
     );
     return tokenFeature?.value || null;
   }
@@ -33,15 +32,19 @@ export default function HomeContainer(props: { projects: any[], env: any }) {
   const totalPages = Math.ceil(filteredProjects.length / PAGE_SIZE);
   const startIndex = (currentPage - 1) * PAGE_SIZE;
   const endIndex = startIndex + PAGE_SIZE;
-  const [sortOrder, setSortOrder] = useState<'asc' | 'desc'>('desc');
-  const [searchQuery, setSearchQuery] = useState('');
-  const [selectedCategories, setSelectedCategories] = useState<string[]>(defaultSelectedCategories);
-  const [selectedYears, setSelectedYears] = useState<string[]>(defaultSelectedYears);
-  const [selectedPriceRange, setSelectedPriceRange] = useState<[number, number]>(defaultSelectedPriceRange);
+  const [sortOrder, setSortOrder] = useState<"asc" | "desc">("desc");
+  const [searchQuery, setSearchQuery] = useState("");
+  const [selectedCategories, setSelectedCategories] = useState<string[]>(
+    defaultSelectedCategories
+  );
+  const [selectedYears, setSelectedYears] =
+    useState<string[]>(defaultSelectedYears);
+  const [selectedPriceRange, setSelectedPriceRange] = useState<
+    [number, number]
+  >(defaultSelectedPriceRange);
 
   const [isFiltering, setIsFiltering] = useState(false);
   const [isFilterExpanded, setIsFilterExpanded] = useState(false);
-
 
   // Extract unique category names from projects
   const uniqueCategories = Array.from(
@@ -50,7 +53,7 @@ export default function HomeContainer(props: { projects: any[], env: any }) {
 
   // Extract unique years from projects
   const uniqueYears = Array.from(
-    new Set(projects.map((project) => project.createdAt.split('-')[0]))
+    new Set(projects.map((project) => project.createdAt.split("-")[0]))
   );
 
   // Function to toggle selection of a category
@@ -94,14 +97,17 @@ export default function HomeContainer(props: { projects: any[], env: any }) {
 
     if (selectedYears.length > 0) {
       filtered = filtered.filter((project) =>
-        selectedYears.includes(project.createdAt.split('-')[0])
+        selectedYears.includes(project.createdAt.split("-")[0])
       );
     }
 
     // Filter by selected price range
     filtered = filtered.filter((project) => {
       const tokenPrice = getTokenPrice(project);
-      return tokenPrice >= selectedPriceRange[0] && tokenPrice <= selectedPriceRange[1];
+      return (
+        tokenPrice >= selectedPriceRange[0] &&
+        tokenPrice <= selectedPriceRange[1]
+      );
     });
 
     setFilteredProjects(filtered);
@@ -113,7 +119,7 @@ export default function HomeContainer(props: { projects: any[], env: any }) {
     const sorted = [...filteredProjects];
 
     sorted.sort((a, b) => {
-      if (sortOrder === 'asc') {
+      if (sortOrder === "asc") {
         return a.createdAt.localeCompare(b.createdAt);
       } else {
         return b.createdAt.localeCompare(a.createdAt);
@@ -121,12 +127,14 @@ export default function HomeContainer(props: { projects: any[], env: any }) {
     });
 
     setFilteredProjects(sorted);
-    setSortOrder(sortOrder === 'asc' ? 'desc' : 'asc');
+    setSortOrder(sortOrder === "asc" ? "desc" : "asc");
   };
 
   //Searcher funcionality
   const handleSearchQuery = (query: string) => {
-    const normalizedQuery = query.normalize("NFD").replace(/[\u0300-\u036f]/g, "");
+    const normalizedQuery = query
+      .normalize("NFD")
+      .replace(/[\u0300-\u036f]/g, "");
     const filtered = projects.filter(
       (project) =>
         project.name
@@ -178,15 +186,29 @@ export default function HomeContainer(props: { projects: any[], env: any }) {
               >
                 Filtros
                 <div className="flex items-center ml-3">
-                  <svg className="w-5 h-5 text-gray-400 dark:text-white" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 20 20">
-                    <path stroke="currentColor" strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M4 12.25V1m0 11.25a2.25 2.25 0 0 0 0 4.5m0-4.5a2.25 2.25 0 0 1 0 4.5M4 19v-2.25m6-13.5V1m0 2.25a2.25 2.25 0 0 0 0 4.5m0-4.5a2.25 2.25 0 0 1 0 4.5M10 19V7.75m6 4.5V1m0 11.25a2.25 2.25 0 1 0 0 4.5 2.25 2.25 0 0 0 0-4.5ZM16 19v-2" />
+                  <svg
+                    className="w-5 h-5 text-gray-400 dark:text-white"
+                    aria-hidden="true"
+                    xmlns="http://www.w3.org/2000/svg"
+                    fill="none"
+                    viewBox="0 0 20 20"
+                  >
+                    <path
+                      stroke="currentColor"
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
+                      strokeWidth="2"
+                      d="M4 12.25V1m0 11.25a2.25 2.25 0 0 0 0 4.5m0-4.5a2.25 2.25 0 0 1 0 4.5M4 19v-2.25m6-13.5V1m0 2.25a2.25 2.25 0 0 0 0 4.5m0-4.5a2.25 2.25 0 0 1 0 4.5M10 19V7.75m6 4.5V1m0 11.25a2.25 2.25 0 1 0 0 4.5 2.25 2.25 0 0 0 0-4.5ZM16 19v-2"
+                    />
                   </svg>
                 </div>
               </button>
             </div>
             <div className="search-function mt-4 lg:mt-0">
               <form onSubmit={handleSubmit}>
-                <label className="mb-2 text-sm font-medium text-gray-900 sr-only dark:text-white w-">Search</label>
+                <label className="mb-2 text-sm font-medium text-gray-900 sr-only dark:text-white w-">
+                  Search
+                </label>
                 <div className="relative">
                   <input
                     type="search"
@@ -197,20 +219,38 @@ export default function HomeContainer(props: { projects: any[], env: any }) {
                     value={searchQuery}
                     onChange={(e) => setSearchQuery(e.target.value)}
                   />
-                  <button type="submit" className="absolute inset-y-0 right-0 flex items-center pr-3 pointer-events-none">
+                  <button
+                    type="submit"
+                    className="absolute inset-y-0 right-0 flex items-center pr-3 pointer-events-none"
+                  >
                     <div className="absolute inset-y-0 right-0 flex items-center pr-3 pointer-events-none">
-                      <svg aria-hidden="true" className="w-5 h-5 text-gray-500 dark:text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
-                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path>
+                      <svg
+                        aria-hidden="true"
+                        className="w-5 h-5 text-gray-500 dark:text-gray-400"
+                        fill="none"
+                        stroke="currentColor"
+                        viewBox="0 0 24 24"
+                        xmlns="http://www.w3.org/2000/svg"
+                      >
+                        <path
+                          strokeLinecap="round"
+                          strokeLinejoin="round"
+                          strokeWidth="2"
+                          d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"
+                        ></path>
                       </svg>
                     </div>
                   </button>
                 </div>
               </form>
             </div>
-            <div className='order-function flex sm:ml-auto'>
-              <p className='lg:flex items-center  text-gray-400'>Ordenar por:
+            <div className="order-function flex sm:ml-auto">
+              <p className="lg:flex items-center  text-gray-400">
+                Ordenar por:
                 <span
-                  className={` lg:flex items-center ml-2 cursor-pointer font-medium ${sortOrder === 'asc' ? 'text-blue-800' : 'text-gray-400'}`}
+                  className={` lg:flex items-center ml-2 cursor-pointer font-medium ${
+                    sortOrder === "asc" ? "text-blue-800" : "text-gray-400"
+                  }`}
                   onClick={handleSort}
                 >
                   Recientes
@@ -218,21 +258,28 @@ export default function HomeContainer(props: { projects: any[], env: any }) {
               </p>
             </div>
           </div>
-          <div className={`filter-expand ${isFilterExpanded ? 'block' : 'hidden'}`}>
+          <div
+            className={`filter-expand ${isFilterExpanded ? "block" : "hidden"}`}
+          >
             <div className="filter-expandList">
               <div className="m-1 p-2 text-xs">
-                <h3 className="py-1">Rango de precio: ${selectedPriceRange[0]} - ${selectedPriceRange[1]} </h3>
+                <h3 className="py-1">
+                  Rango de precio: ${selectedPriceRange[0]} - $
+                  {selectedPriceRange[1]}{" "}
+                </h3>
                 <Range
                   step={1}
                   min={0}
                   max={2000}
                   values={selectedPriceRange}
-                  onChange={(values: number[]) => setSelectedPriceRange([values[0], values[1]])}
+                  onChange={(values: number[]) =>
+                    setSelectedPriceRange([values[0], values[1]])
+                  }
                   renderTrack={({ props, children }) => (
                     <div
                       {...props}
                       className="h-1 bg-gray-200 dark:bg-gray-700 rounded"
-                      style={{ marginTop: '10px' }}
+                      style={{ marginTop: "10px" }}
                     >
                       {children}
                     </div>
@@ -250,12 +297,16 @@ export default function HomeContainer(props: { projects: any[], env: any }) {
                 <div>
                   {uniqueYears &&
                     uniqueYears.map((year) => {
-                      if (typeof year === 'string') {
+                      if (typeof year === "string") {
                         return (
                           <button
                             key={year}
                             onClick={() => toggleYearSelection(year)}
-                            className={`px-5 py-2 my-1 rounded-[.2rem] mr-2 text-xs text-[#1E446E] border ${selectedYears.includes(year) ? 'bg-[#69A1B3] text-white' : ''} transition duration-150 ease-in-out`}
+                            className={`px-5 py-2 my-1 rounded-[.2rem] mr-2 text-xs text-[#1E446E] border ${
+                              selectedYears.includes(year)
+                                ? "bg-[#69A1B3] text-white"
+                                : ""
+                            } transition duration-150 ease-in-out`}
                           >
                             {year}
                           </button>
@@ -265,12 +316,16 @@ export default function HomeContainer(props: { projects: any[], env: any }) {
                     })}
                   {uniqueCategories &&
                     uniqueCategories.map((category) => {
-                      if (typeof category === 'string') {
+                      if (typeof category === "string") {
                         return (
                           <button
                             key={category}
                             onClick={() => toggleCategorySelection(category)}
-                            className={`px-5 py-2 my-1 rounded-[.2rem] mr-2 text-xs text-[#1E446E] border ${selectedCategories.includes(category) ? 'bg-[#69A1B3] text-white' : ''} transition duration-150 ease-in-out`}
+                            className={`px-5 py-2 my-1 rounded-[.2rem] mr-2 text-xs text-[#1E446E] border ${
+                              selectedCategories.includes(category)
+                                ? "bg-[#69A1B3] text-white"
+                                : ""
+                            } transition duration-150 ease-in-out`}
                           >
                             {category}
                           </button>
@@ -297,24 +352,33 @@ export default function HomeContainer(props: { projects: any[], env: any }) {
         </div>
 
         {filteredProjects.length > 0 ? (
-        <ul className="grid grid-cols-1 lg:grid-cols-2 2xl:grid-cols-3 gap-5 auto-rows-auto mb-4 rounded bg-transparent dark:bg-gray-800">
-          {filteredProjects.map((project: any, index: number) => {
-            if (index >= startIndex && index < endIndex) {
-              return <CardProject key={project.id} project={{ ...project }} />;
-            }
-            return null;
-          })}
-        </ul>
-      ) : (
-        <div>
-          <p className="my-8 text-center holder-text">Aún no tenemos proyectos disponibles, espéralos pronto.
-          <svg xmlns="http://www.w3.org/2000/svg" height="24" viewBox="0 -960 960 960" width="24" className='m-auto' fill="#9ca3af">
-            <path d="M250-320h60v-10q0-71 49.5-120.5T480-500q71 0 120.5 49.5T650-330v10h60v-10q0-96-67-163t-163-67q-96 0-163 67t-67 163v10Zm34-270q41-6 86.5-32t72.5-59l-46-38q-20 24-55.5 44T276-650l8 60Zm392 0 8-60q-30-5-65.5-25T563-719l-46 38q27 33 72.5 59t86.5 32ZM480-80q-83 0-156-31.5T197-197q-54-54-85.5-127T80-480q0-83 31.5-156T197-763q54-54 127-85.5T480-880q83 0 156 31.5T763-763q54 54 85.5 127T880-480q0 83-31.5 156T763-197q-54 54-127 85.5T480-80Zm0-400Zm0 320q134 0 227-93t93-227q0-134-93-227t-227-93q-134 0-227 93t-93 227q0 134 93 227t227 93Z"/>
-          </svg>
-          </p>
-        </div>
-      )}
-
+          <ul className="grid grid-cols-1 lg:grid-cols-2 2xl:grid-cols-3 gap-5 auto-rows-auto mb-4 rounded bg-transparent dark:bg-gray-800">
+            {filteredProjects.map((project: any, index: number) => {
+              if (index >= startIndex && index < endIndex) {
+                return (
+                  <CardProject key={project.id} project={{ ...project }} />
+                );
+              }
+              return null;
+            })}
+          </ul>
+        ) : (
+          <div>
+            <p className="my-8 text-center holder-text">
+              Aún no tenemos proyectos disponibles, espéralos pronto.
+              <svg
+                xmlns="http://www.w3.org/2000/svg"
+                height="24"
+                viewBox="0 -960 960 960"
+                width="24"
+                className="m-auto"
+                fill="#9ca3af"
+              >
+                <path d="M250-320h60v-10q0-71 49.5-120.5T480-500q71 0 120.5 49.5T650-330v10h60v-10q0-96-67-163t-163-67q-96 0-163 67t-67 163v10Zm34-270q41-6 86.5-32t72.5-59l-46-38q-20 24-55.5 44T276-650l8 60Zm392 0 8-60q-30-5-65.5-25T563-719l-46 38q27 33 72.5 59t86.5 32ZM480-80q-83 0-156-31.5T197-197q-54-54-85.5-127T80-480q0-83 31.5-156T197-763q54-54 127-85.5T480-880q83 0 156 31.5T763-763q54 54 85.5 127T880-480q0 83-31.5 156T763-197q-54 54-127 85.5T480-80Zm0-400Zm0 320q134 0 227-93t93-227q0-134-93-227t-227-93q-134 0-227 93t-93 227q0 134 93 227t227 93Z" />
+              </svg>
+            </p>
+          </div>
+        )}
 
         <Pagination
           currentPage={currentPage}

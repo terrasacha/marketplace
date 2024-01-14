@@ -1,5 +1,5 @@
 import React from 'react';
-import { getActualPeriod } from '../../utils/generic/getActualPeriod';
+import { getActualPeriod } from '@terrasacha/utils/generic/getActualPeriod';
 
 interface Transaction {
   tokenName: string;

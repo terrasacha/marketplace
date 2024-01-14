@@ -194,9 +194,7 @@ export default function ProjectDataModal({
         </div>
         <div className="bg-[#F4F8F9] rounded-lg">
           <OwnerInfoCard
-            name={projectData.projectOwner.name}
-            docType={projectData.projectOwner.docType}
-            docNumber={projectData.projectOwner.docNumber}
+            owners={projectData.projectOwners.owners}
           />
         </div>
         <div className="bg-[#F4F8F9] rounded-lg">

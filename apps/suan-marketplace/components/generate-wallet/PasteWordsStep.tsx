@@ -1,6 +1,6 @@
 import React, { useContext, useState, useEffect } from 'react';
 import { Checkbox, Label, Button } from 'flowbite-react';
-import NewWalletContext from '../../store/generate-new-wallet-context';
+import NewWalletContext from '@suan//store/generate-new-wallet-context';
 import WordsContainer from './WordsContainer';
 import { FaPen } from 'react-icons/fa';
 import { set } from 'lodash';
@@ -17,7 +17,7 @@ const PasteWordsStep = (props: any) => {
   const [dictionary, setDictionary] = useState([]) as any[];
   const [errorInput, setErrorInput] = useState(false) as any[];
   useEffect(() => {
-    setRecoveryWords(Array(24).fill(''));
+    setRecoveryWords(Array(recoveryWords.length).fill(''));
     setNextRecoveryWordIndex(0);
     fetchDictionary();
   }, []);
@@ -97,18 +97,27 @@ const PasteWordsStep = (props: any) => {
   return (
     <div>
       <section className="flex justify-between pb-2">
-        <h2 className="text-2xl font-semibold">Frase de recuperación</h2>
+        <h2 className="w-full text-2xl font-semibold text-center">
+          Palabras de Recuperación
+        </h2>
       </section>
-      <p className="text-gray-500 text-sm">
-        Introduzca la frase de seguridad de su cartera palabra por palabra.
-        Asegúrate de introducir las palabras en el orden correcto.
-      </p>
-      <p className="pb-4 text-gray-500 text-sm">
-        Asegúrate también de que nadie mira tu pantalla.
-      </p>
+      <div className="flex gap-2 mt-1 words_write">
+        <svg
+          xmlns="http://www.w3.org/2000/svg"
+          height="25"
+          viewBox="0 -960 960 960"
+          width="25"
+        >
+          <path d="M440-440h80v-200h-80v200Zm40 120q17 0 28.5-11.5T520-360q0-17-11.5-28.5T480-400q-17 0-28.5 11.5T440-360q0 17 11.5 28.5T480-320ZM160-200v-80h80v-280q0-83 50-147.5T420-792v-28q0-25 17.5-42.5T480-880q25 0 42.5 17.5T540-820v28q80 20 130 84.5T720-560v280h80v80H160Zm320-300Zm0 420q-33 0-56.5-23.5T400-160h160q0 33-23.5 56.5T480-80ZM320-280h320v-280q0-66-47-113t-113-47q-66 0-113 47t-47 113v280Z" />
+        </svg>
+        <p className="text-sm text-black-500 ">
+          Ahora escribe tus palabras en el mismo orden, asegúrate de que nadie
+          mira tu pantalla.
+        </p>
+      </div>
       <WordsContainer useCase="recovery" />
-      <p className="mt-6 w-full rounded-lg p-3 bg-slate-600 text-white  text-md font-semibold  py-2">
-        Introduce caracteres para ver sugerecias de palabras.
+      <p className="w-full rounded-lg p-3 bg-slate-600 text-white  text-md font-semibold  py-2">
+        Empieza a escribir para ver sugerecias de palabras.
       </p>
       <div className="relative w-full mt-2">
         <FaPen className="absolute left-4 top-1/2 transform -translate-y-1/2 text-gray-500" />

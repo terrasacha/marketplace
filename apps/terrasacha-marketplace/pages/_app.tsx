@@ -1,17 +1,17 @@
-import '../styles/globals.css';
+import '@terrasacha/styles/globals.css';
 import { MeshProvider } from '@meshsdk/react';
 import { useEffect } from 'react';
 import { useRouter } from 'next/router';
 import Head from 'next/head';
 import NextNProgress from 'nextjs-progressbar';
-import { NotificationContextProvider } from '../store/notification-context';
-import { ProjectInfoContextProvider } from '../store/projectinfo-context';
-import { LoginFromContextProvider } from '../store/login-from';
+import { NotificationContextProvider } from '@terrasacha/store/notification-context';
+import { ProjectInfoContextProvider } from '@terrasacha/store/projectinfo-context';
+import { LoginFromContextProvider } from '@terrasacha/store/login-from';
 import '../styles/globals.css';
 import { Toaster } from 'sonner';
-import { MyAppProps } from '../components/common/types';
-import { Layouts } from '../components/common/Layouts';
-import TelegramFloatingButton from '../components/TelegramFloatingButton';
+import { MyAppProps } from '@terrasacha/components/common/types';
+import { Layouts } from '@terrasacha/components/common/Layouts';
+import TelegramFloatingButton from '@terrasacha/components/TelegramFloatingButton';
 import { Amplify } from 'aws-amplify';
 
 import config from '../src/aws-exports';
@@ -27,10 +27,10 @@ function MyApp({ Component, pageProps }: MyAppProps) {
   return (
     <MeshProvider>
       <Head>
-        <title>Cuadro de mando Inversionista-Terrasacha</title>
+        <title>Cuadro de mando Inversionista-Suan</title>
         <meta
           name="description"
-          content="Cuadro de mando de Inversionista en Terrasacha"
+          content="Cuadro de mando de Inversionista en Suan"
         />
         <meta name="viewport" content="width=device-width, initial-scale=1" />
         <link rel="icon" href="/favicon.ico" />

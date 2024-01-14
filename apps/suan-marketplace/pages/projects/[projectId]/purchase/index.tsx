@@ -1,10 +1,10 @@
 import React, { useEffect, useContext } from 'react';
-import { getImagesCategories, getProject } from '../../../../backend';
-import PaymentPage from '../../../../components/payments/PaymentPage';
-import PageHeader from '../../../../components/common/PageHeader';
-import ProjectInfoContext from '../../../../store/projectinfo-context';
-import { MyPage } from '../../../../components/common/types';
-import { getActualPeriod } from '../../../../utils/generic/getActualPeriod';
+import { getImagesCategories, getProject } from '@suan//backend';
+import PaymentPage from '@suan//components/payments/PaymentPage';
+import PageHeader from '@suan//components/common/PageHeader';
+import ProjectInfoContext from '@suan//store/projectinfo-context';
+import { MyPage } from '@suan//components/common/types';
+import { getActualPeriod } from '@suan//utils/generic/getActualPeriod';
 
 const PurchasePage: MyPage = (props: any) => {
   const { project, image } = props;

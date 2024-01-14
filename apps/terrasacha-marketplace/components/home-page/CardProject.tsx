@@ -1,8 +1,8 @@
 import React, { useState, useEffect } from 'react';
 import Link from 'next/link';
-import { getImagesCategories } from '@marketplaces/data-access';
-import { getActualPeriod } from '../../utils/generic/getActualPeriod';
-
+import { getImagesCategories } from '@terrasacha/backend';
+import { getActualPeriod } from '@terrasacha/utils/generic/getActualPeriod';
+import Image from 'next/image';
 interface CardProjectProps {
   project: any;
 }
@@ -26,20 +26,8 @@ const projectStatusMapper: any = {
 
 const CardProject: React.FC<CardProjectProps> = ({ project }) => {
   const [productFeatures, setProductFeatures] = useState<ProductFeature[]>([]);
-  const [imageData, setImageData] = useState<string | undefined>(undefined);
   useEffect(() => {
     setProductFeatures(project.productFeatures.items);
-    async function loadImageData() {
-      try {
-        const data = await getImagesCategories(
-          encodeURIComponent(`${project.categoryID}`)
-        );
-        setImageData(data);
-      } catch (error) {
-        console.error(error);
-      }
-    }
-    loadImageData();
   }, []);
 
   const tokenHistoricalData = JSON.parse(
@@ -85,20 +73,30 @@ const CardProject: React.FC<CardProjectProps> = ({ project }) => {
   };
   return (
     <div className="relative flex flex-col items-center justify-center rounded-2xl bg-gray-50 h-[30rem] dark:bg-gray-800">
-      <div
-        className="flex justify-between items-start py-4 px-6 h-[40%] w-full bg-cover rounded-t-2xl rounded-tl-2xl"
-        style={{
-          backgroundImage: `url(${imageData})`,
-          backgroundPosition: 'bottom',
-        }}
-      >
-        <div className="py-[.15rem] rounded-lg px-5 bg-blue-500 text-white text-sm font-semibold">
+      <div className="relative flex justify-between items-start py-4 px-6 h-[40%] w-full bg-cover rounded-t-2xl rounded-tl-2xl overflow-hidden">
+        <Image
+          priority={false}
+          src={`https://kiosuanbcrjsappcad3eb2dd1b14457b491c910d5aa45dd145518-dev.s3.amazonaws.com/public/category-projects-images/${encodeURIComponent(
+            `${project.categoryID}`
+          )}.avif`}
+          alt="landing-suan-image"
+          fill
+          style={{
+            position: 'absolute',
+            objectFit: 'cover',
+            objectPosition: 'center bottom',
+            zIndex: '0',
+          }}
+        />
+        <div className="py-[.15rem] rounded-lg px-5 bg-blue-500 text-white text-sm font-semibold z-10">
           <p>{relevantInfo.status}</p>
         </div>
-        <div className="py-[.15rem] rounded-lg px-5 bg-black sm:bg-opacity-10 bg-opacity-30 text-slate-50 text-lg font-semibold">
+        <div className="py-[.15rem] rounded-lg px-5 bg-black sm:bg-opacity-10 bg-opacity-30 text-slate-50 text-lg font-semibold z-10">
           <p>
             {relevantInfo.tokenValue
-              ? `${relevantInfo.tokenValue} ${relevantInfo.tokenCurrency} / tCO2eq`
+              ? `${parseFloat(relevantInfo.tokenValue).toLocaleString(
+                  'es-CO'
+                )} ${relevantInfo.tokenCurrency} / tCO2eq`
               : 'No price'}
           </p>
         </div>
@@ -136,7 +134,9 @@ const CardProject: React.FC<CardProjectProps> = ({ project }) => {
               </svg>
             </div>
             <p className="ml-2 text-[#8EB9C7]">
-              {relevantInfo.tokenUnits ? `${relevantInfo.tokenUnits} ` : '0 '}
+              {relevantInfo.tokenUnits
+                ? `${relevantInfo.tokenUnits.toLocaleString('es-CO')} `
+                : '0 '}
               <span className="hidden sm:hidden md:hidden lg:inline-block">
                 Tokens disponibles
               </span>

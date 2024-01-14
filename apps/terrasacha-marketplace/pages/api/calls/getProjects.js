@@ -1,4 +1,4 @@
-import { getProjects } from "../../../backend" //@marketplaces/data-access
+import { getProjects } from '../../../backend/index';
 
 export default async function handler(req, res) {
     try {
@@ -10,7 +10,7 @@ export default async function handler(req, res) {
 
         // Obtener proyectos
         const projects = await getProjects();
-
+        console.log(projects)
         // Respuesta exitosa
         return res.status(200).json(projects);
     } catch (error) {

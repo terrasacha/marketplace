@@ -5,20 +5,20 @@ import {
   getImagesCategories,
   getProject,
   getProjectData,
-} from '@marketplaces/data-access';
+} from '@terrasacha/backend';
 import { Transition } from '@headlessui/react';
-import PageHeader from '../../../components/common/PageHeader';
-import { MyPage } from '../../../components/common/types';
-import { getActualPeriod } from '../../../utils/generic/getActualPeriod';
-import { mapProjectData } from '../../../lib/mappers';
+import PageHeader from '@terrasacha/components/common/PageHeader';
+import { MyPage } from '@terrasacha/components/common/types';
+import { getActualPeriod } from '@terrasacha/utils/generic/getActualPeriod';
+import { mapProjectData } from '@terrasacha/lib/mappers';
 import dynamic from 'next/dynamic';
-import TabsComponents from '../../../components/home-page/TabsProject';
-import FinancialTab from '../../../components/home-page/ProjectTabs/FinancialTab';
-import EarningsTab from '../../../components/home-page/ProjectTabs/EarningsTab';
-import ProjectionsTab from '../../../components/home-page/ProjectTabs/ProjectionsTab';
+import TabsComponents from '@terrasacha/components/home-page/TabsProject';
+import FinancialTab from '@terrasacha/components/home-page/ProjectTabs/FinancialTab';
+import EarningsTab from '@terrasacha/components/home-page/ProjectTabs/EarningsTab';
+import ProjectionsTab from '@terrasacha/components/home-page/ProjectTabs/ProjectionsTab';
 
 const ProjectDataModal = dynamic(
-  () => import('../../../components/modals/ProjectDataModal')
+  () => import('@terrasacha/components/modals/ProjectDataModal')
 );
 
 const Product: MyPage = (props: any) => {
@@ -217,12 +217,14 @@ const Product: MyPage = (props: any) => {
                 </h3>
                 <p className="info-amount font-medium text-[#484848]">
                   Cantidad de tokens disponibles:{' '}
-                  {relevantInfo.tokenUnits + ' ' || '0 '}
+                  {relevantInfo.tokenUnits.toLocaleString('es-CO') + ' ' ||
+                    '0 '}
                 </p>
               </div>
               <div className="info-price pt-4">
                 <div className="price text-[#2E7D96]">
-                  {relevantInfo.price} {relevantInfo.tokenCurrency}
+                  {parseFloat(relevantInfo.price).toLocaleString('es-CO')}{' '}
+                  {relevantInfo.tokenCurrency}
                   <span className="price-span">/ tCO2eq</span>
                 </div>
                 <div className="description-price pt-4 text-[#484848]">
@@ -297,7 +299,7 @@ const Product: MyPage = (props: any) => {
                         Suministro Restante{' '}
                         <span className="absolute right-1 font-semibold">
                           {relevantInfo.tokenUnits
-                            ? relevantInfo.tokenUnits
+                            ? relevantInfo.tokenUnits.toLocaleString('es-CO')
                             : 0}
                         </span>
                       </p>

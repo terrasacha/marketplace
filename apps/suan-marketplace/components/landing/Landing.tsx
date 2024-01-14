@@ -1,15 +1,15 @@
-import CardanoWallet from '../cardano-wallet/CardanoWallet';
-import WelcomeCard from './WelcomeCard';
-import Image from 'next/image';
+import CardanoWallet from "../cardano-wallet/CardanoWallet";
+import WelcomeCard from "./WelcomeCard";
+import Image from "next/image";
 const Login = (props: any) => {
   return (
     <div className="w-full h-screen flex justify-center items-center bg-slate-200">
       <Image
         priority={true}
-        src="/images/home-page/fondo_login.jpg"
+        src="/images/home-page/fondo_login.avif"
         alt="landing-suan-image"
         fill
-        style={{ objectFit: 'cover', objectPosition: 'center', zIndex: '0' }}
+        style={{ objectFit: "cover", objectPosition: "center", zIndex: "0" }}
       />
       <div className="fixed top-1 w-full flex justify-end pr-4 z-10">
         <CardanoWallet />I

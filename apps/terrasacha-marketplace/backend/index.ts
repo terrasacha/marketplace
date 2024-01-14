@@ -1,13 +1,11 @@
-import { Amplify } from 'aws-amplify';
-import awsconfig from '../src/aws-exports';
-import { signUp, confirmSignUp, type ConfirmSignUpInput, signIn, type SignInInput, signOut, resetPassword, type ResetPasswordInput, confirmResetPassword, type ConfirmResetPasswordInput } from 'aws-amplify/auth';
-/* import { integer } from "aws-sdk/clients/cloudfront"; */
-import { getProduct } from "../lib/customQueries";
 import { UTxO } from "@meshsdk/core";
 import axios from "axios";
-
-//Auth AWS
-
+import { Category } from "myTypes";
+import { Amplify } from 'aws-amplify';
+import awsconfig from '@terrasacha/src/aws-exports';
+import { signUp, confirmSignUp, type ConfirmSignUpInput, signIn, type SignInInput, signOut, resetPassword, type ResetPasswordInput, confirmResetPassword, type ConfirmResetPasswordInput } from 'aws-amplify/auth';
+/* import { integer } from "aws-sdk/clients/cloudfront"; */
+import { getProduct } from "@terrasacha/lib/customQueries";
 /* const AWS = require("aws-sdk");
 
 AWS.config.update(awsconfig); */
@@ -36,7 +34,6 @@ export async function signUpAuth({ username, password, email, role }: SignUpPara
             }
           }
           })
-          console.log(response)
         const userPayload = {
           username,
           role,
@@ -100,50 +97,22 @@ export async function forgotPasswordSubmit({
   }
 };
 
-type Image = {
-  id: string;
-  productID: string;
-  title: string;
-  imageURL: string;
-  imageURLToDisplay: string;
-  format: string;
-  carouselDescription: string;
-}
-
-type Project = {
-  id: string;
-  description: string;
-  categoryID: string;
-  name: string;
-  status: string;
-  updatedAt: Date;
-  createdAt: Date;
-  images: { items: [Image] };
-  amountToBuy: string;
-}
-
-type Category = {
-  id: string;
-  name: string;
-  products: { items: [Project] };
-}
-
 const instance = axios.create({
   baseURL: `/api/`,
   withCredentials: true,
 });
-const awsAppSyncApiKey: string = process.env['secrets']
-  ? JSON.parse(process.env['secrets']).API_KEY_PLATAFORMA
-  : process.env['NEXT_PUBLIC_API_KEY_PLATAFORMA'];
+const awsAppSyncApiKey: string = process.env.secrets
+  ? JSON.parse(process.env.secrets).API_KEY_PLATAFORMA
+  : process.env.NEXT_PUBLIC_API_KEY_PLATAFORMA;
 let graphqlEndpoint: string;
-if (process.env['NEXT_PUBLIC_graphqlEndpoint']) {
-  graphqlEndpoint = process.env['NEXT_PUBLIC_graphqlEndpoint'];
+if (process.env.NEXT_PUBLIC_graphqlEndpoint) {
+  graphqlEndpoint = process.env.NEXT_PUBLIC_graphqlEndpoint;
 } else {
   throw new Error(`Parameter graphqlEndpoint not found`);
 }
 let s3BucketName: string;
-if (process.env['NEXT_PUBLIC_s3BucketName']) {
-  s3BucketName = process.env['NEXT_PUBLIC_s3BucketName'];
+if (process.env.NEXT_PUBLIC_s3BucketName) {
+  s3BucketName = process.env.NEXT_PUBLIC_s3BucketName;
 } else {
   throw new Error(`Parameter graphqlEndpoint not found`);
 }
@@ -235,7 +204,7 @@ export async function getProjects() {
       graphqlEndpoint,
       {
         query: `query getProjects {
-          listProducts(filter: {isActive: {eq: true}, showOn: {eq: "Terrasacha"}}) {
+          listProducts(filter: {isActive: {eq: true}, showOn: {eq: "Suan"}}) {
             nextToken
             items {
               id
@@ -341,12 +310,12 @@ export async function getProjects() {
               return count + 1;
             }
             // Condicion 5: Postulante ha aceptado las condiciones
-            if (
-              pf.featureID === "GLOBAL_OWNER_ACCEPTS_CONDITIONS" &&
-              pf.value === "true"
-            ) {
-              return count + 1;
-            }
+            // if (
+            //   pf.featureID === "GLOBAL_OWNER_ACCEPTS_CONDITIONS" &&
+            //   pf.value === "true"
+            // ) {
+            //   return count + 1;
+            // }
             // Condicion 6: Postulante ha aceptado las condiciones
             if (pf.featureID === "C_ubicacion") {
               return count + 1;
@@ -355,7 +324,7 @@ export async function getProjects() {
           },
           0
         );
-        return countFeatures === 6;
+        return countFeatures === 5;
       }
     );
 
@@ -504,7 +473,6 @@ export async function getProjectData(projectId: string) {
 }
 
 export async function getProject(projectId: string) {
-  console.log(graphqlEndpoint)
   const response = await axios.post(
     graphqlEndpoint,
     {
@@ -628,7 +596,7 @@ export async function getImages(imageURL: string) {
 }
 export async function getImagesCategories(category: string) {
   try {
-    const url = `https://kiosuanbcrjsappcad3eb2dd1b14457b491c910d5aa45dd145518-dev.s3.amazonaws.com/public/category-projects-images/${category}.jpg`;
+    const url = `https://kiosuanbcrjsappcad3eb2dd1b14457b491c910d5aa45dd145518-dev.s3.amazonaws.com/public/category-projects-images/${category}.avif`;
     return url;
     // const response = await axios.get(url, { responseType: "arraybuffer" });
     // const data = Buffer.from(response.data, "binary").toString("base64");

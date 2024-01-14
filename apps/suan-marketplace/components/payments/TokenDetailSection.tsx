@@ -32,11 +32,11 @@ export function TokenDetailSection({
           </div>
           <div className="flex justify-between">
             <span>Cantidad disponible</span>
-            <span>{availableAmount} Tokens</span>
+            <span>{parseFloat(availableAmount).toLocaleString("es-CO")} Tokens</span>
           </div>
           <div className="flex justify-between">
             <span>Precio unitario</span>
-            <span className="font-bold">{tokenPrice} {tokenCurrency} / tCO2eq</span>
+            <span className="font-bold">{parseFloat(tokenPrice).toLocaleString("es-CO")} {tokenCurrency} / tCO2eq</span>
           </div>
           <div className="flex justify-between">
             <span>Fecha de creación</span>

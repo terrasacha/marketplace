@@ -1,9 +1,10 @@
 import React, { useContext, useEffect, useState } from 'react';
-import Landing from '../components/landing/Landing';
-import LoginFromContext from '../store/login-from';
+import dynamic from 'next/dynamic';
+const Landing = dynamic(() => import('@terrasacha/components/landing/Landing'));
+import LoginFromContext from '@terrasacha/store/login-from';
 import { useWallet, useAssets } from '@meshsdk/react';
 import { useRouter } from 'next/router';
-import { MyPage } from '../components/common/types';
+import { MyPage } from '@terrasacha/components/common/types';
 
 const LandingPage: MyPage = (props: any) => {
   const { connected, wallet } = useWallet();

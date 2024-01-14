@@ -3,7 +3,7 @@
 import { Card, TextInput } from 'flowbite-react';
 import { TokenDetailSection } from './TokenDetailSection';
 import { BlockChainIcon } from '../icons/BlockChainIcon';
-import ProjectInfoContext from '../../store/projectinfo-context';
+import ProjectInfoContext from '@suan//store/projectinfo-context';
 import { useContext } from 'react';
 
 export function BuyTokenCard({

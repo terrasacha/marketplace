@@ -1,8 +1,8 @@
 // components/LoginForm.tsx
-import React, { useState, useEffect } from 'react';
+import React, { useState } from 'react';
 import Image from 'next/image';
 import Link from 'next/link';
-import { signUpAuth } from '../../backend';
+import { signUpAuth } from '@suan//backend';
 import { useRouter } from 'next/router';
 import { Label, Select } from 'flowbite-react';
 

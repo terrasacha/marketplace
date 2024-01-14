@@ -1,4 +1,4 @@
-import { MyPage } from '../components/common/types';
+import { MyPage } from '@suan//components/common/types';
 const Custom500: MyPage = () => {
   return <h1>500 - Server-side error occurred</h1>;
 };

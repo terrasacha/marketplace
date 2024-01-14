@@ -1,10 +1,10 @@
 import React, { useEffect, useContext } from 'react';
-import { getImagesCategories, getProject } from '../../../../backend'; //@marketplaces/data-access
-import PaymentPage from '../../../../components/payments/PaymentPage';
-import PageHeader from '../../../../components/common/PageHeader';
-import ProjectInfoContext from '../../../../store/projectinfo-context';
-import { MyPage } from '../../../../components/common/types';
-import { getActualPeriod } from '../../../../utils/generic/getActualPeriod';
+import { getImagesCategories, getProject } from '@terrasacha/backend';
+import PaymentPage from '@terrasacha/components/payments/PaymentPage';
+import PageHeader from '@terrasacha/components/common/PageHeader';
+import ProjectInfoContext from '@terrasacha/store/projectinfo-context';
+import { MyPage } from '@terrasacha/components/common/types';
+import { getActualPeriod } from '@terrasacha/utils/generic/getActualPeriod';
 
 const PurchasePage: MyPage = (props: any) => {
   const { project, image } = props;

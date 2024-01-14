@@ -1,7 +1,7 @@
 'use client';
 
-import { BillingCard } from '../../components/payments/BillingCard';
-import { BuyTokenCard } from '../../components/payments/BuyTokenCard';
+import { BillingCard } from '@suan//components/payments/BillingCard';
+import { BuyTokenCard } from '@suan//components/payments/BuyTokenCard';
 import { useState } from 'react';
 
 export default function PaymentPage({}) {

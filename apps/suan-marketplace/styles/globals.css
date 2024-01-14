@@ -29,6 +29,37 @@ input[type=range] {
   width: 1rem;
   height: 1rem;
 }
+.modal {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background-color: rgba(0, 0, 0, 0.5); /* Fondo oscuro para la modal */
+}
+
+.modal-content {
+  background-color: #fefefe;
+  padding: 20px;
+  border: 1px solid #888;
+  width: 80%;
+  max-width: 600px;
+  text-align: center;
+  border-radius: 10px;
+  position: relative; /* Añade esta línea para establecer un contexto de posición relativa */
+
+}
+
+.close {
+  position: absolute;
+  top: 10px;
+  right: 10px;
+  font-size: 20px;
+  cursor: pointer;
+}
 
 .rc-slider-handle:nth-child(2) {
   margin-top: -16px;
@@ -81,12 +112,42 @@ input[type=range] {
 .info-amount {
   font-size: 14px;
 }
-
+.palabras-bg{
+  background-color: #fff;
+}
+.words_write{
+    background: #2e7d96a8;
+    border-radius: 10px;
+    padding: 13px;
+}
+.important_words{
+  background: #EFB8B8;
+  border-radius: 10px;
+  padding: 1rem;
+  color: #000000;
+}
+.palabras > div{
+  background-color: #edeaea;
+  border-radius: 10px;
+  box-shadow: none;
+  p{
+    color:#2e7d96;
+  }
+}
+.azul{
+  color: #0E7490;
+}
+button.group.flex.h-min.items-center.justify-center.p-0\.5.text-center.font-medium.focus\:z-10.focus\:outline-none.text-white.bg-red-700.border.border-transparent.enabled\:hover\:bg-red-800.focus\:ring-red-300.dark\:bg-red-600.dark\:enabled\:hover\:bg-red-700.dark\:focus\:ring-red-900.rounded-lg.focus\:ring-2{
+  margin-top: 20px;
+}
 .price {
   font-size: 2rem;
   font-weight: 700;
 }
-
+.token-wallet{
+  background: #F0F0F0;
+  border-radius: 20px;
+}
 .price-span {
   font-size: 1rem;
   font-weight: 500;

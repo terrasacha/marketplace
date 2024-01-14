@@ -1,7 +1,7 @@
 import Link from 'next/link';
 import FormGroup from '../common/FormGroup';
 import { Button, Table } from 'flowbite-react';
-import { convertAWSDatetimeToDate } from '../../lib/util';
+import { convertAWSDatetimeToDate } from '@terrasacha/lib/util';
 
 export default function ProjectFilesInfoCard({ projectFiles }: any) {
   return (

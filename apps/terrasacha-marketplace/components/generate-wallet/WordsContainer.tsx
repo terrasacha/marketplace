@@ -1,8 +1,8 @@
 import React, { useEffect, useState, useContext } from 'react';
-import { Spinner } from 'flowbite-react';
+import { Spinner, Button } from 'flowbite-react';
 import { FaRegCopy, FaCopy } from 'react-icons/fa6';
 import { IoCloseSharp } from 'react-icons/io5';
-import NewWalletContext from '../../store/generate-new-wallet-context';
+import NewWalletContext from '@terrasacha/store/generate-new-wallet-context';
 
 const WordsContainer = (props: any) => {
   const {
@@ -14,6 +14,7 @@ const WordsContainer = (props: any) => {
     setNextRecoveryWordIndex,
   } = useContext<any>(NewWalletContext);
   const useCase = props.useCase;
+  const generateWords = props.generateWords;
   const [wordsFormatted, setWordsFormatted] = useState(null) as any[];
   const [copied, setCopied] = useState(false) as any[];
   useEffect(() => {
@@ -35,17 +36,17 @@ const WordsContainer = (props: any) => {
     }, 100);
   };
   return wordsFormatted === null ? (
-    <div className="w-full bg-slate-600 h-24 rounded-xl flex justify-center items-center">
-      <p className="text-white">
+    <div className="w-full  h-24 rounded-xl flex justify-center items-center palabras">
+      <p>
         {!loading ? (
-          'Aquí podrás ver las palabras generadas'
+          <Button onClick={() => generateWords()}> Generar palabras</Button>
         ) : (
           <Spinner aria-label="Spinner button example" size="lg" />
         )}
       </p>
     </div>
   ) : (
-    <div className="relative w-full bg-slate-600 h-auto rounded-xl">
+    <div className="relative w-full palabras-bg h-auto rounded-xl">
       {useCase === 'generate' && (
         <button
           onClick={() => copyToClipboard()}
@@ -54,16 +55,16 @@ const WordsContainer = (props: any) => {
           {copied ? <FaCopy /> : <FaRegCopy />}
         </button>
       )}
-      <div className="grid grid-cols-3 gap-x-5 gap-y-4 px-8 py-8">
+      <div className="grid grid-cols-3 gap-x-5 gap-y-4 px-8 py-8 palabras">
         {useCase === 'generate' &&
           wordsFormatted.map((word: string, index: number) => {
             return (
               <div
-                className="w-full relative text-center border-b-2 border-gray-400  text-lg font-semibold"
+                className="palabra w-full relative text-center text-lg font-semibold"
                 key={index}
               >
-                <p className="absolute left-2 text-gray-400">{index + 1}</p>
-                <p className="text-white">{word}</p>
+                <p className="absolute left-2 ">{index + 1}</p>
+                <p>{word}</p>
               </div>
             );
           })}

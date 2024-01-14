@@ -1,13 +1,11 @@
 import React, { use, useContext, useEffect, useState } from 'react';
-import { MyPage } from '../../components/common/types';
+import { MyPage } from '@suan//components/common/types';
 import Image from 'next/image';
-import { Spinner } from 'flowbite-react';
 import { Button } from 'flowbite-react';
-import NewWallet from '../../components/generate-wallet/NewWallet';
+import NewWallet from '@suan//components/generate-wallet/NewWallet';
 import { getCurrentUser } from 'aws-amplify/auth';
-import Link from 'next/link';
 import { Hub } from 'aws-amplify/utils';
-import { signOutAuth } from '../../backend';
+import { signOutAuth } from '@suan//backend';
 import { useRouter } from 'next/router';
 
 const GenerateWalletPage: MyPage = (props: any) => {
@@ -57,7 +55,7 @@ const GenerateWalletPage: MyPage = (props: any) => {
     <div className="w-full min-h-screen h-auto flex bg-slate-200 justify-center">
       <Image
         priority={true}
-        src="/images/home-page/fondo_login.jpg"
+        src="/images/home-page/fondo_login.avif"
         alt="landing-suan-image"
         fill
         sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"

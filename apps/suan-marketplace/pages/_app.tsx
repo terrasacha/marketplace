@@ -1,17 +1,17 @@
-import '../styles/globals.css';
+import '@suan//styles/globals.css';
 import { MeshProvider } from '@meshsdk/react';
 import { useEffect } from 'react';
 import { useRouter } from 'next/router';
 import Head from 'next/head';
 import NextNProgress from 'nextjs-progressbar';
-import { NotificationContextProvider } from '../store/notification-context';
-import { ProjectInfoContextProvider } from '../store/projectinfo-context';
-import { LoginFromContextProvider } from '../store/login-from';
+import { NotificationContextProvider } from '@suan//store/notification-context';
+import { ProjectInfoContextProvider } from '@suan//store/projectinfo-context';
+import { LoginFromContextProvider } from '@suan//store/login-from';
 import '../styles/globals.css';
 import { Toaster } from 'sonner';
-import { MyAppProps } from '../components/common/types';
-import { Layouts } from '../components/common/Layouts';
-import TelegramFloatingButton from '../components/TelegramFloatingButton';
+import { MyAppProps } from '@suan/components/common/types';
+import { Layouts } from '@suan/components/common/Layouts';
+import TelegramFloatingButton from '@suan//components/TelegramFloatingButton';
 import { Amplify } from 'aws-amplify';
 
 import config from '../src/aws-exports';

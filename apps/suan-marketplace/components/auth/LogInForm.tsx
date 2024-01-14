@@ -2,7 +2,7 @@
 import React, { useState } from 'react';
 import Link from 'next/link';
 import Image from 'next/image';
-import { signInAuth } from '../../backend';
+import { signInAuth } from '@suan//backend';
 import { useRouter } from 'next/router';
 const initialStateErrors = { loginError: '' };
 const LoginForm = () => {
