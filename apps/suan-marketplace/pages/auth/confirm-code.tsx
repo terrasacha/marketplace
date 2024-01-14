@@ -1,12 +1,11 @@
 import React, { useState, useEffect } from 'react';
-import dynamic from 'next/dynamic';
-import { SignUpForm } from '@marketplaces/ui-lib';
-import { signUpAuth } from '@terrasacha/backend';
+import { ConfirmCode, SignUpForm } from '@marketplaces/ui-lib';
+import { signUpAuth, confirmSignUpAuth } from '@terrasacha/backend';
 import Title from '@terrasacha/components/auth/Title';
 import { MyPage } from '@terrasacha/components/common/types';
 import Image from 'next/image';
 
-const Signup: MyPage = (props: any) => {
+const ConfirmCodePage: MyPage = (props: any) => {
   const [signUpStatus, setSignUpStatus] = useState('signup');
   const handleSetSignUpStatus = (data: string) => {
     setSignUpStatus(data);
@@ -22,18 +21,18 @@ const Signup: MyPage = (props: any) => {
       />
       <div className="h-auto w-[90%] lg:w-[90%] 2xl:w-[80%] 3xl:w-[70%] flex justify-center 2xl:justify-between z-10">
         <Title />
-        <SignUpForm
-          handleSetSignUpStatus={handleSetSignUpStatus}
+
+        <ConfirmCode
           logo="/images/home-page/suan_logo.png"
           widthLogo={60}
           heightLogo={60}
           appName="Suan"
-          signUpAuth={signUpAuth}
+          confirmSignUpAuth={confirmSignUpAuth}
         />
       </div>
     </div>
   );
 };
 
-export default Signup;
-Signup.Layout = 'NoLayout';
+export default ConfirmCodePage;
+ConfirmCodePage.Layout = 'NoLayout';

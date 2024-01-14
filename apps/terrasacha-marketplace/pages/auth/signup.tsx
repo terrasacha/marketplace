@@ -1,8 +1,6 @@
 import React, { useState, useEffect } from 'react';
-import dynamic from 'next/dynamic';
-const SignUpForm = dynamic(
-  () => import('@terrasacha/components/auth/SignUpForm')
-);
+import { SignUpForm } from '@marketplaces/ui-lib';
+import { signUpAuth } from '@terrasacha/backend';
 import Title from '@terrasacha/components/auth/Title';
 import { MyPage } from '@terrasacha/components/common/types';
 import Image from 'next/image';
@@ -23,7 +21,14 @@ const Signup: MyPage = (props: any) => {
       />
       <div className="h-auto w-[90%] lg:w-[90%] 2xl:w-[80%] 3xl:w-[70%] flex justify-center 2xl:justify-between z-10">
         <Title />
-        <SignUpForm handleSetSignUpStatus={handleSetSignUpStatus} />
+        <SignUpForm
+          handleSetSignUpStatus={handleSetSignUpStatus}
+          logo="/images/home-page/terrasacha_logo_principal.png"
+          widthLogo={250}
+          heightLogo={250}
+          appName="Terrasacha"
+          signUpAuth={signUpAuth}
+        />
       </div>
     </div>
   );

@@ -59,7 +59,7 @@ const SignUpForm = (props: SignUpFormProps) => {
       }));
     }
     signUpAuth(signupForm)
-      .then((data: any) => handleSetSignUpStatus('confirmpassword'))
+      .then((data: any) => router.push('/auth/confirm-code'))
       .catch((error: any) => {
         if (error.name === 'UsernameExistsException') {
           return setErrors((preForm: any) => ({

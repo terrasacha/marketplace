@@ -1,8 +1,8 @@
 import dynamic from 'next/dynamic';
-const LoginForm = dynamic(() => import('@suan//components/auth/LogInForm'));
-import Title from '@suan//components/auth/Title';
+import { signInAuth } from '@terrasacha/backend';
+import Title from '@terrasacha/components/auth/Title';
 import Image from 'next/image';
-
+import { LoginForm } from '@marketplaces/ui-lib';
 const Login = (props: any) => {
   return (
     <div className="w-full h-screen flex justify-center items-center bg-slate-200">
@@ -15,7 +15,13 @@ const Login = (props: any) => {
       />
       <div className="h-auto w-[90%] lg:w-[90%] 2xl:w-[80%] 3xl:w-[70%] flex justify-center 2xl:justify-between z-10">
         <Title />
-        <LoginForm />
+        <LoginForm
+          logo="/images/home-page/suan_logo.png"
+          widthLogo={60}
+          heightLogo={60}
+          appName="Suan"
+          signInAuth={signInAuth}
+        />
       </div>
     </div>
   );
