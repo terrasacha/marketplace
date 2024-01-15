@@ -16,6 +16,7 @@ const Login = (props: any) => {
       </div>
       <div className="h-auto w-[90%] lg:w-[90%] 2xl:w-[80%] 3xl:w-[70%] flex justify-center z-10">
         <WelcomeCard checkingWallet={props.checkingWallet} />
+        
       </div>
     </div>
   );
