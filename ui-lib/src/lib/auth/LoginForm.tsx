@@ -9,6 +9,7 @@ export interface LoginFormProps {
   widthLogo: number;
   heightLogo: number;
   signInAuth: any;
+
   appName: string;
 }
 const LoginForm = (props: LoginFormProps) => {
