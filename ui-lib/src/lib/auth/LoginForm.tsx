@@ -15,7 +15,7 @@ export interface LoginFormProps {
 const LoginForm = (props: LoginFormProps) => {
   const { logo, widthLogo, heightLogo, appName } = props;
   const { signInAuth } = props;
-
+  console.log('hola');
   const router = useRouter();
   const [loginForm, setLoginForm] = useState<any>({
     username: '',
