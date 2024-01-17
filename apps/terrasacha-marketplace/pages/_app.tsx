@@ -27,10 +27,10 @@ function MyApp({ Component, pageProps }: MyAppProps) {
   return (
     <MeshProvider>
       <Head>
-        <title>Cuadro de mando Inversionista-Suan</title>
+        <title>Terrasacha marketplace</title>
         <meta
           name="description"
-          content="Cuadro de mando de Inversionista en Suan"
+          content="Cuadro de mando de Inversionista en Terrasacha"
         />
         <meta name="viewport" content="width=device-width, initial-scale=1" />
         <link rel="icon" href="/favicon.ico" />
