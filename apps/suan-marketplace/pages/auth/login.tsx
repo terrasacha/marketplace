@@ -21,6 +21,7 @@ const Login = (props: any) => {
           heightLogo={60}
           appName="Suan"
           signInAuth={signInAuth}
+          poweredby={false}
         />
       </div>
     </div>

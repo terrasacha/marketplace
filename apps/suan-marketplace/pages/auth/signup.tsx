@@ -29,6 +29,7 @@ const Signup: MyPage = (props: any) => {
           heightLogo={60}
           appName="Suan"
           signUpAuth={signUpAuth}
+          poweredby={false}
         />
       </div>
     </div>

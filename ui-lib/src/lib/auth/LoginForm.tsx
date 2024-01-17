@@ -9,11 +9,11 @@ export interface LoginFormProps {
   widthLogo: number;
   heightLogo: number;
   signInAuth: any;
-
+  poweredby: boolean;
   appName: string;
 }
 const LoginForm = (props: LoginFormProps) => {
-  const { logo, widthLogo, heightLogo, appName } = props;
+  const { logo, widthLogo, heightLogo, appName, poweredby } = props;
   const { signInAuth } = props;
   const router = useRouter();
   const [loginForm, setLoginForm] = useState<any>({
@@ -124,6 +124,18 @@ const LoginForm = (props: LoginFormProps) => {
           ¿Olvidaste tu contraseña?
         </Link>
       </p>
+      {poweredby && (
+        <div className="flex items-center justify-center mt-4 text-xs">
+          Powered by
+          <Image
+            src="/images/home-page/suan_logo.png"
+            height={10}
+            width={12}
+            className="ml-2"
+            alt={`${appName} logo`}
+          />
+        </div>
+      )}
     </div>
   );
 };

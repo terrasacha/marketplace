@@ -61,8 +61,8 @@ const MainLayout = ({ children }: PropsWithChildren) => {
             onClose={handleSidebarClose}
             appName="Terrasacha"
             image="/images/home-page/suan_logo.png"
-            heightLogo={120}
-            widthLogo={120}
+            heightLogo={80}
+            widthLogo={45}
             poweredBy={false}
           />
           <main className="lg:ml-80">{children}</main>

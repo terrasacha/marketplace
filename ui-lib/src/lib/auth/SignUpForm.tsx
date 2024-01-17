@@ -12,6 +12,7 @@ interface SignUpFormProps {
   heightLogo: number;
   appName: string;
   signUpAuth: any;
+  poweredby: boolean;
 }
 const initialStateErrors = { confirmPassword: '', createUserError: '' };
 
@@ -23,6 +24,7 @@ const SignUpForm = (props: SignUpFormProps) => {
     heightLogo,
     appName,
     signUpAuth,
+    poweredby,
   } = props;
   const router = useRouter();
   const [signupForm, setSignupForm] = useState<any>({
@@ -206,6 +208,18 @@ const SignUpForm = (props: SignUpFormProps) => {
           Ingresa aquí
         </Link>
       </p>
+      {poweredby && (
+        <div className="flex items-center justify-center mt-4 text-xs">
+          Powered by
+          <Image
+            src="/images/home-page/suan_logo.png"
+            height={10}
+            width={12}
+            className="ml-2"
+            alt={`${appName} logo`}
+          />
+        </div>
+      )}
     </div>
   );
 };

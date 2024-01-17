@@ -21,6 +21,7 @@ const Login = (props: any) => {
           heightLogo={250}
           appName="Terrasacha"
           signInAuth={signInAuth}
+          poweredby={true}
         />
       </div>
     </div>

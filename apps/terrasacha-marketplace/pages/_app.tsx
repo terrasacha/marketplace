@@ -43,7 +43,7 @@ function MyApp({ Component, pageProps }: MyAppProps) {
                 color="#69A1B3"
                 startPosition={0.3}
                 stopDelayMs={200}
-                height={4}
+                height={1}
                 showOnShallow={true}
                 options={{ easing: 'ease', speed: 500 }}
               />

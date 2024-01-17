@@ -28,6 +28,7 @@ const Signup: MyPage = (props: any) => {
           heightLogo={250}
           appName="Terrasacha"
           signUpAuth={signUpAuth}
+          poweredby={true}
         />
       </div>
     </div>
