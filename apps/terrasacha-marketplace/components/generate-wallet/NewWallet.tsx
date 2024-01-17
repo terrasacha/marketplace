@@ -7,18 +7,18 @@ import PasteWordsStep from './PasteWordsStep';
 import CreateCredentials from './CreateCredentials';
 
 const NewWallet = (props: any) => {
-  const [currentSection, setCurrentSection] = useState(2) as any[];
+  const [currentSection, setCurrentSection] = useState(1) as any[];
   return (
     <NewWalletProvider>
       <div className="bg-white rounded-2xl py-10 px-12 sm:px-8  flex flex-col justify-center">
         {currentSection === 1 && (
-          <CreateCredentials setCurrentSection={setCurrentSection} />
-        )}
-        {currentSection === 2 && (
           <GenerateWordsStep setCurrentSection={setCurrentSection} />
         )}
-        {currentSection === 3 && (
+        {currentSection === 2 && (
           <PasteWordsStep setCurrentSection={setCurrentSection} />
+        )}
+        {currentSection === 3 && (
+          <CreateCredentials setCurrentSection={setCurrentSection} />
         )}
       </div>
     </NewWalletProvider>

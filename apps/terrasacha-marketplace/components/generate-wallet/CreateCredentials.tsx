@@ -62,7 +62,7 @@ const CreateCredentials = (props: any) => {
       return;
     }
     setWalletInfo({ name: inputValue.walletname, passwd: inputValue.password });
-    return setCurrentSection(2);
+    return setCurrentSection(4);
   };
   return (
     <div>
@@ -154,7 +154,7 @@ const CreateCredentials = (props: any) => {
           </p>
         </div>
       </div>
-      <div className="flex w-full justify-center mt-6">
+      <div className="flex w-full justify-end mt-6 ">
         <Button
           className="px-8"
           color="gray"
@@ -162,9 +162,12 @@ const CreateCredentials = (props: any) => {
         >
           Limpiar todos los campos
         </Button>
-        <Button className="px-8 ml-4" onClick={() => handleContinue()}>
+        <button
+          className="group flex h-min items-center justify-center p-2 text-center font-medium focus:z-10 focus:outline-none text-white bg-cyan-700 border border-transparent enabled:hover:bg-cyan-800 focus:ring-cyan-300 dark:bg-cyan-600 dark:enabled:hover:bg-cyan-700 dark:focus:ring-cyan-800 rounded-lg focus:ring-2 px-8 ml-4"
+          onClick={() => handleContinue()}
+        >
           Continuar
-        </Button>
+        </button>
       </div>
     </div>
   );

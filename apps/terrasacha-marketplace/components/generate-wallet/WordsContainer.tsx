@@ -50,7 +50,7 @@ const WordsContainer = (props: any) => {
       {useCase === 'generate' && (
         <button
           onClick={() => copyToClipboard()}
-          className="absolute right-4 top-4 text-white text-lg"
+          className="absolute right-2 top-2 text-[#2e7d96]"
         >
           {copied ? <FaCopy /> : <FaRegCopy />}
         </button>
