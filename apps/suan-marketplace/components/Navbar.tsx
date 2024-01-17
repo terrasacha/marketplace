@@ -1,8 +1,8 @@
-import dynamic from "next/dynamic";
-import { useState } from "react";
-import Sidebar from "./Sidebar"; 
+import dynamic from 'next/dynamic';
+import { useState } from 'react';
+import Sidebar from './Sidebar';
 
-const CardanoWallet = dynamic(() => import("./cardano-wallet/CardanoWallet"));
+const CardanoWallet = dynamic(() => import('./cardano-wallet/CardanoWallet'));
 
 export default function Navbar() {
   const [isSidebarOpen, setIsSidebarOpen] = useState(false);
@@ -14,7 +14,6 @@ export default function Navbar() {
   const closeSidebar = () => {
     setIsSidebarOpen(false);
   };
-
 
   return (
     <>
@@ -48,7 +47,6 @@ export default function Navbar() {
           </div>
         </div>
       </nav>
-      <Sidebar isOpen={isSidebarOpen} onClose={closeSidebar} />
     </>
   );
 }

@@ -1,7 +1,7 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import Modal from '@terrasacha/components/wallet/modal';
 import dynamic from 'next/dynamic';
-
+import { useWallet } from '@meshsdk/react';
 // Importar el componente Modal
 const ProjectDataModal = dynamic(
   () => import('@terrasacha/components/modals/ProjectDataModal')
@@ -16,12 +16,46 @@ interface Token {
   // Agrega cualquier otra propiedad que tenga tu token
 }
 const WalletDashboard = () => {
+  const { wallet, connected } = useWallet();
+
   const [isModalOpen, setModalOpen] = useState(false);
   const [selectedToken, setSelectedToken] = useState<Token | null>(null);
   const [activeTab, setActiveTab] = useState(0);
   const [sectionCount, setSectionCount] = useState(1); // Track the number of sections
+  const [walletData, setWalletData] = useState<any>(null);
+  const [transactionAddr, setTransactionAddr] = useState<any>(null);
+  useEffect(() => {
+    loadUserData();
+  }, []);
+  async function loadUserData() {
+    const usedAddresses = await wallet.getUsedAddresses();
+    const changeAddress = await wallet.getChangeAddress();
+    try {
+      const response = await fetch(
+        'https://93jp7ynsqv.us-east-1.awsapprunner.com/api/v1/wallet/query-wallet/balance/',
+        {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify([usedAddresses[1]]),
+        }
+      );
 
-  const tokensData = {
+      if (!response.ok) {
+        throw new Error(
+          `Error en la solicitud: ${response.status} - ${response.statusText}`
+        );
+      }
+
+      const responseData = await response.json();
+      setWalletData(responseData);
+      setTransactionAddr(changeAddress);
+    } catch (error) {
+      console.error('Error en la solicitud:', error);
+    }
+  }
+  /*  const tokensData = {
     yourTokens: [
       {
         id: 1,
@@ -74,7 +108,7 @@ const WalletDashboard = () => {
         description: 'Descripción del Token 4',
       },
     ],
-  };
+  }; */
 
   const openModal = (token: Token) => {
     if (token) {
@@ -87,7 +121,8 @@ const WalletDashboard = () => {
     setModalOpen(false);
     setSelectedToken(null);
   };
-
+  if (!walletData)
+    return <div className="h-auto w-full px-5 pt-6">Cargando</div>;
   return (
     <div className="h-auto w-full px-5 pt-6">
       <div className="p-4 border-gray-200 rounded-lg dark:border-gray-700 mt-14">
@@ -96,32 +131,33 @@ const WalletDashboard = () => {
         </h2>
       </div>
       <div className="mb-4">
-        <p className="text-xl">₳ 25.2365 </p>
+        <p className="text-xl">₳ {walletData[0].balance / 1000000}</p>
         <p>$ 25 USD</p>
       </div>
       <div className="flex">
         <div className="w-1/2 pr-4">
           <h2 className="text-xl font-bold mb-2 azul">Tus Tokens</h2>
           <div className="flex">
-            {tokensData.yourTokens.map((token) => (
+            {walletData[0].assets.map((token: any, index: number) => (
               <div
-                key={token.id}
+                key={index}
                 className="mb-4 cursor-pointer md:w-1/4 token-wallet m-3 w-1/2"
                 onClick={() => openModal(token)}
               >
                 <img
                   src={token.image}
-                  alt={token.title}
+                  alt={token.asset_name}
                   className="w-full h-32 object-cover mb-2 m-auto d-block"
                 />
-                <p className="text-sm text-center p-4">{token.title}</p>
+                <p className="text-sm text-center p-4">{token.asset_name}</p>
+                <p className="text-sm text-center p-4">{token.quantity}</p>
               </div>
             ))}
           </div>
         </div>
         <div className="w-1/2 pl-4">
           <h2 className="text-xl font-bold mb-2">Otros Tokens</h2>
-          <div className="flex">
+          {/* <div className="flex">
             {tokensData.otherTokens.map((token) => (
               <div
                 key={token.id}
@@ -136,7 +172,7 @@ const WalletDashboard = () => {
                 <p className="text-sm text-center p-4">{token.title}</p>
               </div>
             ))}
-          </div>
+          </div> */}
         </div>
       </div>
       {isModalOpen && selectedToken !== null && (
@@ -234,8 +270,7 @@ const WalletDashboard = () => {
               <h3>Stake Address </h3>
               <p>
                 Comparte la dirección de tu billetera para recibir pagos o
-                tokens
-                addr_test1qpljcj5wgslf2gj8zq9yfnkv8srj5etz32k2puy0kkrh5lfk5yhgj2d94qveym6uc2a7zc73el777g7t99wt6msp4qlsehx5wv
+                tokens {transactionAddr}
               </p>
               {/* Agrega aquí el contenido específico para la pestaña "Recibir" */}
             </div>

@@ -6,9 +6,16 @@ import Link from 'next/link';
 interface SidebarProps {
   isOpen: boolean;
   onClose: () => void;
+  appName: string;
+  image: string;
+  widthLogo: number;
+  heightLogo: number;
+  poweredBy: boolean;
 }
 
-export default function Sidebar({ isOpen, onClose }: SidebarProps) {
+export default function Sidebar(props: SidebarProps) {
+  const { isOpen, onClose, appName, image, widthLogo, heightLogo, poweredBy } =
+    props;
   const { wallet, connected } = useWallet();
   const [walletStakeID, setWalletStakeID] = useState<any>(undefined);
   const [copied, setCopied] = useState(false);
@@ -163,10 +170,10 @@ export default function Sidebar({ isOpen, onClose }: SidebarProps) {
         <div className="flex items-center justify-center my-8">
           <Link href="/home">
             <Image
-              src="/images/home-page/terrasacha_logo_vertical.png"
-              width={120}
-              height={88}
-              alt="SUAN Logo"
+              src={image}
+              height={heightLogo} //88 terra
+              width={widthLogo} //120
+              alt={`${appName} Logo`}
             />
           </Link>
         </div>
@@ -247,16 +254,18 @@ export default function Sidebar({ isOpen, onClose }: SidebarProps) {
             </Link>
           </li>
           <li className="pt-4 mt-4 border-t border-gray-200 dark:border-gray-700 flex flex-col items-center justify-center text-center">
-            <div className="flex items-center mt-2 mb-4">
-              Powered by
-              <Image
-                src="/images/home-page/suan_logo.png"
-                height={10}
-                width={12}
-                className="ml-1"
-                alt="SUAN Logo"
-              />
-            </div>
+            {poweredBy && (
+              <div className="flex items-center mt-2 mb-4">
+                Powered by
+                <Image
+                  src="/images/home-page/suan_logo.png"
+                  height={10}
+                  width={12}
+                  className="ml-1"
+                  alt="SUAN Logo"
+                />
+              </div>
+            )}
             <div>
               <p>Copyright © Derechos de autor</p>
               <p>Todos los derechos reservados</p>
