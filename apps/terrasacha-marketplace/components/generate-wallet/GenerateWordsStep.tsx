@@ -1,6 +1,5 @@
-import React, { useContext, useState, useEffect } from 'react';
+import React, { useContext, useState } from 'react';
 import { Checkbox, Label, Button, Radio } from 'flowbite-react';
-import { getCurrentUser } from 'aws-amplify/auth';
 import axios from 'axios';
 import NewWalletContext from '@terrasacha/store/generate-new-wallet-context';
 import WordsContainer from './WordsContainer';
@@ -13,42 +12,18 @@ const options = [
   { id: 'twelve', value: 12, name: 'Doce' },
 ];
 const GenerateWordsStep = (props: any) => {
-  const {
-    words,
-    setWords,
-    loading,
-    setLoading,
-    user,
-    walletInfo,
-    recoveryWords,
-    setRecoveryWords,
-  } = useContext<any>(NewWalletContext);
+  const { words, setWords, setLoading, recoveryWords, setRecoveryWords } =
+    useContext<any>(NewWalletContext);
   const setCurrentSection = props.setCurrentSection;
   const [isChecked, setIsChecked] = useState(false);
 
-  useEffect(() => {
-    /* if (words === null) {
-      generateWords();
-    } */
-  }, []);
   const generateWords = async () => {
-    const url =
-      'https://93jp7ynsqv.us-east-1.awsapprunner.com/api/v1/wallet/create-wallet/';
-    const data = {
-      walletName: walletInfo.name || 'test',
-      save_flag: true,
-      userID: user,
-      isAdmin: false,
-      isSelected: true,
-      status: 'active',
-      passphrase: walletInfo.passwd || 'test12341234',
-      size: recoveryWords.length,
-    };
+    const url = `https://93jp7ynsqv.us-east-1.awsapprunner.com/api/v1/wallet/generate-words/?size=${recoveryWords.length}`;
     axios
-      .post(url, data)
+      .post(url)
       .then((response) => {
-        setWords(response.data.data.mnemonic);
-        console.log(response.data.data.mnemonic);
+        setWords(response.data);
+        console.log(response.data);
         setLoading(false);
       })
       .catch((error) => {

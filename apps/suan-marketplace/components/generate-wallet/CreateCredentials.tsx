@@ -2,13 +2,13 @@ import React, { useState, useContext } from 'react';
 import { Button } from 'flowbite-react';
 import { FaPen } from 'react-icons/fa';
 import { BsFillEyeFill, BsFillEyeSlashFill } from 'react-icons/bs';
-import NewWalletContext from '@suan//store/generate-new-wallet-context';
-import { set } from 'lodash';
-
+import NewWalletContext from '@suan/store/generate-new-wallet-context';
+import axios from 'axios';
 const deafultState = { walletname: '', password: '', passwordConfirm: '' };
 const deafultStateShowInfo = { password: false, passwordConfirm: false };
 const CreateCredentials = (props: any) => {
-  const { setWalletInfo } = useContext<any>(NewWalletContext);
+  const { words, setLoading, user, setWalletInfo } =
+    useContext<any>(NewWalletContext);
   const setCurrentSection = props.setCurrentSection;
   const [inputValue, setInputValue] = useState(deafultState) as any[];
   const [showInfo, setShowInfo] = useState(deafultStateShowInfo) as any[];
@@ -61,8 +61,33 @@ const CreateCredentials = (props: any) => {
       });
       return;
     }
-    setWalletInfo({ name: inputValue.walletname, passwd: inputValue.password });
-    return setCurrentSection(2);
+    const url = `https://93jp7ynsqv.us-east-1.awsapprunner.com/api/v1/wallet/create-wallet`;
+    const data = {
+      walletName: inputValue.walletname,
+      save_flag: true,
+      userID: user,
+      isAdmin: false,
+      isSelected: true,
+      status: 'active',
+      passphrase: inputValue.password,
+      words: words,
+    };
+
+    axios
+      .post(url, data)
+      .then((response) => {
+        console.log(response.data);
+        setWalletInfo({
+          name: inputValue.walletname,
+          passwd: inputValue.password,
+        });
+        setLoading(false);
+        setCurrentSection(4);
+      })
+      .catch((error) => {
+        console.error('Error al hacer la solicitud:', error);
+        setLoading(false);
+      });
   };
   return (
     <div>
@@ -154,7 +179,7 @@ const CreateCredentials = (props: any) => {
           </p>
         </div>
       </div>
-      <div className="flex w-full justify-center mt-6">
+      <div className="flex w-full justify-end mt-6 ">
         <Button
           className="px-8"
           color="gray"
@@ -162,9 +187,12 @@ const CreateCredentials = (props: any) => {
         >
           Limpiar todos los campos
         </Button>
-        <Button className="px-8 ml-4" onClick={() => handleContinue()}>
+        <button
+          className="group flex h-min items-center justify-center p-2 text-center font-medium focus:z-10 focus:outline-none text-white bg-cyan-700 border border-transparent enabled:hover:bg-cyan-800 focus:ring-cyan-300 dark:bg-cyan-600 dark:enabled:hover:bg-cyan-700 dark:focus:ring-cyan-800 rounded-lg focus:ring-2 px-8 ml-4"
+          onClick={() => handleContinue()}
+        >
           Continuar
-        </Button>
+        </button>
       </div>
     </div>
   );

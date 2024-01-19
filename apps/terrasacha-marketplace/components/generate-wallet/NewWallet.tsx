@@ -1,10 +1,9 @@
-import WordsContainer from '@terrasacha/components/generate-wallet/WordsContainer';
-import React, { useContext, useState } from 'react';
-import { Checkbox, Label, Button } from 'flowbite-react';
+import React, { useState } from 'react';
 import GenerateWordsStep from './GenerateWordsStep';
 import { NewWalletProvider } from '@terrasacha/store/generate-new-wallet-context';
 import PasteWordsStep from './PasteWordsStep';
 import CreateCredentials from './CreateCredentials';
+import WalletCreatedSucessfully from './WalletCreatedSuccessfully';
 
 const NewWallet = (props: any) => {
   const [currentSection, setCurrentSection] = useState(1) as any[];
@@ -19,6 +18,9 @@ const NewWallet = (props: any) => {
         )}
         {currentSection === 3 && (
           <CreateCredentials setCurrentSection={setCurrentSection} />
+        )}
+        {currentSection === 4 && (
+          <WalletCreatedSucessfully setCurrentSection={setCurrentSection} />
         )}
       </div>
     </NewWalletProvider>

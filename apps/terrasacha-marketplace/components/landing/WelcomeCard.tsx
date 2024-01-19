@@ -1,15 +1,14 @@
 // components/LoginForm.tsx
-import React, { useState, useEffect } from "react";
-import { Button } from "flowbite-react";
-import Link from "next/link";
-import { getCurrentUser } from "aws-amplify/auth";
+import React, { useState, useEffect } from 'react';
+import { Button } from 'flowbite-react';
+import Link from 'next/link';
+import { getCurrentUser } from 'aws-amplify/auth';
 
 const WelcomeCard = (props: any) => {
   const [isAuthenticated, setIsAuthenticated] = useState(null) as any;
 
   useEffect(() => {
     currentAuthenticatedUser().then((res) => {
-      console.log(res);
       setIsAuthenticated(res);
     });
   }, []);
@@ -35,18 +34,18 @@ const WelcomeCard = (props: any) => {
       </p>
       <p
         className={`h-16 flex justify-center items-center text-sm ${
-          checkingWallet === "unauthorized" ? "text-red-400" : "text-slate-600"
+          checkingWallet === 'unauthorized' ? 'text-red-400' : 'text-slate-600'
         }`}
       >
         {/* {checkingWallet === 'uncheck'? '': checkingWallet} */}
-        {checkingWallet === "checking" ? "Cargando..." : ""}
-        {checkingWallet === "authorized"
-          ? "Billetera autorizada. Redirigiendo..."
-          : ""}
-        {checkingWallet === "unauthorized" ? "Billetera no autorizada." : ""}
+        {checkingWallet === 'checking' ? 'Cargando...' : ''}
+        {checkingWallet === 'authorized'
+          ? 'Billetera autorizada. Redirigiendo...'
+          : ''}
+        {checkingWallet === 'unauthorized' ? 'Billetera no autorizada.' : ''}
       </p>
       <p className="text-sm pt-1 pb-4 w-full text-center">
-        ¿Quieres solicitar tu billetera?{" "}
+        ¿Quieres solicitar tu billetera?{' '}
         <Link
           href="https://suan-1.gitbook.io/documentacion-suan-sandbox"
           target="_blank"
@@ -58,8 +57,8 @@ const WelcomeCard = (props: any) => {
       <Link
         href={
           isAuthenticated
-            ? "/generate-wallet"
-            : "/auth/login?fromGenerateWallet=true"
+            ? '/generate-wallet'
+            : '/auth/login?fromGenerateWallet=true'
         }
       >
         <Button className="w-full" color="light">

@@ -18,6 +18,8 @@ const WordsContainer = (props: any) => {
   const [wordsFormatted, setWordsFormatted] = useState(null) as any[];
   const [copied, setCopied] = useState(false) as any[];
   useEffect(() => {
+    console.log(words);
+
     if (words === null) return;
     setWordsFormatted(words.split(' '));
   }, [words]);

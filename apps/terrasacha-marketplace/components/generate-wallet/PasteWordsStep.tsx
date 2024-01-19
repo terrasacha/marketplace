@@ -3,7 +3,6 @@ import { Checkbox, Label, Button } from 'flowbite-react';
 import NewWalletContext from '@terrasacha/store/generate-new-wallet-context';
 import WordsContainer from './WordsContainer';
 import { FaPen } from 'react-icons/fa';
-import { set } from 'lodash';
 const PasteWordsStep = (props: any) => {
   const {
     recoveryWords,

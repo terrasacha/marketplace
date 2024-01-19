@@ -3,12 +3,12 @@ import { Button } from 'flowbite-react';
 import { FaPen } from 'react-icons/fa';
 import { BsFillEyeFill, BsFillEyeSlashFill } from 'react-icons/bs';
 import NewWalletContext from '@terrasacha/store/generate-new-wallet-context';
-import { set } from 'lodash';
-
+import axios from 'axios';
 const deafultState = { walletname: '', password: '', passwordConfirm: '' };
 const deafultStateShowInfo = { password: false, passwordConfirm: false };
 const CreateCredentials = (props: any) => {
-  const { setWalletInfo } = useContext<any>(NewWalletContext);
+  const { words, setLoading, user, setWalletInfo } =
+    useContext<any>(NewWalletContext);
   const setCurrentSection = props.setCurrentSection;
   const [inputValue, setInputValue] = useState(deafultState) as any[];
   const [showInfo, setShowInfo] = useState(deafultStateShowInfo) as any[];
@@ -61,8 +61,33 @@ const CreateCredentials = (props: any) => {
       });
       return;
     }
-    setWalletInfo({ name: inputValue.walletname, passwd: inputValue.password });
-    return setCurrentSection(4);
+    const url = `https://93jp7ynsqv.us-east-1.awsapprunner.com/api/v1/wallet/create-wallet`;
+    const data = {
+      walletName: inputValue.walletname,
+      save_flag: true,
+      userID: user,
+      isAdmin: false,
+      isSelected: true,
+      status: 'active',
+      passphrase: inputValue.password,
+      words: words,
+    };
+
+    axios
+      .post(url, data)
+      .then((response) => {
+        console.log(response.data);
+        setWalletInfo({
+          name: inputValue.walletname,
+          passwd: inputValue.password,
+        });
+        setLoading(false);
+        setCurrentSection(4);
+      })
+      .catch((error) => {
+        console.error('Error al hacer la solicitud:', error);
+        setLoading(false);
+      });
   };
   return (
     <div>

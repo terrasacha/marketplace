@@ -1,5 +1,5 @@
-import { createContext, use, useEffect, useState } from "react";
-import { getCurrentUser } from "aws-amplify/auth";
+import { createContext, useEffect, useState } from 'react';
+import { getCurrentUser } from 'aws-amplify/auth';
 const NewWalletContext = createContext({});
 
 export function NewWalletProvider({ children }: { children: React.ReactNode }) {
@@ -11,10 +11,10 @@ export function NewWalletProvider({ children }: { children: React.ReactNode }) {
   const [words, setWords] = useState(null) as any[];
   const [loading, setLoading] = useState(false) as any[];
   const [recoveryWords, setRecoveryWords] = useState(
-    Array(24).fill("")
+    Array(24).fill('')
   ) as any[];
   const [nextRecoveryWordIndex, setNextRecoveryWordIndex] = useState(
-    recoveryWords.indexOf("")
+    recoveryWords.indexOf('')
   ) as any[];
 
   useEffect(() => {

@@ -18,6 +18,7 @@ const WordsContainer = (props: any) => {
   const [wordsFormatted, setWordsFormatted] = useState(null) as any[];
   const [copied, setCopied] = useState(false) as any[];
   useEffect(() => {
+    console.log(words);
     if (words === null) return;
     setWordsFormatted(words.split(' '));
   }, [words]);
@@ -50,7 +51,7 @@ const WordsContainer = (props: any) => {
       {useCase === 'generate' && (
         <button
           onClick={() => copyToClipboard()}
-          className="absolute right-4 top-4 text-white text-lg"
+          className="absolute right-2 top-2 text-[#2e7d96]"
         >
           {copied ? <FaCopy /> : <FaRegCopy />}
         </button>
