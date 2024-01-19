@@ -61,7 +61,7 @@ const CreateCredentials = (props: any) => {
       });
       return;
     }
-    const url = `https://93jp7ynsqv.us-east-1.awsapprunner.com/api/v1/wallet/create-wallet`;
+    const url = `https://93jp7ynsqv.us-east-1.awsapprunner.com/api/v1/wallet/create-wallet/`;
     const data = {
       walletName: inputValue.walletname,
       save_flag: true,
