@@ -59,7 +59,7 @@ const MainLayout = ({ children }: PropsWithChildren) => {
           <Sidebar
             isOpen={isOpen}
             onClose={handleSidebarClose}
-            appName="Terrasacha"
+            appName="Suan"
             image="/images/home-page/suan_logo.png"
             heightLogo={80}
             widthLogo={45}

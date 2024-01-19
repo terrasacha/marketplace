@@ -1,6 +1,6 @@
 import dynamic from 'next/dynamic';
-import { signInAuth } from '@terrasacha/backend';
-import Title from '@terrasacha/components/auth/Title';
+import { signInAuth } from '@suan/backend';
+import Title from '@suan/components/auth/Title';
 import Image from 'next/image';
 import { LoginForm } from '@marketplaces/ui-lib';
 const Login = (props: any) => {

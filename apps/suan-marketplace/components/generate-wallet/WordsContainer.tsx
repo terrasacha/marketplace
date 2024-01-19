@@ -2,7 +2,7 @@ import React, { useEffect, useState, useContext } from 'react';
 import { Spinner, Button } from 'flowbite-react';
 import { FaRegCopy, FaCopy } from 'react-icons/fa6';
 import { IoCloseSharp } from 'react-icons/io5';
-import NewWalletContext from '@suan//store/generate-new-wallet-context';
+import NewWalletContext from '@suan/store/generate-new-wallet-context';
 
 const WordsContainer = (props: any) => {
   const {
@@ -19,7 +19,7 @@ const WordsContainer = (props: any) => {
   const [copied, setCopied] = useState(false) as any[];
   useEffect(() => {
     console.log(words);
-    if (words === null) return;
+    if (words === null || words === undefined) return;
     setWordsFormatted(words.split(' '));
   }, [words]);
 

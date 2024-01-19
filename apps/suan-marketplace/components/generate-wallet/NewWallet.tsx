@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import GenerateWordsStep from './GenerateWordsStep';
-import { NewWalletProvider } from '@terrasacha/store/generate-new-wallet-context';
+import { NewWalletProvider } from '@suan/store/generate-new-wallet-context';
 import PasteWordsStep from './PasteWordsStep';
 import CreateCredentials from './CreateCredentials';
 import WalletCreatedSucessfully from './WalletCreatedSuccessfully';

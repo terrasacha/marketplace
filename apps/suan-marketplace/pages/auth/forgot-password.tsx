@@ -1,7 +1,7 @@
 import dynamic from 'next/dynamic';
 import { ConfirmPassword } from '@marketplaces/ui-lib';
 import Image from 'next/image';
-import { forgotPasswordSubmit, forgotPassword } from '@terrasacha/backend';
+import { forgotPasswordSubmit, forgotPassword } from '@suan/backend';
 const ForgotPasswd = (props: any) => {
   return (
     <div className="w-full h-screen flex justify-center items-center bg-slate-200">

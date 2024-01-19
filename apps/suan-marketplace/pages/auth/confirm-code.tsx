@@ -1,8 +1,8 @@
 import React, { useState, useEffect } from 'react';
 import { ConfirmCode, SignUpForm } from '@marketplaces/ui-lib';
-import { signUpAuth, confirmSignUpAuth } from '@terrasacha/backend';
-import Title from '@terrasacha/components/auth/Title';
-import { MyPage } from '@terrasacha/components/common/types';
+import { signUpAuth, confirmSignUpAuth } from '@suan/backend';
+import Title from '@suan/components/auth/Title';
+import { MyPage } from '@suan/components/common/types';
 import Image from 'next/image';
 
 const ConfirmCodePage: MyPage = (props: any) => {

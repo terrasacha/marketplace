@@ -1,9 +1,9 @@
 import React, { useState, useEffect } from 'react';
 import dynamic from 'next/dynamic';
 import { SignUpForm } from '@marketplaces/ui-lib';
-import { signUpAuth } from '@terrasacha/backend';
-import Title from '@terrasacha/components/auth/Title';
-import { MyPage } from '@terrasacha/components/common/types';
+import { signUpAuth } from '@suan/backend';
+import Title from '@suan/components/auth/Title';
+import { MyPage } from '@suan/components/common/types';
 import Image from 'next/image';
 
 const Signup: MyPage = (props: any) => {
