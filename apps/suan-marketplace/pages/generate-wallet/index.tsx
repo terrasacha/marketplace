@@ -1,25 +1,31 @@
 import React, { use, useContext, useEffect, useState } from 'react';
-import { MyPage } from '@suan//components/common/types';
+import { MyPage } from '@suan/components/common/types';
 import Image from 'next/image';
 import { Button } from 'flowbite-react';
-import NewWallet from '@suan//components/generate-wallet/NewWallet';
+import NewWallet from '@suan/components/generate-wallet/NewWallet';
 import { getCurrentUser } from 'aws-amplify/auth';
 import { Hub } from 'aws-amplify/utils';
-import { signOutAuth } from '@suan//backend';
+import { signOutAuth } from '@suan/backend';
 import { useRouter } from 'next/router';
+import { getWalletByUser } from '@marketplaces/data-access';
+import AlreadyHasWallet from '@suan/components/generate-wallet/AlreadyHasWallet';
 
 const GenerateWalletPage: MyPage = (props: any) => {
   const router = useRouter();
   const [isAuthenticated, setIsAuthenticated] = useState(null) as any;
+  const [wallet, setWallet] = useState(null) as any;
   useEffect(() => {
     currentAuthenticatedUser().then((res) => {
-      setIsAuthenticated(res);
       if (!res) {
-        router.push('/');
+        setIsAuthenticated(false);
+        return router.push('/');
       }
+      setIsAuthenticated(true);
+      getWalletByUser(res).then((response) => {
+        setWallet(response);
+      });
     });
   }, []);
-
   Hub.listen('auth', ({ payload }) => {
     switch (payload.event) {
       case 'signedIn':
@@ -38,11 +44,12 @@ const GenerateWalletPage: MyPage = (props: any) => {
   async function currentAuthenticatedUser() {
     try {
       const { userId } = await getCurrentUser();
-      if (userId) return true;
+      return userId;
     } catch (err) {
       return false;
     }
   }
+
   async function signout() {
     try {
       await signOutAuth();
@@ -51,6 +58,7 @@ const GenerateWalletPage: MyPage = (props: any) => {
       console.log(err);
     }
   }
+  //if (!wallet) return <div>Cargando...</div>;
   return (
     <div className="w-full min-h-screen h-auto flex bg-slate-200 justify-center">
       <Image
@@ -62,12 +70,15 @@ const GenerateWalletPage: MyPage = (props: any) => {
         style={{ objectFit: 'cover', objectPosition: 'center', zIndex: '0' }}
       />
       <div className="z-10 mt-10 w-[50rem] h-auto">
-        {isAuthenticated && <NewWallet />}
         {isAuthenticated && (
-          <Button color="failure" onClick={() => signout()}>
-            Desconectar
-          </Button>
+          /*  wallet.length === 0 && */ <>
+            <NewWallet />
+            <Button color="failure" onClick={() => signout()}>
+              Desconectar
+            </Button>
+          </>
         )}
+        {/* {isAuthenticated && wallet.length > 0 && <AlreadyHasWallet />} */}
       </div>
     </div>
   );
