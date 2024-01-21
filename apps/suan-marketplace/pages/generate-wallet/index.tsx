@@ -58,7 +58,7 @@ const GenerateWalletPage: MyPage = (props: any) => {
       console.log(err);
     }
   }
-  //if (!wallet) return <div>Cargando...</div>;
+  if (!wallet) return <div>Cargando...</div>;
   return (
     <div className="w-full min-h-screen h-auto flex bg-slate-200 justify-center">
       <Image
@@ -70,15 +70,15 @@ const GenerateWalletPage: MyPage = (props: any) => {
         style={{ objectFit: 'cover', objectPosition: 'center', zIndex: '0' }}
       />
       <div className="z-10 mt-10 w-[50rem] h-auto">
-        {isAuthenticated && (
-          /*  wallet.length === 0 && */ <>
+        {isAuthenticated && wallet.length === 0 && (
+          <>
             <NewWallet />
             <Button color="failure" onClick={() => signout()}>
               Desconectar
             </Button>
           </>
         )}
-        {/* {isAuthenticated && wallet.length > 0 && <AlreadyHasWallet />} */}
+        {isAuthenticated && wallet.length > 0 && <AlreadyHasWallet />}
       </div>
     </div>
   );
