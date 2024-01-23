@@ -2,6 +2,8 @@ import React, { useState, useEffect } from 'react';
 import Link from 'next/link';
 import Image from 'next/image';
 import { useRouter } from 'next/router';
+import { TailSpin } from 'react-loader-spinner';
+
 const initialStateErrors = { loginError: '' };
 
 export interface LoginFormProps {
@@ -20,6 +22,7 @@ const LoginForm = (props: LoginFormProps) => {
     username: '',
     password: '',
   });
+  const [loading, setLoading] = useState(false);
   const [errors, setErrors] = useState<any>(initialStateErrors);
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     setErrors(initialStateErrors);
@@ -30,22 +33,24 @@ const LoginForm = (props: LoginFormProps) => {
     }));
   };
   const submitForm = async () => {
-    signInAuth(loginForm)
-      .then((data: any) => {
-        if (data) {
-          const isFromGenerateWallet =
-            router.query.fromGenerateWallet === 'true';
-          if (isFromGenerateWallet) return router.push('/generate-wallet');
-          return router.push('/');
-        }
-      })
-      .catch((error: any) => {
-        setErrors((preForm: any) => ({
-          ...preForm,
-          loginError: error.name,
-        }));
-      });
+    setLoading(true);
+    try {
+      const data = await signInAuth(loginForm);
+      if (data) {
+        const isFromGenerateWallet = router.query.fromGenerateWallet === 'true';
+        if (isFromGenerateWallet) return router.push('/generate-wallet');
+        return router.push('/');
+      }
+    } catch (error: any) {
+      setErrors((preForm: any) => ({
+        ...preForm,
+        loginError: error.name,
+      }));
+    } finally {
+      setLoading(false); // Se asegura de que setLoading(false) se ejecute, independientemente de si la promesa se resuelve o se rechaza.
+    }
   };
+
   return (
     <div className="bg-white rounded-2xl w-[35rem] max-w-[35rem] 2xl:w-[38%] py-10 px-12 sm:px-20 h-auto flex flex-col justify-center">
       <div className="w-full flex justify-center mb-8">
@@ -102,9 +107,17 @@ const LoginForm = (props: LoginFormProps) => {
       <button
         type="button"
         onClick={() => submitForm()}
-        className={`text-white bg-gray-800 hover:bg-gray-900 focus:outline-none focus:ring-4 focus:ring-gray-300 font-medium rounded-md text-sm px-5 py-3 mb-2 dark:bg-gray-800 dark:hover:bg-gray-700 dark:focus:ring-gray-700 dark:border-gray-700 w-full mt-4`}
+        className={`relative flex justify-center items-center h-10 overflow-hidden text-white bg-gray-800 hover:bg-gray-900 focus:outline-none focus:ring-4 focus:ring-gray-300 font-medium rounded-md text-sm px-5 py-3 mb-2 dark:bg-gray-800 dark:hover:bg-gray-700 dark:focus:ring-gray-700 dark:border-gray-700 w-full mt-4`}
       >
-        Ingresar
+        {loading ? (
+          <TailSpin
+            width="20"
+            color="#fff"
+            wrapperClass="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2"
+          />
+        ) : (
+          'Ingresar'
+        )}
       </button>
       <p className="text-sm pt-5">
         ¿No tienes una cuenta?

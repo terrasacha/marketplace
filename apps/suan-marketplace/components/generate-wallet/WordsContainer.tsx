@@ -3,22 +3,22 @@ import { Spinner, Button } from 'flowbite-react';
 import { FaRegCopy, FaCopy } from 'react-icons/fa6';
 import { IoCloseSharp } from 'react-icons/io5';
 import NewWalletContext from '@suan/store/generate-new-wallet-context';
+import { TailSpin } from 'react-loader-spinner';
 
 const WordsContainer = (props: any) => {
   const {
     words,
-    loading,
     recoveryWords,
     setRecoveryWords,
     nextRecoveryWordIndex,
     setNextRecoveryWordIndex,
   } = useContext<any>(NewWalletContext);
-  const useCase = props.useCase;
-  const generateWords = props.generateWords;
+  const { useCase, loading, generateWords } = props;
   const [wordsFormatted, setWordsFormatted] = useState(null) as any[];
   const [copied, setCopied] = useState(false) as any[];
   useEffect(() => {
-    if (words === null || words === undefined) return;
+    ``;
+    if (words === null) return;
     setWordsFormatted(words.split(' '));
   }, [words]);
 
@@ -38,11 +38,20 @@ const WordsContainer = (props: any) => {
   return wordsFormatted === null ? (
     <div className="w-full  h-24 rounded-xl flex justify-center items-center palabras">
       <p>
-        {!loading ? (
-          <Button onClick={() => generateWords()}> Generar palabras</Button>
-        ) : (
-          <Spinner aria-label="Spinner button example" size="lg" />
-        )}
+        <Button
+          className="relative flex items-center justify-center h-10 px-4 py-2 bg-[#0e7490] rounded-md text-sm text-white w-48"
+          onClick={() => generateWords()}
+        >
+          {loading ? (
+            <TailSpin
+              width="20"
+              color="#fff"
+              wrapperClass="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2"
+            />
+          ) : (
+            'Generar palabras'
+          )}{' '}
+        </Button>
       </p>
     </div>
   ) : (

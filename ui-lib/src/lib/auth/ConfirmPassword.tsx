@@ -3,7 +3,7 @@ import React, { useState } from 'react';
 import Link from 'next/link';
 import Image from 'next/image';
 import { useRouter } from 'next/router';
-
+import { TailSpin } from 'react-loader-spinner';
 export interface ConfirmPasswordProps {
   logo: string;
   widthLogo: number;
@@ -31,6 +31,7 @@ const ConfirmPassword = (props: ConfirmPasswordProps) => {
   const router = useRouter();
   const [loginForm, setLoginForm] = useState<any>(initialStateloginForm);
   const [errors, setErrors] = useState<any>(initialStateErrors);
+  const [loading, setLoading] = useState(false);
   const [loginFormRecovery, setLoginFormRecovery] = useState<any>(
     initialStateLoginFormRecovery
   );
@@ -68,19 +69,22 @@ const ConfirmPassword = (props: ConfirmPasswordProps) => {
   };
   const submitFormRecovery = async (event: any) => {
     event.preventDefault();
-    forgotPasswordSubmit(loginFormRecovery)
-      .then((data: any) => {
-        if (data) {
-          router.push('/auth/login');
-        }
-      })
-      .catch((error: any) => {
-        setErrors((preForm: any) => ({
-          ...preForm,
-          loginError: error.name,
-        }));
-      });
+    setLoading(true);
+    try {
+      const data = await forgotPasswordSubmit(loginFormRecovery);
+      if (data) {
+        router.push('/auth/login');
+      }
+    } catch (error: any) {
+      setErrors((preForm: any) => ({
+        ...preForm,
+        loginError: error,
+      }));
+    } finally {
+      setLoading(false);
+    }
   };
+
   return (
     <div className="bg-white rounded-2xl w-[35rem] max-w-[35rem] 2xl:w-[38%] py-10 px-12 sm:px-20 h-auto flex flex-col justify-center">
       <div className="w-full flex justify-center mb-8">
@@ -121,13 +125,21 @@ const ConfirmPassword = (props: ConfirmPasswordProps) => {
           <button
             type="submit"
             onClick={(e) => submitForm(e)}
-            className={`text-white ${
+            className={`relative flex items-center justify-center h-10 text-white ${
               loginForm.username.length > 0
                 ? 'bg-gray-800 hover:bg-gray-900'
                 : 'bg-gray-500 hover:bg-gray-600'
             } focus:outline-none focus:ring-4 focus:ring-gray-300 font-medium rounded-md text-sm px-5 py-3 mb-2 dark:bg-gray-800 dark:hover:bg-gray-700 dark:focus:ring-gray-700 dark:border-gray-700 w-full mt-4`}
           >
-            Recuperar
+            {loading ? (
+              <TailSpin
+                width="20"
+                color="#fff"
+                wrapperClass="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2"
+              />
+            ) : (
+              'Recuperar'
+            )}
           </button>
         </>
       )}
@@ -189,13 +201,21 @@ const ConfirmPassword = (props: ConfirmPasswordProps) => {
           <button
             type="button"
             onClick={(e) => submitFormRecovery(e)}
-            className={`text-white ${
+            className={`relative h-10 flex items-center justify-center text-white ${
               loginForm.username.length > 0
                 ? 'bg-gray-800 hover:bg-gray-900'
                 : 'bg-gray-500 hover:bg-gray-600'
             } focus:outline-none focus:ring-4 focus:ring-gray-300 font-medium rounded-md text-sm px-5 py-3 mb-2 dark:bg-gray-800 dark:hover:bg-gray-700 dark:focus:ring-gray-700 dark:border-gray-700 w-full mt-4`}
           >
-            Recuperar
+            {loading ? (
+              <TailSpin
+                width="20"
+                color="#fff"
+                wrapperClass="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2"
+              />
+            ) : (
+              'Recuperar'
+            )}
           </button>
         </>
       )}

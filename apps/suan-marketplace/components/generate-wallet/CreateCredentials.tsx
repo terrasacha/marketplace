@@ -1,18 +1,21 @@
-import React, { useState, useContext } from 'react';
+import React, { useState, useContext, useEffect } from 'react';
 import { Button } from 'flowbite-react';
 import { FaPen } from 'react-icons/fa';
 import { BsFillEyeFill, BsFillEyeSlashFill } from 'react-icons/bs';
 import NewWalletContext from '@suan/store/generate-new-wallet-context';
 import axios from 'axios';
+import { TailSpin } from 'react-loader-spinner';
+import { encryptPassword, updateWallet } from '@marketplaces/data-access';
+
 const deafultState = { walletname: '', password: '', passwordConfirm: '' };
 const deafultStateShowInfo = { password: false, passwordConfirm: false };
 const CreateCredentials = (props: any) => {
-  const { words, setLoading, user, setWalletInfo } =
-    useContext<any>(NewWalletContext);
+  const { words, user, setWalletInfo } = useContext<any>(NewWalletContext);
   const setCurrentSection = props.setCurrentSection;
   const [inputValue, setInputValue] = useState(deafultState) as any[];
   const [showInfo, setShowInfo] = useState(deafultStateShowInfo) as any[];
   const [errors, setErrors] = useState(deafultState) as any[];
+  const [loading, setLoading] = useState(false) as any[];
 
   const handleInputChange = (event: React.ChangeEvent<HTMLInputElement>) => {
     setErrors(deafultState);
@@ -38,7 +41,7 @@ const CreateCredentials = (props: any) => {
       return false;
     }
   };
-  const handleContinue = () => {
+  const handleContinue = async () => {
     if (inputValue.walletname.length < 5) {
       setErrors({
         ...errors,
@@ -61,33 +64,40 @@ const CreateCredentials = (props: any) => {
       });
       return;
     }
+    await createWallet();
+  };
+  const createWallet = async () => {
     const url = `https://93jp7ynsqv.us-east-1.awsapprunner.com/api/v1/wallet/create-wallet/`;
     const data = {
-      walletName: inputValue.walletname,
       save_flag: true,
       userID: user,
-      isAdmin: false,
-      isSelected: true,
-      status: 'active',
-      passphrase: inputValue.password,
       words: words,
+      //walletName: inputValue.walletname,
+      //isAdmin: false,
+      //isSelected: true,
+      //status: 'active',
+      //passphrase: inputValue.password,
     };
 
-    axios
-      .post(url, data)
-      .then((response) => {
-        console.log(response.data);
-        setWalletInfo({
-          name: inputValue.walletname,
-          passwd: inputValue.password,
-        });
-        setLoading(false);
-        setCurrentSection(4);
-      })
-      .catch((error) => {
-        console.error('Error al hacer la solicitud:', error);
-        setLoading(false);
+    try {
+      setLoading(true);
+      const response = await axios.post(url, data);
+      setWalletInfo({
+        name: inputValue.walletname,
+        passwd: inputValue.password,
       });
+      const hash = await encryptPassword(inputValue.password);
+      const response2 = await updateWallet({
+        id: response.data.data.wallet_id,
+        name: inputValue.walletname,
+        passphrase: hash,
+      });
+      setCurrentSection(4);
+    } catch (error) {
+      console.error('Error al hacer la solicitud:', error);
+    } finally {
+      setLoading(false);
+    }
   };
   return (
     <div>
@@ -188,10 +198,18 @@ const CreateCredentials = (props: any) => {
           Limpiar todos los campos
         </Button>
         <button
-          className="group flex h-min items-center justify-center p-2 text-center font-medium focus:z-10 focus:outline-none text-white bg-cyan-700 border border-transparent enabled:hover:bg-cyan-800 focus:ring-cyan-300 dark:bg-cyan-600 dark:enabled:hover:bg-cyan-700 dark:focus:ring-cyan-800 rounded-lg focus:ring-2 px-8 ml-4"
+          className="relative flex h-10 items-center justify-center p-2 font-medium focus:z-10 focus:outline-none text-white bg-cyan-700 border border-transparent enabled:hover:bg-cyan-800 focus:ring-cyan-300 dark:bg-cyan-600 dark:enabled:hover:bg-cyan-700 dark:focus:ring-cyan-800 rounded-lg focus:ring-2 px-8 ml-4"
           onClick={() => handleContinue()}
         >
-          Continuar
+          {loading ? (
+            <TailSpin
+              width="20"
+              color="#fff"
+              wrapperClass="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2"
+            />
+          ) : (
+            'Continuar'
+          )}
         </button>
       </div>
     </div>

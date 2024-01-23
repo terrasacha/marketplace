@@ -1,5 +1,19 @@
 import { UTxO } from "@meshsdk/core";
 import axios from "axios";
+
+const bcrypt = require('bcryptjs');
+
+export const encryptPassword = async (password:string) => {
+  try {
+    const salt = await bcrypt.genSalt(10);
+    const hash = await bcrypt.hash(password, salt);
+    return hash;
+  } catch (error) {
+    console.error('Error al hashear la contraseña:', error);
+    throw new Error('Error al hashear la contraseña');
+  }
+};
+
 const getProduct = /* GraphQL */ `
   query GetProduct($id: ID!) {
     getProduct(id: $id) {
@@ -754,6 +768,38 @@ export async function createCoreWallet(id: string, name: string) {
   } catch (error) {
     throw error;
   }
+}
+
+export async function updateWallet({ id, name, passphrase }: any) {
+  const response = await axios.post(
+    graphqlEndpoint,
+    {
+      query: `
+        mutation UpdateWallet($input: UpdateWalletInput!) {
+          updateWallet(input: $input) {
+            id
+          }
+        }
+      `,
+      variables: {
+        input: {
+          id: id,
+          isAdmin: false,
+          status: "active",
+          isSelected: false,
+          password: passphrase,
+          name: name,
+        },
+      },
+    },
+    {
+      headers: {
+        "x-api-key": awsAppSyncApiKey,
+      },
+    }
+  );
+
+  return response;
 }
 
 export async function createOrder(objeto: any) {

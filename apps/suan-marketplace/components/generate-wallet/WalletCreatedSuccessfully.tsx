@@ -1,8 +1,12 @@
 import React, { useEffect } from 'react';
 //@ts-ignore
 import confetti from 'canvas-confetti';
+import Link from 'next/link';
+import { useRouter } from 'next/router';
 const WalletCreatedSucessfully = (props: any) => {
+  const router = useRouter();
   const setCurrentSection = props.setCurrentSection;
+  const [countdown, setCountdown] = React.useState(5);
   useEffect(() => {
     confetti({
       particleCount: 100,
@@ -10,6 +14,16 @@ const WalletCreatedSucessfully = (props: any) => {
       origin: { y: 0.6 },
     });
   }, []);
+  useEffect(() => {
+    if (countdown > 0) {
+      const intervalId = setInterval(() => {
+        setCountdown((prevCountdown) => prevCountdown - 1);
+      }, 1000);
+
+      return () => clearInterval(intervalId);
+    }
+    countdown === 0 && router.push('/home');
+  }, [countdown]);
 
   const triggerConfetti = () => {
     confetti({
@@ -34,11 +48,21 @@ const WalletCreatedSucessfully = (props: any) => {
           🥳
         </button>
         <p className="text-lg">Tu billetera fue creada exitosamente</p>
+        <div>
+          {countdown > 0 ? (
+            <p className="text-sm">Redirigiendo en {countdown}</p>
+          ) : (
+            <p className="text-sm">Redirigiendo...</p>
+          )}
+        </div>
       </div>
       <div className="flex w-full justify-end mt-6">
-        <button className="group flex h-min items-center justify-center p-2 text-center font-medium focus:z-10 focus:outline-none text-white bg-cyan-700 border border-transparent enabled:hover:bg-cyan-800 focus:ring-cyan-300 dark:bg-cyan-600 dark:enabled:hover:bg-cyan-700 dark:focus:ring-cyan-800 rounded-lg focus:ring-2 px-8 ml-4">
+        <Link
+          href="/home"
+          className="group flex h-min items-center justify-center p-2 text-center font-medium focus:z-10 focus:outline-none text-white bg-cyan-700 border border-transparent enabled:hover:bg-cyan-800 focus:ring-cyan-300 dark:bg-cyan-600 dark:enabled:hover:bg-cyan-700 dark:focus:ring-cyan-800 rounded-lg focus:ring-2 px-8 ml-4"
+        >
           Continuar
-        </button>
+        </Link>
       </div>
     </div>
   );

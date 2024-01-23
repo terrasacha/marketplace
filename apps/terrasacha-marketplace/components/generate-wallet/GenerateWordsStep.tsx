@@ -12,25 +12,25 @@ const options = [
   { id: 'twelve', value: 12, name: 'Doce' },
 ];
 const GenerateWordsStep = (props: any) => {
-  const { words, setWords, setLoading, recoveryWords, setRecoveryWords } =
+  const { words, setWords, recoveryWords, setRecoveryWords } =
     useContext<any>(NewWalletContext);
   const setCurrentSection = props.setCurrentSection;
   const [isChecked, setIsChecked] = useState(false);
-
+  const [loading, setLoading] = useState(false);
   const generateWords = async () => {
-    const url = `https://93jp7ynsqv.us-east-1.awsapprunner.com/api/v1/wallet/generate-words/?size=${recoveryWords.length}`;
-    axios
-      .post(url)
-      .then((response) => {
-        setWords(response.data);
-        console.log(response.data);
-        setLoading(false);
-      })
-      .catch((error) => {
-        console.error('Error al hacer la solicitud:', error);
-        setLoading(false);
-      });
+    try {
+      setLoading(true);
+      const url = `https://93jp7ynsqv.us-east-1.awsapprunner.com/api/v1/wallet/generate-words/?size=${recoveryWords.length}`;
+      const response = await axios.post(url);
+      setWords(response.data);
+      console.log(response.data);
+    } catch (error) {
+      console.error('Error al hacer la solicitud:', error);
+    } finally {
+      setLoading(false);
+    }
   };
+
   const handleCheckboxChange = (event: React.ChangeEvent<HTMLInputElement>) => {
     setIsChecked(event.target.checked);
   };
@@ -71,7 +71,11 @@ const GenerateWordsStep = (props: any) => {
           );
         })}
       </fieldset>
-      <WordsContainer useCase="generate" generateWords={generateWords} />
+      <WordsContainer
+        useCase="generate"
+        generateWords={generateWords}
+        loading={loading}
+      />
       {words === null && (
         <div className="flex w-full justify-end mt-3 ">
           <Button

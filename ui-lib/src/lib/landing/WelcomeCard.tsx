@@ -15,7 +15,6 @@ const WelcomeCard = (props: WelcomeCardProps) => {
 
   useEffect(() => {
     currentAuthenticatedUser().then((res) => {
-      console.log(res);
       setIsAuthenticated(res);
     });
   }, []);

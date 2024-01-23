@@ -8,8 +8,7 @@ import Navbar from '../Navbar';
 import { Sidebar } from '@marketplaces/ui-lib';
 import { useWallet, useAssets } from '@meshsdk/react';
 import { useRouter } from 'next/router';
-import { getCurrentUser } from 'aws-amplify/auth';
-import { getWalletByUser } from '@marketplaces/data-access';
+
 const MainLayout = ({ children }: PropsWithChildren) => {
   const { connect, connected, disconnect } = useWallet();
   const [allowAccess, setAllowAccess] = useState<boolean>(false);
@@ -18,36 +17,13 @@ const MainLayout = ({ children }: PropsWithChildren) => {
   const router = useRouter();
 
   useEffect(() => {
-    const fetchData = async () => {
-      let access = false;
-
-      try {
-        const res = await accessHomeWithWallet();
-
-        if (res) {
-          const wallet = await getWalletByUser(res);
-
-          if (wallet.length > 0) {
-            setAllowAccess(true);
-            access = true;
-          }
-        }
-
-        if (!access) {
-          let walletName: any = sessionStorage.getItem('preferredWalletSuan');
-          if (walletName) {
-            connect(walletName);
-          } else {
-            sessionStorage.removeItem('preferredWalletSuan');
-            router.push('/');
-          }
-        }
-      } catch (error) {
-        console.error('Error:', error);
-      }
-    };
-
-    fetchData();
+    let walletName: any = sessionStorage.getItem('preferredWalletSuan');
+    if (walletName) {
+      connect(walletName);
+    } else {
+      sessionStorage.removeItem('preferredWalletSuan');
+      router.push('/');
+    }
   }, []);
 
   useEffect(() => {
@@ -70,15 +46,6 @@ const MainLayout = ({ children }: PropsWithChildren) => {
       }
     }
   }, [connected, assets]);
-
-  const accessHomeWithWallet = async () => {
-    try {
-      const user = await getCurrentUser();
-      return user.userId;
-    } catch {
-      return false;
-    }
-  };
 
   const handleSidebarClose = () => {
     setIsOpen(false);

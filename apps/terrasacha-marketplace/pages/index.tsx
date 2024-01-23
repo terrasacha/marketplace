@@ -5,13 +5,49 @@ import LoginFromContext from '@terrasacha/store/login-from';
 import { useWallet, useAssets } from '@meshsdk/react';
 import { useRouter } from 'next/router';
 import { MyPage } from '@terrasacha/components/common/types';
-
+import { getCurrentUser } from 'aws-amplify/auth';
+import { getWalletByUser } from '@terrasacha/backend';
+import { set } from 'lodash';
 const LandingPage: MyPage = (props: any) => {
-  const { connected, wallet } = useWallet();
+  const { connected } = useWallet();
   const [checkingWallet, setCheckingWallet] = useState<string>('uncheck');
+  const [loading, setLoading] = useState<boolean>(true);
+  const [walletcount, setWalletcount] = useState<number>(0);
   const router = useRouter();
   const { handleLoginFrom } = useContext<any>(LoginFromContext);
   const assets = useAssets() as Array<{ [key: string]: any }>;
+
+  useEffect(() => {
+    const fetchData = async () => {
+      try {
+        setLoading(true);
+        const res = await accessHomeWithWallet();
+        if (res) {
+          const wallet = await getWalletByUser(res);
+          if (wallet && wallet.length > 0) {
+            setWalletcount(wallet.length);
+            router.push('/home');
+          }
+        }
+      } catch (error) {
+        console.log(error);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchData();
+  }, []);
+
+  const accessHomeWithWallet = async () => {
+    try {
+      const user = await getCurrentUser();
+      return user.userId;
+    } catch {
+      return false;
+    }
+  };
+
   useEffect(() => {
     if (connected) {
       setCheckingWallet('checking');
@@ -38,7 +74,11 @@ const LandingPage: MyPage = (props: any) => {
 
   return (
     <>
-      <Landing checkingWallet={checkingWallet} />
+      <Landing
+        checkingWallet={checkingWallet}
+        loading={loading}
+        walletcount={walletcount}
+      />
     </>
   );
 };

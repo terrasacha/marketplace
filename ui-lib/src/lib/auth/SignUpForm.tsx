@@ -4,7 +4,7 @@ import Image from 'next/image';
 import Link from 'next/link';
 import { useRouter } from 'next/router';
 import { Label, Select } from 'flowbite-react';
-
+import { TailSpin } from 'react-loader-spinner';
 interface SignUpFormProps {
   handleSetSignUpStatus: (data: string) => void;
   logo: string;
@@ -35,6 +35,7 @@ const SignUpForm = (props: SignUpFormProps) => {
   });
   const [extraForm, setExtraForm] = useState<any>({ confirmPassword: '' });
   const [errors, setErrors] = useState<any>(initialStateErrors);
+  const [loading, setLoading] = useState(false);
   const [termsAccepted, setTermsAccepted] = useState<boolean>(false);
   const [privacyAccepted, setPrivacyAccepted] = useState<boolean>(false);
 
@@ -53,30 +54,37 @@ const SignUpForm = (props: SignUpFormProps) => {
     }));
   };
   const submitForm = async () => {
+    setLoading(true);
     setErrors(initialStateErrors);
-    if (signupForm.password !== extraForm.confirmPassword) {
-      return setErrors((preForm: any) => ({
-        ...preForm,
-        confirmPasswordError: 'Las contraseñas no coinciden',
-      }));
+    try {
+      if (signupForm.password !== extraForm.confirmPassword) {
+        throw new Error('Las contraseñas no coinciden');
+      }
+
+      const data = await signUpAuth(signupForm);
+      router.push('/auth/confirm-code');
+    } catch (error: any) {
+      if (error.message === 'Las contraseñas no coinciden') {
+        setErrors((preForm: any) => ({
+          ...preForm,
+          confirmPasswordError: error,
+        }));
+      } else if (error.name === 'UsernameExistsException') {
+        setErrors((preForm: any) => ({
+          ...preForm,
+          createUserError: 'El nombre de usuario ya existe',
+        }));
+      } else if (error.name === 'InvalidPasswordException') {
+        setErrors((preForm: any) => ({
+          ...preForm,
+          createUserError: 'La contraseña debe tener al menos 8 caracteres',
+        }));
+      }
+    } finally {
+      setLoading(false);
     }
-    signUpAuth(signupForm)
-      .then((data: any) => router.push('/auth/confirm-code'))
-      .catch((error: any) => {
-        if (error.name === 'UsernameExistsException') {
-          return setErrors((preForm: any) => ({
-            ...preForm,
-            createUserError: 'El nombre de usuario ya existe',
-          }));
-        }
-        if (error.name === 'InvalidPasswordException') {
-          return setErrors((preForm: any) => ({
-            ...preForm,
-            createUserError: 'La contraseña debe tener al menos 8 caracteres',
-          }));
-        }
-      });
   };
+
   return (
     <div className="bg-white rounded-2xl w-[35rem] max-w-[35rem] 2xl:w-[38%] py-10 px-12 sm:px-20 h-auto flex flex-col justify-center">
       <div className="w-full flex justify-center mb-8">
@@ -183,7 +191,7 @@ const SignUpForm = (props: SignUpFormProps) => {
       <button
         type="button"
         onClick={() => submitForm()}
-        className={`text-white bg-gray-800 hover:bg-gray-900 focus:outline-none focus:ring-4 focus:ring-gray-300 font-medium rounded-md text-sm px-5 py-3 mb-2 dark:bg-gray-800 dark:hover:bg-gray-700 dark:focus:ring-gray-700 dark:border-gray-700 w-full mt-4`}
+        className={`relative flex items-center justify-center h-10 text-white bg-gray-800 hover:bg-gray-900 focus:outline-none focus:ring-4 focus:ring-gray-300 font-medium rounded-md text-sm px-5 py-3 mb-2 dark:bg-gray-800 dark:hover:bg-gray-700 dark:focus:ring-gray-700 dark:border-gray-700 w-full mt-4`}
         disabled={
           signupForm.password.length === 0 ||
           signupForm.username.length === 0 ||
@@ -193,7 +201,15 @@ const SignUpForm = (props: SignUpFormProps) => {
           !privacyAccepted
         }
       >
-        Registrarse
+        {loading ? (
+          <TailSpin
+            width="20"
+            color="#fff"
+            wrapperClass="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2"
+          />
+        ) : (
+          'Registrarse'
+        )}
       </button>
       <p className="text-sm pt-1 w-full text-center">
         ¿Ya tienes una cuenta?
