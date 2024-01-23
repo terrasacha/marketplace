@@ -1,4 +1,5 @@
 import React, { useEffect } from 'react';
+import Link from 'next/link';
 const AlreadyHasWallet = (props: any) => {
   return (
     <div className="bg-white rounded-2xl py-10 px-12 sm:px-8  flex flex-col justify-center">
@@ -13,9 +14,12 @@ const AlreadyHasWallet = (props: any) => {
       </p>
 
       <div className="flex w-full justify-end mt-6">
-        <button className="group flex h-min items-center justify-center p-2 text-center font-medium focus:z-10 focus:outline-none text-white bg-cyan-700 border border-transparent enabled:hover:bg-cyan-800 focus:ring-cyan-300 dark:bg-cyan-600 dark:enabled:hover:bg-cyan-700 dark:focus:ring-cyan-800 rounded-lg focus:ring-2 px-8 ml-4">
+        <Link
+          href="/"
+          className="relative flex h-10 items-center justify-end p-0.5 text-sm font-normal focus:z-10 focus:outline-none text-gray-900 border border-gray-300 enabled:hover:bg-gray-100 focus:ring-cyan-300 :bg-gray-600 dark:text-white dark:border-gray-600 dark:enabled:hover:bg-gray-700 dark:enabled:hover:border-gray-700 dark:focus:ring-gray-700 rounded-lg focus:ring-2 mt-2 py-2 px-8"
+        >
           Volver
-        </button>
+        </Link>
       </div>
     </div>
   );

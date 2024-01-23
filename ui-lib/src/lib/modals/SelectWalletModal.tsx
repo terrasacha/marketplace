@@ -1,14 +1,14 @@
-import { useWallet, useWalletList } from "@meshsdk/react";
-import { Modal, Spinner } from "flowbite-react";
-import Image from "next/image";
-import { useEffect, useState } from "react";
-import AlertMessage from "../common/AlertMessage";
-import Link from "next/link";
+import { useWallet, useWalletList } from '@meshsdk/react';
+import { Modal, Spinner } from 'flowbite-react';
+import Image from 'next/image';
+import { useEffect, useState } from 'react';
+import AlertMessage from '../common/AlertMessage';
+import Link from 'next/link';
 
 const WALLET_ICONS: any = {
-  eternl: "/images/help/eternl-wallet.png",
-  nami: "/images/help/nami-wallet.png",
-  gerowallet: "/images/help/gero-wallet.ico",
+  eternl: '/images/help/eternl-wallet.png',
+  nami: '/images/help/nami-wallet.png',
+  gerowallet: '/images/help/gero-wallet.ico',
 };
 
 export default function SelectWalletModal({ openModal, setOpenModal }: any) {
@@ -23,9 +23,9 @@ export default function SelectWalletModal({ openModal, setOpenModal }: any) {
     message: string;
     visible: boolean | unknown;
   }>({
-    type: "",
-    title: "",
-    message: "",
+    type: '',
+    title: '',
+    message: '',
     visible: false,
   });
 
@@ -40,8 +40,8 @@ export default function SelectWalletModal({ openModal, setOpenModal }: any) {
     if (error) {
       setShowError(true);
       setAlertMessage({
-        type: "failure",
-        title: "Error !",
+        type: 'failure',
+        title: 'Error !',
         message:
           'Algo fallo al intentar conectar la billetera, revisa <a href="/help/createwallet#error-section" class="underline">aquí</a> los pasos para conectar una billetera.',
         visible: true,
@@ -49,9 +49,9 @@ export default function SelectWalletModal({ openModal, setOpenModal }: any) {
       setTimeout(() => {
         setShowError(false);
         setAlertMessage({
-          type: "",
-          title: "",
-          message: "",
+          type: '',
+          title: '',
+          message: '',
           visible: false,
         });
       }, 8000);
@@ -68,20 +68,23 @@ export default function SelectWalletModal({ openModal, setOpenModal }: any) {
     if (keys.includes(walletName.toLowerCase())) {
       return WALLET_ICONS[walletName.toLowerCase()];
     } else {
-      return "";
+      return '';
     }
   }
 
   return (
     <Modal
-      show={openModal === "selectWalletModal"}
+      show={openModal === 'selectWalletModal'}
       onClose={() => setOpenModal(undefined)}
       size="md"
+      className="z-40"
     >
       <Modal.Header className="py-3">Conectar Billetera</Modal.Header>
       <Modal.Body className="p-6">
         <p className="text-sm font-normal text-gray-500 dark:text-gray-400">
-          { wallets.length > 0 ? "Conecta tú billetera con alguno de nuestros proveedores disponibles." : "No encontramos ninguna wallet instalada en tu navegador."}
+          {wallets.length > 0
+            ? 'Conecta tú billetera con alguno de nuestros proveedores disponibles.'
+            : 'No encontramos ninguna wallet instalada en tu navegador.'}
         </p>
         <ul className="my-4 space-y-3">
           {wallets.map((wallet) => {
@@ -91,7 +94,7 @@ export default function SelectWalletModal({ openModal, setOpenModal }: any) {
                   onClick={() => {
                     connect(wallet.name);
                     setWalletSelected(wallet.name);
-                    sessionStorage.setItem('preferredWalletSuan', wallet.name)
+                    sessionStorage.setItem('preferredWalletSuan', wallet.name);
                   }}
                   className="flex items-center p-3 text-base font-bold text-gray-900 rounded-lg bg-gray-50 hover:bg-gray-100 group hover:shadow dark:bg-gray-600 dark:hover:bg-gray-500 dark:text-white"
                 >
@@ -127,7 +130,7 @@ export default function SelectWalletModal({ openModal, setOpenModal }: any) {
         ></AlertMessage>
         <div className="mt-2">
           <Link
-            href={"/help/createwallet"}
+            href={'/help/createwallet'}
             className="text-xs font-semibold hover:text-blue-400"
             onClick={() => setOpenModal(undefined)}
           >

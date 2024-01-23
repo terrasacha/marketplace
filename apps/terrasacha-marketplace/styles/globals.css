@@ -16,19 +16,22 @@ input[type=range] {
   background: #ffffff;
   cursor: pointer;
 }
-.holder-text{
+
+.holder-text {
   color: #9ca3af;
-    font-weight: 600;
-    font-size: 1.5em;
-    margin-top: 13%;
-    margin-bottom: 13%;
+  font-weight: 600;
+  font-size: 1.5em;
+  margin-top: 13%;
+  margin-bottom: 13%;
 }
+
 .rc-slider-handle {
   border: 2px solid #000000 !important;
   position: inherit !important;
   width: 1rem;
   height: 1rem;
 }
+
 .modal {
   display: flex;
   align-items: center;
@@ -38,7 +41,8 @@ input[type=range] {
   left: 0;
   width: 100%;
   height: 100%;
-  background-color: rgba(0, 0, 0, 0.5); /* Fondo oscuro para la modal */
+  background-color: rgba(0, 0, 0, 0.5);
+  /* Fondo oscuro para la modal */
 }
 
 .modal-content {
@@ -49,7 +53,8 @@ input[type=range] {
   max-width: 600px;
   text-align: center;
   border-radius: 10px;
-  position: relative; /* Añade esta línea para establecer un contexto de posición relativa */
+  position: relative;
+  /* Añade esta línea para establecer un contexto de posición relativa */
 
 }
 
@@ -112,42 +117,52 @@ input[type=range] {
 .info-amount {
   font-size: 14px;
 }
-.palabras-bg{
+
+.palabras-bg {
   background-color: #fff;
 }
-.words_write{
-    background: #2e7d96a8;
-    border-radius: 10px;
-    padding: 13px;
+
+.words_write {
+  background: #2e7d96a8;
+  border-radius: 10px;
+  padding: 13px;
 }
-.important_words{
+
+.important_words {
   background: #EFB8B8;
   border-radius: 10px;
   padding: 1rem;
   color: #000000;
 }
-.palabras > div{
+
+.palabras>div {
   background-color: #edeaea;
   border-radius: 10px;
   box-shadow: none;
-  p{
-    color:#2e7d96;
+
+  p {
+    color: #2e7d96;
   }
 }
-.azul{
+
+.azul {
   color: #0E7490;
 }
-button.group.flex.h-min.items-center.justify-center.p-0\.5.text-center.font-medium.focus\:z-10.focus\:outline-none.text-white.bg-red-700.border.border-transparent.enabled\:hover\:bg-red-800.focus\:ring-red-300.dark\:bg-red-600.dark\:enabled\:hover\:bg-red-700.dark\:focus\:ring-red-900.rounded-lg.focus\:ring-2{
+
+button.group.flex.h-min.items-center.justify-center.p-0\.5.text-center.font-medium.focus\:z-10.focus\:outline-none.text-white.bg-red-700.border.border-transparent.enabled\:hover\:bg-red-800.focus\:ring-red-300.dark\:bg-red-600.dark\:enabled\:hover\:bg-red-700.dark\:focus\:ring-red-900.rounded-lg.focus\:ring-2 {
   margin-top: 20px;
 }
+
 .price {
   font-size: 2rem;
   font-weight: 700;
 }
-.token-wallet{
+
+.token-wallet {
   background: #F0F0F0;
   border-radius: 20px;
 }
+
 .price-span {
   font-size: 1rem;
   font-weight: 500;
@@ -215,12 +230,12 @@ button.group.flex.h-min.items-center.justify-center.p-0\.5.text-center.font-medi
   font-weight: 600;
 }
 
-.modal-validador{
+.modal-validador {
   font-weight: 400;
   font-size: 12px;
 }
 
-.general-item{
+.general-item {
   font-weight: 400;
   font-size: 14px;
   color: #484848;
@@ -232,31 +247,34 @@ button.group.flex.h-min.items-center.justify-center.p-0\.5.text-center.font-medi
   font-weight: 600;
 }
 
-.general-titleTab{
+.general-titleTab {
   font-size: 16px;
   font-weight: 700;
 }
 
-.tabs-title{
+.tabs-title {
   font-size: 14px;
 }
 
-.mapa{
+.mapa {
   height: 300px;
 }
-.details_register{
-    border: solid 1px #2e7d96;
-    border-radius: 6px;
-    max-width: 175px;
-    padding: 3px 10px;
-    margin: auto;
-    margin-bottom: 3em;
-    font-weight: 600;
-    font-size: 14px;
+
+.details_register {
+  border: solid 1px #2e7d96;
+  border-radius: 6px;
+  max-width: 175px;
+  padding: 3px 10px;
+  margin: auto;
+  margin-bottom: 3em;
+  font-weight: 600;
+  font-size: 14px;
 }
-.details_register:hover{
+
+.details_register:hover {
   background-color: #c9d9dc;
 }
+
 @media only screen and (max-width: 600px) {
 
   .filtros_container {
@@ -270,7 +288,8 @@ button.group.flex.h-min.items-center.justify-center.p-0\.5.text-center.font-medi
   .dashboard-items {
     width: 100%;
   }
-  .modal-detail > div > div >div {
+
+  .modal-detail>div>div>div {
     padding: 0.5em;
     margin: 0.5em;
   }
@@ -286,12 +305,14 @@ button.group.flex.h-min.items-center.justify-center.p-0\.5.text-center.font-medi
   border: thin solid #333;
   border-left: none;
 }
+
 @media only screen and (min-width: 600px) {
-  .info-list{
+  .info-list {
     flex-wrap: wrap;
   }
+
   .info-list li {
     width: 33%;
     flex-grow: 1;
-}
+  }
 }

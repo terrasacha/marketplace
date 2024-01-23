@@ -1,12 +1,27 @@
-import dynamic from 'next/dynamic';
-import { useState } from 'react';
-import Sidebar from './Sidebar';
-
-const CardanoWallet = dynamic(() => import('./cardano-wallet/CardanoWallet'));
+import { useEffect, useState } from 'react';
+import { getCurrentUser } from 'aws-amplify/auth';
+import { CardanoWallet } from '@marketplaces/ui-lib';
 
 export default function Navbar() {
   const [isSidebarOpen, setIsSidebarOpen] = useState(false);
+  const [showCardanoWallet, setShowCardanoWallet] = useState<any>(null);
+  const [showprofile, setShowProfile] = useState<any>(null);
+  useEffect(() => {
+    const fetchData = async () => {
+      try {
+        const user = await getCurrentUser();
+        if (user) {
+          setShowCardanoWallet(false);
+          setShowProfile(true);
+        }
+      } catch (error) {
+        setShowCardanoWallet(true);
+        setShowProfile(false);
+      }
+    };
 
+    fetchData();
+  }, []);
   const toggleSidebar = () => {
     setIsSidebarOpen(!isSidebarOpen);
   };
@@ -39,11 +54,16 @@ export default function Navbar() {
                 </svg>
               </button>
             </div>
-            <div className="flex items-center">
+            {showCardanoWallet && (
               <div className="flex items-center ml-3">
                 <CardanoWallet />
               </div>
-            </div>
+            )}
+            {showprofile && (
+              <button className="relative flex h-10 items-center justify-center p-0.5 text-sm font-normal focus:z-10 focus:outline-none text-gray-900 border border-gray-300 enabled:hover:bg-gray-100 focus:ring-cyan-300 :bg-gray-600 dark:text-white dark:border-gray-600 dark:enabled:hover:bg-gray-700 dark:enabled:hover:border-gray-700 dark:focus:ring-gray-700 rounded-md focus:ring-2 py-2 px-8">
+                Profile
+              </button>
+            )}
           </div>
         </div>
       </nav>

@@ -4,6 +4,7 @@ import { Button } from 'flowbite-react';
 import Link from 'next/link';
 import { getCurrentUser } from 'aws-amplify/auth';
 import Image from 'next/image';
+import { CardanoWalletGeneric } from '../ui-lib';
 interface WelcomeCardProps {
   poweredby: boolean;
   appName: string;
@@ -66,10 +67,13 @@ const WelcomeCard = (props: WelcomeCardProps) => {
             : '/auth/login?fromGenerateWallet=true'
         }
       >
-        <Button className="w-full" color="light">
+        <button className="relative w-full flex items-center justify-center font-normal focus:z-10 focus:outline-none text-white bg-cyan-700 border border-transparent enabled:hover:bg-cyan-800 focus:ring-cyan-300 dark:bg-cyan-600 dark:enabled:hover:bg-cyan-700 dark:focus:ring-cyan-800 rounded-lg focus:ring-2 px-8 py-2">
           Generar billetera
-        </Button>
+        </button>
       </Link>
+      {!isAuthenticated && (
+        <CardanoWalletGeneric text="Acceder con billetera externa" />
+      )}
       {poweredby && (
         <div className="flex items-center justify-center mt-4 text-xs">
           Powered by

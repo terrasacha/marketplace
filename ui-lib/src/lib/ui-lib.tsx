@@ -9,6 +9,8 @@ import CardanoWallet from './cardano-wallet/CardanoWallet';
 import NavbarLanding from './landing/NavbarLanding';
 import LoadingPage from './common/LoadingPage';
 import RedirectToHome from './landing/RedirectToHome';
+import CardanoWalletGeneric from './cardano-wallet/CardanoWalletGenericButton';
+import SelectWalletModal from './modals/SelectWalletModal';
 export {
   LoginForm,
   SignUpForm,
@@ -18,6 +20,8 @@ export {
   Sidebar,
   WelcomeCard,
   CardanoWallet,
+  CardanoWalletGeneric,
+  SelectWalletModal,
   NavbarLanding,
   LoadingPage,
   RedirectToHome,

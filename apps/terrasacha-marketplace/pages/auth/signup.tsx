@@ -1,7 +1,6 @@
 import React, { useState, useEffect } from 'react';
-import { SignUpForm } from '@marketplaces/ui-lib';
+import { SignUpForm, Title } from '@marketplaces/ui-lib';
 import { signUpAuth } from '@terrasacha/backend';
-import Title from '@terrasacha/components/auth/Title';
 import { MyPage } from '@terrasacha/components/common/types';
 import Image from 'next/image';
 

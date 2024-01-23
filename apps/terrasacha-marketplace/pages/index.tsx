@@ -7,7 +7,6 @@ import { useRouter } from 'next/router';
 import { MyPage } from '@terrasacha/components/common/types';
 import { getCurrentUser } from 'aws-amplify/auth';
 import { getWalletByUser } from '@terrasacha/backend';
-import { set } from 'lodash';
 const LandingPage: MyPage = (props: any) => {
   const { connected } = useWallet();
   const [checkingWallet, setCheckingWallet] = useState<string>('uncheck');
@@ -26,7 +25,7 @@ const LandingPage: MyPage = (props: any) => {
           const wallet = await getWalletByUser(res);
           if (wallet && wallet.length > 0) {
             setWalletcount(wallet.length);
-            router.push('/home');
+            /* router.push('/home'); */
           }
         }
       } catch (error) {

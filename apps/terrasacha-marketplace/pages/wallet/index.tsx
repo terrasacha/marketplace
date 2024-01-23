@@ -12,6 +12,6 @@ const Wallet: MyPage = (props: any) => {
   );
 };
 
-Wallet.Layout = 'Main'; // Asigna el diseño principal (Main)
+Wallet.Layout = 'Main';
 
 export default Wallet;

@@ -72,11 +72,6 @@ const CreateCredentials = (props: any) => {
       save_flag: true,
       userID: user,
       words: words,
-      //walletName: inputValue.walletname,
-      //isAdmin: false,
-      //isSelected: true,
-      //status: 'active',
-      //passphrase: inputValue.password,
     };
 
     try {
@@ -86,11 +81,10 @@ const CreateCredentials = (props: any) => {
         name: inputValue.walletname,
         passwd: inputValue.password,
       });
-      const hash = await encryptPassword(inputValue.password);
       const response2 = await updateWallet({
         id: response.data.data.wallet_id,
         name: inputValue.walletname,
-        passphrase: hash,
+        passphrase: inputValue.password,
       });
       setCurrentSection(4);
     } catch (error) {

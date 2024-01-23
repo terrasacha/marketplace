@@ -2,6 +2,8 @@ import { useWallet } from '@meshsdk/react';
 import { useEffect, useState, useRef } from 'react';
 import Image from 'next/image';
 import Link from 'next/link';
+import { signOut } from 'aws-amplify/auth';
+import { useRouter } from 'next/router';
 
 interface SidebarProps {
   isOpen: boolean;
@@ -16,6 +18,7 @@ interface SidebarProps {
 export default function Sidebar(props: SidebarProps) {
   const { isOpen, onClose, appName, image, widthLogo, heightLogo, poweredBy } =
     props;
+  const router = useRouter();
   const { wallet, connected } = useWallet();
   const [walletStakeID, setWalletStakeID] = useState<any>(undefined);
   const [copied, setCopied] = useState(false);
@@ -162,11 +165,11 @@ export default function Sidebar(props: SidebarProps) {
     <aside
       ref={sidebarRef}
       id="logo-sidebar"
-      className={`fixed top-0 left-0 z-50 w-80 h-screen transition-transform bg-white lg:translate-x-0 dark:bg-gray-800 dark:border-gray-700 ${
+      className={`fixed top-0 left-0 z-40 w-80 h-screen transition-transform bg-white lg:translate-x-0 dark:bg-gray-800 dark:border-gray-700 ${
         isOpen ? 'translate-x-0' : '-translate-x-full'
       }`}
     >
-      <div className="relative h-full px-5 pb-4 overflow-y-auto bg-white dark:bg-gray-800">
+      <div className="relative h-screen px-5 pb-4 bg-white dark:bg-gray-800">
         <div className="flex items-center justify-center my-8">
           <Link href="/home">
             <Image
@@ -234,8 +237,108 @@ export default function Sidebar(props: SidebarProps) {
             </Link>
           </li>
         </ul>
+        <ul
+          className="space-y-4 font-medium"
+          style={{
+            position: 'absolute',
+            bottom: '1rem',
+            left: '50%',
+            transform: 'translateX(-50%)',
+            width: '90%',
+          }}
+        >
+          <li className="text-lg font-medium flex items-center">
+            <Link
+              href="https://suan-1.gitbook.io/documentacion-suan-sandbox/"
+              target="_blank"
+              className="flex items-center p-2 text-gray-500 rounded-lg dark:text-white hover:bg-gray-100 dark:hover:bg-gray-700"
+            >
+              <svg
+                className="w-6 h-6 text-gray-800 dark:text-white"
+                xmlns="http://www.w3.org/2000/svg"
+                viewBox="0 0 24 24"
+                id="book"
+              >
+                <path d="M18,2H8A4,4,0,0,0,4,6V18a4,4,0,0,0,4,4H18a2,2,0,0,0,2-2V4A2,2,0,0,0,18,2ZM6,6A2,2,0,0,1,8,4H18V14H8a3.91,3.91,0,0,0-2,.56ZM8,20a2,2,0,0,1,0-4H18v4ZM10,8h4a1,1,0,0,0,0-2H10a1,1,0,0,0,0,2Z"></path>
+              </svg>
+              <span className="flex-1 ml-3 whitespace-nowrap">Ayuda</span>
+            </Link>
+          </li>
+          <li className="text-lg flex">
+            <button
+              onClick={() => {
+                signOut();
+                router.push('/');
+              }}
+              className="flex items-center p-2 text-gray-500 rounded-lg dark:text-white hover:bg-gray-100 dark:hover:bg-gray-700"
+            >
+              <svg
+                className="w-6 h-6 text-gray-800 dark:text-white"
+                aria-hidden="true"
+                xmlns="http://www.w3.org/2000/svg"
+                fill="none"
+                viewBox="0 0 24 24"
+              >
+                <path
+                  stroke="currentColor"
+                  stroke-linecap="round"
+                  stroke-linejoin="round"
+                  stroke-width="2"
+                  d="M20 12H8m12 0-4 4m4-4-4-4M9 4H7a3 3 0 0 0-3 3v10a3 3 0 0 0 3 3h2"
+                />
+              </svg>
+              <span className="flex-1 ml-3 whitespace-nowrap">Logout</span>
+            </button>
+          </li>
 
-        <ul className="absolute  bottom-3 left-1/2 transform -translate-x-1/2 w-5/6  text-xs text-gray-400 dark:text-white">
+          <li className="pt-4 mt-4 border-t border-gray-200 dark:border-gray-700 flex flex-col items-center justify-center text-center">
+            {poweredBy && (
+              <div className="flex items-center mt-2 mb-4">
+                Powered by
+                <Image
+                  src="/images/home-page/suan_logo.png"
+                  height={10}
+                  width={12}
+                  className="ml-1"
+                  alt="SUAN Logo"
+                />
+              </div>
+            )}
+            <div>
+              <p>Copyright © Derechos de autor</p>
+              <p>Todos los derechos reservados</p>
+              <p>Suan 2001-2023</p>
+            </div>
+          </li>
+        </ul>
+
+        {/* <ul className="absolute  bottom-3 left-1/2 transform -translate-x-1/2 w-5/6  text-xs text-gray-400 dark:text-white">
+          <li className="text-lg font-medium flex">
+            <button
+              onClick={() => {
+                signOut();
+                router.push('/');
+              }}
+              className={`flex items-center justify-start p-2 text-gray-500 rounded-lg dark:text-white hover:bg-gray-100 dark:hover:bg-gray-700 w-full`}
+            >
+              <svg
+                className="w-4 h-4 text-gray-800 dark:text-white"
+                aria-hidden="true"
+                xmlns="http://www.w3.org/2000/svg"
+                fill="none"
+                viewBox="0 0 24 24"
+              >
+                <path
+                  stroke="currentColor"
+                  stroke-linecap="round"
+                  stroke-linejoin="round"
+                  stroke-width="2"
+                  d="M20 12H8m12 0-4 4m4-4-4-4M9 4H7a3 3 0 0 0-3 3v10a3 3 0 0 0 3 3h2"
+                />
+              </svg>
+              <span className="flex ml-2 whitespace-nowrap ">Logout</span>
+            </button>
+          </li>
           <li className="text-lg font-medium flex items-center">
             <Link
               href="https://suan-1.gitbook.io/documentacion-suan-sandbox/"
@@ -272,7 +375,7 @@ export default function Sidebar(props: SidebarProps) {
               <p>Suan 2001-2023</p>
             </div>
           </li>
-        </ul>
+        </ul> */}
       </div>
     </aside>
   );

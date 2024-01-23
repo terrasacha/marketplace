@@ -70,14 +70,7 @@ const GenerateWalletPage: MyPage = (props: any) => {
         style={{ objectFit: 'cover', objectPosition: 'center', zIndex: '0' }}
       />
       <div className="z-10 mt-10 w-[50rem] h-auto">
-        {isAuthenticated && wallet.length === 0 && (
-          <>
-            <NewWallet />
-            <Button color="failure" onClick={() => signout()}>
-              Desconectar
-            </Button>
-          </>
-        )}
+        {isAuthenticated && wallet.length === 0 && <NewWallet />}
         {isAuthenticated && wallet.length > 0 && <AlreadyHasWallet />}
       </div>
     </div>

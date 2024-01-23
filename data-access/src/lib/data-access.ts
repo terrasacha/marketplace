@@ -771,6 +771,7 @@ export async function createCoreWallet(id: string, name: string) {
 }
 
 export async function updateWallet({ id, name, passphrase }: any) {
+  const hash = await encryptPassword(passphrase);
   const response = await axios.post(
     graphqlEndpoint,
     {
@@ -787,7 +788,7 @@ export async function updateWallet({ id, name, passphrase }: any) {
           isAdmin: false,
           status: "active",
           isSelected: false,
-          password: passphrase,
+          password: hash,
           name: name,
         },
       },
