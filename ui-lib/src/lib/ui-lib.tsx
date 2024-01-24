@@ -11,6 +11,12 @@ import LoadingPage from './common/LoadingPage';
 import RedirectToHome from './landing/RedirectToHome';
 import CardanoWalletGeneric from './cardano-wallet/CardanoWalletGenericButton';
 import SelectWalletModal from './modals/SelectWalletModal';
+import Account from './wallet/Account';
+import Card from './common/Card';
+import { CopyIcon } from './icons/CopyIcon';
+import { ExternalLinkIcon } from './icons/ExternalLinkIcon';
+import { EyeIcon } from './icons/EyeIcon';
+import { EyeOffIcon } from './icons/EyeOffIcon';
 export {
   LoginForm,
   SignUpForm,
@@ -18,6 +24,7 @@ export {
   ConfirmPassword,
   ConfirmCode,
   Sidebar,
+  Account,
   WelcomeCard,
   CardanoWallet,
   CardanoWalletGeneric,
@@ -25,4 +32,9 @@ export {
   NavbarLanding,
   LoadingPage,
   RedirectToHome,
+  Card,
+  CopyIcon,
+  ExternalLinkIcon,
+  EyeIcon,
+  EyeOffIcon
 };

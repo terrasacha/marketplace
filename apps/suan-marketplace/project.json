@@ -24,6 +24,7 @@
       "defaultConfiguration": "development",
       "options": {
         "buildTarget": "suan-marketplace:build",
+        "postcssConfig": "apps/suan-marketplace/postcss.config.js",
         "dev": true
       },
       "configurations": {
