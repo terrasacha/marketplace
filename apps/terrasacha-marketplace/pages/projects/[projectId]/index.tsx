@@ -306,7 +306,7 @@ const Product: MyPage = (props: any) => {
                     </div>
                   </div>
 
-                  <div className="description-cta flex pt-8 flex  flex-col sm:w-1/2">
+                  <div className="description-cta flex pt-8  flex-col sm:w-1/2">
                     <Link href={`/projects/${project.id}/purchase`}>
                       <button className="block mb-2 mx-auto border rounded-lg text-sm text-white bg-[#2E7D96] py-2 px-10 border-[#2E7D96]  hover:bg-[#436d7b]">
                         Comprar
@@ -354,12 +354,13 @@ const Product: MyPage = (props: any) => {
           ))}
         </div>
       </div>
-      <ProjectDataModal
-        openModal={openModal}
-        setOpenModal={setOpenModal}
-        projectData={projectData}
-        project={project}
-      ></ProjectDataModal>
+      {openModal === 'projectDataModal' && (
+        <ProjectDataModal
+          setOpenModal={setOpenModal}
+          projectData={projectData}
+          project={project}
+        ></ProjectDataModal>
+      )}
     </div>
   );
 };

@@ -36,5 +36,5 @@ export {
   CopyIcon,
   ExternalLinkIcon,
   EyeIcon,
-  EyeOffIcon
+  EyeOffIcon,
 };

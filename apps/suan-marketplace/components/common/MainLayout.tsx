@@ -13,6 +13,7 @@ import { getWalletByUser } from '@marketplaces/data-access';
 const MainLayout = ({ children }: PropsWithChildren) => {
   const { connect, connected, disconnect } = useWallet();
   const [allowAccess, setAllowAccess] = useState<boolean>(false);
+  const [user, setUser] = useState<any>(null);
   const [isOpen, setIsOpen] = useState<boolean>(false); // Estado para controlar si Sidebar está abierto o cerrado
   const assets = useAssets() as Array<{ [key: string]: any }>;
   const router = useRouter();
@@ -74,6 +75,7 @@ const MainLayout = ({ children }: PropsWithChildren) => {
   const accessHomeWithWallet = async () => {
     try {
       const user = await getCurrentUser();
+      setUser(user);
       return user.userId;
     } catch {
       return false;
@@ -92,11 +94,12 @@ const MainLayout = ({ children }: PropsWithChildren) => {
           <Sidebar
             isOpen={isOpen}
             onClose={handleSidebarClose}
+            user={user}
             appName="Suan"
             image="/images/home-page/suan_logo.png"
             heightLogo={120}
             widthLogo={60}
-            poweredBy={true}
+            poweredBy={false}
           />
           <main className="lg:ml-80">{children}</main>
         </>

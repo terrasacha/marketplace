@@ -9,6 +9,7 @@ interface SidebarProps {
   isOpen: boolean;
   onClose: () => void;
   appName: string;
+  user: any;
   image: string;
   widthLogo: number;
   heightLogo: number;
@@ -16,8 +17,16 @@ interface SidebarProps {
 }
 
 export default function Sidebar(props: SidebarProps) {
-  const { isOpen, onClose, appName, image, widthLogo, heightLogo, poweredBy } =
-    props;
+  const {
+    isOpen,
+    onClose,
+    appName,
+    image,
+    widthLogo,
+    heightLogo,
+    poweredBy,
+    user,
+  } = props;
   const router = useRouter();
   const { wallet, connected } = useWallet();
   const [walletStakeID, setWalletStakeID] = useState<any>(undefined);
@@ -264,34 +273,36 @@ export default function Sidebar(props: SidebarProps) {
               <span className="flex-1 ml-3 whitespace-nowrap">Ayuda</span>
             </Link>
           </li>
-          <li className="text-lg flex">
-            <button
-              onClick={() => {
-                signOut();
-                router.push('/');
-              }}
-              className="flex items-center p-2 text-gray-500 rounded-lg dark:text-white hover:bg-gray-100 dark:hover:bg-gray-700"
-            >
-              <svg
-                className="w-6 h-6 text-gray-800 dark:text-white"
-                aria-hidden="true"
-                xmlns="http://www.w3.org/2000/svg"
-                fill="none"
-                viewBox="0 0 24 24"
+          {user && (
+            <li className="text-lg flex">
+              <button
+                onClick={() => {
+                  signOut();
+                  router.push('/');
+                }}
+                className="flex items-center p-2 text-gray-500 rounded-lg dark:text-white hover:bg-gray-100 dark:hover:bg-gray-700"
               >
-                <path
-                  stroke="currentColor"
-                  stroke-linecap="round"
-                  stroke-linejoin="round"
-                  stroke-width="2"
-                  d="M20 12H8m12 0-4 4m4-4-4-4M9 4H7a3 3 0 0 0-3 3v10a3 3 0 0 0 3 3h2"
-                />
-              </svg>
-              <span className="flex-1 ml-3 whitespace-nowrap">Logout</span>
-            </button>
-          </li>
+                <svg
+                  className="w-6 h-6 text-gray-800 dark:text-white"
+                  aria-hidden="true"
+                  xmlns="http://www.w3.org/2000/svg"
+                  fill="none"
+                  viewBox="0 0 24 24"
+                >
+                  <path
+                    stroke="currentColor"
+                    stroke-linecap="round"
+                    stroke-linejoin="round"
+                    stroke-width="2"
+                    d="M20 12H8m12 0-4 4m4-4-4-4M9 4H7a3 3 0 0 0-3 3v10a3 3 0 0 0 3 3h2"
+                  />
+                </svg>
+                <span className="flex-1 ml-3 whitespace-nowrap">Logout</span>
+              </button>
+            </li>
+          )}
 
-          <li className="pt-4 mt-4 border-t border-gray-200 dark:border-gray-700 flex flex-col items-center justify-center text-center">
+          <li className="pt-4 mt-4 border-t text-xs font-light border-gray-200 dark:border-gray-700 flex flex-col items-center justify-center text-center">
             {poweredBy && (
               <div className="flex items-center mt-2 mb-4">
                 Powered by
