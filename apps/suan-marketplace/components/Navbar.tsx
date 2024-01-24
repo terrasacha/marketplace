@@ -17,8 +17,8 @@ export default function Navbar() {
 
   return (
     <>
-      <nav className="fixed top-0 z-40 w-full bg-white dark:bg-gray-800 dark:border-gray-700">
-        <div className="px-3 lg:px-5 lg:pl-3 bg-white">
+      <nav className="fixed top-0 z-40 w-full bg-[#fafbff] dark:bg-gray-800 dark:border-gray-700">
+        <div className="px-3 lg:px-5 lg:pl-3 ">
           <div className="flex items-center justify-between py-2">
             <div className="flex items-center justify-start">
               <button
