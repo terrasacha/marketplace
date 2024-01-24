@@ -59,7 +59,7 @@ export default function ProjectDataModal({
       aria-hidden="true"
       className="flex overflow-y-hidden overflow-x-hidden fixed top-0 right-0 left-0 z-50 justify-center items-center w-full md:inset-0 h-full max-h-full bg-gray-900 bg-opacity-50 no-scrollbar"
     >
-      <div className="relative p-4 w-5/6 h-5/6  max-h-full bg-white overflow-y-scroll rounded-xl no-scrollbar">
+      <div className="relative p-4 w-full h-5/6 max-w-6xl max-h-full bg-white overflow-y-scroll rounded-xl no-scrollbar">
         <div className="flex items-center justify-between p-4 md:p-5 border-b rounded-t dark:border-gray-600">
           <h3 className="text-xl font-semibold text-gray-900 dark:text-white">
             Información del proyecto
@@ -184,6 +184,47 @@ export default function ProjectDataModal({
               }}
               defaultZoom={12}
               onGoogleApiLoaded={({ map, maps }) => {
+                console.log(
+                  projectData.projectPredialGeoJson,
+                  'polygonsFetchedData'
+                );
+
+                if (projectData.projectPredialGeoJson.features.length > 0) {
+                  // Load GeoJSON.
+                  map.data.addGeoJson(projectData.projectPredialGeoJson);
+                  console.log('entro');
+
+                  // Create empty bounds object
+                  let bounds = new maps.LatLngBounds();
+
+                  map.data.addListener('click', (event: any) => {
+                    const codigo = event.feature.getProperty('CODIGO');
+                    console.log('Este es el codigo: ', codigo);
+                    const contentString = `
+                          <div class='infoWindowContainer'>
+                            <p>Identificador catastral: ${codigo}</p>
+                          </div>
+                        `;
+
+                    let infoWindow = new maps.InfoWindow({
+                      content: contentString,
+                      ariaLabel: codigo,
+                    });
+                    //setInfoWindow(infoWindow);
+                    infoWindow.setPosition(event.latLng);
+                    infoWindow.open(map, event.latLng);
+                  });
+
+                  map.data.forEach(function (feature: any) {
+                    var geo = feature.getGeometry();
+
+                    geo.forEachLatLng(function (LatLng: any) {
+                      bounds.extend(LatLng);
+                    });
+                  });
+
+                  map.fitBounds(bounds);
+                }
                 // const contentString =
                 //   '<div id="content">' +
                 //   '<div id="siteNotice">' +
@@ -211,13 +252,13 @@ export default function ProjectDataModal({
                 //   ariaLabel: "Uluru",
                 // });
 
-                projectData.projectGeoData.map((geoData: any) => {
-                  new maps.KmlLayer(geoData.fileURLS3, {
-                    suppressInfoWindows: true,
-                    preserveViewport: false,
-                    map: map,
-                  }).addListener('click', function (event: any) {});
-                });
+                // projectData.projectGeoData.map((geoData: any) => {
+                //   new maps.KmlLayer(geoData.fileURLS3, {
+                //     suppressInfoWindows: true,
+                //     preserveViewport: false,
+                //     map: map,
+                //   }).addListener('click', function (event: any) {});
+                // });
               }}
               yesIWantToUseGoogleMapApiInternals
             ></GoogleMapReact>

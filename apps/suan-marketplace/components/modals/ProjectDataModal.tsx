@@ -184,6 +184,47 @@ export default function ProjectDataModal({
               }}
               defaultZoom={12}
               onGoogleApiLoaded={({ map, maps }) => {
+                console.log(
+                  projectData.projectPredialGeoJson,
+                  'polygonsFetchedData'
+                );
+
+                if (projectData.projectPredialGeoJson.features.length > 0) {
+                  // Load GeoJSON.
+                  map.data.addGeoJson(projectData.projectPredialGeoJson);
+                  console.log('entro');
+
+                  // Create empty bounds object
+                  let bounds = new maps.LatLngBounds();
+
+                  map.data.addListener('click', (event: any) => {
+                    const codigo = event.feature.getProperty('CODIGO');
+                    console.log('Este es el codigo: ', codigo);
+                    const contentString = `
+                          <div class='infoWindowContainer'>
+                            <p>Identificador catastral: ${codigo}</p>
+                          </div>
+                        `;
+
+                    let infoWindow = new maps.InfoWindow({
+                      content: contentString,
+                      ariaLabel: codigo,
+                    });
+                    //setInfoWindow(infoWindow);
+                    infoWindow.setPosition(event.latLng);
+                    infoWindow.open(map, event.latLng);
+                  });
+
+                  map.data.forEach(function (feature: any) {
+                    var geo = feature.getGeometry();
+
+                    geo.forEachLatLng(function (LatLng: any) {
+                      bounds.extend(LatLng);
+                    });
+                  });
+
+                  map.fitBounds(bounds);
+                }
                 // const contentString =
                 //   '<div id="content">' +
                 //   '<div id="siteNotice">' +
@@ -211,13 +252,13 @@ export default function ProjectDataModal({
                 //   ariaLabel: "Uluru",
                 // });
 
-                projectData.projectGeoData.map((geoData: any) => {
-                  new maps.KmlLayer(geoData.fileURLS3, {
-                    suppressInfoWindows: true,
-                    preserveViewport: false,
-                    map: map,
-                  }).addListener('click', function (event: any) {});
-                });
+                // projectData.projectGeoData.map((geoData: any) => {
+                //   new maps.KmlLayer(geoData.fileURLS3, {
+                //     suppressInfoWindows: true,
+                //     preserveViewport: false,
+                //     map: map,
+                //   }).addListener('click', function (event: any) {});
+                // });
               }}
               yesIWantToUseGoogleMapApiInternals
             ></GoogleMapReact>

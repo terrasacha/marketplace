@@ -1,17 +1,22 @@
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import Link from 'next/link';
 import GoogleMapReact from 'google-map-react';
-import { getImagesCategories, getProject, getProjectData } from '@suan/backend';
+import {
+  getImagesCategories,
+  getPolygonByCadastralNumber,
+  getProject,
+  getProjectData,
+} from '@suan//backend';
 import { Transition } from '@headlessui/react';
-import PageHeader from '@suan/components/common/PageHeader';
-import { MyPage } from '@suan/components/common/types';
-import { getActualPeriod } from '@suan/utils/generic/getActualPeriod';
-import { mapProjectData } from '@suan/lib/mappers';
+import PageHeader from '@suan//components/common/PageHeader';
+import { MyPage } from '@suan//components/common/types';
+import { getActualPeriod } from '@suan//utils/generic/getActualPeriod';
+import { mapProjectData } from '@suan//lib/mappers';
 import dynamic from 'next/dynamic';
-import TabsComponents from '@suan/components/home-page/TabsProject';
-import FinancialTab from '@suan/components/home-page/ProjectTabs/FinancialTab';
-import EarningsTab from '@suan/components/home-page/ProjectTabs/EarningsTab';
-import ProjectionsTab from '@suan/components/home-page/ProjectTabs/ProjectionsTab';
+import TabsComponents from '@suan//components/home-page/TabsProject';
+import FinancialTab from '@suan//components/home-page/ProjectTabs/FinancialTab';
+import EarningsTab from '@suan//components/home-page/ProjectTabs/EarningsTab';
+import ProjectionsTab from '@suan//components/home-page/ProjectTabs/ProjectionsTab';
 
 const ProjectDataModal = dynamic(
   () => import('@suan/components/modals/ProjectDataModal')
@@ -21,6 +26,25 @@ const Product: MyPage = (props: any) => {
   const project = props.project;
   const projectData = props.projectData;
   const imageData = props.image;
+
+  // useEffect(() => {
+  //   async function updatePredialData() {
+  //     const cadastralNumbersArray =
+  //       projectData.projectCadastralRecords.cadastralRecords.map(
+  //         (item: any) => item.cadastralNumber
+  //       );
+  //     const predialData = await getPolygonByCadastralNumber(
+  //       cadastralNumbersArray
+  //     ); // Llamada a la función getData
+  //     console.log('predialData', predialData);
+  //     setPolygonsFetchedData(predialData);
+  //   }
+
+  //   console.log("projectData", projectData)
+
+  //   updatePredialData();
+  // }, [projectData]);
+
   const tokenName: string =
     project.productFeatures.items.filter((item: any) => {
       return item.featureID === 'GLOBAL_TOKEN_NAME';
@@ -157,53 +181,96 @@ const Product: MyPage = (props: any) => {
           </div>
           <div className="sm:project-info pt-4 flex sm:flex-row flex-col flex-col-reverse">
             <div className="sm:details-map flex justify-end items-start sm:w-1/2 h-300 rounded-lg overflow-hidden ">
-              <GoogleMapReact
-                bootstrapURLKeys={{
-                  key: 'AIzaSyCzXTla3o3V7o72HS_mvJfpVaIcglon38U',
-                }}
-                defaultCenter={{
-                  lat: projectData.projectInfo.location.coords.lat,
-                  lng: projectData.projectInfo.location.coords.lng,
-                }}
-                defaultZoom={12}
-                onGoogleApiLoaded={({ map, maps }) => {
-                  // const contentString =
-                  //   '<div id="content">' +
-                  //   '<div id="siteNotice">' +
-                  //   "</div>" +
-                  //   '<h1 id="firstHeading" class="firstHeading">Uluru</h1>' +
-                  //   '<div id="bodyContent">' +
-                  //   "<p><b>Uluru</b>, also referred to as <b>Ayers Rock</b>, is a large " +
-                  //   "sandstone rock formation in the southern part of the " +
-                  //   "Northern Territory, central Australia. It lies 335&#160;km (208&#160;mi) " +
-                  //   "south west of the nearest large town, Alice Springs; 450&#160;km " +
-                  //   "(280&#160;mi) by road. Kata Tjuta and Uluru are the two major " +
-                  //   "features of the Uluru - Kata Tjuta National Park. Uluru is " +
-                  //   "sacred to the Pitjantjatjara and Yankunytjatjara, the " +
-                  //   "Aboriginal people of the area. It has many springs, waterholes, " +
-                  //   "rock caves and ancient paintings. Uluru is listed as a World " +
-                  //   "Heritage Site.</p>" +
-                  //   '<p>Attribution: Uluru, <a href="https://en.wikipedia.org/w/index.php?title=Uluru&oldid=297882194">' +
-                  //   "https://en.wikipedia.org/w/index.php?title=Uluru</a> " +
-                  //   "(last visited June 22, 2009).</p>" +
-                  //   "</div>" +
-                  //   "</div>";
+              {projectData.projectPredialGeoJson && (
+                <GoogleMapReact
+                  bootstrapURLKeys={{
+                    key: 'AIzaSyCzXTla3o3V7o72HS_mvJfpVaIcglon38U',
+                  }}
+                  defaultCenter={{
+                    lat: projectData.projectInfo.location.coords.lat,
+                    lng: projectData.projectInfo.location.coords.lng,
+                  }}
+                  defaultZoom={12}
+                  onGoogleApiLoaded={({ map, maps }) => {
+                    console.log(
+                      projectData.projectPredialGeoJson,
+                      'polygonsFetchedData'
+                    );
 
-                  // const infowindow = new maps.InfoWindow({
-                  //   content: contentString,
-                  //   ariaLabel: "Uluru",
-                  // });
+                    if (projectData.projectPredialGeoJson.features.length > 0) {
+                      // Load GeoJSON.
+                      map.data.addGeoJson(projectData.projectPredialGeoJson);
+                      console.log('entro');
 
-                  projectData.projectGeoData.map((geoData: any) => {
-                    new maps.KmlLayer(geoData.fileURLS3, {
-                      suppressInfoWindows: true,
-                      preserveViewport: false,
-                      map: map,
-                    }).addListener('click', function (event: any) {});
-                  });
-                }}
-                yesIWantToUseGoogleMapApiInternals
-              ></GoogleMapReact>
+                      // Create empty bounds object
+                      let bounds = new maps.LatLngBounds();
+
+                      map.data.addListener('click', (event: any) => {
+                        const codigo = event.feature.getProperty('CODIGO');
+                        console.log('Este es el codigo: ', codigo);
+                        const contentString = `
+                        <div class='infoWindowContainer'>
+                          <p>Identificador catastral: ${codigo}</p>
+                        </div>
+                      `;
+
+                        let infoWindow = new maps.InfoWindow({
+                          content: contentString,
+                          ariaLabel: codigo,
+                        });
+                        //setInfoWindow(infoWindow);
+                        infoWindow.setPosition(event.latLng);
+                        infoWindow.open(map, event.latLng);
+                      });
+
+                      map.data.forEach(function (feature: any) {
+                        var geo = feature.getGeometry();
+
+                        geo.forEachLatLng(function (LatLng: any) {
+                          bounds.extend(LatLng);
+                        });
+                      });
+
+                      map.fitBounds(bounds);
+                    }
+                    // const contentString =
+                    //   '<div id="content">' +
+                    //   '<div id="siteNotice">' +
+                    //   "</div>" +
+                    //   '<h1 id="firstHeading" class="firstHeading">Uluru</h1>' +
+                    //   '<div id="bodyContent">' +
+                    //   "<p><b>Uluru</b>, also referred to as <b>Ayers Rock</b>, is a large " +
+                    //   "sandstone rock formation in the southern part of the " +
+                    //   "Northern Territory, central Australia. It lies 335&#160;km (208&#160;mi) " +
+                    //   "south west of the nearest large town, Alice Springs; 450&#160;km " +
+                    //   "(280&#160;mi) by road. Kata Tjuta and Uluru are the two major " +
+                    //   "features of the Uluru - Kata Tjuta National Park. Uluru is " +
+                    //   "sacred to the Pitjantjatjara and Yankunytjatjara, the " +
+                    //   "Aboriginal people of the area. It has many springs, waterholes, " +
+                    //   "rock caves and ancient paintings. Uluru is listed as a World " +
+                    //   "Heritage Site.</p>" +
+                    //   '<p>Attribution: Uluru, <a href="https://en.wikipedia.org/w/index.php?title=Uluru&oldid=297882194">' +
+                    //   "https://en.wikipedia.org/w/index.php?title=Uluru</a> " +
+                    //   "(last visited June 22, 2009).</p>" +
+                    //   "</div>" +
+                    //   "</div>";
+
+                    // const infowindow = new maps.InfoWindow({
+                    //   content: contentString,
+                    //   ariaLabel: "Uluru",
+                    // });
+
+                    // projectData.projectGeoData.map((geoData: any) => {
+                    //   new maps.KmlLayer(geoData.fileURLS3, {
+                    //     suppressInfoWindows: true,
+                    //     preserveViewport: false,
+                    //     map: map,
+                    //   }).addListener('click', function (event: any) {});
+                    // });
+                  }}
+                  yesIWantToUseGoogleMapApiInternals
+                ></GoogleMapReact>
+              )}
             </div>
             <div className="sm:detail-info mt-2 sm:mt-0 sm:w-1/2 sm:pl-8">
               <div className="info-title">
@@ -302,7 +369,7 @@ const Product: MyPage = (props: any) => {
                     </div>
                   </div>
 
-                  <div className="description-cta flex pt-8  flex-col sm:w-1/2">
+                  <div className="description-cta flex pt-8 flex-col sm:w-1/2">
                     <Link href={`/projects/${project.id}/purchase`}>
                       <button className="block mb-2 mx-auto border rounded-lg text-sm text-white bg-[#2E7D96] py-2 px-10 border-[#2E7D96]  hover:bg-[#436d7b]">
                         Comprar
