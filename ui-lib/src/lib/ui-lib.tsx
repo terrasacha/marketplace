@@ -13,6 +13,7 @@ import CardanoWalletGeneric from './cardano-wallet/CardanoWalletGenericButton';
 import SelectWalletModal from './modals/SelectWalletModal';
 import Account from './wallet/Account';
 import Card from './common/Card';
+import CardProject from './cards/CardProject';
 import { CopyIcon } from './icons/CopyIcon';
 import { ExternalLinkIcon } from './icons/ExternalLinkIcon';
 import { EyeIcon } from './icons/EyeIcon';
@@ -31,6 +32,7 @@ export {
   SelectWalletModal,
   NavbarLanding,
   LoadingPage,
+  CardProject,
   RedirectToHome,
   Card,
   CopyIcon,

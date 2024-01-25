@@ -1,7 +1,7 @@
-import React, { useState, useEffect } from "react";
-import CardProject from "./CardProject";
-import Pagination from "../home-page/paginationProject";
-import { Range } from "react-range";
+import React, { useState, useEffect } from 'react';
+import { CardProject } from '@marketplaces/ui-lib';
+import Pagination from '../home-page/paginationProject';
+import { Range } from 'react-range';
 
 const PAGE_SIZE = 9; // Number of projects per page
 interface ProductFeature {
@@ -13,7 +13,7 @@ export default function HomeContainer(props: { projects: any[]; env: any }) {
   const { projects } = props;
   function getTokenPrice(project: any): any {
     const tokenFeature = project.productFeatures.items.find(
-      (item: any) => item.featureID === "GLOBAL_TOKEN_PRICE"
+      (item: any) => item.featureID === 'GLOBAL_TOKEN_PRICE'
     );
     return tokenFeature?.value || null;
   }
@@ -32,8 +32,8 @@ export default function HomeContainer(props: { projects: any[]; env: any }) {
   const totalPages = Math.ceil(filteredProjects.length / PAGE_SIZE);
   const startIndex = (currentPage - 1) * PAGE_SIZE;
   const endIndex = startIndex + PAGE_SIZE;
-  const [sortOrder, setSortOrder] = useState<"asc" | "desc">("desc");
-  const [searchQuery, setSearchQuery] = useState("");
+  const [sortOrder, setSortOrder] = useState<'asc' | 'desc'>('desc');
+  const [searchQuery, setSearchQuery] = useState('');
   const [selectedCategories, setSelectedCategories] = useState<string[]>(
     defaultSelectedCategories
   );
@@ -53,7 +53,7 @@ export default function HomeContainer(props: { projects: any[]; env: any }) {
 
   // Extract unique years from projects
   const uniqueYears = Array.from(
-    new Set(projects.map((project) => project.createdAt.split("-")[0]))
+    new Set(projects.map((project) => project.createdAt.split('-')[0]))
   );
 
   // Function to toggle selection of a category
@@ -97,7 +97,7 @@ export default function HomeContainer(props: { projects: any[]; env: any }) {
 
     if (selectedYears.length > 0) {
       filtered = filtered.filter((project) =>
-        selectedYears.includes(project.createdAt.split("-")[0])
+        selectedYears.includes(project.createdAt.split('-')[0])
       );
     }
 
@@ -119,7 +119,7 @@ export default function HomeContainer(props: { projects: any[]; env: any }) {
     const sorted = [...filteredProjects];
 
     sorted.sort((a, b) => {
-      if (sortOrder === "asc") {
+      if (sortOrder === 'asc') {
         return a.createdAt.localeCompare(b.createdAt);
       } else {
         return b.createdAt.localeCompare(a.createdAt);
@@ -127,24 +127,24 @@ export default function HomeContainer(props: { projects: any[]; env: any }) {
     });
 
     setFilteredProjects(sorted);
-    setSortOrder(sortOrder === "asc" ? "desc" : "asc");
+    setSortOrder(sortOrder === 'asc' ? 'desc' : 'asc');
   };
 
   //Searcher funcionality
   const handleSearchQuery = (query: string) => {
     const normalizedQuery = query
-      .normalize("NFD")
-      .replace(/[\u0300-\u036f]/g, "");
+      .normalize('NFD')
+      .replace(/[\u0300-\u036f]/g, '');
     const filtered = projects.filter(
       (project) =>
         project.name
-          .normalize("NFD")
-          .replace(/[\u0300-\u036f]/g, "")
+          .normalize('NFD')
+          .replace(/[\u0300-\u036f]/g, '')
           .toLocaleLowerCase()
           .includes(normalizedQuery.toLocaleLowerCase()) ||
         project.description
-          .normalize("NFD")
-          .replace(/[\u0300-\u036f]/g, "")
+          .normalize('NFD')
+          .replace(/[\u0300-\u036f]/g, '')
           .toLocaleLowerCase()
           .includes(normalizedQuery.toLocaleLowerCase())
     );
@@ -249,7 +249,7 @@ export default function HomeContainer(props: { projects: any[]; env: any }) {
                 Ordenar por:
                 <span
                   className={` lg:flex items-center ml-2 cursor-pointer font-medium ${
-                    sortOrder === "asc" ? "text-blue-800" : "text-gray-400"
+                    sortOrder === 'asc' ? 'text-blue-800' : 'text-gray-400'
                   }`}
                   onClick={handleSort}
                 >
@@ -259,13 +259,13 @@ export default function HomeContainer(props: { projects: any[]; env: any }) {
             </div>
           </div>
           <div
-            className={`filter-expand ${isFilterExpanded ? "block" : "hidden"}`}
+            className={`filter-expand ${isFilterExpanded ? 'block' : 'hidden'}`}
           >
             <div className="filter-expandList">
               <div className="m-1 p-2 text-xs">
                 <h3 className="py-1">
                   Rango de precio: ${selectedPriceRange[0]} - $
-                  {selectedPriceRange[1]}{" "}
+                  {selectedPriceRange[1]}{' '}
                 </h3>
                 <Range
                   step={1}
@@ -279,7 +279,7 @@ export default function HomeContainer(props: { projects: any[]; env: any }) {
                     <div
                       {...props}
                       className="h-1 bg-gray-200 dark:bg-gray-700 rounded"
-                      style={{ marginTop: "10px" }}
+                      style={{ marginTop: '10px' }}
                     >
                       {children}
                     </div>
@@ -297,15 +297,15 @@ export default function HomeContainer(props: { projects: any[]; env: any }) {
                 <div>
                   {uniqueYears &&
                     uniqueYears.map((year) => {
-                      if (typeof year === "string") {
+                      if (typeof year === 'string') {
                         return (
                           <button
                             key={year}
                             onClick={() => toggleYearSelection(year)}
                             className={`px-5 py-2 my-1 rounded-[.2rem] mr-2 text-xs text-[#1E446E] border ${
                               selectedYears.includes(year)
-                                ? "bg-[#69A1B3] text-white"
-                                : ""
+                                ? 'bg-[#69A1B3] text-white'
+                                : ''
                             } transition duration-150 ease-in-out`}
                           >
                             {year}
@@ -316,15 +316,15 @@ export default function HomeContainer(props: { projects: any[]; env: any }) {
                     })}
                   {uniqueCategories &&
                     uniqueCategories.map((category) => {
-                      if (typeof category === "string") {
+                      if (typeof category === 'string') {
                         return (
                           <button
                             key={category}
                             onClick={() => toggleCategorySelection(category)}
                             className={`px-5 py-2 my-1 rounded-[.2rem] mr-2 text-xs text-[#1E446E] border ${
                               selectedCategories.includes(category)
-                                ? "bg-[#69A1B3] text-white"
-                                : ""
+                                ? 'bg-[#69A1B3] text-white'
+                                : ''
                             } transition duration-150 ease-in-out`}
                           >
                             {category}

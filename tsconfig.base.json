@@ -18,6 +18,8 @@
       "@marketplaces/data-access": ["data-access/src/index.ts"],
       "@marketplaces/ui-lib": ["ui-lib/src/index.ts"],
       "@marketplaces/ui-lib/server": ["ui-lib/src/server.ts"],
+      "@marketplaces/utils-2": ["utils-2/src/index.ts"],
+      "@marketplaces/utils-2/server": ["utils-2/src/server.ts"],
       "@suan/*": ["apps/suan-marketplace/*"],
       "@terrasacha/*": ["apps/terrasacha-marketplace/*"]
     }
