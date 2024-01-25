@@ -6,6 +6,7 @@ export default function Navbar() {
   const [isSidebarOpen, setIsSidebarOpen] = useState(false);
   const [showCardanoWallet, setShowCardanoWallet] = useState<any>(null);
   const [showprofile, setShowProfile] = useState<any>(null);
+  const [showModal, setShowModal] = useState(false);
   useEffect(() => {
     const fetchData = async () => {
       try {
@@ -28,6 +29,13 @@ export default function Navbar() {
 
   const closeSidebar = () => {
     setIsSidebarOpen(false);
+  };
+  const openModal = () => {
+    setShowModal(true);
+  };
+
+  const closeModal = () => {
+    setShowModal(false);
   };
 
   return (
@@ -59,11 +67,46 @@ export default function Navbar() {
                 <CardanoWallet />
               </div>
             )}
-            {showprofile && (
-              <button className="relative flex h-10 items-center justify-center p-0.5 text-sm font-normal focus:z-10 focus:outline-none text-gray-900 border border-gray-300 enabled:hover:bg-gray-100 focus:ring-cyan-300 :bg-gray-600 dark:text-white dark:border-gray-600 dark:enabled:hover:bg-gray-700 dark:enabled:hover:border-gray-700 dark:focus:ring-gray-700 rounded-md focus:ring-2 py-2 px-8">
-                Profile
-              </button>
-            )}
+            <div className="flex items-center">
+              {showprofile && (
+                <button
+                  onClick={openModal}
+                  className="relative h-10 flex gap-4 items-center justify-center text-sm font-normal focus:z-10 focus:outline-none text-gray-900 dark:text-white dark:border-gray-600 rounded-lg focus:ring-2 py-8 px-4"
+                >
+                  <div className="flex flex-col">
+                    <p>My wallet</p>
+                    <p className="font-light text-xs">addr...123</p>
+                  </div>
+                  <div className="relative bg-green-800 text-white font-normal rounded-lg w-10 h-10">
+                    <p className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2">
+                      M
+                    </p>
+                  </div>
+                  {showModal && (
+                    <div className="absolute bottom-[-.2rem] right-0 w-80 flex items-center justify-center z-40">
+                      <div className="z-50 w-full bg-white dark:bg-gray-800 rounded-md shadow-xl absolute bottom-0 left-1/2 transform -translate-x-1/2 translate-y-full overflow-hidden">
+                        <div className="w-full bg-[#e7eaf5] py-4 px-3 flex gap-4 items-center">
+                          <div className="relative bg-green-800 text-white font-normal rounded-lg w-10 h-10 ">
+                            <p className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2">
+                              M
+                            </p>
+                          </div>
+                          <p className="text-xs font-light text-gray-500 w-3/5  break-words text-left">
+                            addraaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa
+                          </p>
+                        </div>
+                        <button
+                          onClick={() => closeModal()}
+                          className="mt-4 bg-blue-500 text-white px-4 py-2 rounded-lg hover:bg-blue-600"
+                        >
+                          Close
+                        </button>
+                      </div>
+                    </div>
+                  )}
+                </button>
+              )}
+            </div>
           </div>
         </div>
       </nav>
