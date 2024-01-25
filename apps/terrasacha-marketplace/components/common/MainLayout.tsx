@@ -4,8 +4,7 @@ import React, {
   useEffect,
   useState,
 } from 'react';
-import Navbar from '../Navbar';
-import { Sidebar } from '@marketplaces/ui-lib';
+import { Sidebar, Navbar } from '@marketplaces/ui-lib';
 import { useWallet, useAssets } from '@meshsdk/react';
 import { useRouter } from 'next/router';
 import { getCurrentUser } from 'aws-amplify/auth';
