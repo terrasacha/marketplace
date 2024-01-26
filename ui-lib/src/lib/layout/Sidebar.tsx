@@ -14,6 +14,7 @@ interface SidebarProps {
   widthLogo: number;
   heightLogo: number;
   poweredBy: boolean;
+  balance: any;
 }
 
 export default function Sidebar(props: SidebarProps) {
@@ -25,7 +26,7 @@ export default function Sidebar(props: SidebarProps) {
     widthLogo,
     heightLogo,
     poweredBy,
-    user,
+    balance,
   } = props;
   const router = useRouter();
   const { wallet, connected } = useWallet();
@@ -94,80 +95,31 @@ export default function Sidebar(props: SidebarProps) {
       ? 'text-white bg-gradient-to-br from-pink-500 to-orange-400 hover:bg-gradient-to-bl focus:ring-4 focus:outline-none focus:ring-pink-200 dark:focus:ring-pink-800'
       : 'text-gray-900 hover:text-white border border-gray-300 hover:bg-gray-900 focus:ring-4 focus:outline-none focus:ring-gray-300 dark:border-gray-600 dark:text-gray-400 dark:hover:text-white dark:hover:bg-gray-600 dark:focus:ring-gray-800';
     const inputStyle = copied ? 'border-orange-400' : 'border-gray-300';
-    if (connected && walletStakeID) {
+    /* if (connected && walletStakeID) { */
+    return (
+      <div>
+        <label
+          htmlFor="website-admin"
+          className="block text-sm text-gray-500 dark:text-white"
+        >
+          Tu saldo
+        </label>
+        <h3 className="text-lg truncate">₳ {balance / 1000000 || '0'}</h3>
+      </div>
+    );
+    /* } else {
       return (
         <div>
           <label
             htmlFor="website-admin"
             className="block text-sm text-gray-500 dark:text-white"
           >
-            Tú saldo
-          </label>
-          <h3 className="text-lg truncate">₳ {userBalance / 1000000 || '0'}</h3>
-          <label
-            htmlFor="website-admin"
-            className="block text-sm text-gray-500 dark:text-white"
-          >
-            Tú dirección de billetera
-          </label>
-          <div className="flex">
-            <input
-              type="text"
-              id="website-admin"
-              value={walletStakeID}
-              disabled
-              readOnly
-              className={
-                inputStyle +
-                ' rounded-l-lg bg-gray-50 border text-gray-900 focus:ring-blue-500 focus:border-blue-500 block flex-1 min-w-0 w-full text-xs p-2.5  dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500'
-              }
-            />
-            <button
-              type="button"
-              className={
-                btnStyle +
-                ' inline-flex items-center px-4 py-2 text-sm text-center font-medium rounded-r-md bg-white'
-              }
-              onClick={copyToClipboard}
-            >
-              {copied ? (
-                <svg
-                  className="w-5 h-5"
-                  aria-hidden
-                  xmlns="http://www.w3.org/2000/svg"
-                  fill="currentColor"
-                  viewBox="0 0 18 20"
-                >
-                  <path d="M16 1h-3.278A1.992 1.992 0 0 0 11 0H7a1.993 1.993 0 0 0-1.722 1H2a2 2 0 0 0-2 2v15a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V3a2 2 0 0 0-2-2ZM7 2h4v3H7V2Zm5.7 8.289-3.975 3.857a1 1 0 0 1-1.393 0L5.3 12.182a1.002 1.002 0 1 1 1.4-1.436l1.328 1.289 3.28-3.181a1 1 0 1 1 1.392 1.435Z" />
-                </svg>
-              ) : (
-                <svg
-                  className="w-5 h-5"
-                  aria-hidden
-                  xmlns="http://www.w3.org/2000/svg"
-                  fill="currentColor"
-                  viewBox="0 0 18 20"
-                >
-                  <path d="M16 1h-3.278A1.992 1.992 0 0 0 11 0H7a1.993 1.993 0 0 0-1.722 1H2a2 2 0 0 0-2 2v15a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V3a2 2 0 0 0-2-2Zm-3 14H5a1 1 0 0 1 0-2h8a1 1 0 0 1 0 2Zm0-4H5a1 1 0 0 1 0-2h8a1 1 0 1 1 0 2Zm0-5H5a1 1 0 0 1 0-2h2V2h4v2h2a1 1 0 1 1 0 2Z" />
-                </svg>
-              )}
-            </button>
-          </div>
-        </div>
-      );
-    } else {
-      return (
-        <div>
-          <label
-            htmlFor="website-admin"
-            className="block text-sm text-gray-500 dark:text-white"
-          >
-            Tú dirección de billetera
+            Tu saldo
           </label>
           <p>Billetera desconectada</p>
         </div>
       );
-    }
+    } */
   }
 
   return (
@@ -256,7 +208,7 @@ export default function Sidebar(props: SidebarProps) {
             width: '90%',
           }}
         >
-          <li className="text-lg font-medium flex items-center">
+          <li>
             <Link
               href="https://suan-1.gitbook.io/documentacion-suan-sandbox/"
               target="_blank"
@@ -273,35 +225,6 @@ export default function Sidebar(props: SidebarProps) {
               <span className="flex-1 ml-3 whitespace-nowrap">Ayuda</span>
             </Link>
           </li>
-          {user && (
-            <li className="text-lg flex">
-              <button
-                onClick={() => {
-                  signOut();
-                  router.push('/');
-                }}
-                className="flex items-center p-2 text-gray-500 rounded-lg dark:text-white hover:bg-gray-100 dark:hover:bg-gray-700"
-              >
-                <svg
-                  className="w-6 h-6 text-gray-800 dark:text-white"
-                  aria-hidden="true"
-                  xmlns="http://www.w3.org/2000/svg"
-                  fill="none"
-                  viewBox="0 0 24 24"
-                >
-                  <path
-                    stroke="currentColor"
-                    stroke-linecap="round"
-                    stroke-linejoin="round"
-                    stroke-width="2"
-                    d="M20 12H8m12 0-4 4m4-4-4-4M9 4H7a3 3 0 0 0-3 3v10a3 3 0 0 0 3 3h2"
-                  />
-                </svg>
-                <span className="flex-1 ml-3 whitespace-nowrap">Logout</span>
-              </button>
-            </li>
-          )}
-
           <li className="pt-4 mt-4 border-t text-xs font-light border-gray-200 dark:border-gray-700 flex flex-col items-center justify-center text-center">
             {poweredBy && (
               <div className="flex items-center mt-2 mb-4">
@@ -322,71 +245,6 @@ export default function Sidebar(props: SidebarProps) {
             </div>
           </li>
         </ul>
-
-        {/* <ul className="absolute  bottom-3 left-1/2 transform -translate-x-1/2 w-5/6  text-xs text-gray-400 dark:text-white">
-          <li className="text-lg font-medium flex">
-            <button
-              onClick={() => {
-                signOut();
-                router.push('/');
-              }}
-              className={`flex items-center justify-start p-2 text-gray-500 rounded-lg dark:text-white hover:bg-gray-100 dark:hover:bg-gray-700 w-full`}
-            >
-              <svg
-                className="w-4 h-4 text-gray-800 dark:text-white"
-                aria-hidden="true"
-                xmlns="http://www.w3.org/2000/svg"
-                fill="none"
-                viewBox="0 0 24 24"
-              >
-                <path
-                  stroke="currentColor"
-                  stroke-linecap="round"
-                  stroke-linejoin="round"
-                  stroke-width="2"
-                  d="M20 12H8m12 0-4 4m4-4-4-4M9 4H7a3 3 0 0 0-3 3v10a3 3 0 0 0 3 3h2"
-                />
-              </svg>
-              <span className="flex ml-2 whitespace-nowrap ">Logout</span>
-            </button>
-          </li>
-          <li className="text-lg font-medium flex items-center">
-            <Link
-              href="https://suan-1.gitbook.io/documentacion-suan-sandbox/"
-              target="_blank"
-              className={`flex items-center p-2 text-gray-500 rounded-lg dark:text-white hover:bg-gray-100 dark:hover:bg-gray-700 w-full`}
-            >
-              <svg
-                className="w-4 h-4 text-gray-800 dark:text-white"
-                xmlns="http://www.w3.org/2000/svg"
-                viewBox="0 0 24 24"
-                id="book"
-              >
-                <path d="M18,2H8A4,4,0,0,0,4,6V18a4,4,0,0,0,4,4H18a2,2,0,0,0,2-2V4A2,2,0,0,0,18,2ZM6,6A2,2,0,0,1,8,4H18V14H8a3.91,3.91,0,0,0-2,.56ZM8,20a2,2,0,0,1,0-4H18v4ZM10,8h4a1,1,0,0,0,0-2H10a1,1,0,0,0,0,2Z"></path>
-              </svg>
-              <span className="flex-1 ml-3 whitespace-nowrap ">Ayuda</span>
-            </Link>
-          </li>
-          <li className="pt-4 mt-4 border-t border-gray-200 dark:border-gray-700 flex flex-col items-center justify-center text-center">
-            {poweredBy && (
-              <div className="flex items-center mt-2 mb-4">
-                Powered by
-                <Image
-                  src="/images/home-page/suan_logo.png"
-                  height={10}
-                  width={12}
-                  className="ml-1"
-                  alt="SUAN Logo"
-                />
-              </div>
-            )}
-            <div>
-              <p>Copyright © Derechos de autor</p>
-              <p>Todos los derechos reservados</p>
-              <p>Suan 2001-2023</p>
-            </div>
-          </li>
-        </ul> */}
       </div>
     </aside>
   );

@@ -701,6 +701,8 @@ export async function getWalletByUser(userId: string): Promise<[id: string]> {
           wallets {
             items {
               id
+              address
+              name
             }
           }
         }

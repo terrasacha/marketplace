@@ -1,3 +1,3 @@
 import getActualPeriod from './generic/getActualPeriod';
-
-export { getActualPeriod };
+import colorByLetter from './dicc';
+export { getActualPeriod, colorByLetter };

@@ -20,10 +20,14 @@ export default {
       height: {
         '300': '300px',
       },
+      fontSize: {
+        'xxs': '0.65rem',
+      },
     },
   },
   plugins: [
     // ...
     require('flowbite/plugin'),
+    require('tailwindcss-animated')
   ],
 };
