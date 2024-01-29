@@ -46,7 +46,9 @@ const LandingPage: MyPage = (props: any) => {
       return false;
     }
   };
-
+  const handleSetCheckingWallet = (data : string) => {
+    setCheckingWallet(data)
+  }
   useEffect(() => {
     if (connected) {
       setCheckingWallet('checking');
@@ -75,6 +77,7 @@ const LandingPage: MyPage = (props: any) => {
     <>
       <Landing
         checkingWallet={checkingWallet}
+        handleSetCheckingWallet={handleSetCheckingWallet}
         loading={loading}
         walletcount={walletcount}
       />
