@@ -24,23 +24,23 @@ type SignUpParameters = {
 
 export async function signUpAuth({ username, password, email, role }: SignUpParameters) {
   try {
-        const response = await signUp({ 
-          username,
-          password,
-          options: {
-            userAttributes: {
-              email,
-              'custom:role': role  
-            }
-          }
-          })
-        const userPayload = {
-          username,
-          role,
-          email
+    const response = await signUp({
+      username,
+      password,
+      options: {
+        userAttributes: {
+          email,
+          'custom:role': role
         }
-        const responseUser = await createUser(userPayload)
-        return response
+      }
+    })
+    const userPayload = {
+      username,
+      role,
+      email
+    }
+    const responseUser = await createUser(userPayload)
+    return response
   } catch (error) {
     throw error
   }
@@ -48,7 +48,7 @@ export async function signUpAuth({ username, password, email, role }: SignUpPara
 
 export async function confirmSignUpAuth({ username, confirmationCode }: ConfirmSignUpInput) {
   try {
-    let result = await confirmSignUp({username, confirmationCode});
+    let result = await confirmSignUp({ username, confirmationCode });
     return result
   } catch (error) {
     throw error
@@ -74,12 +74,12 @@ export async function signOutAuth() {
   }
 }
 
-export async function forgotPassword({username} : ResetPasswordInput) {
+export async function forgotPassword({ username }: ResetPasswordInput) {
   try {
-    const data = await resetPassword({username});
+    const data = await resetPassword({ username });
     console.log(data, 'forgotPassword')
     return data
-  } catch(err) {
+  } catch (err) {
     throw err
   }
 };
@@ -91,8 +91,8 @@ export async function forgotPasswordSubmit({
 }: ConfirmResetPasswordInput) {
   try {
     await confirmResetPassword({ username, confirmationCode, newPassword });
-    return {code: "Success", message: "Password changed successfully"}
-  } catch(err) {
+    return { code: "Success", message: "Password changed successfully" }
+  } catch (err) {
     throw err
   }
 };
@@ -829,13 +829,14 @@ export async function updateTransaction({ id, txProcessed, fees }: any) {
   return response;
 }
 export async function createUser(userPayload: any) {
-  const {username, role, email} =  userPayload
+  const { id, username, role, email } = userPayload
   console.log(username, role, email)
   const response = await axios.post(
     graphqlEndpoint,
     {
       query: `mutation MyMutation {
         createUser(input: {
+          id: "${id}"
           name: "${username}"
           isProfileUpdated: true
           role: "${role}"
@@ -913,7 +914,7 @@ export async function getPolygonByCadastralNumber(cadastralNumbers: any) {
   const whereClause = `CODIGO IN ('${cadastralNumbers.join("','")}')`;
 
   // Parámetros de la consulta
-  const queryParams:any = {
+  const queryParams: any = {
     where: whereClause,
     objectIds: "",
     time: "",

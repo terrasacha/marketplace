@@ -38,26 +38,9 @@ const MainLayout = ({ children }: PropsWithChildren) => {
           const wallet = await getWalletByUser(res);
           if (wallet.length > 0) {
             const address = (wallet[0] as any)?.address;
-            console.log(address);
             setAllowAccess(true);
-            const response = await fetch(
-              'https://93jp7ynsqv.us-east-1.awsapprunner.com/api/v1/wallet/query-wallet/balance/',
-              {
-                method: 'POST',
-                headers: {
-                  'Content-Type': 'application/json',
-                  'x-api-key': process.env.NEXT_PUBLIC_API_KEY_ENDPOINT || ''
-                },
-                body: JSON.stringify([address]),
-              }
-            );
-
-            if (!response.ok) {
-              throw new Error(
-                `Error en la solicitud: ${response.status} - ${response.statusText}`
-              );
-            }
-            const responseData = await response.json();
+            const response = await fetch(`api/calls/allowAccessWalletDB?address=${address}`)
+            const responseData = await response.json()
             setWalletInfo({
               name: (wallet[0] as any)?.name,
               addr: address,
@@ -154,5 +137,13 @@ const MainLayout = ({ children }: PropsWithChildren) => {
     </>
   );
 };
+
+export async function getServerSideProps() {
+  const res = await fetch(`https://.../data`)
+  const data = await res.json()
+ 
+  // Pass data to the page via props
+  return { props: { data } }
+}
 
 export default MainLayout;

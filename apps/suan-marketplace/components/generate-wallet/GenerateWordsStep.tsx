@@ -1,6 +1,5 @@
 import React, { useContext, useState } from 'react';
 import { Checkbox, Label, Button, Radio } from 'flowbite-react';
-import axios from 'axios';
 import NewWalletContext from '@suan/store/generate-new-wallet-context';
 import WordsContainer from './WordsContainer';
 
@@ -21,15 +20,9 @@ const GenerateWordsStep = (props: any) => {
   const generateWords = async () => {
   try {
     setLoading(true);
-    const url = `https://93jp7ynsqv.us-east-1.awsapprunner.com/api/v1/wallet/generate-words/?size=${recoveryWords.length}`;
-    const response = await axios.post(url, null, {
-      headers: {
-        'Content-Type': 'application/json',
-        'x-api-key': process.env.NEXT_PUBLIC_API_KEY_ENDPOINT,
-      },
-    });
-    setWords(response.data);
-    console.log(response.data);
+    const response = await fetch(`api/calls/generateWords?size=${recoveryWords.length}`)
+    const data  = await response.json()
+    setWords(data);
   } catch (error) {
     console.error('Error al hacer la solicitud:', error);
   } finally {

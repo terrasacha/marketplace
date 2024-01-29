@@ -68,25 +68,26 @@ const CreateCredentials = (props: any) => {
   };
   const createWallet = async () => {
     const url = 'https://93jp7ynsqv.us-east-1.awsapprunner.com/api/v1/wallet/create-wallet/';
-    const data = {
+    const info = {
       save_flag: true,
       userID: user,
       words: words,
     };
     try {
       setLoading(true);
-      const response = await axios.post(url, data, {
-        headers: {
-          'Content-Type': 'application/json',
-          'x-api-key': process.env.NEXT_PUBLIC_API_KEY_ENDPOINT,
-        },
-      });
+      const response = await fetch('api/calls/createWalletCredentials',{
+        method: 'POST',
+        body: JSON.stringify(info),
+      })
+
+      const data = await response.json()
       setWalletInfo({
         name: inputValue.walletname,
         passwd: inputValue.password,
       });
+      console.log(data, 'data response1')
       const response2 = await updateWallet({
-        id: response.data.data.wallet_id,
+        id: data.data.wallet_id,
         name: inputValue.walletname,
         passphrase: inputValue.password,
       });
