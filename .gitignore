@@ -43,8 +43,4 @@ Thumbs.db
 # Next.js
 .next
 
-# local env files
-.env*.local
-apps/*/.env*.local
-
 package-lock.json
