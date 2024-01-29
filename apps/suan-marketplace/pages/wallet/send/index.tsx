@@ -1,23 +1,22 @@
 // pages/dashboard/index.tsx
 import { WalletDashboard } from '@marketplaces/ui-lib';
 import { MyPage } from '@suan//components/common/types';
-//import WalletDashboard from '@suan//components/wallet/WalletDashboard';
-import { getCurrentUser } from 'aws-amplify/auth';
+import { WalletSend } from '@marketplaces/ui-lib';
 
-const Wallet: MyPage = (props: any) => {
+const Send: MyPage = (props: any) => {
   return (
     <>
       <div className="h-auto w-full px-5 pt-6">
         <div className="p-4 border-gray-200 rounded-lg dark:border-gray-700 mt-14 ">
-          <WalletDashboard address={'sadadasdasdas'} img_url="" ada={1000} userWalletData={props.userWalletData}/>
+          <WalletSend userWalletData={props.userWalletData}/>
         </div>
       </div>
     </>
   );
 };
 
-export default Wallet;
-Wallet.Layout = 'Main'; // Asigna el diseño principal (Main)
+export default Send;
+Send.Layout = 'Main'; // Asigna el diseño principal (Main)
 
 
 export async function getServerSideProps(context: any) {

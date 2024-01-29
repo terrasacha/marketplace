@@ -16,6 +16,8 @@
     "baseUrl": ".",
     "paths": {
       "@marketplaces/data-access": ["data-access/src/index.ts"],
+      "@marketplaces/data-access-lib": ["data-access-lib/src/index.ts"],
+      "@marketplaces/data-access-lib/server": ["data-access-lib/src/server.ts"],
       "@marketplaces/ui-lib": ["ui-lib/src/index.ts"],
       "@marketplaces/ui-lib/server": ["ui-lib/src/server.ts"],
       "@marketplaces/utils-2": ["utils-2/src/index.ts"],
