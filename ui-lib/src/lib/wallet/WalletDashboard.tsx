@@ -1,22 +1,24 @@
 import React, { useState } from 'react';
-import { Card, EyeIcon } from '../ui-lib';
+import { Assets, Card, EyeIcon } from '../ui-lib';
 import { CopyIcon } from '../ui-lib';
 import { ExternalLinkIcon } from '../ui-lib';
-
+import { Transactions } from '../ui-lib';
 // Definir el tipo de 'token'
 interface AccountProps {
+  userWalletData: any;
   address: string;
   ada: number;
   img_url: string;
   // Agrega cualquier otra propiedad que tenga tu token
 }
 
-export default function Account(props: AccountProps) {
+export default function WalletDashboard(props: AccountProps) {
+  console.log(props.userWalletData);
   return (
-    <div className="grid grid-cols-1 xl:grid-cols-3 xl:space-x-5 ">
-      <div className="flex-col col-span-2 space-y-5">
+    <div className="grid grid-cols-1 xl:grid-cols-5 xl:space-x-5 ">
+      <div className="flex-col col-span-3 space-y-5">
         <Card className="h-fit">
-          <Card.Header title="Accounts" />
+          <Card.Header title="Cuenta" />
           <Card.Body>
             <div className="w-full rounded-lg bg-white p-3">
               <div className="flex gap-3 items-center">
@@ -28,7 +30,7 @@ export default function Account(props: AccountProps) {
                   </div>
                 </div>
                 <div className="flex-1 w-64">
-                  <p className="text-lg">My Wallet</p>
+                  <p className="text-lg">Mi billetera</p>
                   <div className="flex items-center gap-2">
                     <p className="text-sm text-gray-500 truncate w-52">
                       stake_test1uqwder2p9flvw822yaadml8vfw5vgrazupch6ywjdcc98pcapc6qz
@@ -45,26 +47,12 @@ export default function Account(props: AccountProps) {
             </div>
           </Card.Body>
         </Card>
-        <Card className="col-span-2 h-fit">
-          <Card.Header title="Transactions" />
-          <Card.Body>
-            <div className="h-48">Hola</div>
-          </Card.Body>
-        </Card>
+        <div className="h-fit">
+          <Transactions />
+        </div>
       </div>
-      <div className="flex-col space-y-5 mt-5 xl:mt-0">
-        <Card>
-          <Card.Header title="Assets" tooltip="See all" />
-          <Card.Body>
-            <div className="flex items-center justify-center h-56">Your assets will be listed here</div>
-          </Card.Body>
-        </Card>
-        <Card className="h-fit">
-          <Card.Header title="Address Book" />
-          <Card.Body>
-            <div className="flex items-center justify-center h-56">Your address book</div>
-          </Card.Body>
-        </Card>
+      <div className="flex-col col-span-2 space-y-5 mt-5 xl:mt-0">
+        <Assets />
       </div>
     </div>
   );
