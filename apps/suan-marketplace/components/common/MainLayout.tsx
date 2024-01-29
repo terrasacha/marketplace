@@ -46,6 +46,7 @@ const MainLayout = ({ children }: PropsWithChildren) => {
                 method: 'POST',
                 headers: {
                   'Content-Type': 'application/json',
+                  'x-api-key': process.env.NEXT_PUBLIC_API_KEY_ENDPOINT || ''
                 },
                 body: JSON.stringify([address]),
               }

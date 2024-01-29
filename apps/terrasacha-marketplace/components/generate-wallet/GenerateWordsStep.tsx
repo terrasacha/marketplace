@@ -21,7 +21,12 @@ const GenerateWordsStep = (props: any) => {
     try {
       setLoading(true);
       const url = `https://93jp7ynsqv.us-east-1.awsapprunner.com/api/v1/wallet/generate-words/?size=${recoveryWords.length}`;
-      const response = await axios.post(url);
+      const response = await axios.post(url, null, {
+        headers: {
+          'Content-Type': 'application/json',
+          'x-api-key': process.env.NEXT_PUBLIC_API_KEY_ENDPOINT,
+        },
+      });
       setWords(response.data);
       console.log(response.data);
     } catch (error) {
