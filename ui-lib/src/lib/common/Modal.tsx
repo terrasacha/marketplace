@@ -119,7 +119,7 @@ class Modal extends React.Component<ModalProps> {
           aria-hidden="true"
           className={`${
             !show && 'hidden'
-          } flex overflow-y-hidden overflow-x-hidden fixed top-0 right-0 left-0 z-50 justify-center items-center w-full md:inset-0 h-full max-h-full bg-gray-900 bg-opacity-50 no-scrollbar ${className}`}
+          } flex overflow-y-hidden overflow-x-hidden fixed top-0 right-0 left-0 z-50 px-10 justify-center items-center w-full md:inset-0 h-full max-h-full bg-gray-900 bg-opacity-50 no-scrollbar ${className}`}
         >
           <div className={`relative w-full max-w-${size} max-h-full`}>
             {/* Modal content */}

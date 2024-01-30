@@ -9,6 +9,7 @@ import {
   TrashIcon,
 } from '../ui-lib';
 import { toast } from 'sonner';
+import { useWallet } from '@meshsdk/react';
 // Definir el tipo de 'token'
 interface AccountProps {
   userWalletData: any;
@@ -16,22 +17,26 @@ interface AccountProps {
 }
 
 export default function WalletSend(props: AccountProps) {
+  const { wallet, connected } = useWallet();
+
   const newTransactionGroupInitialState = [
-    { walletAddress: '', adaAmount: '', message: '', selectedAssets: [] },
+    { walletAddress: '', adaAmount: '', checked: false, selectedAssets: [] },
   ];
   const [newTransactionGroup, setNewTransactionGroup] = useState(
     newTransactionGroupInitialState
   );
-  const [transactionMessage, setTransactionMessage] = useState("");
+  const [transactionMessage, setTransactionMessage] = useState('');
   const [selectTokensModal, setSelectTokensModal] = useState({
     visible: false,
-    data: null,
+    data: [],
+    recipientID: 0,
   });
 
-  const handleOpenSelectTokensModal = () => {
+  const handleOpenSelectTokensModal = (recipientID: number = 0) => {
     setSelectTokensModal((prevState) => ({
       ...prevState,
       visible: !selectTokensModal.visible,
+      recipientID: recipientID,
     }));
   };
 
@@ -42,6 +47,15 @@ export default function WalletSend(props: AccountProps) {
       ...prevState,
       data: selectedTokensData,
     }));
+  };
+
+  const handleAddRecipientSelectedAssets = (index: number, data: any) => {
+    const updatedTransactions = [...newTransactionGroup];
+    updatedTransactions[index] = {
+      ...updatedTransactions[index],
+      selectedAssets: data,
+    };
+    setNewTransactionGroup(updatedTransactions);
   };
 
   const handleInputChange = (
@@ -60,7 +74,7 @@ export default function WalletSend(props: AccountProps) {
   const handleAddRecipient = () => {
     setNewTransactionGroup([
       ...newTransactionGroup,
-      { walletAddress: '', adaAmount: '', message: '', selectedAssets: [] },
+      { walletAddress: '', adaAmount: '', checked: false, selectedAssets: [] },
     ]);
   };
 
@@ -71,15 +85,66 @@ export default function WalletSend(props: AccountProps) {
     setNewTransactionGroup(filteredTransactions);
   };
 
-  const handleSendTransaction = () => {
-    console.log('Envio de transacción: ', newTransactionGroup);
+  const handleSendTransaction = async () => {
+    let userWalletAddress;
+
+    if (connected) {
+      userWalletAddress = await wallet.getChangeAddress();
+    } else {
+      userWalletAddress =
+        'addr_test1qr29hvdltfdsfls6vq0yfxvyh59c2yrjjrl65ug746hy3xw5twcm7kjmqnlp5cq7gjvcf0gts5g89y8l4fc3at4wfzvsdycqzt';
+    }
+    const addresses = newTransactionGroup.map((recipient) => {
+      return {
+        address: recipient.walletAddress,
+        lovelace: parseFloat(recipient.adaAmount) * 1000000,
+      };
+    });
+
+    let payload = {
+      wallet_id: userWalletAddress,
+      addresses: addresses,
+      metadata: {
+        message: transactionMessage,
+      },
+    };
+
+    console.log('Recipientes: ', newTransactionGroup);
+    console.log('Envio de transacción: ', payload);
+
+    // const response = await fetch('/api/transactions/build-tx', {
+    //   method: 'POST',
+    //   headers: {
+    //     'Content-Type': 'application/json',
+    //   },
+    //   body: JSON.stringify(payload),
+    // });
+    // const buildTxResponse = await response.json();
+
+    // console.log(buildTxResponse);
+
+    // const signed = {
+    //   wallet_id: userWalletAddress,
+    //   cbor: buildTxResponse.,
+    // };
+
+    // const response = await fetch('/api/transactions/sign-submit', {
+    //   method: 'POST',
+    //   headers: {
+    //     'Content-Type': 'application/json',
+    //   },
+    //   body: JSON.stringify(signed),
+    // });
+    // const signSubmitResponse = await response.json();
+
+    //console.log(signSubmitResponse);
   };
 
   console.log(props.userWalletData);
   return (
     <>
       <div className="grid grid-cols-6 gap-5">
-        <Card className="col-span-6 xl:col-span-4 h-fit">
+        <Card className="col-span-6 xl:col-span-6 h-fit">
           <Card.Header title="Nueva Transacción" />
           <Card.Body className="space-y-4">
             {newTransactionGroup.map((transaction: any, index: number) => {
@@ -117,9 +182,7 @@ export default function WalletSend(props: AccountProps) {
                   className="block col-span-4 ps-10 p-2.5 w-full text-sm text-gray-900 bg-gray-50 rounded border border-gray-300 focus:ring-blue-500 focus:border-blue-500 "
                   placeholder="Ingresa tú mensaje"
                   value={transactionMessage}
-                  onChange={(e) =>
-                    setTransactionMessage(e.target.value)
-                  }
+                  onChange={(e) => setTransactionMessage(e.target.value)}
                   required
                 ></textarea>
               </div>
@@ -143,10 +206,6 @@ export default function WalletSend(props: AccountProps) {
             </div>
           </Card.Body>
         </Card>
-        <Card className="col-span-6 xl:col-span-2 order-first xl:order-none h-fit">
-          <Card.Header title="Balance" />
-          <Card.Body></Card.Body>
-        </Card>
       </div>
       <SelectTokensModal
         selectTokensModal={selectTokensModal}
@@ -154,6 +213,7 @@ export default function WalletSend(props: AccountProps) {
         handleSetSelectedTokensToSelectTokensModal={
           handleSetSelectedTokensToSelectTokensModal
         }
+        handleAddRecipientSelectedAssets={handleAddRecipientSelectedAssets}
       />
     </>
   );

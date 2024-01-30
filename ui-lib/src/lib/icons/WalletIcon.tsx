@@ -1,4 +1,4 @@
-export const WalletIcon = ({ className = "mb-2 h-7 w-7" }) => (
+export const WalletIcon = ({ className = "" }) => (
   <svg
     xmlns="http://www.w3.org/2000/svg"
     className={className}

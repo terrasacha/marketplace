@@ -29,7 +29,11 @@ export default function AssetCard(props: AssetCardProps) {
 
   const handleInputChange = (e: any) => {
     const { value } = e.target;
-    handleAssetSelectedChange(fingerprint, 'selectedSupply', value.replace(/[^0-9]/g, ''));
+    handleAssetSelectedChange(
+      fingerprint,
+      'selectedSupply',
+      value.replace(/[^0-9]/g, '')
+    );
     validateSupply(parseInt(value));
   };
 
@@ -51,7 +55,11 @@ export default function AssetCard(props: AssetCardProps) {
 
   const handleCheckAsset = () => {
     if (totalSupply === 1) {
-      handleAssetSelectedChange(fingerprint, 'selectedSupply', '1');
+      handleAssetSelectedChange(
+        fingerprint,
+        'selectedSupply',
+        checked ? '' : '1'
+      );
     }
     handleAssetSelectedChange(fingerprint, 'checked', !checked);
   };
@@ -103,7 +111,8 @@ export default function AssetCard(props: AssetCardProps) {
         <div className="flex items-center">
           <button
             disabled={
-              (error || selectedSupply === '' || selectedSupply === '0') && (totalSupply !== 1)
+              (error || selectedSupply === '' || selectedSupply === '0') &&
+              totalSupply !== 1
                 ? true
                 : false
             }
