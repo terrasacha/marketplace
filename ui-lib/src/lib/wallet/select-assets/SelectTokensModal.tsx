@@ -8,9 +8,10 @@ import {
 } from '../../ui-lib';
 
 interface SelectTokensModalProps {
-  selectTokensModal: { visible: boolean; data: any };
-  handleOpenSelectTokensModal: () => void;
+  selectTokensModal: { visible: boolean; data: any; recipientID: number };
+  handleOpenSelectTokensModal: (recipientID?: number) => void;
   handleSetSelectedTokensToSelectTokensModal: (data: any) => void;
+  handleAddRecipientSelectedAssets: (index: number, data: any) => void;
   // Agrega cualquier otra propiedad que tenga tu token
 }
 
@@ -25,6 +26,7 @@ export default function SelectTokensModal(props: SelectTokensModalProps) {
     selectTokensModal,
     handleOpenSelectTokensModal,
     handleSetSelectedTokensToSelectTokensModal,
+    handleAddRecipientSelectedAssets,
   } = props;
 
   const [assetsFilter, setAssetsFilter] = useState<{
@@ -76,8 +78,11 @@ export default function SelectTokensModal(props: SelectTokensModalProps) {
   const [assetsList, setAssetsList] = useState(assetsListDummy);
 
   useEffect(() => {
+    console.log('entro a chequear0');
     const checkedAssets = selectTokensModal.data;
-    if (checkedAssets > 0) {
+    console.log('checkedAssets', checkedAssets);
+    if (checkedAssets.length > 0) {
+      console.log('entro a chequear');
       setAssetsList((prevState) => {
         return prevState.map((asset) => {
           const checkedAsset = checkedAssets.find(
@@ -117,8 +122,10 @@ export default function SelectTokensModal(props: SelectTokensModalProps) {
   };
   const handleAccept = () => {
     const selectedAssets = assetsList.filter((asset) => asset.checked);
-    handleSetSelectedTokensToSelectTokensModal(selectedAssets);
+    //handleSetSelectedTokensToSelectTokensModal(selectedAssets);
+    handleAddRecipientSelectedAssets(selectTokensModal.recipientID, selectedAssets);
     handleOpenSelectTokensModal();
+    setAssetsList(assetsListDummy)
 
     console.log(selectedAssets);
   };
@@ -129,6 +136,7 @@ export default function SelectTokensModal(props: SelectTokensModalProps) {
         onClose={() => {
           handleOpenSelectTokensModal();
           handleSetSelectedTokensToSelectTokensModal([]);
+          setAssetsList(assetsListDummy)
         }}
       >
         Selecciona Assets

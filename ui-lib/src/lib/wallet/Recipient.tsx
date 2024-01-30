@@ -13,7 +13,7 @@ interface RecipientProps {
     field: string,
     value: string | boolean
   ) => void;
-  handleOpenSelectTokensModal: () => void;
+  handleOpenSelectTokensModal: (recipientID: number) => void;
   handleSetSelectedTokensToSelectTokensModal: (data: any) => void;
 }
 
@@ -86,10 +86,10 @@ export default function Recipient(props: RecipientProps) {
         className="col-span-4 sm:col-span-1 text-white bg-gray-800 hover:bg-gray-900 focus:outline-none focus:ring-4 focus:ring-gray-300 font-medium rounded text-sm px-5 py-2.5 "
         onClick={() => {
           handleSetSelectedTokensToSelectTokensModal(selectedAssets);
-          handleOpenSelectTokensModal();
+          handleOpenSelectTokensModal(index);
         }}
       >
-        Agregar Assets
+        Agregar Assets {selectedAssets.length > 0 && '(' + selectedAssets.length + ')'}
       </button>
     </div>
   );

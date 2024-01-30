@@ -39,7 +39,7 @@ const MainLayout = ({ children }: PropsWithChildren) => {
           if (wallet.length > 0) {
             const address = (wallet[0] as any)?.address;
             setAllowAccess(true);
-            const response = await fetch(`api/calls/allowAccessWalletDB?address=${address}`)
+            const response = await fetch(`/api/calls/allowAccessWalletDB?address=${address}`)
             const responseData = await response.json()
             setWalletInfo({
               name: (wallet[0] as any)?.name,

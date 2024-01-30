@@ -4,6 +4,7 @@ import Image from 'next/image';
 import Link from 'next/link';
 import { signOut } from 'aws-amplify/auth';
 import { useRouter } from 'next/router';
+import { ChevronDownIcon, ScaleIcon, WalletIcon } from '../ui-lib';
 
 interface SidebarProps {
   isOpen: boolean;
@@ -34,6 +35,7 @@ export default function Sidebar(props: SidebarProps) {
   const [copied, setCopied] = useState(false);
   const [userBalance, setUserBalance] = useState<any | undefined>(undefined);
   const sidebarRef = useRef<HTMLDivElement | null>(null);
+  const [displayWalletOptions, setDisplayWalletOptions] = useState(false);
 
   useEffect(() => {
     const handleClickOutside = (event: MouseEvent) => {
@@ -147,6 +149,55 @@ export default function Sidebar(props: SidebarProps) {
         <div className="pt-4 mt-4 border-t border-gray-200 dark:border-gray-700"></div>
 
         <ul className="space-y-4 font-medium">
+          <li>
+            <button
+              className="flex w-full items-center p-2 text-gray-500 rounded-lg dark:text-white hover:bg-gray-100 dark:hover:bg-gray-700"
+              onClick={() => setDisplayWalletOptions(!displayWalletOptions)}
+            >
+              <WalletIcon />
+              <span className="flex-1 ms-3 text-left rtl:text-right whitespace-nowrap">
+                Wallet
+              </span>
+              <ChevronDownIcon/>
+            </button>
+            <ul
+              id="dropdown-example"
+              className={`${!displayWalletOptions && 'hidden'} py-2 space-y-2`}
+            >
+              <li>
+                <Link
+                  href="/wallet"
+                  className="flex items-center w-full p-2 transition duration-75 pl-11 group text-gray-500 rounded-lg dark:text-white hover:bg-gray-100 dark:hover:bg-gray-700"
+                >
+                  Dashboard
+                </Link>
+              </li>
+              <li>
+                <Link
+                  href="/wallet/assets"
+                  className="flex items-center w-full p-2 transition duration-75 pl-11 group text-gray-500 rounded-lg dark:text-white hover:bg-gray-100 dark:hover:bg-gray-700"
+                >
+                  Activos
+                </Link>
+              </li>
+              <li>
+                <Link
+                  href="/wallet/transactions"
+                  className="flex items-center w-full p-2 transition duration-75 pl-11 group text-gray-500 rounded-lg dark:text-white hover:bg-gray-100 dark:hover:bg-gray-700"
+                >
+                  Transacciones
+                </Link>
+              </li>
+              <li>
+                <Link
+                  href="/wallet/send"
+                  className="flex items-center w-full p-2 transition duration-75 pl-11 group text-gray-500 rounded-lg dark:text-white hover:bg-gray-100 dark:hover:bg-gray-700"
+                >
+                  Nueva transaccion
+                </Link>
+              </li>
+            </ul>
+          </li>
           <li className={connected ? '' : 'hidden'}>
             <Link
               onClick={onClose}
@@ -179,21 +230,7 @@ export default function Sidebar(props: SidebarProps) {
               href="/home"
               className="flex items-center p-2 text-gray-500 rounded-lg dark:text-white hover:bg-gray-100 dark:hover:bg-gray-700"
             >
-              <svg
-                className="w-6 h-6 text-gray-600 dark:text-white"
-                aria-hidden
-                xmlns="http://www.w3.org/2000/svg"
-                fill="none"
-                viewBox="0 0 20 20"
-              >
-                <path
-                  stroke="currentColor"
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                  strokeWidth="2"
-                  d="M2 19h16m-8 0V5m0 0a2 2 0 1 0 0-4 2 2 0 0 0 0 4ZM4 8l-2.493 5.649A1 1 0 0 0 2.443 15h3.114a1.001 1.001 0 0 0 .936-1.351L4 8Zm0 0V6m12 2-2.493 5.649A1 1 0 0 0 14.443 15h3.114a1.001 1.001 0 0 0 .936-1.351L16 8Zm0 0V6m-4-2.8c3.073.661 3.467 2.8 6 2.8M2 6c3.359 0 3.192-2.115 6.012-2.793"
-                />
-              </svg>
+              <ScaleIcon />
               <span className="flex-1 ml-3 whitespace-nowrap">Proyectos</span>
             </Link>
           </li>
