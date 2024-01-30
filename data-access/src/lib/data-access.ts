@@ -3,7 +3,7 @@ import axios from "axios";
 
 const bcrypt = require('bcryptjs');
 
-export const encryptPassword = async (password:string) => {
+export const encryptPassword = async (password: string) => {
   try {
     const salt = await bcrypt.genSalt(10);
     const hash = await bcrypt.hash(password, salt);
@@ -137,7 +137,7 @@ const instance = axios.create({
 });
 const awsAppSyncApiKey: string = process.env['secrets']
   ? JSON.parse(process.env['secrets']).API_KEY_PLATAFORMA
-  : process.env['NEXT_PUBLIC_API_KEY_PLATAFORMA'];
+  : process.env['API_KEY_PLATAFORMA'];
 let graphqlEndpoint: string;
 if (process.env['NEXT_PUBLIC_graphqlEndpoint']) {
   graphqlEndpoint = process.env['NEXT_PUBLIC_graphqlEndpoint'];
@@ -898,7 +898,7 @@ export async function updateTransaction({ id, txProcessed, fees }: any) {
   return response;
 }
 export async function createUser(userPayload: any) {
-  const {username, role, email} =  userPayload
+  const { username, role, email } = userPayload
   console.log(username, role, email)
   const response = await axios.post(
     graphqlEndpoint,

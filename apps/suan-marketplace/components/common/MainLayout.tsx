@@ -8,7 +8,6 @@ import { Sidebar, Navbar } from '@marketplaces/ui-lib';
 import { useWallet, useAssets, useAddress, useLovelace } from '@meshsdk/react';
 import { useRouter } from 'next/router';
 import { getCurrentUser } from 'aws-amplify/auth';
-import { getWalletByUser } from '@marketplaces/data-access';
 
 const initialStatewalletInfo = {
   name: '',
@@ -35,7 +34,11 @@ const MainLayout = ({ children }: PropsWithChildren) => {
         const res = await accessHomeWithWallet();
 
         if (res) {
-          const wallet = await getWalletByUser(res);
+          const response = await fetch('/api/calls/backend/getWalletByUser',{
+            method: 'POST',
+            body: res,
+          })
+          const wallet = await response.json();
           if (wallet.length > 0) {
             const address = (wallet[0] as any)?.address;
             setAllowAccess(true);

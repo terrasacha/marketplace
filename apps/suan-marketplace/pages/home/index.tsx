@@ -1,7 +1,7 @@
 import React from 'react';
-import { getCategories, getProjects } from '@suan//backend';
-import HomeContainer from '@suan//components/home-page/HomeContainer';
-import { MyPage } from '@suan//components/common/types';
+import { getCategories, getProjects } from '@suan/backend';
+import HomeContainer from '@suan/components/home-page/HomeContainer';
+import { MyPage } from '@suan/components/common/types';
 
 const Home: MyPage = (props: any) => {
   return (

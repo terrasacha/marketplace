@@ -1,13 +1,11 @@
 import React, { use, useContext, useEffect, useState } from 'react';
 import { MyPage } from '@suan/components/common/types';
 import Image from 'next/image';
-import { Button } from 'flowbite-react';
 import NewWallet from '@suan/components/generate-wallet/NewWallet';
 import { getCurrentUser } from 'aws-amplify/auth';
 import { Hub } from 'aws-amplify/utils';
 import { signOutAuth } from '@suan/backend';
 import { useRouter } from 'next/router';
-import { getWalletByUser } from '@marketplaces/data-access';
 import AlreadyHasWallet from '@suan/components/generate-wallet/AlreadyHasWallet';
 
 const GenerateWalletPage: MyPage = (props: any) => {
@@ -21,8 +19,13 @@ const GenerateWalletPage: MyPage = (props: any) => {
         return router.push('/');
       }
       setIsAuthenticated(true);
-      getWalletByUser(res).then((response) => {
-        setWallet(response);
+      fetch('/api/calls/backend/getWalletByUser',{
+        method: 'POST',
+        body: res,
+      })
+      .then(response => response.json())
+      .then((data) => {
+        setWallet(data);
       });
     });
   }, []);
