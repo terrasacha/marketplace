@@ -4,21 +4,32 @@ import { Button } from 'flowbite-react';
 import Link from 'next/link';
 import { getCurrentUser } from 'aws-amplify/auth';
 import Image from 'next/image';
+import { useWallet } from '@meshsdk/react';
 import { CardanoWalletGeneric } from '../ui-lib';
 interface WelcomeCardProps {
   poweredby: boolean;
   appName: string;
   checkingWallet: any;
+  handleSetCheckingWallet: any
 }
 const WelcomeCard = (props: WelcomeCardProps) => {
-  const { poweredby, appName, checkingWallet } = props;
+  const { poweredby, appName, checkingWallet, handleSetCheckingWallet } = props;
   const [isAuthenticated, setIsAuthenticated] = useState(null) as any;
+  const { disconnect } = useWallet();
 
   useEffect(() => {
     currentAuthenticatedUser().then((res) => {
       setIsAuthenticated(res);
     });
   }, []);
+  useEffect(() => {
+    if(checkingWallet === 'unauthorized'){
+      setTimeout(() => {
+        disconnect()
+        handleSetCheckingWallet('uncheck')
+      }, 1000);
+    }
+  }, [checkingWallet]);
 
   async function currentAuthenticatedUser() {
     try {
@@ -72,7 +83,7 @@ const WelcomeCard = (props: WelcomeCardProps) => {
         </button>
       </Link>
       {!isAuthenticated && (
-        <CardanoWalletGeneric text="Acceder con billetera externa" />
+        <CardanoWalletGeneric text="Acceder con billetera externa" checkingWallet={checkingWallet} />
       )}
       {poweredby && (
         <div className="flex items-center justify-center mt-4 text-xs">

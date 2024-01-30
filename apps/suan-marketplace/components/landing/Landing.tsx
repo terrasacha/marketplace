@@ -46,6 +46,7 @@ const Login = (props: any) => {
         ) : walletcount === 0 || !user ? (
           <WelcomeCard
             checkingWallet={props.checkingWallet}
+            handleSetCheckingWallet={props.handleSetCheckingWallet}
             appName="Suan"
             poweredby={false}
           />

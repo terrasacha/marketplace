@@ -2,7 +2,6 @@ import Image from 'next/image';
 import Link from 'next/link';
 import { useEffect } from 'react';
 import { TailSpin } from 'react-loader-spinner';
-import { CardanoWalletGeneric } from '../ui-lib';
 import { useRouter } from 'next/router';
 interface RedirectToHomeProps {
   poweredby: boolean;
