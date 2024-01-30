@@ -27,7 +27,7 @@ const WelcomeCard = (props: WelcomeCardProps) => {
       setTimeout(() => {
         disconnect()
         handleSetCheckingWallet('uncheck')
-      }, 1000);
+      }, 1500);
     }
   }, [checkingWallet]);
 
