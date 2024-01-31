@@ -1,11 +1,11 @@
 import { useWallet } from '@meshsdk/react';
-import { useEffect, useState, useRef } from 'react';
+import { useEffect, useState, useRef, useContext} from 'react';
 import Image from 'next/image';
 import Link from 'next/link';
 import { signOut } from 'aws-amplify/auth';
 import { useRouter } from 'next/router';
 import { ChevronDownIcon, ScaleIcon, WalletIcon } from '../ui-lib';
-
+import SuanWalletContext from '@suan/store/suanwallet-context'
 interface SidebarProps {
   isOpen: boolean;
   onClose: () => void;
@@ -29,6 +29,7 @@ export default function Sidebar(props: SidebarProps) {
     poweredBy,
     balance,
   } = props;
+  const { walletData } = useContext<any>(SuanWalletContext);
   const router = useRouter();
   const { wallet, connected } = useWallet();
   const [walletStakeID, setWalletStakeID] = useState<any>(undefined);
@@ -106,7 +107,7 @@ export default function Sidebar(props: SidebarProps) {
         >
           Tu saldo
         </label>
-        <h3 className="text-lg truncate">₳ {balance / 1000000 || '0'}</h3>
+        <h3 className="text-lg truncate">₳ {walletData? (parseInt(walletData[0].balance) / 1000000).toFixed(4) : '0'}</h3>
       </div>
     );
     /* } else {

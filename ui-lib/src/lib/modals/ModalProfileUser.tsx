@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useState, useRef, useEffect } from 'react';
 import { useQRCode } from 'next-qrcode';
 import { signOut } from 'aws-amplify/auth';
 import { useRouter } from 'next/router';
@@ -11,14 +11,44 @@ interface ModalProfileUserProps {
 const ModalProfileUser = (props: ModalProfileUserProps) => {
   const { closeModal, walletInfo } = props;
   const { Canvas } = useQRCode();
+  const [copied, setCopied] = useState<boolean>(false)
   const router = useRouter();
   const walletChar = walletInfo.name.charAt(0).toUpperCase();
+  const modalRef = useRef(null);
 
+  useEffect(() => {
+    const handleClickOutside = (event : any) => {
+      //@ts-ignore
+      if (modalRef.current && !modalRef.current.contains(event.target)) {
+        closeModal();
+      }
+    };
+
+    document.addEventListener('mousedown', handleClickOutside);
+
+    return () => {
+      document.removeEventListener('mousedown', handleClickOutside);
+    };
+  }, [modalRef, closeModal]);
+
+
+const copyToClipboard = (data : string) => {
+  navigator.clipboard.writeText(data).then(
+    () => {
+      setCopied(true);
+      setTimeout(() => {
+        setCopied(false);
+      }, 2000);
+    },
+    (err) => {
+      console.log("failed to copy", err.message);
+    }
+  );
+  };
   return (
     <div
-      className="
-      animate-fade-left animate-duration-200 animate-ease-in
-    absolute bottom-[-.2rem] right-0 w-[22rem] flex items-center justify-center z-40"
+      ref={modalRef}
+      className="animate-fade-left animate-duration-200 animate-ease-in absolute bottom-[-.2rem] right-0 w-[22rem] flex items-center justify-center z-40"
     >
       <div className="z-50 w-full bg-white dark:bg-gray-800 rounded-md shadow-2xl absolute bottom-0 left-1/2 transform -translate-x-1/2 translate-y-full overflow-hidden pb-3">
         <div className="w-full bg-[#e7eaf5] py-4 px-3 flex gap-4 items-start">
@@ -30,11 +60,14 @@ const ModalProfileUser = (props: ModalProfileUserProps) => {
               {walletInfo.name.charAt(0).toUpperCase() || ''}
             </p>
           </div>
-          <p className="text-xs font-normal text-gray-500 w-3/5  break-words text-left pt-2">
+          {!copied? <p className="text-xs font-normal text-gray-500 w-3/5  break-words text-left pt-2 cursor-pointer" onClick={() => copyToClipboard(walletInfo.addr)}>
             {`${walletInfo.addr.slice(0, 20)}...${walletInfo.addr.slice(
               -10
             )}` || ''}
-          </p>
+          </p>:
+          <p className="text-xs font-semibold text-emerald-600 w-3/5  break-words text-left pt-2 cursor-pointer animate-fade animate-infinite animate-ease-out animate-alternate animate-duration-1000">
+            Address copiada
+          </p>}
           <button
             type="button"
             className="text-gray-400 bg-transparent hover:bg-gray-200 hover:text-gray-900 rounded-lg text-sm w-8 h-8 ms-auto inline-flex justify-center items-center dark:hover:bg-gray-600 dark:hover:text-white"
