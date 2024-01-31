@@ -34,15 +34,18 @@ export async function signUpAuth({ username, password, email, role }: SignUpPara
         }
       }
     })
-    console.log(response, 'response signUp')
     const userPayload = {
       id: response.userId,
       username,
       role,
       email
     }
-    const responseUser = await createUser(userPayload)
-    return response
+    const responseApi = await fetch('/api/calls/backend/createUser', {
+      method: 'POST',
+      body: JSON.stringify(userPayload),
+    })
+    const data = await responseApi.json()
+    return data
   } catch (error) {
     throw error
   }

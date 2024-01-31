@@ -898,13 +898,14 @@ export async function updateTransaction({ id, txProcessed, fees }: any) {
   return response;
 }
 export async function createUser(userPayload: any) {
-  const { username, role, email } = userPayload
-  console.log(username, role, email)
+  const { id, username, role, email } = userPayload
+  console.log(id, username, role, email, 'info de entrada en createUser data-access')
   const response = await axios.post(
     graphqlEndpoint,
     {
       query: `mutation MyMutation {
         createUser(input: {
+          id: "${id}"
           name: "${username}"
           isProfileUpdated: true
           role: "${role}"
@@ -921,7 +922,7 @@ export async function createUser(userPayload: any) {
       },
     }
   );
-  return response.data.data.createUsers;
+  return response.data.data.createUser;
 }
 export async function checkIfWalletIsAdmin(walletStakeID: any) {
   try {

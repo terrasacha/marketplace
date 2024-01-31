@@ -86,11 +86,14 @@ const CreateCredentials = (props: any) => {
         passwd: inputValue.password,
       });
       console.log(data, 'data response1')
-      const response2 = await updateWallet({
-        id: data.data.wallet_id,
-        name: inputValue.walletname,
-        passphrase: inputValue.password,
-      });
+      const response2 = await fetch('api/calls/backend/updateWallet',{
+        method: 'POST',
+        body: JSON.stringify({
+          id: data.data.wallet_id,
+          name: inputValue.walletname,
+          passphrase: inputValue.password,
+        }),
+      })
       setCurrentSection(4);
     } catch (error) {
       console.error('Error al hacer la solicitud:', error);
