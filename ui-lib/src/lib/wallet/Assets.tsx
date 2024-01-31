@@ -1,7 +1,13 @@
 import { useState } from 'react';
 import { Card, CopyIcon, ExternalLinkIcon, EyeIcon } from '../ui-lib';
 
+interface AssetsProps {
+  assetsData: any
+}
+
 export default function Assets(props: any) {
+  const { assetsData } = props
+  
   const assetsDummyList = [
     {
       token: 'ADA',
@@ -26,26 +32,26 @@ export default function Assets(props: any) {
           <div className="w-full text-end">Total</div>
         </div>
         <div className="space-y-2">
-          {assetsDummyList.map((asset: any, index: number) => {
+          {assetsData && assetsData.map((asset: any, index: number) => {
             return (
-              <div className="flex space-x-2 items-center bg-white rounded-lg px-3 py-2">
+              <div key={index} className="flex space-x-2 items-center bg-white rounded-lg px-3 py-2">
                 <div className="flex justify-start items-center w-full space-x-2">
                   <div className="px-2">{index + 1}</div>
                   <div className="relative inline-flex items-center justify-center w-7 h-7 overflow-hidden bg-red-200 rounded-full dark:bg-gray-600">
                     <span className="font-medium text-gray-600 dark:text-gray-300">
-                      {asset.token.charAt(0)}
+                      {asset.asset_name.charAt(0)}
                     </span>
                   </div>
-                  <p>{asset.token}</p>
+                  <p>{asset.asset_name}</p>
                 </div>
                 <div className="w-full text-center">
-                  <p>{asset.balance}</p>
+                  <p>{asset.quantity}</p>
                 </div>
                 <div className="w-full text-center">
-                  <p>$ {asset.price}</p>
+                  <p>$ {asset.price || "0.5"}</p>
                 </div>
                 <div className="w-full text-end">
-                  <p>$ {(asset.balance * asset.price).toFixed(4)}</p>
+                  <p>$ {(asset.balance * asset.price).toFixed(4) || 0}</p>
                 </div>
               </div>
             );

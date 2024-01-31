@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useContext, useEffect, useState } from 'react';
 import {
   Assets,
   Card,
@@ -10,6 +10,7 @@ import {
 } from '../ui-lib';
 import { toast } from 'sonner';
 import { useWallet } from '@meshsdk/react';
+
 // Definir el tipo de 'token'
 interface AccountProps {
   userWalletData: any;
@@ -92,7 +93,7 @@ export default function WalletSend(props: AccountProps) {
       userWalletAddress = await wallet.getChangeAddress();
     } else {
       userWalletAddress =
-        'addr_test1qr29hvdltfdsfls6vq0yfxvyh59c2yrjjrl65ug746hy3xw5twcm7kjmqnlp5cq7gjvcf0gts5g89y8l4fc3at4wfzvsdycqzt';
+        '45565413c8c24ae16e726145c2b9ba00d96d78ff374a519531c2bc3d';
     }
     const addresses = newTransactionGroup.map((recipient) => {
       return {
@@ -104,40 +105,38 @@ export default function WalletSend(props: AccountProps) {
     let payload = {
       wallet_id: userWalletAddress,
       addresses: addresses,
-      metadata: {
-        message: transactionMessage,
-      },
+      metadata: {},
     };
 
     console.log('Recipientes: ', newTransactionGroup);
     console.log('Envio de transacción: ', payload);
 
-    // const response = await fetch('/api/transactions/build-tx', {
-    //   method: 'POST',
-    //   headers: {
-    //     'Content-Type': 'application/json',
-    //   },
-    //   body: JSON.stringify(payload),
-    // });
-    // const buildTxResponse = await response.json();
+    const response = await fetch('/api/transactions/build-tx', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify(payload),
+    });
+    const buildTxResponse = await response.json();
 
-    // console.log(buildTxResponse);
+    console.log(buildTxResponse);
 
-    // const signed = {
-    //   wallet_id: userWalletAddress,
-    //   cbor: buildTxResponse.,
-    // };
+    const signed = {
+      wallet_id: '45565413c8c24ae16e726145c2b9ba00d96d78ff374a519531c2bc3d',
+      cbor: buildTxResponse.cbor,
+    };
 
-    // const response = await fetch('/api/transactions/sign-submit', {
-    //   method: 'POST',
-    //   headers: {
-    //     'Content-Type': 'application/json',
-    //   },
-    //   body: JSON.stringify(signed),
-    // });
-    // const signSubmitResponse = await response.json();
+    const response2 = await fetch('/api/transactions/sign-submit', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify(signed),
+    });
+    const signSubmitResponse = await response2.json();
 
-    //console.log(signSubmitResponse);
+    console.log(signSubmitResponse);
   };
 
   console.log(props.userWalletData);

@@ -6,6 +6,7 @@ import Head from 'next/head';
 import NextNProgress from 'nextjs-progressbar';
 import { NotificationContextProvider } from '@suan//store/notification-context';
 import { ProjectInfoContextProvider } from '@suan//store/projectinfo-context';
+import { SuanWalletContextProvider } from '@suan/store/suanwallet-context';
 import { LoginFromContextProvider } from '@suan//store/login-from';
 import '../styles/globals.css';
 import { Toaster } from 'sonner';
@@ -37,23 +38,25 @@ function MyApp({ Component, pageProps }: MyAppProps) {
       </Head>
       <LoginFromContextProvider>
         <NotificationContextProvider>
-          <ProjectInfoContextProvider>
-            <div>
-              <NextNProgress
-                color="#69A1B3"
-                startPosition={0.3}
-                stopDelayMs={200}
-                height={4}
-                showOnShallow={true}
-                options={{ easing: 'ease', speed: 500 }}
-              />
-              <Layout>
-                <Component {...pageProps} />
-                <TelegramFloatingButton></TelegramFloatingButton>
-              </Layout>
-              <Toaster richColors></Toaster>
-            </div>
-          </ProjectInfoContextProvider>
+          <SuanWalletContextProvider>
+            <ProjectInfoContextProvider>
+              <div>
+                <NextNProgress
+                  color="#69A1B3"
+                  startPosition={0.3}
+                  stopDelayMs={200}
+                  height={4}
+                  showOnShallow={true}
+                  options={{ easing: 'ease', speed: 500 }}
+                />
+                <Layout>
+                  <Component {...pageProps} />
+                  <TelegramFloatingButton></TelegramFloatingButton>
+                </Layout>
+                <Toaster richColors></Toaster>
+              </div>
+            </ProjectInfoContextProvider>
+          </SuanWalletContextProvider>
         </NotificationContextProvider>
       </LoginFromContextProvider>
     </MeshProvider>

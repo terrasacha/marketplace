@@ -1,8 +1,9 @@
-import React, { useState } from 'react';
+import React, { useContext, useEffect, useState } from 'react';
 import { Assets, Card, EyeIcon } from '../ui-lib';
 import { CopyIcon } from '../ui-lib';
 import { ExternalLinkIcon } from '../ui-lib';
 import { Transactions } from '../ui-lib';
+import SuanWalletContext from '@suan/store/suanwallet-context';
 // Definir el tipo de 'token'
 interface AccountProps {
   userWalletData: any;
@@ -13,6 +14,18 @@ interface AccountProps {
 }
 
 export default function WalletDashboard(props: AccountProps) {
+  
+
+  const { walletData } = useContext<any>(SuanWalletContext);
+
+  useEffect(() => {
+    if(walletData) {
+      
+      console.log(walletData);
+    }
+  }, [walletData]);
+
+
   console.log(props.userWalletData);
   return (
     <div className="grid grid-cols-1 xl:grid-cols-5 xl:space-x-5 ">
@@ -33,13 +46,13 @@ export default function WalletDashboard(props: AccountProps) {
                   <p className="text-lg">Mi billetera</p>
                   <div className="flex items-center gap-2">
                     <p className="text-sm text-gray-500 truncate w-52">
-                      stake_test1uqwder2p9flvw822yaadml8vfw5vgrazupch6ywjdcc98pcapc6qz
+                      {walletData ? walletData[0].address : "loading ..."}
                     </p>
                     <CopyIcon className="h-5 w-5" />
                     <ExternalLinkIcon className="h-5 w-5" />
                   </div>
                   <div className="flex items-center gap-2">
-                    <p className="text-xl text-green-500">0 ADA</p>
+                    <p className="text-xl text-green-500">{walletData ? parseInt(walletData[0].balance) / 1000000 : '0'} ADA</p>
                     <EyeIcon className="h-6 w-6" />
                   </div>
                 </div>
@@ -52,7 +65,7 @@ export default function WalletDashboard(props: AccountProps) {
         </div>
       </div>
       <div className="flex-col col-span-2 space-y-5 mt-5 xl:mt-0">
-        <Assets />
+        <Assets assetsData={walletData && walletData[0].assets} />
       </div>
     </div>
   );

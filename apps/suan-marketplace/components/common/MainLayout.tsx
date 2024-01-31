@@ -8,6 +8,7 @@ import { Sidebar, Navbar } from '@marketplaces/ui-lib';
 import { useWallet, useAssets, useAddress, useLovelace } from '@meshsdk/react';
 import { useRouter } from 'next/router';
 import { getCurrentUser } from 'aws-amplify/auth';
+import SuanWalletContext from '@suan/store/suanwallet-context';
 
 const initialStatewalletInfo = {
   name: '',
@@ -26,6 +27,8 @@ const MainLayout = ({ children }: PropsWithChildren) => {
   const lovelace: any = useLovelace();
   const router = useRouter();
 
+  const { handleWalletData } = useContext<any>(SuanWalletContext);
+
   useEffect(() => {
     const fetchData = async () => {
       let access = false;
@@ -39,6 +42,7 @@ const MainLayout = ({ children }: PropsWithChildren) => {
             body: res,
           })
           const wallet = await response.json();
+          handleWalletData(wallet)
           if (wallet.length > 0) {
             const address = (wallet[0] as any)?.address;
             setAllowAccess(true);

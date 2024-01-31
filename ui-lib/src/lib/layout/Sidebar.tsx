@@ -149,7 +149,7 @@ export default function Sidebar(props: SidebarProps) {
         <div className="pt-4 mt-4 border-t border-gray-200 dark:border-gray-700"></div>
 
         <ul className="space-y-4 font-medium">
-          <li>
+          <li className={connected ? 'hidden' : ''}>
             <button
               className="flex w-full items-center p-2 text-gray-500 rounded-lg dark:text-white hover:bg-gray-100 dark:hover:bg-gray-700"
               onClick={() => setDisplayWalletOptions(!displayWalletOptions)}
