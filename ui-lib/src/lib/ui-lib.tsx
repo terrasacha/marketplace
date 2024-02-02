@@ -25,6 +25,9 @@ import Modal from './common/Modal';
 import Card from './common/Card';
 import Navbar from './layout/Navbar';
 import CardProject from './cards/CardProject';
+import WalletCreatedSucessfully from './wallet/WalletCreatedSuccessfully'
+import RestoreWalletContext from './store/restore-wallet-context';
+import { RestoreWalletProvider } from './store/restore-wallet-context';
 import { WalletIcon } from './icons/WalletIcon';
 import { CopyIcon } from './icons/CopyIcon';
 import { ChevronDownIcon } from './icons/ChevronDownIcon';
@@ -50,6 +53,9 @@ export {
   Transactions,
   Assets,
   WelcomeCard,
+  WalletCreatedSucessfully,
+  RestoreWalletContext,
+  RestoreWalletProvider,
   CardanoWallet,
   CardanoWalletGeneric,
   SelectWalletModal,
