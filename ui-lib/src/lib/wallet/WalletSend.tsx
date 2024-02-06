@@ -2,14 +2,18 @@ import React, { useContext, useEffect, useState } from 'react';
 import {
   Assets,
   Card,
+  LoadingIcon,
   Modal,
   PencilIcon,
   Recipient,
   SelectTokensModal,
+  SignTransactionModal,
   TrashIcon,
 } from '../ui-lib';
 import { toast } from 'sonner';
 import { useWallet } from '@meshsdk/react';
+import SuanWalletContext from '@suan/store/suanwallet-context';
+import { mapTransactionInfo } from '@marketplaces/utils-2';
 
 // Definir el tipo de 'token'
 interface AccountProps {
@@ -18,10 +22,23 @@ interface AccountProps {
 }
 
 export default function WalletSend(props: AccountProps) {
-  const { wallet, connected } = useWallet();
+  const { walletID, walletData } = useContext<any>(SuanWalletContext);
 
   const newTransactionGroupInitialState = [
-    { walletAddress: '', adaAmount: '', checked: false, selectedAssets: [] },
+    {
+      walletAddress:
+        'addr_test1qrylg6858m0ws6xt8ulg8zevr76pcpk778xtsw85wpkjkksumjx5z2n7cuw55fm6mh7wcjagcs869cr305gaym3s2wrs3lmdnt',
+      adaAmount: '10',
+      checked: false,
+      selectedAssets: [],
+    },
+    {
+      walletAddress:
+        'addr_test1qq82smy4dtlu5f7xky3pgl0x895z4l6yn982z204rtuetxyw8uwuvkckf48yx8ler7f909he0lk92vjguavdsag6euvsjnxn04',
+      adaAmount: '5',
+      checked: false,
+      selectedAssets: [],
+    },
   ];
   const [newTransactionGroup, setNewTransactionGroup] = useState(
     newTransactionGroupInitialState
@@ -32,6 +49,11 @@ export default function WalletSend(props: AccountProps) {
     data: [],
     recipientID: 0,
   });
+  const [signTransactionModal, setSignTransactionModal] = useState(false);
+
+  const [newTransactionBuild, setNewTransactionBuild] = useState<any>(null);
+
+  const [isLoading, setIsLoading] = useState(false);
 
   const handleOpenSelectTokensModal = (recipientID: number = 0) => {
     setSelectTokensModal((prevState) => ({
@@ -39,6 +61,10 @@ export default function WalletSend(props: AccountProps) {
       visible: !selectTokensModal.visible,
       recipientID: recipientID,
     }));
+  };
+
+  const handleOpenSignTransactionModal = () => {
+    setSignTransactionModal(!signTransactionModal);
   };
 
   const handleSetSelectedTokensToSelectTokensModal = (
@@ -87,56 +113,52 @@ export default function WalletSend(props: AccountProps) {
   };
 
   const handleSendTransaction = async () => {
-    let userWalletAddress;
-
-    if (connected) {
-      userWalletAddress = await wallet.getChangeAddress();
-    } else {
-      userWalletAddress =
-        '45565413c8c24ae16e726145c2b9ba00d96d78ff374a519531c2bc3d';
-    }
-    const addresses = newTransactionGroup.map((recipient) => {
-      return {
-        address: recipient.walletAddress,
-        lovelace: parseFloat(recipient.adaAmount) * 1000000,
-      };
-    });
-
-    let payload = {
-      wallet_id: userWalletAddress,
-      addresses: addresses,
-      metadata: {},
-    };
-
     console.log('Recipientes: ', newTransactionGroup);
-    console.log('Envio de transacción: ', payload);
+    setIsLoading(true);
+    if (walletData) {
+      // Listar addresses y valores a enviar
+      const addresses = newTransactionGroup.map((recipient) => {
+        return {
+          address: recipient.walletAddress,
+          lovelace: parseFloat(recipient.adaAmount) * 1000000,
+        };
+      });
 
-    const response = await fetch('/api/transactions/build-tx', {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-      },
-      body: JSON.stringify(payload),
-    });
-    const buildTxResponse = await response.json();
+      const totalLovelaceSend = newTransactionGroup.reduce(
+        (acumulador, recipient) => {
+          return acumulador + parseFloat(recipient.adaAmount) * 1000000;
+        },
+        0
+      );
 
-    console.log(buildTxResponse);
+      const payload = {
+        wallet_id: walletID,
+        addresses: addresses,
+        metadata: {},
+      };
+      console.log('BuildTx Payload: ', payload);
 
-    const signed = {
-      wallet_id: '45565413c8c24ae16e726145c2b9ba00d96d78ff374a519531c2bc3d',
-      cbor: buildTxResponse.cbor,
-    };
+      const request = await fetch('/api/transactions/build-tx', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(payload),
+      });
+      const buildTxResponse = await request.json();
+      console.log('BuildTx Response: ', buildTxResponse);
 
-    const response2 = await fetch('/api/transactions/sign-submit', {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-      },
-      body: JSON.stringify(signed),
-    });
-    const signSubmitResponse = await response2.json();
+      const mappedTransactionData = await mapTransactionInfo({
+        walletAddress: walletData.address,
+        tx_type: "preview",
+        buildTxResponse: buildTxResponse,
+      });
+      //buildTxResponse.totalLovelaceSend = totalLovelaceSend;
 
-    console.log(signSubmitResponse);
+      setNewTransactionBuild(mappedTransactionData);
+      handleOpenSignTransactionModal();
+    }
+    setIsLoading(false);
   };
 
   console.log(props.userWalletData);
@@ -172,7 +194,7 @@ export default function WalletSend(props: AccountProps) {
                 'ENTER' for multi-line message.
               </p>
               <div className="relative w-full">
-                <div className="absolute inset-y-0 start-0 top-0 flex items-center ps-3.5 pointer-events-none">
+                <div className="absolute inset-y-0 start-0 top-0 flex items-center ps-3 pointer-events-none">
                   <PencilIcon className="w-5 h-5" />
                 </div>
                 <textarea
@@ -200,7 +222,7 @@ export default function WalletSend(props: AccountProps) {
                 className="col-span-4 sm:col-span-1 text-white bg-gray-800 hover:bg-gray-900 focus:outline-none focus:ring-4 focus:ring-gray-300 font-medium rounded text-sm px-5 py-2.5 "
                 onClick={handleSendTransaction}
               >
-                Enviar
+                {isLoading ? <LoadingIcon className="w-4 h-4" /> : 'Enviar'}
               </button>
             </div>
           </Card.Body>
@@ -213,6 +235,11 @@ export default function WalletSend(props: AccountProps) {
           handleSetSelectedTokensToSelectTokensModal
         }
         handleAddRecipientSelectedAssets={handleAddRecipientSelectedAssets}
+      />
+      <SignTransactionModal
+        signTransactionModal={signTransactionModal}
+        handleOpenSignTransactionModal={handleOpenSignTransactionModal}
+        newTransactionBuild={newTransactionBuild}
       />
     </>
   );

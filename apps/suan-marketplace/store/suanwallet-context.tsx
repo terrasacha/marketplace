@@ -20,13 +20,33 @@ export function SuanWalletContextProvider({
 }: {
   children: React.ReactNode;
 }) {
+  const [walletID, setWalletID] = useState<any>(null);
+  const [walletName, setWalletName] = useState<any>(null);
   const [walletData, setWalletData] = useState<any>(null);
 
   const handleWalletData = async (data: any) => {
     if (data) {
-      const walletIDs = data.map((wallet: any) => {
-        return wallet.address;
-      });
+      console.log("data", data)
+      setWalletID(data[0].id)
+      setWalletName(data[0].name)
+      const updatedWalletData = await fetchWalletData(data[0].address)
+
+      console.log(updatedWalletData)
+
+      setWalletData(updatedWalletData)
+    }
+  };
+
+  const handleClearData = () => {
+    setWalletID(null)
+    setWalletName(null)
+    setWalletData(null)
+  }
+
+  const fetchWalletData = async (wID : string | null = null) => {
+    const wallet_id = walletID || wID
+
+    if (wallet_id) {
       const response = await fetch(
         '/api/calls/backend/getWalletBalanceByAddress',
         {
@@ -34,44 +54,15 @@ export function SuanWalletContextProvider({
           headers: {
             'Content-Type': 'application/json',
           },
-          body: JSON.stringify(walletIDs),
-          // body: JSON.stringify([
-          //   'addr_test1qzrfa2rjtq3ky6shssmw5jj4f03qg7jvmcfkwnn77f38jxrmc4fy0srznhncjyz55t80r0tg2ptjf2hk5eut4c087ujqd8j3yl',
-          // ]),
+          body: JSON.stringify([wallet_id]),
         }
       );
       const responseData = await response.json();
 
-      setWalletData(responseData)
+      return responseData[0];
     }
+    return null
   };
-
-  // const getWalletData = async () => {
-  //   if (walletData) {
-  //     console.log('walletData', walletData);
-  //     const walletIDs = walletData.map((wallet: any) => {
-  //       return wallet.address;
-  //     });
-  //     const response = await fetch(
-  //       '/api/calls/backend/getWalletBalanceByAddress',
-  //       {
-  //         method: 'POST',
-  //         headers: {
-  //           'Content-Type': 'application/json',
-  //         },
-  //         // body: JSON.stringify(walletIDs), Activar esta linea cuando se arregle el endpoint
-  //         body: JSON.stringify([
-  //           'addr_test1qzrfa2rjtq3ky6shssmw5jj4f03qg7jvmcfkwnn77f38jxrmc4fy0srznhncjyz55t80r0tg2ptjf2hk5eut4c087ujqd8j3yl',
-  //         ]), // Address quemada para obtener data
-  //       }
-  //     );
-  //     const responseData = await response.json();
-
-  //     return responseData;
-  //   } else {
-  //     throw new Error(`No se ha logeado una wallet no conectada`);
-  //   }
-  // };
 
   const connected = () => {
     if (walletData) {
@@ -82,7 +73,7 @@ export function SuanWalletContextProvider({
   };
 
   const contextProps = useMemo(
-    () => ({ walletData, handleWalletData, connected }),
+    () => ({ walletID, walletName, walletData, handleWalletData, connected }),
     [walletData]
   );
 
