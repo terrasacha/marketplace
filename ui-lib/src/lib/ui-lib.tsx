@@ -12,6 +12,10 @@ import RedirectToHome from './landing/RedirectToHome';
 import CardanoWalletGeneric from './cardano-wallet/CardanoWalletGenericButton';
 import SelectWalletModal from './modals/SelectWalletModal';
 import SelectTokensModal from './wallet/select-assets/SelectTokensModal';
+import SignTransactionModal from './wallet/sign-transaction/SignTransactionModal';
+import SignTransaction from './wallet/sign-transaction/SignTransaction';
+import TransactionInfoCard from './wallet/sign-transaction/TransactionInfoCard';
+import UtxoInfoCard from './wallet/sign-transaction/UtxoInfoCard';
 import AssetsFilter from './wallet/select-assets/AssetsFilter';
 import AssetCard from './wallet/select-assets/AssetCard';
 import WalletDashboard from './wallet/WalletDashboard';
@@ -23,6 +27,8 @@ import Transactions from './wallet/Transactions';
 import Assets from './wallet/Assets';
 import Modal from './common/Modal';
 import Card from './common/Card';
+import Tooltip from './common/Tooltip';
+import CopyToClipboard from './common/CopyToClipboard';
 import Navbar from './layout/Navbar';
 import CardProject from './cards/CardProject';
 import WalletCreatedSucessfully from './wallet/WalletCreatedSuccessfully'
@@ -30,6 +36,7 @@ import RestoreWalletContext from './store/restore-wallet-context';
 import { RestoreWalletProvider } from './store/restore-wallet-context';
 import { WalletIcon } from './icons/WalletIcon';
 import { CopyIcon } from './icons/CopyIcon';
+import { CopyCheckIcon } from './icons/CopyCheckIcon';
 import { ChevronDownIcon } from './icons/ChevronDownIcon';
 import { ExternalLinkIcon } from './icons/ExternalLinkIcon';
 import { EyeIcon } from './icons/EyeIcon';
@@ -38,6 +45,8 @@ import { TrashIcon } from './icons/TrashIcon';
 import { PlusIcon } from './icons/PlusIcon';
 import { PencilIcon } from './icons/PencilIcon';
 import { ScaleIcon } from './icons/ScaleIcon';
+import { LockIcon } from './icons/LockIcon';
+import { LoadingIcon } from './icons/LoadingIcon';
 export {
   LoginForm,
   SignUpForm,
@@ -65,12 +74,19 @@ export {
   CardProject,
   RedirectToHome,
   Card,
+  Tooltip,
+  CopyToClipboard,
   Modal,
   SelectTokensModal,
+  SignTransactionModal,
+  SignTransaction,
+  TransactionInfoCard,
+  UtxoInfoCard,
   AssetsFilter,
   AssetCard,
   WalletIcon,
   CopyIcon,
+  CopyCheckIcon,
   ChevronDownIcon,
   ExternalLinkIcon,
   EyeIcon,
@@ -78,5 +94,7 @@ export {
   TrashIcon,
   PlusIcon,
   PencilIcon,
-  ScaleIcon
+  ScaleIcon,
+  LockIcon,
+  LoadingIcon
 };

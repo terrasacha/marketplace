@@ -67,6 +67,7 @@ export default function Recipient(props: RecipientProps) {
             t₳
           </div>
           <input
+            id="adas"
             type="text"
             aria-invalid="false"
             className="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded focus:ring-blue-500 focus:border-blue-500 block w-full ps-10 p-2.5  "
@@ -89,7 +90,8 @@ export default function Recipient(props: RecipientProps) {
           handleOpenSelectTokensModal(index);
         }}
       >
-        Agregar Assets {selectedAssets.length > 0 && '(' + selectedAssets.length + ')'}
+        Agregar Assets{' '}
+        {selectedAssets.length > 0 && '(' + selectedAssets.length + ')'}
       </button>
     </div>
   );

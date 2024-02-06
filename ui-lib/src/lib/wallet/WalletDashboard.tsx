@@ -46,13 +46,13 @@ export default function WalletDashboard(props: AccountProps) {
                   <p className="text-lg">Mi billetera</p>
                   <div className="flex items-center gap-2">
                     <p className="text-sm text-gray-500 truncate w-52">
-                      {walletData ? walletData[0].address : "loading ..."}
+                      {walletData ? walletData.address : "loading ..."}
                     </p>
                     <CopyIcon className="h-5 w-5" />
                     <ExternalLinkIcon className="h-5 w-5" />
                   </div>
                   <div className="flex items-center gap-2">
-                    <p className="text-xl text-green-500">{walletData ? parseInt(walletData[0].balance) / 1000000 : '0'} ADA</p>
+                    <p className="text-xl text-green-500">{walletData ? parseInt(walletData.balance) / 1000000 : '0'} ADA</p>
                     <EyeIcon className="h-6 w-6" />
                   </div>
                 </div>
@@ -65,7 +65,7 @@ export default function WalletDashboard(props: AccountProps) {
         </div>
       </div>
       <div className="flex-col col-span-2 space-y-5 mt-5 xl:mt-0">
-        <Assets assetsData={walletData && walletData[0].assets} />
+        <Assets assetsData={walletData && walletData.assets} />
       </div>
     </div>
   );

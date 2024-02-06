@@ -1,5 +1,5 @@
-import { UTxO } from "@meshsdk/core";
-import axios from "axios";
+import { UTxO } from '@meshsdk/core';
+import axios from 'axios';
 
 const bcrypt = require('bcryptjs');
 
@@ -111,7 +111,7 @@ type Image = {
   imageURLToDisplay: string;
   format: string;
   carouselDescription: string;
-}
+};
 
 type Project = {
   id: string;
@@ -123,13 +123,13 @@ type Project = {
   createdAt: Date;
   images: { items: [Image] };
   amountToBuy: string;
-}
+};
 
 type Category = {
   id: string;
   name: string;
   products: { items: [Project] };
-}
+};
 
 const instance = axios.create({
   baseURL: `/api/`,
@@ -219,7 +219,7 @@ export async function getCategories() {
     },
     {
       headers: {
-        "x-api-key": awsAppSyncApiKey,
+        'x-api-key': awsAppSyncApiKey,
       },
     }
   );
@@ -308,7 +308,7 @@ export async function getProjects() {
       },
       {
         headers: {
-          "x-api-key": awsAppSyncApiKey,
+          'x-api-key': awsAppSyncApiKey,
         },
       }
     );
@@ -317,40 +317,40 @@ export async function getProjects() {
         let countFeatures = product.productFeatures.items.reduce(
           (count: number, pf: any) => {
             // Condicion 1: Tener periodos de precios y cantidad de tokens
-            if (pf.featureID === "GLOBAL_TOKEN_HISTORICAL_DATA") {
+            if (pf.featureID === 'GLOBAL_TOKEN_HISTORICAL_DATA') {
               let data = JSON.parse(pf.value);
               let todaysDate = Date.now();
               if (data.some((date: any) => Date.parse(date.date) > todaysDate))
                 return count + 1;
             }
             // Condicion 2: Tener titulares diligenciados
-            if (pf.featureID === "B_owners") {
-              let data = JSON.parse(pf.value || "[]");
+            if (pf.featureID === 'B_owners') {
+              let data = JSON.parse(pf.value || '[]');
               if (Object.keys(data).length !== 0) return count + 1;
             }
             // Condicion 3: Validador ha oficializado la información financiera
             if (
-              pf.featureID === "GLOBAL_VALIDATOR_SET_FINANCIAL_CONDITIONS" &&
-              pf.value === "true"
+              pf.featureID === 'GLOBAL_VALIDATOR_SET_FINANCIAL_CONDITIONS' &&
+              pf.value === 'true'
             ) {
               return count + 1;
             }
             // Condicion 4: Validador ha oficializado la información tecnica
             if (
-              pf.featureID === "GLOBAL_VALIDATOR_SET_TECHNICAL_CONDITIONS" &&
-              pf.value === "true"
+              pf.featureID === 'GLOBAL_VALIDATOR_SET_TECHNICAL_CONDITIONS' &&
+              pf.value === 'true'
             ) {
               return count + 1;
             }
             // Condicion 5: Postulante ha aceptado las condiciones
             if (
-              pf.featureID === "GLOBAL_OWNER_ACCEPTS_CONDITIONS" &&
-              pf.value === "true"
+              pf.featureID === 'GLOBAL_OWNER_ACCEPTS_CONDITIONS' &&
+              pf.value === 'true'
             ) {
               return count + 1;
             }
             // Condicion 6: Postulante ha aceptado las condiciones
-            if (pf.featureID === "C_ubicacion") {
+            if (pf.featureID === 'C_ubicacion') {
               return count + 1;
             }
             return count;
@@ -370,7 +370,7 @@ export async function getProjects() {
       const documents = verifiablePF
         .map((pf: any) => {
           const docs = pf.documents.items.filter(
-            (document: any) => document.status !== "validatorFile"
+            (document: any) => document.status !== 'validatorFile'
           );
           return docs;
         })
@@ -384,7 +384,7 @@ export async function getProjects() {
 
     return validProducts;
   } catch (error) {
-    console.error("Error fetching projects:", error);
+    console.error('Error fetching projects:', error);
     return [];
   }
 }
@@ -440,7 +440,7 @@ export async function getProjectsFeatures() {
     },
     {
       headers: {
-        "x-api-key": awsAppSyncApiKey,
+        'x-api-key': awsAppSyncApiKey,
       },
     }
   );
@@ -482,7 +482,7 @@ export async function getProjectsByCategory(categoryId: string) {
     },
     {
       headers: {
-        "x-api-key": awsAppSyncApiKey,
+        'x-api-key': awsAppSyncApiKey,
       },
     }
   );
@@ -498,7 +498,7 @@ export async function getProjectData(projectId: string) {
     },
     {
       headers: {
-        "x-api-key": awsAppSyncApiKey,
+        'x-api-key': awsAppSyncApiKey,
       },
     }
   );
@@ -506,7 +506,7 @@ export async function getProjectData(projectId: string) {
 }
 
 export async function getProject(projectId: string) {
-  console.log(graphqlEndpoint)
+  console.log(graphqlEndpoint);
   const response = await axios.post(
     graphqlEndpoint,
     {
@@ -554,7 +554,7 @@ export async function getProject(projectId: string) {
     },
     {
       headers: {
-        "x-api-key": awsAppSyncApiKey,
+        'x-api-key': awsAppSyncApiKey,
       },
     }
   );
@@ -601,14 +601,14 @@ export async function getTransactions() {
       },
       {
         headers: {
-          "x-api-key": awsAppSyncApiKey, // Make sure you have 'awsAppSyncApiKey' defined
+          'x-api-key': awsAppSyncApiKey, // Make sure you have 'awsAppSyncApiKey' defined
         },
       }
     );
 
     return response.data.data.listTransactions.items;
   } catch (error) {
-    console.error("Error fetching transactions:", error);
+    console.error('Error fetching transactions:', error);
     return [];
   }
 }
@@ -617,10 +617,10 @@ export async function getImages(imageURL: string) {
   try {
     const url = `https://kiosuanbcrjsappcad3eb2dd1b14457b491c910d5aa45dd145518-dev.s3.amazonaws.com/public/${imageURL}`;
 
-    const response = await axios.get(url, { responseType: "arraybuffer" });
-    const data = Buffer.from(response.data, "binary").toString("base64");
+    const response = await axios.get(url, { responseType: 'arraybuffer' });
+    const data = Buffer.from(response.data, 'binary').toString('base64');
     const dataImage = `data:${response.headers[
-      "content-type"
+      'content-type'
     ].toLowerCase()};base64,${data}`;
     return dataImage;
   } catch (error) {
@@ -655,7 +655,7 @@ export async function getUser(userId: string) {
     },
     {
       headers: {
-        "x-api-key": awsAppSyncApiKey,
+        'x-api-key': awsAppSyncApiKey,
       },
     }
   );
@@ -678,7 +678,7 @@ export async function verifyWallet(stakeAddress: string) {
       },
       {
         headers: {
-          "x-api-key": awsAppSyncApiKey,
+          'x-api-key': awsAppSyncApiKey,
         },
       }
     );
@@ -710,7 +710,7 @@ export async function getWalletByUser(userId: string): Promise<[id: string]> {
     },
     {
       headers: {
-        "x-api-key": awsAppSyncApiKey,
+        'x-api-key': awsAppSyncApiKey,
       },
     }
   );
@@ -742,14 +742,14 @@ export async function createWallet(rewardAddresses: string, userId: string) {
     },
     {
       headers: {
-        "x-api-key": awsAppSyncApiKey,
+        'x-api-key': awsAppSyncApiKey,
       },
     }
   );
   return response;
 }
 export async function createCoreWallet(id: string, name: string) {
-  if (name === "") name = id;
+  if (name === '') name = id;
   try {
     const response = await axios.post(
       graphqlEndpoint,
@@ -762,7 +762,7 @@ export async function createCoreWallet(id: string, name: string) {
       },
       {
         headers: {
-          "x-api-key": awsAppSyncApiKey,
+          'x-api-key': awsAppSyncApiKey,
         },
       }
     );
@@ -788,7 +788,7 @@ export async function updateWallet({ id, name, passphrase }: any) {
         input: {
           id: id,
           isAdmin: false,
-          status: "active",
+          status: 'active',
           isSelected: false,
           password: hash,
           name: name,
@@ -797,7 +797,7 @@ export async function updateWallet({ id, name, passphrase }: any) {
     },
     {
       headers: {
-        "x-api-key": awsAppSyncApiKey,
+        'x-api-key': awsAppSyncApiKey,
       },
     }
   );
@@ -817,7 +817,7 @@ export async function createOrder(objeto: any) {
     },
     {
       headers: {
-        "x-api-key": awsAppSyncApiKey,
+        'x-api-key': awsAppSyncApiKey,
       },
     }
   );
@@ -867,7 +867,7 @@ export async function createTransaction({
     },
     {
       headers: {
-        "x-api-key": awsAppSyncApiKey,
+        'x-api-key': awsAppSyncApiKey,
       },
     }
   );
@@ -891,15 +891,21 @@ export async function updateTransaction({ id, txProcessed, fees }: any) {
     },
     {
       headers: {
-        "x-api-key": awsAppSyncApiKey,
+        'x-api-key': awsAppSyncApiKey,
       },
     }
   );
   return response;
 }
 export async function createUser(userPayload: any) {
-  const { id, username, role, email } = userPayload
-  console.log(id, username, role, email, 'info de entrada en createUser data-access')
+  const { id, username, role, email } = userPayload;
+  console.log(
+    id,
+    username,
+    role,
+    email,
+    'info de entrada en createUser data-access'
+  );
   const response = await axios.post(
     graphqlEndpoint,
     {
@@ -918,7 +924,7 @@ export async function createUser(userPayload: any) {
     },
     {
       headers: {
-        "x-api-key": awsAppSyncApiKey,
+        'x-api-key': awsAppSyncApiKey,
       },
     }
   );
@@ -941,7 +947,7 @@ export async function checkIfWalletIsAdmin(walletStakeID: any) {
       },
       {
         headers: {
-          "x-api-key": awsAppSyncApiKey,
+          'x-api-key': awsAppSyncApiKey,
         },
       }
     );
@@ -952,13 +958,13 @@ export async function checkIfWalletIsAdmin(walletStakeID: any) {
       return false;
     }
   } catch (error) {
-    console.error("Error checking wallet admin status:", error);
+    console.error('Error checking wallet admin status:', error);
     return false;
   }
 }
 
 export async function verifyOwners(payload: any) {
-  const endpoint = "https://35mjjiz0fh.execute-api.us-east-1.amazonaws.com/Env";
+  const endpoint = 'https://35mjjiz0fh.execute-api.us-east-1.amazonaws.com/Env';
 
   try {
     const response = await axios.post(endpoint, payload);
@@ -969,7 +975,36 @@ export async function verifyOwners(payload: any) {
       return false;
     }
   } catch (error) {
-    console.error("Error checking wallet admin status:", error);
+    console.error('Error checking wallet admin status:', error);
+    return false;
+  }
+}
+
+export async function validatePassword(password: string, walletStakeID: string) {
+  try {
+    const response = await axios.post(
+      graphqlEndpoint,
+      {
+        query: `query getWallet {
+          getWallet(id: "${walletStakeID}") {
+            password
+          }
+        }`,
+      },
+      {
+        headers: {
+          'x-api-key': awsAppSyncApiKey,
+        },
+      }
+    );
+    if (response.data.data.getWallet) {
+      const hash = response.data.data.getWallet.password
+      return bcrypt.compareSync(password, hash);
+    } else {
+      return false;
+    }
+  } catch (error) {
+    console.error('Error checking wallet password:', error);
     return false;
   }
 }

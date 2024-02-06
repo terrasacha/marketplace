@@ -107,7 +107,7 @@ export default function Sidebar(props: SidebarProps) {
         >
           Tu saldo
         </label>
-        <h3 className="text-lg truncate">₳ {walletData? (parseInt(walletData[0].balance) / 1000000).toFixed(4) : '0'}</h3>
+        <h3 className="text-lg truncate">₳ {walletData? (parseInt(walletData.balance) / 1000000).toFixed(4) : '0'}</h3>
       </div>
     );
     /* } else {
