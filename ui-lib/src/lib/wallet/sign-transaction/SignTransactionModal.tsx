@@ -53,7 +53,7 @@ export default function SignTransactionModal(props: SignTransactionModalProps) {
               tx_size={newTransactionBuild.tx_size}
               inputUTxOs={newTransactionBuild.inputUTxOs}
               outputUTxOs={newTransactionBuild.outputUTxOs}
-              collapsed={false}
+              is_collapsed={false}
             />
           </Modal.Body>
         </Modal>

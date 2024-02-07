@@ -26,7 +26,7 @@ import WalletAssets from './wallet/WalletAssets';
 import WalletSend from './wallet/WalletSend';
 import Recipient from './wallet/Recipient';
 import Transactions from './wallet/Transactions';
-import Assets from './wallet/Assets';
+import Assets from './wallet/assets/Assets';
 import Modal from './common/Modal';
 import Card from './common/Card';
 import Tooltip from './common/Tooltip';
@@ -42,6 +42,8 @@ import { WalletIcon } from './icons/WalletIcon';
 import { CopyIcon } from './icons/CopyIcon';
 import { CopyCheckIcon } from './icons/CopyCheckIcon';
 import { ChevronDownIcon } from './icons/ChevronDownIcon';
+import { ChevronRightIcon } from './icons/ChevronRightIcon';
+import { ChevronUpIcon } from './icons/ChevronUpIcon';
 import { ExternalLinkIcon } from './icons/ExternalLinkIcon';
 import { EyeIcon } from './icons/EyeIcon';
 import { EyeOffIcon } from './icons/EyeOffIcon';
@@ -96,6 +98,8 @@ export {
   CopyIcon,
   CopyCheckIcon,
   ChevronDownIcon,
+  ChevronUpIcon,
+  ChevronRightIcon,
   ExternalLinkIcon,
   EyeIcon,
   EyeOffIcon,

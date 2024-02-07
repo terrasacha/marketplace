@@ -6,7 +6,7 @@ import {
   ExternalLinkIcon,
   EyeIcon,
   PieChartCustom,
-} from '../ui-lib';
+} from '../../ui-lib';
 
 interface AssetsProps {
   assetsData: Array<any>;
