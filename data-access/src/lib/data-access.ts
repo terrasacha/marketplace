@@ -692,30 +692,41 @@ export async function verifyWallet(stakeAddress: string) {
   }
 }
 
-export async function getWalletByUser(userId: string): Promise<[id: string]> {
-  const response = await axios.post(
-    graphqlEndpoint,
-    {
-      query: `query getWalletByUser {
-        getUser(id: "${userId}") {
-          wallets {
-            items {
-              id
-              address
-              name
+export async function getWalletByUser(userId: string): Promise<any> {
+  console.log(awsAppSyncApiKey, 'awsAppSyncApiKey')
+
+  let output = ''
+  let response = ''
+  try {
+    response = await axios.post(
+      graphqlEndpoint,
+      {
+        query: `query getWalletByUser {
+          getUser(id: "${userId}") {
+            wallets {
+              items {
+                id
+                address
+                name
+              }
             }
           }
-        }
-      }`,
-    },
-    {
-      headers: {
-        'x-api-key': awsAppSyncApiKey,
+        }`,
       },
-    }
-  );
+      {
+        headers: {
+          'x-api-key': awsAppSyncApiKey,
+        },
+      }
+    );
+    //@ts-ignore
+    output = response.data.data.getUser?.wallets?.items || [];
+  } catch (error) {
+    console.log(error)
+    //@ts-ignore
+    output = error
+  }
 
-  const output = response.data.data.getUser?.wallets?.items || [];
   return output;
 }
 

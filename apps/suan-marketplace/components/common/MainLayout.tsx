@@ -35,13 +35,13 @@ const MainLayout = ({ children }: PropsWithChildren) => {
 
       try {
         const res = await accessHomeWithWallet();
-
         if (res) {
           const response = await fetch('/api/calls/backend/getWalletByUser', {
             method: 'POST',
             body: res,
           });
           const wallet = await response.json();
+          console.log(wallet)
           const walletData = await handleWalletData(wallet);
           if (wallet.length > 0) {
             const address = (wallet[0] as any)?.address;
