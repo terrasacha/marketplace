@@ -2,7 +2,7 @@ import React, { useContext, useState } from 'react';
 import { Checkbox, Label, Button, Radio } from 'flowbite-react';
 import NewWalletContext from '@terrasacha/store/generate-new-wallet-context';
 import WordsContainer from './WordsContainer';
-
+import { useRouter } from 'next/router';
 const options = [
   { id: 'twentyfour', value: 24, name: 'Veinticuatro' },
   { id: 'twentyone', value: 21, name: 'Veintiuno' },
@@ -13,6 +13,7 @@ const options = [
 const GenerateWordsStep = (props: any) => {
   const { words, setWords, recoveryWords, setRecoveryWords } =
     useContext<any>(NewWalletContext);
+  const router = useRouter()
   const setCurrentSection = props.setCurrentSection;
   const [isChecked, setIsChecked] = useState(false);
   const [loading, setLoading] = useState(false);
@@ -78,7 +79,7 @@ const GenerateWordsStep = (props: any) => {
         <div className="flex w-full justify-end mt-3 ">
           <Button
             className="px-8 ml-4"
-            onClick={() => setCurrentSection(1)}
+            onClick={() => {setCurrentSection(1); router.push('/')}}
             color="gray"
           >
             Volver
