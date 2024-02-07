@@ -1,5 +1,5 @@
 import React from 'react';
-import { getCategories, getProjects } from '@terrasacha/backend';
+import { getCategories, getProjects } from '@marketplaces/data-access';
 import HomeContainer from '@terrasacha/components/home-page/HomeContainer';
 import { MyPage } from '@terrasacha/components/common/types';
 
