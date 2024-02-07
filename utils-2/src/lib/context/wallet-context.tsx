@@ -35,7 +35,6 @@ export function WalletContextProvider({
 
   const fetchWalletData = async (wAddress: string | null = null) => {
     const wallet_address = walletAddress || wAddress;
-
     if (wallet_address) {
       const response = await fetch(
         '/api/calls/backend/getWalletBalanceByAddress',

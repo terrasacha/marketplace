@@ -108,7 +108,7 @@ const instance = axios.create({
 });
 const awsAppSyncApiKey: string = process.env.secrets
   ? JSON.parse(process.env.secrets).API_KEY_PLATAFORMA
-  : process.env.API_KEY_PLATAFORMA;
+  : process.env.NEXT_PUBLIC_API_KEY_PLATAFORMA;
 let graphqlEndpoint: string;
 if (process.env.NEXT_PUBLIC_graphqlEndpoint) {
   graphqlEndpoint = process.env.NEXT_PUBLIC_graphqlEndpoint;

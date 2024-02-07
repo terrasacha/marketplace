@@ -506,7 +506,6 @@ export async function getProjectData(projectId: string) {
 }
 
 export async function getProject(projectId: string) {
-  console.log(graphqlEndpoint);
   const response = await axios.post(
     graphqlEndpoint,
     {
@@ -693,8 +692,6 @@ export async function verifyWallet(stakeAddress: string) {
 }
 
 export async function getWalletByUser(userId: string): Promise<any> {
-  console.log(awsAppSyncApiKey, 'awsAppSyncApiKey')
-
   let output = ''
   let response = ''
   try {
