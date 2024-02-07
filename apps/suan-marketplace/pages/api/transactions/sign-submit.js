@@ -8,7 +8,7 @@ async function submitTransaction(submitTx) {
     method: 'POST',
     headers: {
       'Content-Type': 'application/json',
-      'x-api-key': process.env.API_KEY_ENDPOINT || '',
+      'x-api-key': process.env.NEXT_PUBLIC_API_KEY_ENDPOINT || '',
     },
     body: JSON.stringify(submitTx),
   });
@@ -25,12 +25,12 @@ export default async function handler(req, res) {
         const submitTx = { wallet_id, cbor };
         const response = await submitTransaction(submitTx);
         const signSubmitResponse = await response.json();
-      
+
         const data = {
           isValidUser,
           txSubmit: signSubmitResponse,
         };
-      
+
         res.status(200).json(data);
       } else {
         res.status(200).json({ isValidUser });

@@ -8,7 +8,7 @@ export default async function handler(req, res) {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json',
-                'x-api-key': process.env.API_KEY_ENDPOINT || ''
+                'x-api-key': process.env.NEXT_PUBLIC_API_KEY_ENDPOINT || ''
             },
         })
     const data = await response.json()
