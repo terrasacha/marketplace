@@ -1,21 +1,8 @@
 import { createContext, useMemo, useState } from 'react';
 
-const SuanWalletContext = createContext({});
+const WalletContext = createContext({});
 
-// export interface ProjectInfoInterface {
-//   projectID: string;
-//   projectDescription: string;
-//   projectName: string;
-//   projectFeatures: string[];
-//   tokenName: string;
-//   tokenCurrency: string;
-//   tokenPrice: string;
-//   availableAmount: string;
-//   createdAt: string;
-//   categoryID: string;
-// }
-
-export function SuanWalletContextProvider({
+export function WalletContextProvider({
   children,
 }: {
   children: React.ReactNode;
@@ -81,10 +68,10 @@ export function SuanWalletContextProvider({
   );
 
   return (
-    <SuanWalletContext.Provider value={contextProps}>
+    <WalletContext.Provider value={contextProps}>
       {children}
-    </SuanWalletContext.Provider>
+    </WalletContext.Provider>
   );
 }
 
-export default SuanWalletContext;
+export default WalletContext;

@@ -6,7 +6,7 @@ import Head from 'next/head';
 import NextNProgress from 'nextjs-progressbar';
 import { NotificationContextProvider } from '@suan//store/notification-context';
 import { ProjectInfoContextProvider } from '@suan//store/projectinfo-context';
-import { SuanWalletContextProvider } from '@suan/store/suanwallet-context';
+import { WalletContextProvider } from '@marketplaces/utils-2';
 import { LoginFromContextProvider } from '@suan//store/login-from';
 import '../styles/globals.css';
 import { Toaster } from 'sonner';
@@ -38,7 +38,7 @@ function MyApp({ Component, pageProps }: MyAppProps) {
       </Head>
       <LoginFromContextProvider>
         <NotificationContextProvider>
-          <SuanWalletContextProvider>
+          <WalletContextProvider>
             <ProjectInfoContextProvider>
               <div>
                 <NextNProgress
@@ -56,7 +56,7 @@ function MyApp({ Component, pageProps }: MyAppProps) {
                 <Toaster richColors></Toaster>
               </div>
             </ProjectInfoContextProvider>
-          </SuanWalletContextProvider>
+          </WalletContextProvider>
         </NotificationContextProvider>
       </LoginFromContextProvider>
     </MeshProvider>

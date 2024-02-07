@@ -25,7 +25,7 @@ export default function UtxoInfoCard(props: UtxoInfoCardProps) {
       {/* Origin address */}
       <div className="flex items-center">
         <CopyToClipboard
-          iconClassName="h-5 w-5 mr-2 hover:text-blue-600"
+          iconClassName="h-5 w-5 mr-2"
           copyValue={address}
           tooltipLabel='Copiar !'
         />
@@ -72,7 +72,7 @@ export default function UtxoInfoCard(props: UtxoInfoCardProps) {
           <div className="flex">txhash</div>
           <div className="flex items-center">
             <CopyToClipboard
-              iconClassName="h-5 w-5 mr-2 hover:text-blue-600"
+              iconClassName="h-5 w-5 mr-2"
               copyValue={tx_hash}
               tooltipLabel='Copiar !'
             />

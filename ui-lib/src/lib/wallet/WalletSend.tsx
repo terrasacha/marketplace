@@ -12,7 +12,7 @@ import {
 } from '../ui-lib';
 import { toast } from 'sonner';
 import { useWallet } from '@meshsdk/react';
-import SuanWalletContext from '@suan/store/suanwallet-context';
+import { WalletContext } from '@marketplaces/utils-2';
 import { mapTransactionInfo } from '@marketplaces/utils-2';
 
 // Definir el tipo de 'token'
@@ -22,7 +22,7 @@ interface AccountProps {
 }
 
 export default function WalletSend(props: AccountProps) {
-  const { walletID, walletData } = useContext<any>(SuanWalletContext);
+  const { walletID, walletData } = useContext<any>(WalletContext);
 
   const newTransactionGroupInitialState = [
     {
@@ -150,7 +150,7 @@ export default function WalletSend(props: AccountProps) {
 
       const mappedTransactionData = await mapTransactionInfo({
         walletAddress: walletData.address,
-        tx_type: "preview",
+        tx_type: 'preview',
         buildTxResponse: buildTxResponse,
       });
       //buildTxResponse.totalLovelaceSend = totalLovelaceSend;

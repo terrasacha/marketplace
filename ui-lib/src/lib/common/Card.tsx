@@ -36,7 +36,7 @@ class CardBody extends React.Component<CardBodyProps> {
   render() {
     const { className = "", children } = this.props;
     return (
-      <div className={className + " p-6"}>
+      <div className={className + " px-6 pb-6"}>
         {children}
       </div>
     );

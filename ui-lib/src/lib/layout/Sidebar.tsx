@@ -5,7 +5,7 @@ import Link from 'next/link';
 import { signOut } from 'aws-amplify/auth';
 import { useRouter } from 'next/router';
 import { ChevronDownIcon, ScaleIcon, WalletIcon } from '../ui-lib';
-import SuanWalletContext from '@suan/store/suanwallet-context'
+
 interface SidebarProps {
   isOpen: boolean;
   onClose: () => void;
@@ -29,12 +29,10 @@ export default function Sidebar(props: SidebarProps) {
     poweredBy,
     balance,
   } = props;
-  const { walletData } = useContext<any>(SuanWalletContext);
   const router = useRouter();
   const { wallet, connected } = useWallet();
   const [walletStakeID, setWalletStakeID] = useState<any>(undefined);
   const [copied, setCopied] = useState(false);
-  const [userBalance, setUserBalance] = useState<any | undefined>(undefined);
   const sidebarRef = useRef<HTMLDivElement | null>(null);
   const [displayWalletOptions, setDisplayWalletOptions] = useState(false);
 
@@ -68,15 +66,12 @@ export default function Sidebar(props: SidebarProps) {
   }, [connected]);
 
   async function loadUserData() {
-    const balance = await wallet.getBalance();
     const addresses = await wallet.getRewardAddresses();
     setWalletStakeID(addresses[0]);
-    setUserBalance(balance[0]['quantity']);
   }
 
   function resetComponentState() {
     setWalletStakeID(undefined);
-    setUserBalance(undefined);
   }
 
   function CopyWalletToClipboard() {
@@ -107,7 +102,7 @@ export default function Sidebar(props: SidebarProps) {
         >
           Tu saldo
         </label>
-        <h3 className="text-lg truncate">₳ {walletData? (parseInt(walletData.balance) / 1000000).toFixed(4) : '0'}</h3>
+        <h3 className="text-lg truncate">₳ {balance}</h3>
       </div>
     );
     /* } else {

@@ -18,6 +18,8 @@ import TransactionInfoCard from './wallet/sign-transaction/TransactionInfoCard';
 import UtxoInfoCard from './wallet/sign-transaction/UtxoInfoCard';
 import AssetsFilter from './wallet/select-assets/AssetsFilter';
 import AssetCard from './wallet/select-assets/AssetCard';
+import AssetRow from './wallet/assets/AssetRow';
+import AssetsList from './wallet/assets/AssetsList';
 import WalletDashboard from './wallet/WalletDashboard';
 import WalletTransactions from './wallet/WalletTransactions';
 import WalletAssets from './wallet/WalletAssets';
@@ -29,10 +31,12 @@ import Modal from './common/Modal';
 import Card from './common/Card';
 import Tooltip from './common/Tooltip';
 import CopyToClipboard from './common/CopyToClipboard';
+import ExternalLink from './common/ExternalLink';
 import Navbar from './layout/Navbar';
 import CardProject from './cards/CardProject';
 import WalletCreatedSucessfully from './wallet/WalletCreatedSuccessfully'
 import RestoreWalletContext from './store/restore-wallet-context';
+import PieChartCustom from './common/charts/PieChartCustom';
 import { RestoreWalletProvider } from './store/restore-wallet-context';
 import { WalletIcon } from './icons/WalletIcon';
 import { CopyIcon } from './icons/CopyIcon';
@@ -64,6 +68,7 @@ export {
   WelcomeCard,
   WalletCreatedSucessfully,
   RestoreWalletContext,
+  PieChartCustom,
   RestoreWalletProvider,
   CardanoWallet,
   CardanoWalletGeneric,
@@ -76,6 +81,7 @@ export {
   Card,
   Tooltip,
   CopyToClipboard,
+  ExternalLink,
   Modal,
   SelectTokensModal,
   SignTransactionModal,
@@ -84,6 +90,8 @@ export {
   UtxoInfoCard,
   AssetsFilter,
   AssetCard,
+  AssetRow,
+  AssetsList,
   WalletIcon,
   CopyIcon,
   CopyCheckIcon,

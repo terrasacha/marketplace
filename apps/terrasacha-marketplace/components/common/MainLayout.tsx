@@ -8,6 +8,7 @@ import { Sidebar, Navbar } from '@marketplaces/ui-lib';
 import { useWallet, useAssets, useAddress, useLovelace } from '@meshsdk/react';
 import { useRouter } from 'next/router';
 import { getCurrentUser } from 'aws-amplify/auth';
+import { WalletContext } from '@marketplaces/utils-2';
 
 const initialStatewalletInfo = {
   name: '',
@@ -26,6 +27,9 @@ const MainLayout = ({ children }: PropsWithChildren) => {
   const lovelace: any = useLovelace();
   const router = useRouter();
 
+  const { handleWalletData } = useContext<any>(WalletContext);
+
+
   useEffect(() => {
     const fetchData = async () => {
       let access = false;
@@ -34,21 +38,21 @@ const MainLayout = ({ children }: PropsWithChildren) => {
         const res = await accessHomeWithWallet();
 
         if (res) {
-          const response = await fetch('/api/calls/backend/getWalletByUser',{
+          const response = await fetch('/api/calls/backend/getWalletByUser', {
             method: 'POST',
             body: res,
-          })
-          const wallet = await response.json()
+          });
+          const wallet = await response.json();
+          const walletData = await handleWalletData(wallet);
           if (wallet.length > 0) {
             const address = (wallet[0] as any)?.address;
             setAllowAccess(true);
-            const response = await fetch(`/api/calls/allowAccessWalletDB?address=${address}`)
-            const responseData = await response.json()
             setWalletInfo({
               name: (wallet[0] as any)?.name,
               addr: address,
             });
-            setBalance(responseData.data[0].balance / 1000000 || 0);
+            const balance = (parseInt(walletData.balance) / 1000000).toFixed(4) || 0;
+            setBalance(balance);
             access = true;
           }
         }
@@ -71,6 +75,12 @@ const MainLayout = ({ children }: PropsWithChildren) => {
   }, []);
 
   useEffect(() => {
+    const getBalance = async () => {
+      const balance = await wallet.getBalance();
+      setBalance((balance[0]['quantity'] / 1000000).toFixed(4) || 0);
+    };
+
+
     if (connected) {
       const matchingAsset =
         assets &&
@@ -98,10 +108,6 @@ const MainLayout = ({ children }: PropsWithChildren) => {
     }
   }, [connected, assets]);
 
-  const getBalance = async () => {
-    const balance = await wallet.getBalance();
-    setBalance(balance[0]['quantity']);
-  };
   const accessHomeWithWallet = async () => {
     try {
       const user = await getCurrentUser();

@@ -4,6 +4,7 @@ import { useEffect } from 'react';
 import { useRouter } from 'next/router';
 import Head from 'next/head';
 import NextNProgress from 'nextjs-progressbar';
+import { WalletContextProvider } from '@marketplaces/utils-2';
 import { NotificationContextProvider } from '@terrasacha/store/notification-context';
 import { ProjectInfoContextProvider } from '@terrasacha/store/projectinfo-context';
 import { LoginFromContextProvider } from '@terrasacha/store/login-from';
@@ -37,23 +38,25 @@ function MyApp({ Component, pageProps }: MyAppProps) {
       </Head>
       <LoginFromContextProvider>
         <NotificationContextProvider>
-          <ProjectInfoContextProvider>
-            <div>
-              <NextNProgress
-                color="#69A1B3"
-                startPosition={0.3}
-                stopDelayMs={200}
-                height={1}
-                showOnShallow={true}
-                options={{ easing: 'ease', speed: 500 }}
-              />
-              <Layout>
-                <Component {...pageProps} />
-                <TelegramFloatingButton></TelegramFloatingButton>
-              </Layout>
-              <Toaster richColors></Toaster>
-            </div>
-          </ProjectInfoContextProvider>
+          <WalletContextProvider>
+            <ProjectInfoContextProvider>
+              <div>
+                <NextNProgress
+                  color="#69A1B3"
+                  startPosition={0.3}
+                  stopDelayMs={200}
+                  height={1}
+                  showOnShallow={true}
+                  options={{ easing: 'ease', speed: 500 }}
+                />
+                <Layout>
+                  <Component {...pageProps} />
+                  <TelegramFloatingButton></TelegramFloatingButton>
+                </Layout>
+                <Toaster richColors></Toaster>
+              </div>
+            </ProjectInfoContextProvider>
+          </WalletContextProvider>
         </NotificationContextProvider>
       </LoginFromContextProvider>
     </MeshProvider>

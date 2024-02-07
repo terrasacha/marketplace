@@ -1,6 +1,6 @@
 import { useContext, useState } from 'react';
 import { Card, LoadingIcon, LockIcon } from '../../ui-lib';
-import SuanWalletContext from '@suan/store/suanwallet-context';
+import { WalletContext } from '@marketplaces/utils-2';
 
 interface SignTransactionProps {
   handleOpenSignTransactionModal: () => void;
@@ -9,7 +9,7 @@ interface SignTransactionProps {
 
 export default function SignTransaction(props: SignTransactionProps) {
   const { handleOpenSignTransactionModal, cbor } = props;
-  const { walletID } = useContext<any>(SuanWalletContext);
+  const { walletID } = useContext<any>(WalletContext);
 
   const [password, setPassword] = useState<any>('');
   const [passwordError, setPasswordError] = useState<boolean>(false);

@@ -32,9 +32,9 @@ export default function CopyToClipboard(props: CopyToClipboard) {
     <Tooltip text={tooltipLabel}>
       <div className={`cursor-pointer ${className}`} onClick={handleCopyValue}>
         {isCopied ? (
-          <CopyCheckIcon className={iconClassName} />
+          <CopyCheckIcon className={`hover:text-blue-600 ${iconClassName}`} />
         ) : (
-          <CopyIcon className={iconClassName} />
+          <CopyIcon className={`hover:text-blue-600 ${iconClassName}`} />
         )}
       </div>
     </Tooltip>

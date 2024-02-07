@@ -1,9 +1,17 @@
 import React, { useContext, useEffect, useState } from 'react';
-import { Assets, Card, EyeIcon } from '../ui-lib';
+import {
+  Assets,
+  Card,
+  CopyToClipboard,
+  ExternalLink,
+  EyeIcon,
+  EyeOffIcon,
+  Tooltip,
+} from '../ui-lib';
 import { CopyIcon } from '../ui-lib';
 import { ExternalLinkIcon } from '../ui-lib';
 import { Transactions } from '../ui-lib';
-import SuanWalletContext from '@suan/store/suanwallet-context';
+import { WalletContext } from '@marketplaces/utils-2';
 // Definir el tipo de 'token'
 interface AccountProps {
   userWalletData: any;
@@ -14,21 +22,17 @@ interface AccountProps {
 }
 
 export default function WalletDashboard(props: AccountProps) {
-  
+  const { walletData } = useContext<any>(WalletContext);
 
-  const { walletData } = useContext<any>(SuanWalletContext);
+  const [showAddress, setShowAddress] = useState<boolean>(true);
 
-  useEffect(() => {
-    if(walletData) {
-      
-      console.log(walletData);
-    }
-  }, [walletData]);
-
+  const handleShowAddress = () => {
+    setShowAddress(!showAddress);
+  };
 
   console.log(props.userWalletData);
   return (
-    <div className="grid grid-cols-1 xl:grid-cols-5 xl:space-x-5 ">
+    <div className="grid grid-cols-1 2xl:grid-cols-5 2xl:space-x-5 ">
       <div className="flex-col col-span-3 space-y-5">
         <Card className="h-fit">
           <Card.Header title="Cuenta" />
@@ -46,14 +50,44 @@ export default function WalletDashboard(props: AccountProps) {
                   <p className="text-lg">Mi billetera</p>
                   <div className="flex items-center gap-2">
                     <p className="text-sm text-gray-500 truncate w-52">
-                      {walletData ? walletData.address : "loading ..."}
+                      {walletData ? walletData.address : 'loading ...'}
                     </p>
-                    <CopyIcon className="h-5 w-5" />
-                    <ExternalLinkIcon className="h-5 w-5" />
+                    <CopyToClipboard
+                      iconClassName="h-5 w-5"
+                      copyValue={walletData.address}
+                      tooltipLabel="Copiar !"
+                    />
+                    <ExternalLink
+                      iconClassName="h-5 w-5"
+                      tooltipLabel="Consultar en CardanoScan Preview"
+                      externalURL={
+                        'https://preview.cardanoscan.io/address/' +
+                        walletData.address
+                      }
+                    />
                   </div>
                   <div className="flex items-center gap-2">
-                    <p className="text-xl text-green-500">{walletData ? parseInt(walletData.balance) / 1000000 : '0'} ADA</p>
-                    <EyeIcon className="h-6 w-6" />
+                    <p className="text-xl text-green-500">
+                      {showAddress ? (
+                        <>
+                          {walletData
+                            ? parseInt(walletData.balance) / 1000000
+                            : '0'}{' '}
+                          ADA
+                        </>
+                      ) : (
+                        <>********</>
+                      )}
+                    </p>
+                    <Tooltip text={showAddress ? "Ocultar Saldo" : "Mostrar Saldo"}>
+                      <div onClick={handleShowAddress}>
+                        {showAddress ? (
+                          <EyeIcon className="h-6 w-6 cursor-pointer" />
+                        ) : (
+                          <EyeOffIcon className="h-6 w-6 cursor-pointer" />
+                        )}
+                      </div>
+                    </Tooltip>
                   </div>
                 </div>
               </div>
@@ -64,8 +98,13 @@ export default function WalletDashboard(props: AccountProps) {
           <Transactions />
         </div>
       </div>
-      <div className="flex-col col-span-2 space-y-5 mt-5 xl:mt-0">
-        <Assets assetsData={walletData && walletData.assets} />
+      <div className="flex-col col-span-2 space-y-5 mt-5 2xl:mt-0">
+        <Assets
+          assetsData={walletData && walletData.assets}
+          chartActive={true}
+          tableActive={true}
+          tableItemsPerPage={5}
+        />
       </div>
     </div>
   );
