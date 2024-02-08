@@ -691,12 +691,12 @@ export async function verifyWallet(stakeAddress: string) {
   }
 }
 
-export async function getWalletByUser(userId: string): Promise<any> {
+export async function getWalletByUser(userId: string, apikey: string, graphqlenpoint: string): Promise<any> {
   let output = ''
   let response = ''
   try {
     response = await axios.post(
-      graphqlEndpoint,
+      graphqlenpoint,
       {
         query: `query getWalletByUser {
           getUser(id: "${userId}") {
@@ -712,7 +712,7 @@ export async function getWalletByUser(userId: string): Promise<any> {
       },
       {
         headers: {
-          'x-api-key': awsAppSyncApiKey,
+          'x-api-key': apikey,
         },
       }
     );
