@@ -692,10 +692,8 @@ export async function verifyWallet(stakeAddress: string) {
 }
 
 export async function getWalletByUser(userId: string, apikey: string, graphqlenpoint: string): Promise<any> {
-  let output = ''
-  let response = ''
   try {
-    response = await axios.post(
+    const response = await axios.post(
       graphqlenpoint,
       {
         query: `query getWalletByUser {
@@ -717,14 +715,12 @@ export async function getWalletByUser(userId: string, apikey: string, graphqlenp
       }
     );
     //@ts-ignore
-    output = response.data.data.getUser?.wallets?.items || [];
+    const output = response.data.data.getUser?.wallets?.items || [];
+    return output
   } catch (error) {
-    console.log(error)
-    //@ts-ignore
-    output = error
+    return error
   }
 
-  return output;
 }
 
 export async function checkWalletAddressOnDB(data: string, userID: string) {

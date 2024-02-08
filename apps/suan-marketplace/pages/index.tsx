@@ -7,6 +7,7 @@ import { useRouter } from 'next/router';
 import { MyPage } from '@suan/components/common/types';
 import { getCurrentUser } from 'aws-amplify/auth';
 const LandingPage: MyPage = (props: any) => {
+  const walletCount = props.walletCount
   const { connected } = useWallet();
   const [checkingWallet, setCheckingWallet] = useState<string>('uncheck');
   const [loading, setLoading] = useState<boolean>(true);
@@ -16,7 +17,7 @@ const LandingPage: MyPage = (props: any) => {
   const assets = useAssets() as Array<{ [key: string]: any }>;
 
   useEffect(() => {
-    const fetchData = async () => {
+    /* const fetchData = async () => {
       try {
         setLoading(true);
         const res = await accessHomeWithWallet();
@@ -37,7 +38,7 @@ const LandingPage: MyPage = (props: any) => {
       }
     };
 
-    fetchData();
+    fetchData(); */
   }, []);
 
   const accessHomeWithWallet = async () => {
@@ -81,7 +82,7 @@ const LandingPage: MyPage = (props: any) => {
         checkingWallet={checkingWallet}
         handleSetCheckingWallet={handleSetCheckingWallet}
         loading={loading}
-        walletcount={walletcount}
+        walletcount={walletCount}
       />
     </>
   );
@@ -89,3 +90,42 @@ const LandingPage: MyPage = (props: any) => {
 
 export default LandingPage;
 LandingPage.Layout = 'NoLayout';
+
+
+export async function getServerSideProps(context: any) {
+  let walletCount = null
+  const accessHomeWithWallet = async () => {
+    try {
+      const user = await getCurrentUser();
+      return user.userId;
+    } catch {
+      return false;
+    }
+  };
+  const fetchData = async () => {
+    try {
+      const res = await accessHomeWithWallet();
+      if (res) {
+        const response = await fetch('/api/calls/backend/getWalletByUser',{
+          method: 'POST',
+          body: res,
+        })
+        const wallet = await response.json()
+        if (wallet && wallet.length > 0) {
+          walletCount = wallet.length 
+        }
+      }
+    } catch (error) {
+      console.log(error);
+    } finally {
+    }
+  };
+
+  fetchData();
+
+  return {
+    props: {
+      walletCount: walletCount
+    },
+  };
+}
