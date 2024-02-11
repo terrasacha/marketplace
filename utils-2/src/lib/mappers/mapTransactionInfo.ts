@@ -4,6 +4,7 @@ interface MapTransactionInfoProps {
   walletAddress: string;
   tx_type: string;
   buildTxResponse: any;
+  metadata: Array<string>;
 }
 interface MappedTransactionInfoProps {
   tx_type: string;
@@ -17,6 +18,7 @@ interface MappedTransactionInfoProps {
   inputUTxOs: Array<any>;
   outputUTxOs: Array<any>;
   cbor: string | null;
+  metadata: Array<string>;
 }
 
 const TRANSACTION_TYPES = {
@@ -86,12 +88,14 @@ export default async function mapTransactionInfo({
   walletAddress,
   tx_type,
   buildTxResponse,
+  metadata,
 }: MapTransactionInfoProps) {
   console.log('TransactionRawInfoData', buildTxResponse);
 
   const cbor = buildTxResponse.cbor;
   const tx_id = buildTxResponse.build_tx.tx_id;
   const tx_fee = lovelaceToAda(buildTxResponse.build_tx.fee);
+  const tx_size = buildTxResponse.tx_size;
   const input_utxo = Object.values(buildTxResponse.utxos_info).map(
     (utxo: any) => {
       const mappedAssetList = utxo.asset_list.map((asset: any) => {
@@ -102,10 +106,12 @@ export default async function mapTransactionInfo({
           quantity: parseInt(asset.quantity),
         };
       });
+      const isOwnerAddress = walletAddress === utxo.address ? true : false
       return {
         tx_index: utxo.tx_index,
         tx_hash: utxo.tx_hash,
         address: utxo.address,
+        isOwnerAddress: isOwnerAddress,
         asset_list: mappedAssetList,
         lovelace: parseInt(utxo.value),
         formatedADAValue: getNumberParts(lovelaceToAda(parseInt(utxo.value))),
@@ -115,8 +121,10 @@ export default async function mapTransactionInfo({
   const output_utxo = Object.values(buildTxResponse.build_tx.outputs).map(
     (utxo: any) => {
       const asset_list = getAssetList(utxo.amount.multi_asset);
+      const isOwnerAddress = walletAddress === utxo.address ? true : false
       return {
         address: utxo.address,
+        isOwnerAddress: isOwnerAddress,
         asset_list: asset_list,
         lovelace: utxo.lovelace,
         formatedADAValue: getNumberParts(lovelaceToAda(utxo.lovelace)),
@@ -165,12 +173,13 @@ export default async function mapTransactionInfo({
     subtitle: subtitle,
     tx_id: tx_id,
     block: 0,
-    tx_size: 0,
+    tx_size: tx_size,
     tx_value: formatADAsToString(tx_value),
     tx_fee: formatADAsToString(-Math.abs(tx_fee)),
     inputUTxOs: input_utxo,
     outputUTxOs: output_utxo,
     cbor: cbor,
+    metadata: metadata,
   };
 
   console.log('tx_info: ', tx_info);

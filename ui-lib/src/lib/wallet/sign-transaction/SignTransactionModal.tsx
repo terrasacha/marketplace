@@ -41,6 +41,7 @@ export default function SignTransactionModal(props: SignTransactionModalProps) {
             <SignTransaction
               handleOpenSignTransactionModal={handleOpenSignTransactionModal}
               cbor={newTransactionBuild.cbor}
+              metadata={newTransactionBuild.metadata}
             />
             <TransactionInfoCard
               title={newTransactionBuild.title}
@@ -54,6 +55,7 @@ export default function SignTransactionModal(props: SignTransactionModalProps) {
               inputUTxOs={newTransactionBuild.inputUTxOs}
               outputUTxOs={newTransactionBuild.outputUTxOs}
               is_collapsed={false}
+              metadata={newTransactionBuild.metadata}
             />
           </Modal.Body>
         </Modal>

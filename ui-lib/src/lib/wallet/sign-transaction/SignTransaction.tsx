@@ -5,10 +5,11 @@ import { WalletContext } from '@marketplaces/utils-2';
 interface SignTransactionProps {
   handleOpenSignTransactionModal: () => void;
   cbor: string;
+  metadata: Array<string>;
 }
 
 export default function SignTransaction(props: SignTransactionProps) {
-  const { handleOpenSignTransactionModal, cbor } = props;
+  const { handleOpenSignTransactionModal, cbor, metadata } = props;
   const { walletID } = useContext<any>(WalletContext);
 
   const [password, setPassword] = useState<any>('');
@@ -19,8 +20,11 @@ export default function SignTransaction(props: SignTransactionProps) {
     setIsLoading(true);
 
     const signTxData = {
-      wallet_id: walletID,
-      cbor: cbor,
+      submitTx: {
+        wallet_id: walletID,
+        cbor: cbor,
+        metadata: metadata,
+      },
       password: password,
     };
     const response = await fetch('/api/transactions/sign-submit', {

@@ -6,6 +6,13 @@ import {
   ChevronUpIcon,
   ChevronRightIcon,
 } from '../../ui-lib';
+import {
+  JsonView,
+  allExpanded,
+  darkStyles,
+  defaultStyles,
+} from 'react-json-view-lite';
+import 'react-json-view-lite/dist/index.css';
 
 interface TransactionInfoCardProps {
   tx_type: string;
@@ -19,6 +26,7 @@ interface TransactionInfoCardProps {
   tx_fee: string;
   inputUTxOs: Array<any>;
   outputUTxOs: Array<any>;
+  metadata: Array<string>;
 }
 
 export default function TransactionInfoCard(props: TransactionInfoCardProps) {
@@ -33,13 +41,18 @@ export default function TransactionInfoCard(props: TransactionInfoCardProps) {
     subtitle,
     inputUTxOs,
     outputUTxOs,
-    is_collapsed
+    is_collapsed,
+    metadata,
   } = props;
 
   const [collapsed, setCollapsed] = useState(is_collapsed);
 
   const toggleCollapse = () => {
     setCollapsed(!collapsed);
+  };
+
+  const metadataJson = {
+    msg: metadata,
   };
 
   return (
@@ -99,6 +112,23 @@ export default function TransactionInfoCard(props: TransactionInfoCardProps) {
                 </div>
               </div>
             </div>
+            {metadata.length > 0 && (
+              <div className="col-span-2 border-b py-2">
+                <div className="flex items-center">
+                  <p>Metadata</p>
+                  <CopyToClipboard
+                    iconClassName="h-5 w-5 ml-2 hover:text-blue-600"
+                    copyValue={JSON.stringify(metadataJson)}
+                    tooltipLabel="Copiar !"
+                  />
+                </div>
+                <JsonView
+                  data={metadataJson}
+                  shouldExpandNode={allExpanded}
+                  style={defaultStyles}
+                />
+              </div>
+            )}
             {/* UTXO Input */}
             <div className="col-span-2 lg:col-span-1">
               <p>{inputUTxOs.length + ' UTxO Input(s)'}</p>
@@ -108,6 +138,7 @@ export default function TransactionInfoCard(props: TransactionInfoCardProps) {
                     <UtxoInfoCard
                       key={index}
                       address={utxo.address}
+                      isOwnerAddress={utxo.isOwnerAddress}
                       intValuePart={utxo.formatedADAValue.intPart}
                       floatValuePart={utxo.formatedADAValue.floatPart}
                       asset_list={utxo.asset_list}
@@ -126,6 +157,7 @@ export default function TransactionInfoCard(props: TransactionInfoCardProps) {
                     <UtxoInfoCard
                       key={index}
                       address={utxo.address}
+                      isOwnerAddress={utxo.isOwnerAddress}
                       intValuePart={utxo.formatedADAValue.intPart}
                       floatValuePart={utxo.formatedADAValue.floatPart}
                       asset_list={utxo.asset_list}

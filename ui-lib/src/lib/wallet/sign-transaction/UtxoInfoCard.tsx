@@ -15,10 +15,18 @@ interface UtxoInfoCardProps {
   floatValuePart: string;
   tx_hash?: string;
   asset_list: Array<any>;
+  isOwnerAddress: boolean;
 }
 
 export default function UtxoInfoCard(props: UtxoInfoCardProps) {
-  const { address, intValuePart, floatValuePart, tx_hash, asset_list } = props;
+  const {
+    address,
+    intValuePart,
+    floatValuePart,
+    tx_hash,
+    asset_list,
+    isOwnerAddress,
+  } = props;
 
   return (
     <div className="flex-col border rounded-lg shadow-[rgba(221,222,227,1)_1px_1px_4px_0px] p-2 space-y-2">
@@ -27,7 +35,7 @@ export default function UtxoInfoCard(props: UtxoInfoCardProps) {
         <CopyToClipboard
           iconClassName="h-5 w-5 mr-2"
           copyValue={address}
-          tooltipLabel='Copiar !'
+          tooltipLabel="Copiar !"
         />
 
         <Tooltip text="Consultar en CardanoScan Preview">
@@ -37,7 +45,18 @@ export default function UtxoInfoCard(props: UtxoInfoCardProps) {
             className="cursor-pointer"
           >
             <div className="flex items-center">
-              <p className="text-wrap break-all">{address}</p>
+              <div>
+                <p className="text-wrap break-all">{address}</p>
+                {isOwnerAddress ? (
+                  <span className="bg-blue-300 text-blue-800 text-sm font-medium me-2 px-2.5 py-0.5 rounded dark:bg-blue-900 dark:text-blue-300">
+                    Mi billetera
+                  </span>
+                ) : (
+                  <span className="bg-gray-300 text-gray-800 text-sm font-medium me-2 px-2.5 py-0.5 rounded dark:bg-gray-700 dark:text-gray-300">
+                    Externa
+                  </span>
+                )}
+              </div>
               <div>
                 <ExternalLinkIcon className="h-5 w-5 ml-2" />
               </div>
@@ -48,8 +67,7 @@ export default function UtxoInfoCard(props: UtxoInfoCardProps) {
       {/* Adas section */}
       <div className="flex justify-end">
         <p className="">
-          t₳{' '}
-          <span className="font-semibold">{intValuePart}</span>
+          t₳ <span className="font-semibold">{intValuePart}</span>
           {floatValuePart}
         </p>
       </div>
@@ -74,7 +92,7 @@ export default function UtxoInfoCard(props: UtxoInfoCardProps) {
             <CopyToClipboard
               iconClassName="h-5 w-5 mr-2"
               copyValue={tx_hash}
-              tooltipLabel='Copiar !'
+              tooltipLabel="Copiar !"
             />
 
             <Tooltip text="Consultar en CardanoScan Preview">

@@ -17,12 +17,11 @@ async function submitTransaction(submitTx) {
 export default async function handler(req, res) {
   if (req.method === 'POST') {
     try {
-      const { password, wallet_id, cbor } = req.body; // Utiliza req.body en lugar de req.query para obtener datos del cuerpo de la solicitud
+      const { password, submitTx } = req.body; // Utiliza req.body en lugar de req.query para obtener datos del cuerpo de la solicitud
 
       const isValidUser = await validatePassword(password, wallet_id);
 
       if (isValidUser) {
-        const submitTx = { wallet_id, cbor };
         const response = await submitTransaction(submitTx);
         const signSubmitResponse = await response.json();
 

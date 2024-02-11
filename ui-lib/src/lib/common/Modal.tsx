@@ -66,7 +66,9 @@ interface ModalBodyProps {
 class ModalBody extends React.Component<ModalBodyProps> {
   render() {
     const { className = '', children } = this.props;
-    return <div className={`p-4 md:p-5 space-y-4 ${className}`}>{children}</div>
+    return <div className={`p-4 md:p-5 space-y-4 overflow-y-auto max-h-full${className}`}>
+      {children}
+    </div>
   }
 }
 
@@ -119,7 +121,7 @@ class Modal extends React.Component<ModalProps> {
           aria-hidden="true"
           className={`${
             !show && 'hidden'
-          } flex overflow-y-hidden overflow-x-hidden fixed top-0 right-0 left-0 z-50 px-10 justify-center items-center w-full md:inset-0 h-full max-h-full bg-gray-900 bg-opacity-50 no-scrollbar ${className}`}
+          } flex overflow-y-auto overflow-x-hidden fixed top-0 right-0 left-0 z-50 px-10 justify-center items-center md:inset-0 w-full h-full bg-gray-900 bg-opacity-50 ${className}`}
         >
           <div className={`relative w-full max-w-${size} max-h-full`}>
             {/* Modal content */}
