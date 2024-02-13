@@ -1,4 +1,4 @@
-import React, { useState, useContext, useEffect } from 'react';
+import React, { useState, useContext } from 'react';
 import { Button } from 'flowbite-react';
 import { FaPen } from 'react-icons/fa';
 import { BsFillEyeFill, BsFillEyeSlashFill } from 'react-icons/bs';
@@ -65,12 +65,13 @@ const CreateCredentials = (props: any) => {
     await createWallet();
   };
   const createWallet = async () => {
-    /* const url = 'https://93jp7ynsqv.us-east-1.awsapprunner.com/api/v1/wallet/create-wallet/';
+    const url = 'https://93jp7ynsqv.us-east-1.awsapprunner.com/api/v1/wallet/create-wallet/';
     const info = {
       save_flag: true,
       userID: user,
-      words: words,
+      words: recoveryWords.join(' '),
     };
+    console.log(info, 'info')
     try {
       setLoading(true);
       const response = await fetch('api/calls/createWalletCredentials',{
@@ -92,12 +93,14 @@ const CreateCredentials = (props: any) => {
           passphrase: inputValue.password,
         }),
       })
+      const data2 = response2.json()
+      console.log(data2)
       setCurrentSection(4);
     } catch (error) {
       console.error('Error al hacer la solicitud:', error);
     } finally {
       setLoading(false);
-    } */
+    }
     setCurrentSection(3)
   };
   

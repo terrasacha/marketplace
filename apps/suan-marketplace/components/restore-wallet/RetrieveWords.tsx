@@ -36,6 +36,7 @@ const PasteWordsStep = (props: any) => {
   };
 
   const updateRecoveryWords = (index: number, value: string, from: string) => {
+    console.log(value)
     const saveWord = compareAndSaveWord(from, value);
     if (saveWord) {
       const updateRecoveryWords = [...recoveryWords];
@@ -63,24 +64,29 @@ const PasteWordsStep = (props: any) => {
         const copywords = value.split(' ');
         return updateRecoveryWordsCopy(copywords);
       }
-      updateRecoveryWords(index, value, 'button');
+      updateRecoveryWords(index, value, 'input');
     }
   };
   const compareAndSaveWord = (from: string, value: string) => {
     setErrorInput(false);
     let currentWord: any = null;
     let wordInDictionary = null;
-    if (from === 'button') {
+    if (from === 'input') {
       currentWord = value;
       wordInDictionary = dictionary.filter((word: string) =>
         word.includes(inputValue)
       );
       if (currentWord.includes(inputValue) && wordInDictionary.length === 1) {
+        console.log(wordInDictionary[0])
         return wordInDictionary[0];
       } else {
         setErrorInput(true);
         return false;
       }
+    }
+    if (from === 'button') {
+      console.log(value)
+        return value
     }
   };
   const changeWordsLength = (option:any) =>{
