@@ -69,7 +69,7 @@ export default function AssetsList(props: AssesListProps) {
         </span>
         <div className="inline-flex mt-2 xs:mt-0">
           <button
-            className={`flex items-center justify-center px-3 h-8 text-sm font-medium text-white bg-gray-800 rounded-s hover:bg-gray-900 dark:bg-gray-800 dark:border-gray-700 dark:text-gray-400 dark:hover:bg-gray-700 dark:hover:text-white ${
+            className={`flex items-center justify-center px-3 h-8 text-sm font-medium text-white bg-custom-dark rounded-s hover:bg-custom-dark-hover ${
               !canShowPrevious && 'opacity-50 cursor-not-allowed'
             }`}
             onClick={prevPage}
@@ -93,7 +93,7 @@ export default function AssetsList(props: AssesListProps) {
             Prev
           </button>
           <button
-            className={`flex items-center justify-center px-3 h-8 text-sm font-medium text-white bg-gray-800 border-0 border-s border-gray-700 rounded-e hover:bg-gray-900 dark:bg-gray-800 dark:border-gray-700 dark:text-gray-400 dark:hover:bg-gray-700 dark:hover:text-white ${
+            className={`flex items-center justify-center px-3 h-8 text-sm font-medium text-white bg-custom-dark border-0 border-s border-gray-700 rounded-e hover:bg-custom-dark-hover ${
               !canShowNext && 'opacity-50 cursor-not-allowed'
             }`}
             onClick={nextPage}

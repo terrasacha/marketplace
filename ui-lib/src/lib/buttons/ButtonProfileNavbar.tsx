@@ -10,7 +10,7 @@ const ButtonProfileNavbar = (props: ButtonProfileNavbarProps) => {
   return (
     <button
       onClick={() => openModal(!showModal)}
-      className="h-10 flex gap-4 items-center justify-center text-sm font-normal focus:z-10 focus:outline-none text-gray-900 dark:text-white dark:border-gray-600 rounded-lg  py-8 px-4"
+      className="h-10 flex gap-4 items-center justify-center text-sm font-normal focus:z-10 focus:outline-none rounded-lg  py-8 px-4"
     >
       <div className="flex flex-col">
         <p>{walletInfo.name || ''}</p>

@@ -90,7 +90,7 @@ const WalletDashboard = () => {
 
   return (
     <div className="h-auto w-full px-5 pt-6">
-      <div className="p-4 border-gray-200 rounded-lg dark:border-gray-700 mt-14">
+      <div className="p-4 border-gray-200 rounded-lg">
         <h2 className="text-4xl lg:text-5xl font-semibold text-gray-900 dark:text-gray-500">
           Tus Billetera
         </h2>

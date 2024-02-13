@@ -93,7 +93,7 @@ export function WalletContextProvider({
           headers: {
             'Content-Type': 'application/json',
           },
-          body: JSON.stringify([wallet_address]),
+          body: JSON.stringify(wallet_address),
         }
       );
       const responseData = await response.json();

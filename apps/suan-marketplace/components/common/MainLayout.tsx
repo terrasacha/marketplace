@@ -136,7 +136,7 @@ const MainLayout = ({ children }: PropsWithChildren) => {
             widthLogo={60}
             poweredBy={false}
           />
-          <main className="lg:ml-80">{children}</main>
+          <main className="lg:ml-80 mt-20">{children}</main>
         </>
       ) : (
         ''

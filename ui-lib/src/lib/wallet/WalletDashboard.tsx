@@ -32,24 +32,24 @@ export default function WalletDashboard(props: AccountProps) {
 
   console.log(props.userWalletData);
   return (
-    <div className="grid grid-cols-1 2xl:grid-cols-5 2xl:space-x-5 ">
+    <div className="grid grid-cols-1 2xl:grid-cols-5 2xl:space-x-5">
       <div className="flex-col col-span-3 space-y-5">
         <Card className="h-fit">
           <Card.Header title="Cuenta" />
           <Card.Body>
-            <div className="w-full rounded-lg bg-white p-3">
+            <div className="w-full rounded-lg bg-custom-dark p-3">
               <div className="flex gap-3 items-center">
                 <div className="flex-none">
-                  <div className="relative inline-flex items-center justify-center w-16 h-16 overflow-hidden bg-red-200 rounded-lg dark:bg-gray-600">
-                    <span className="font-medium text-gray-600 dark:text-gray-300">
+                  <div className="relative inline-flex items-center justify-center w-16 h-16 overflow-hidden bg-white rounded-lg">
+                    <span className="font-medium text-custom-dark">
                       NS
                     </span>
                   </div>
                 </div>
-                <div className="flex-1 w-64">
+                <div className="flex-1 w-64 text-white">
                   <p className="text-lg">Mi billetera</p>
                   <div className="flex items-center gap-2">
-                    <p className="text-sm text-gray-500 truncate w-52">
+                    <p className="text-sm truncate w-52">
                       {walletData ? walletData.address : 'loading ...'}
                     </p>
                     <CopyToClipboard
@@ -67,7 +67,7 @@ export default function WalletDashboard(props: AccountProps) {
                     />
                   </div>
                   <div className="flex items-center gap-2">
-                    <p className="text-xl text-green-500">
+                    <p className="text-xl text-amber-400">
                       {showAddress ? (
                         <>
                           {walletData

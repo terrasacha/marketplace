@@ -16,11 +16,22 @@ export default {
       height: {
         '300': '300px',
       },
+      fontSize: {
+        'xxs': '0.65rem',
+      },
+      colors: {
+        'custom-fondo': '#ffffff',
+        'custom-dark': '#333333',
+        'custom-dark-hover': '#212121',
+        'custom-hover': '#4aa3df',
+        'custom-hover-invert': '#95e9fb',
+      },
     },
   },
   plugins: [
     // ...
     require('flowbite/plugin'),
-    require('tailwindcss-animated')
+    require('tailwindcss-animated'),
+    require('tailwindcss-ripple')(),
   ],
 };

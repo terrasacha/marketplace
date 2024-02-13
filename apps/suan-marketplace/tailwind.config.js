@@ -6,8 +6,8 @@ export default {
   content: [
     // ...
     'node_modules/flowbite-react/lib/esm/**/*.js',
-    "node_modules/flowbite-react/**/*.{js,jsx,ts,tsx}",
-    "node_modules/flowbite/**/*.{js,jsx,ts,tsx}",
+    'node_modules/flowbite-react/**/*.{js,jsx,ts,tsx}',
+    'node_modules/flowbite/**/*.{js,jsx,ts,tsx}',
     './*/**/*.{js,ts,jsx,tsx,html,css}',
     join(
       __dirname,
@@ -16,18 +16,29 @@ export default {
     ...createGlobPatternsForDependencies(__dirname),
   ],
   theme: {
+    ripple: (theme) => ({
+      colors: theme('colors'),
+    }),
     extend: {
       height: {
-        '300': '300px',
+        300: '300px',
       },
       fontSize: {
-        'xxs': '0.65rem',
+        xxs: '0.65rem',
+      },
+      colors: {
+        'custom-fondo': '#ffffff',
+        'custom-dark': '#333333',
+        'custom-dark-hover': '#212121',
+        'custom-hover': '#4aa3df',
+        'custom-hover-invert': '#95e9fb',
       },
     },
   },
   plugins: [
     // ...
     require('flowbite/plugin'),
-    require('tailwindcss-animated')
+    require('tailwindcss-animated'),
+    require('tailwindcss-ripple')(),
   ],
 };

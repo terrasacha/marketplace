@@ -15,11 +15,11 @@ export default function AssetRow(props: AssetRowProps) {
   const total = (quantity * price) || 0
 
   return (
-    <div className="flex space-x-2 items-center bg-white rounded-lg px-3 py-2">
+    <div className="flex space-x-2 items-center bg-custom-dark text-white rounded-lg px-3 py-2">
       <div className="flex justify-start items-center w-full space-x-2">
         <div className="px-2">{index + 1}</div>
-        <div className="relative inline-flex items-center justify-center w-7 h-7 overflow-hidden bg-red-200 rounded-full dark:bg-gray-600">
-          <span className="font-medium text-gray-600 dark:text-gray-300">
+        <div className="relative inline-flex items-center justify-center w-7 h-7 overflow-hidden bg-white rounded-full">
+          <span className="font-medium text-custom-dark dark:text-gray-300">
             {asset_name.charAt(0)}
           </span>
         </div>

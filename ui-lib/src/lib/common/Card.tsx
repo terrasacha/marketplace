@@ -1,24 +1,31 @@
-import React, { ReactNode, ReactElement } from "react";
+import React, { ReactNode, ReactElement } from 'react';
 
 interface CardHeaderProps {
   sep?: boolean;
   title?: string;
   subtitle?: string;
   tooltip?: ReactNode;
+  className?: string;
 }
 
 class CardHeader extends React.Component<CardHeaderProps> {
   render() {
-    const { sep = false, title = "", subtitle = "", tooltip = "" } = this.props;
+    const {
+      sep = false,
+      title = '',
+      subtitle = '',
+      tooltip = '',
+      className = '',
+    } = this.props;
     return (
       <>
-        <div className="p-6">
+        <div className={`${className} pt-6 px-6`}>
           <div className="flex justify-between items-center">
             <div>
               <p className="mb-0 text-2xl font-semibold">{title}</p>
               <p className="mb-0 text-sm">{subtitle}</p>
             </div>
-            <div>{tooltip}</div>
+            {tooltip && <div>{tooltip}</div>}
           </div>
         </div>
         {sep && <hr className="m-0 border-1" />}
@@ -34,12 +41,8 @@ interface CardBodyProps {
 
 class CardBody extends React.Component<CardBodyProps> {
   render() {
-    const { className = "", children } = this.props;
-    return (
-      <div className={className + " px-6 pb-6"}>
-        {children}
-      </div>
-    );
+    const { className = '', children } = this.props;
+    return <div className={className + ' p-6'}>{children}</div>;
   }
 }
 
@@ -71,9 +74,14 @@ class Card extends React.Component<CardProps> {
   static Footer = CardFooter;
 
   render() {
-    const { className = "", children } = this.props;
+    const { className = '', children } = this.props;
     return (
-      <div className={className + " border rounded-lg shadow-[rgba(221,222,227,1)_1px_1px_4px_0px] text-dark-900 bg-[#e7ebf5]"}>
+      <div
+        className={
+          className +
+          ' border rounded-lg shadow-[rgba(221,222,227,1)_1px_1px_4px_0px] text-dark-900 bg-custom-fondo animate-fade animate-ease-in animate-duration-300'
+        }
+      >
         {children}
       </div>
     );
