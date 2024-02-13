@@ -34,13 +34,13 @@ export default function Recipient(props: RecipientProps) {
     <div className="grid grid-col-4 gap-2">
       {/* Flex */}
       <div className="col-span-4 flex justify-between">
-        <div className="flex justify-center items-center border min-w-11 bg-gray-800 text-white rounded px-3 py-2">
+        <div className="flex justify-center items-center border min-w-11 bg-custom-dark text-white rounded px-3 py-2">
           {index + 1}
         </div>
         {canDelete && (
           <button
             type="button"
-            className="text-white min-w-11 bg-gray-800 hover:bg-gray-900 focus:outline-none focus:ring-2 focus:ring-gray-300 font-medium rounded text-sm px-3 py-2"
+            className="text-white min-w-11 bg-custom-dark hover:bg-custom-dark-hover focus:outline-none focus:ring-2 focus:ring-gray-300 font-medium rounded text-sm px-3 py-2"
             onClick={() => handleRemoveRecipient(index)}
           >
             <TrashIcon className="h-5 w-5" />
@@ -84,7 +84,7 @@ export default function Recipient(props: RecipientProps) {
       {/* Token to send */}
       <button
         type="button"
-        className="col-span-4 sm:col-span-1 text-white bg-gray-800 hover:bg-gray-900 focus:outline-none focus:ring-4 focus:ring-gray-300 font-medium rounded text-sm px-5 py-2.5 "
+        className="col-span-4 sm:col-span-1 text-white bg-custom-dark hover:bg-custom-dark-hover focus:outline-none focus:ring-4 focus:ring-gray-300 font-medium rounded text-sm px-5 py-2.5 "
         onClick={() => {
           handleSetSelectedTokensToSelectTokensModal(selectedAssets);
           handleOpenSelectTokensModal(index);

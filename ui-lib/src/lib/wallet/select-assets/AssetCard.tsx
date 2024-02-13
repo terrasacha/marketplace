@@ -101,7 +101,7 @@ export default function AssetCard(props: AssetCardProps) {
             />
             <button
               type="submit"
-              className="text-white absolute end-2 bottom-2 bg-gray-800 hover:bg-gray-900 focus:outline-none focus:ring-4 focus:ring-gray-300 font-medium rounded text-xs px-2 py-1"
+              className="text-white absolute end-2 bottom-2 bg-custom-dark hover:bg-custom-dark-hover focus:outline-none focus:ring-4 focus:ring-gray-300 font-medium rounded text-xs px-2 py-1"
               onClick={handleSelectAllSupply}
             >
               All
@@ -117,7 +117,7 @@ export default function AssetCard(props: AssetCardProps) {
                 : false
             }
             type="button"
-            className="text-white bg-gray-800 hover:bg-gray-900 focus:outline-none focus:ring-4 focus:ring-gray-300 font-medium rounded text-xs px-3 py-3"
+            className="text-white bg-custom-dark hover:bg-custom-dark-hover focus:outline-none focus:ring-4 focus:ring-gray-300 font-medium rounded text-xs px-3 py-3"
             onClick={handleCheckAsset}
           >
             {checked ? 'Remover' : 'Agregar'}

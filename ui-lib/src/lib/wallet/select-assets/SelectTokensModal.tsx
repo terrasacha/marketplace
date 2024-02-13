@@ -169,7 +169,7 @@ export default function SelectTokensModal(props: SelectTokensModalProps) {
       <Modal.Footer className="justify-end">
         <button
           type="button"
-          className="text-white bg-gray-800 hover:bg-gray-900 focus:outline-none focus:ring-4 focus:ring-gray-300 font-medium rounded text-xs px-3 py-3 w-56"
+          className="text-white bg-custom-dark hover:bg-custom-dark-hover focus:outline-none focus:ring-4 focus:ring-gray-300 font-medium rounded text-xs px-3 py-3 w-56"
           onClick={handleAccept}
         >
           Aceptar

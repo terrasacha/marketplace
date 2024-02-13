@@ -4,10 +4,8 @@ import { WalletTransactions } from '@marketplaces/ui-lib';
 const Transactions: MyPage = (props: any) => {
   return (
     <>
-      <div className="h-auto w-full px-5 pt-6">
-        <div className="p-4 border-gray-200 rounded-lg dark:border-gray-700 mt-14 ">
-          <WalletTransactions />
-        </div>
+      <div className="h-auto w-full p-5">
+        <WalletTransactions />
       </div>
     </>
   );

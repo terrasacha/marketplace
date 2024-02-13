@@ -183,10 +183,31 @@ export default function WalletSend(props: AccountProps) {
     });
   };
 
+  const validateRecipients = () => {
+    const recipients = newTransactionGroup.recipients;
+    for (const recipient of recipients) {
+      if (
+        recipient.walletAddress.trim() === '' ||
+        recipient.adaAmount.trim() === ''
+      ) {
+        return false;
+      }
+    }
+    return true;
+  };
+
   const handleSendTransaction = async () => {
     console.log('Transaccion: ', newTransactionGroup);
+    if (!validateRecipients()) {
+      toast.error(
+        'Complete todos los campos poder continuar ...'
+      );
+      return;
+    }
     if (newTransactionGroup.messageError) {
-      toast.error("Corrija los errores en el cuerpo del mensaje para poder continuar ...")
+      toast.error(
+        'Corrija los errores en el cuerpo del mensaje para poder continuar ...'
+      );
       return;
     }
     setIsLoading(true);
@@ -304,14 +325,14 @@ export default function WalletSend(props: AccountProps) {
             <div className="flex justify-between">
               <button
                 type="button"
-                className="col-span-4 sm:col-span-1 text-white bg-gray-800 hover:bg-gray-900 focus:outline-none focus:ring-4 focus:ring-gray-300 font-medium rounded text-sm px-5 py-2.5 "
+                className="col-span-4 sm:col-span-1 text-white bg-custom-dark hover:bg-custom-dark-hover focus:outline-none focus:ring-4 focus:ring-gray-300 font-medium rounded text-sm px-5 py-2.5 "
                 onClick={handleAddRecipient}
               >
                 Añadir destinatario
               </button>
               <button
                 type="button"
-                className="col-span-4 sm:col-span-1 text-white bg-gray-800 hover:bg-gray-900 focus:outline-none focus:ring-4 focus:ring-gray-300 font-medium rounded text-sm px-5 py-2.5 "
+                className="col-span-4 sm:col-span-1 text-white bg-custom-dark hover:bg-custom-dark-hover focus:outline-none focus:ring-4 focus:ring-gray-300 font-medium rounded text-sm px-5 py-2.5 "
                 onClick={handleSendTransaction}
               >
                 {isLoading ? <LoadingIcon className="w-4 h-4" /> : 'Enviar'}

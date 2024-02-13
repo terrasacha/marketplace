@@ -42,8 +42,8 @@ export default function Navbar(props: NavbarProps) {
 
   return (
     <>
-      <nav className="fixed top-0 z-40 w-full bg-white dark:bg-gray-800 dark:border-gray-700">
-        <div className="px-3 lg:px-5 lg:pl-3 bg-white">
+      <nav className="fixed top-0 z-40 w-full bg-custom-fondo shadow-[rgba(221,222,227,1)_1px_1px_4px_0px]">
+        <div className="relative px-3 lg:px-5 lg:pl-3">
           <div className="flex items-center justify-between py-2">
             <div className="flex items-center justify-start">
               <button

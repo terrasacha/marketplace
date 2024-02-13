@@ -24,6 +24,8 @@ import WalletDashboard from './wallet/WalletDashboard';
 import WalletTransactions from './wallet/WalletTransactions';
 import WalletAssets from './wallet/WalletAssets';
 import WalletSend from './wallet/WalletSend';
+import TradeCard from './trade/TradeCard';
+import CreateOrderCard from './trade/create-order/CreateOrderCard';
 import Recipient from './wallet/Recipient';
 import Transactions from './wallet/Transactions';
 import Assets from './wallet/assets/Assets';
@@ -34,7 +36,7 @@ import CopyToClipboard from './common/CopyToClipboard';
 import ExternalLink from './common/ExternalLink';
 import Navbar from './layout/Navbar';
 import CardProject from './cards/CardProject';
-import WalletCreatedSucessfully from './wallet/WalletCreatedSuccessfully'
+import WalletCreatedSucessfully from './wallet/WalletCreatedSuccessfully';
 import RestoreWalletContext from './store/restore-wallet-context';
 import PieChartCustom from './common/charts/PieChartCustom';
 import { RestoreWalletProvider } from './store/restore-wallet-context';
@@ -53,6 +55,9 @@ import { PencilIcon } from './icons/PencilIcon';
 import { ScaleIcon } from './icons/ScaleIcon';
 import { LockIcon } from './icons/LockIcon';
 import { LoadingIcon } from './icons/LoadingIcon';
+import { BookIcon } from './icons/BookIcon';
+import { ChartIcon } from './icons/ChartIcon';
+import { MarketIcon } from './icons/MarketIcon';
 export {
   LoginForm,
   SignUpForm,
@@ -64,6 +69,8 @@ export {
   WalletDashboard,
   WalletTransactions,
   WalletSend,
+  TradeCard,
+  CreateOrderCard,
   Recipient,
   Transactions,
   Assets,
@@ -108,5 +115,8 @@ export {
   PencilIcon,
   ScaleIcon,
   LockIcon,
-  LoadingIcon
+  LoadingIcon,
+  BookIcon,
+  ChartIcon,
+  MarketIcon,
 };
