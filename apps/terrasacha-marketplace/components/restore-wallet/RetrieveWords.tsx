@@ -62,7 +62,7 @@ const PasteWordsStep = (props: any) => {
     if (e.key === 'Enter') {
       if (value.includes(' ')) {
         const copywords = value.split(' ');
-        return updateRecoveryWordsCopy(copywords);
+        if(checkcopyWords(copywords)) return updateRecoveryWordsCopy(copywords);
       }
       updateRecoveryWords(index, value, 'input');
     }
@@ -89,6 +89,20 @@ const PasteWordsStep = (props: any) => {
         return value
     }
   };
+  const checkcopyWords = (copywords: Array<string>) =>{
+    const lengthCopyWords = copywords.length
+    let copywordsOnDicc = 0
+    copywords.forEach(item=>{
+      if(dictionary.some((word : string) => word === item)){
+        copywordsOnDicc += 1
+      }
+    })
+
+    if(copywordsOnDicc === lengthCopyWords) return true
+    return false
+
+
+  }
   const changeWordsLength = (option:any) =>{
     setRecoveryWords(Array(option).fill(''))
     setNextRecoveryWordIndex(0)
