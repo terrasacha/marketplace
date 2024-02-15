@@ -1,11 +1,12 @@
-import React, { useState, useContext } from 'react';
+import React, { useState, useContext, useEffect } from 'react';
 import { Button } from 'flowbite-react';
 import { FaPen } from 'react-icons/fa';
 import { BsFillEyeFill, BsFillEyeSlashFill } from 'react-icons/bs';
 import { RestoreWalletContext } from '@marketplaces/ui-lib';
 import { TailSpin } from 'react-loader-spinner';
+import { toast } from 'sonner';
 
-const deafultState = { walletname: '', password: '', passwordConfirm: '' };
+const deafultState = { walletname: '', password: '', passwordConfirm: '', mnemonics: '' };
 const deafultStateShowInfo = { password: false, passwordConfirm: false };
 const CreateCredentials = (props: any) => {
   const { recoveryWords, user, setWalletInfo } = useContext<any>(RestoreWalletContext);
@@ -15,8 +16,14 @@ const CreateCredentials = (props: any) => {
   const [errors, setErrors] = useState(deafultState) as any[];
   const [loading, setLoading] = useState(false) as any[];
 
+  useEffect(() =>{
+    if(errors.mnemonics !== ''){
+        toast.error(errors.mnemonics);
+      }
+  }, [errors.mnemonics])
+
   const handleInputChange = (event: React.ChangeEvent<HTMLInputElement>) => {
-    setErrors(deafultState);
+    setErrors({ walletname: '', password: '', passwordConfirm: '', mnemonics: errors.mnemonics });
     setInputValue({
       ...inputValue,
       [event.target.name]: event.target.value,
@@ -95,7 +102,10 @@ const CreateCredentials = (props: any) => {
         })
         const data2 = response2.json()
       }else{
-        console.error('mnemonics invalidas')
+        setErrors({
+          ...errors,
+          mnemonics: 'La frase introducida no corresponde a una billetera existente. Por favor, vuelve a introducir la frase de recuperación.'
+        })
         return setLoading(false);
       }
       //setCurrentSection(4);
@@ -105,7 +115,6 @@ const CreateCredentials = (props: any) => {
     } finally {
     }
   };
-  
   return (
     <div>
       <section className="flex justify-between pb-2">
@@ -200,13 +209,14 @@ const CreateCredentials = (props: any) => {
         <Button
           className="px-8"
           color="gray"
-          onClick={() => setInputValue(deafultState)}
+          onClick={() => setCurrentSection(1)}
         >
-          Limpiar todos los campos
+          Volver
         </Button>
         <button
           className="relative flex h-10 items-center justify-center p-2 font-medium focus:z-10 focus:outline-none text-white bg-cyan-700 border border-transparent enabled:hover:bg-cyan-800 focus:ring-cyan-300 dark:bg-cyan-600 dark:enabled:hover:bg-cyan-700 dark:focus:ring-cyan-800 rounded-lg focus:ring-2 px-8 ml-4"
           onClick={() => handleContinue()}
+          disabled={errors.mnemonics}
         >
           {loading ? (
             <TailSpin
@@ -214,9 +224,8 @@ const CreateCredentials = (props: any) => {
               color="#fff"
               wrapperClass="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2"
             />
-          ) : (
-            'Continuar'
-          )}
+          ) :
+          'Continuar'}
         </button>
       </div>
     </div>

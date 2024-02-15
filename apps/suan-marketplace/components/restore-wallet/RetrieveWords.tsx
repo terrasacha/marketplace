@@ -24,6 +24,7 @@ const PasteWordsStep = (props: any) => {
   const [dictionary, setDictionary] = useState([]) as any[];
   const [errorInput, setErrorInput] = useState(false) as any[];
   useEffect(() => {
+    setRecoveryWords(Array(24).fill(''))
     fetchDictionary();
   }, []);
 

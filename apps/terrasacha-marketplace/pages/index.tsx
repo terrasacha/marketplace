@@ -2,7 +2,6 @@ import React, { useEffect, useState } from 'react'
 import dynamic from 'next/dynamic'
 const Landing = dynamic(() => import('@terrasacha/components/landing/Landing'))
 import { useWallet, useAssets } from '@meshsdk/react'
-import { useRouter } from 'next/router'
 import { MyPage } from '@terrasacha/components/common/types'
 import { getCurrentUser } from 'aws-amplify/auth'
 const LandingPage: MyPage = (props: any) => {
@@ -10,7 +9,6 @@ const LandingPage: MyPage = (props: any) => {
   const [checkingWallet, setCheckingWallet] = useState<string>('uncheck')
   const [loading, setLoading] = useState<boolean>(true)
   const [walletcount, setWalletcount] = useState<number>(0)
-  const router = useRouter()
   const assets = useAssets() as Array<{ [key: string]: any }>
 
   useEffect(() => {
