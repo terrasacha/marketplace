@@ -80,28 +80,30 @@ const CreateCredentials = (props: any) => {
       })
 
       const data = await response.json()
-      setWalletInfo({
-        name: inputValue.walletname,
-        passwd: inputValue.password,
-      });
-      console.log(data, 'data response1')
-      const response2 = await fetch('api/calls/backend/updateWallet',{
-        method: 'POST',
-        body: JSON.stringify({
-          id: data.data.wallet_id,
+      if(!data.detail){
+        setWalletInfo({
           name: inputValue.walletname,
-          passphrase: inputValue.password,
-        }),
-      })
-      const data2 = response2.json()
-      console.log(data2)
-      setCurrentSection(4);
+          passwd: inputValue.password,
+        });
+        const response2 = await fetch('api/calls/backend/updateWallet',{
+          method: 'POST',
+          body: JSON.stringify({
+            id: data.data.wallet_id,
+            name: inputValue.walletname,
+            passphrase: inputValue.password,
+          }),
+        })
+        const data2 = response2.json()
+      }else{
+        console.error('mnemonics invalidas')
+        return setLoading(false);
+      }
+      //setCurrentSection(4);
+      setCurrentSection(3)
     } catch (error) {
       console.error('Error al hacer la solicitud:', error);
     } finally {
-      setLoading(false);
     }
-    setCurrentSection(3)
   };
   
   return (
