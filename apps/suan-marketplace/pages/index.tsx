@@ -1,7 +1,6 @@
-import React, { useContext, useEffect, useState } from 'react'
+import React, { useEffect, useState } from 'react'
 import dynamic from 'next/dynamic'
 const Landing = dynamic(() => import('@suan/components/landing/Landing'))
-import LoginFromContext from '@suan/store/login-from'
 import { useWallet, useAssets } from '@meshsdk/react'
 import { useRouter } from 'next/router'
 import { MyPage } from '@suan/components/common/types'
@@ -12,7 +11,6 @@ const LandingPage: MyPage = (props: any) => {
   const [loading, setLoading] = useState<boolean>(true)
   const [walletcount, setWalletcount] = useState<number>(0)
   const router = useRouter()
-  const { handleLoginFrom } = useContext<any>(LoginFromContext)
   const assets = useAssets() as Array<{ [key: string]: any }>
 
   useEffect(() => {
@@ -45,7 +43,7 @@ const LandingPage: MyPage = (props: any) => {
 
                     const balanceData = await balanceFetchResponse.json()
 
-                    if (balanceData && balanceData.length > 0 && balanceData[0].balance > 0) {
+                    if (balanceData && balanceData.length > 0) {
                         const hasTokenAuth = balanceData[0].assets.some((asset: any) => asset.policyId === process.env.NEXT_PUBLIC_TOKEN_AUTHORIZER &&
                             asset.assetName === process.env.NEXT_PUBLIC_TOKEN_AUTHORIZER_NAME)
 
@@ -57,8 +55,8 @@ const LandingPage: MyPage = (props: any) => {
                             setCheckingWallet('requestToken')
                         }
                     } else {
-                        console.log('notBalance')
-                        setCheckingWallet('notBalance') //la billetera no tiene balance, FONDEAR
+                        console.log('requestToken')
+                        setCheckingWallet('requestToken') //la billetera no tiene balance, FONDEAR
                     }
 
                     setWalletcount(walletData.length)
