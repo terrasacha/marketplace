@@ -39,6 +39,8 @@ import CardProject from './cards/CardProject';
 import WalletCreatedSucessfully from './wallet/WalletCreatedSuccessfully';
 import RestoreWalletContext from './store/restore-wallet-context';
 import PieChartCustom from './common/charts/PieChartCustom';
+import LineChartComponent from './graphs/LineChartComponent';
+import PieChartComponent from './graphs/PieChartComponent';
 import { RestoreWalletProvider } from './store/restore-wallet-context';
 import { WalletIcon } from './icons/WalletIcon';
 import { CopyIcon } from './icons/CopyIcon';
@@ -89,6 +91,8 @@ export {
   RedirectToHome,
   Card,
   Tooltip,
+  LineChartComponent,
+  PieChartComponent,
   CopyToClipboard,
   ExternalLink,
   Modal,

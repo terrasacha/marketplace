@@ -109,10 +109,6 @@ input[type=range] {
   width: 68%;
 }
 
-.dashboard-items {
-  width: 30%;
-}
-
 /* Card Porject Detail */
 
 .details-map {
@@ -297,9 +293,6 @@ button.group.flex.h-min.items-center.justify-center.p-0\.5.text-center.font-medi
     width: 100%;
   }
 
-  .dashboard-items {
-    width: 100%;
-  }
 
   .modal-detail>div>div>div {
     padding: 0.5em;

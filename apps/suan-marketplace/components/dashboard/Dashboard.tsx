@@ -1,10 +1,9 @@
 import { useEffect, useState } from "react";
 import { useWallet, useAssets } from "@meshsdk/react";
-import PieChartComponent from "./PieChart";
 import ItemsDashboard from "./MainItemsDashboard";
 import TransactionsTable from "./TransactionsTable";
 import DetailItems from "./DetailItems";
-
+import { LineChartComponent, PieChartComponent } from "@marketplaces/ui-lib"
 interface Transaction {
   amountOfTokens: number;
   tokenName: string;
@@ -85,26 +84,37 @@ function Dashboard(props: { transactions: any[] }) {
           Tus Proyectos
         </h2>
         <div className="w-full">
-          <h3 className="text-l font-semibold m-3 p-4 pb-2">Información general de tus proyectos</h3>
-          <div className="flex flex-col md:flex-row">
+        
+          <h3 className="font-semibold my-3 pl-2 pb-2">Información general de tus proyectos</h3>
+          <div className="flex flex-col w-full">
             <ItemsDashboard NewElements={newElements} />
-            <div className="dashboard-token bg-white dark:bg-[#69a1b3] shadow-lg rounded-mdp-3 border-b-4 border-white dark:border-[#588695] dark:text-gray-800">
+            {/* <div className="bg-white dark:bg-[#69a1b3] shadow-lg rounded-mdp-3 border-b-4 border-white dark:border-[#588695] dark:text-gray-800">
               <div className="project_details p-4">
-                <h4 className="text-l font-semibold">Tus Tokens SUAN</h4>
-                <p className="text-[#6b7587] text-sm pr-2 m-0">Estos son los proyectos que tienes hasta ahora</p>
                 {FoundElement && <PieChartComponent foundElement={FoundElement} />}
               </div>
+            </div> */}
+          </div>
+          <h3 className="font-semibold my-3 pl-2 pb-2">Detalles de tus proyectos</h3>
+              {/* {FoundElement && <DetailItems foundElement={FoundElement} />} */}
+
+          {/* BOX FOR GRAPHS */}
+          <div className="grid grid-cols-1 lg:grid-cols-2 2xl:grid-cols-7 gap-4">
+            <div className="bg-white p-4 rounded shadow-md lg:col-span-2 2xl:col-span-3 flex justify-center items-center">
+              <LineChartComponent />
+            </div>
+            
+            <div className="bg-white p-4 rounded shadow-md lg:col-span-1 2xl:col-span-2 flex justify-center items-center">
+            <LineChartComponent />
+              
+            </div>
+            
+            <div className="bg-white p-4 rounded shadow-md lg:col-span-1 2xl:col-span-2 flex justify-center items-center">
+            <PieChartComponent />
             </div>
           </div>
-          <h3 className="text-l font-semibold m-3 p-4 pb-2">Detalles de tus proyectos</h3>
-          <div className="md:w-70 mt-4 p-4 bg-white dark:bg-[#69a1b3] shadow-lg rounded-mdp-3 border-b-4 border-white dark:border-[#588695] dark:text-gray-800">
-            <div className="project_details">
-              {FoundElement && <DetailItems foundElement={FoundElement} />}
-            </div>
-          </div>
-          <div className="overflow-x-auto max-w-full">
+          {/* <div className="overflow-x-auto max-w-full">
             {newElements && <TransactionsTable NewElements={newElements} />}
-          </div>
+          </div> */}
         </div>
       </div>
     </div>
