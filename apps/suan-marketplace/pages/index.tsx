@@ -9,6 +9,7 @@ const LandingPage: MyPage = (props: any) => {
   const [checkingWallet, setCheckingWallet] = useState<string>('uncheck')
   const [loading, setLoading] = useState<boolean>(true)
   const [walletcount, setWalletcount] = useState<number>(0)
+  const [walletData, setWalletData] = useState<any>(null)
   const assets = useAssets() as Array<{ [key: string]: any }>
 
   useEffect(() => {
@@ -26,10 +27,9 @@ const LandingPage: MyPage = (props: any) => {
                 })
 
                 const walletData = await walletFetchResponse.json()
-
+                setWalletData(walletData[0])
                 if (walletData && walletData.length > 0) {
                     const walletAddress = walletData[0].address
-
                     // Fetch wallet balance by address
                     const balanceFetchResponse = await fetch('/api/calls/backend/getWalletBalanceByAddress', {
                         method: 'POST',
@@ -40,21 +40,19 @@ const LandingPage: MyPage = (props: any) => {
                     })
 
                     const balanceData = await balanceFetchResponse.json()
-
                     if (balanceData && balanceData.length > 0) {
-                        const hasTokenAuth = balanceData[0].assets.some((asset: any) => asset.policyId === process.env.NEXT_PUBLIC_TOKEN_AUTHORIZER &&
-                            asset.assetName === process.env.NEXT_PUBLIC_TOKEN_AUTHORIZER_NAME)
-
+                        const hasTokenAuth = balanceData[0].assets.some((asset: any) => asset.policy_id === process.env.NEXT_PUBLIC_TOKEN_AUTHORIZER &&
+                            asset.asset_name === process.env.NEXT_PUBLIC_TOKEN_AUTHORIZER_NAME)
+                        console.log(hasTokenAuth, 'hasTokenAuth')
                         if (hasTokenAuth) {
                             console.log('hasTokenAuth')
                             setCheckingWallet('hasTokenAuth')
                         } else {
-                            console.log('requestToken')
-                            setCheckingWallet('requestToken')
+                          walletData[0].claimed_token ? setCheckingWallet('alreadyClaimToken') : setCheckingWallet('requestToken')
+                            
                         }
                     } else {
-                        console.log('requestToken')
-                        setCheckingWallet('requestToken') //la billetera no tiene balance, FONDEAR
+                      walletData[0].claimed_token ? setCheckingWallet('alreadyClaimToken') : setCheckingWallet('requestToken')
                     }
 
                     setWalletcount(walletData.length)
@@ -115,6 +113,7 @@ const LandingPage: MyPage = (props: any) => {
         handleSetCheckingWallet={handleSetCheckingWallet}
         loading={loading}
         walletcount={walletcount}
+        walletData={walletData}
       />
     </>
   )

@@ -704,6 +704,8 @@ export async function getWalletByUser(userId: string): Promise<any> {
               items {
                 id
                 address
+                stake_address
+                claimed_token
                 name
               }
             }
@@ -780,7 +782,7 @@ export async function createCoreWallet(id: string, name: string) {
   }
 }
 
-export async function updateWallet({ id, name, passphrase }: any) {
+export async function updateWallet({ id, name, passphrase, claimed_token }: any) {
   const hash = await encryptPassword(passphrase);
   const response = await axios.post(
     graphqlEndpoint,
@@ -789,6 +791,7 @@ export async function updateWallet({ id, name, passphrase }: any) {
         mutation UpdateWallet($input: UpdateWalletInput!) {
           updateWallet(input: $input) {
             id
+            claimed_token
           }
         }
       `,
@@ -800,6 +803,35 @@ export async function updateWallet({ id, name, passphrase }: any) {
           isSelected: false,
           password: hash,
           name: name,
+          claimed_token,
+        },
+      },
+    },
+    {
+      headers: {
+        'x-api-key': awsAppSyncApiKey,
+      },
+    }
+  );
+
+  return response;
+}
+export async function claimToken({ id }: any) {
+  const response = await axios.post(
+    graphqlEndpoint,
+    {
+      query: `
+        mutation UpdateWallet($input: UpdateWalletInput!) {
+          updateWallet(input: $input) {
+            id
+            claimed_token
+          }
+        }
+      `,
+      variables: {
+        input: {
+          id: id,
+          claimed_token: true,
         },
       },
     },

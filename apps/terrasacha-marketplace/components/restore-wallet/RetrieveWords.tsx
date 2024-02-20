@@ -3,7 +3,7 @@ import { Radio, Label, Button } from 'flowbite-react';
 import {RestoreWalletContext} from '@marketplaces/ui-lib';
 import WordsContainer from './WordsContainer';
 import { FaPen } from 'react-icons/fa';
-
+import { useRouter } from 'next/router';
 const options = [
   { id: 'twentyfour', value: 24, name: 'Veinticuatro' },
   { id: 'twentyone', value: 21, name: 'Veintiuno' },
@@ -19,6 +19,7 @@ const PasteWordsStep = (props: any) => {
     nextRecoveryWordIndex,
     setNextRecoveryWordIndex,
   } = useContext<any>(RestoreWalletContext);
+  const router = useRouter()
   const setCurrentSection = props.setCurrentSection;
   const [inputValue, setInputValue] = useState('') as any[];
   const [dictionary, setDictionary] = useState([]) as any[];
@@ -111,11 +112,13 @@ const PasteWordsStep = (props: any) => {
   return (
     <div>
       <section className="flex justify-between pb-2">
-        <h2 className="w-full text-2xl font-semibold text-center">
+        <h2 className="w-full text-2xl font-semibold pb-2">
           Palabras de Recuperación
         </h2>
       </section>
-      
+      <h4 className='w-full text-md font-normal'>¿Qué tipo de billetera le gustaría restaurar?</h4>
+      <p className='w-5/6 text-sm py-6'>Daedalus, Yoroi y Eternl utilizan frases de recuperación de 15 o 24 palabras. También son comunes las de 12 palabras. 
+Los monederos de la era Byron no están soportados actualmente. Si necesita recuperar un monedero anterior a agosto de 2020, utilice Yoroi.</p>
       <fieldset className="flex gap-2 mb-4">
         {options.map((option, index) => {
           return (
@@ -162,6 +165,7 @@ const PasteWordsStep = (props: any) => {
                   className="border border-slate-200 py-2 px-5 rounded-lg bg-slate-200 text-gray-600 font-semibold hover:border-gray-500"
                   onClick={() =>
                     updateRecoveryWords(nextRecoveryWordIndex, word, 'button')
+                    updateRecoveryWords(nextRecoveryWordIndex, word, 'button')
                   }
                 >
                   {word}
@@ -173,9 +177,9 @@ const PasteWordsStep = (props: any) => {
         <Button
           className="px-8"
           color="gray"
-          onClick={() => setCurrentSection(1)}
+          onClick={() => {setCurrentSection(1); router.push('/')}}
         >
-          Vover
+          Volver
         </Button>
         <button
           className="group flex h-min items-center justify-center p-2 text-center font-medium focus:z-10 focus:outline-none text-white bg-cyan-700 border border-transparent enabled:hover:bg-cyan-800 focus:ring-cyan-300 dark:bg-cyan-600 dark:enabled:hover:bg-cyan-700 dark:focus:ring-cyan-800 rounded-lg focus:ring-2 px-8 ml-4"

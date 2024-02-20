@@ -9,7 +9,7 @@ import Image from 'next/image';
 import { getCurrentUser, signOut } from 'aws-amplify/auth';
 import { Hub } from 'aws-amplify/utils';
 const Login = (props: any) => {
-  const { loading, walletcount, checkingWallet } = props;
+  const { loading, walletcount, checkingWallet, walletData} = props;
   const [user, setUser] = useState<any>(null);
   useEffect(() => {
     currentAuthenticatedUser();
@@ -51,7 +51,7 @@ const Login = (props: any) => {
             poweredby={false}
           />
         ) : (
-          checkingWallet !== 'checking' && <RedirectToHome poweredby={false} appName={'Suan'} checkingWallet={checkingWallet}/>
+          checkingWallet !== 'checking' && <RedirectToHome poweredby={false} appName={'Suan'} checkingWallet={checkingWallet} walletData={walletData}/>
         )}
       </div>
     </div>
