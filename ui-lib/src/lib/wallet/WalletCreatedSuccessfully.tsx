@@ -22,7 +22,7 @@ const WalletCreatedSucessfully = (props: any) => {
 
       return () => clearInterval(intervalId);
     }
-    countdown === 0 && router.push('/home');
+    countdown === 0 && router.push('/');
   }, [countdown]);
 
   const triggerConfetti = () => {

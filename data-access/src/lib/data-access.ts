@@ -758,6 +758,68 @@ export async function createWallet(rewardAddresses: string, userId: string) {
   );
   return response;
 }
+export async function createExternalWallet(address: string, stake_address: string, claimed_token: boolean) {
+  const response = await axios.post(
+    graphqlEndpoint,
+    {
+      query: `mutation MyMutation {
+        createWallet(input: {
+          address: "${address}",
+          status: "active", 
+          stake_address: "${stake_address}",
+          claimed_token: ${claimed_token}, 
+          isAdmin: false
+        }) {
+          id
+          address
+          claimed_token
+        }
+      }`,
+    },
+    {
+      headers: {
+        'x-api-key': awsAppSyncApiKey,
+      },
+    }
+  );
+  console.log(response.data.errors, 'response en data-access  ')
+  return response;
+}
+
+export async function getWalletByAddress(address: string) {
+  try {
+    const response = await axios.post(
+      graphqlEndpoint,
+      {
+        query: `query getUserByWallet {
+          listWallets(filter: {address: {eq: "${address}"}}) {
+            items {
+              id
+              address
+              stake_address
+              claimed_token
+            }
+          }
+        }`,
+      },
+      {
+        headers: {
+          'x-api-key': awsAppSyncApiKey,
+        },
+      }
+    );
+    /* if (response.data.listWallets.items.length > 0) {
+      return response.data.listWallets.items[0];
+    } else {
+      return false;
+    } */
+    console.log(response)
+    return response
+  } catch (error) {
+    console.log(error);
+    return false
+  }
+}
 export async function createCoreWallet(id: string, name: string) {
   if (name === '') name = id;
   try {

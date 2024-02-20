@@ -9,7 +9,7 @@ import Image from 'next/image';
 import { getCurrentUser, signOut } from 'aws-amplify/auth';
 import { Hub } from 'aws-amplify/utils';
 const Login = (props: any) => {
-  const { loading, walletcount, checkingWallet } = props;
+  const { loading, walletcount, checkingWallet, walletData} = props;
   const [user, setUser] = useState<any>(null);
   useEffect(() => {
     currentAuthenticatedUser();
@@ -35,7 +35,7 @@ const Login = (props: any) => {
       <Image
         priority={true}
         src="/images/home-page/fondo_login.avif"
-        alt="landing-terrasacha-image"
+        alt="landing-suan-image"
         fill
         style={{ objectFit: 'cover', objectPosition: 'center', zIndex: '0' }}
       />
@@ -51,7 +51,7 @@ const Login = (props: any) => {
             poweredby={true}
           />
         ) : (
-          checkingWallet !== 'checking' && <RedirectToHome poweredby={false} appName={'Terrasacha'} checkingWallet={checkingWallet}/>
+          checkingWallet !== 'checking' && <RedirectToHome poweredby={true} appName={'Terrasacha'} checkingWallet={checkingWallet} walletData={walletData}/>
         )}
       </div>
     </div>
