@@ -102,9 +102,9 @@ const LandingPage: MyPage = (props: any) => {
           }
         } else {
           console.log('requestToken')
-          setWalletData(walletExists.data)
           setCheckingWallet('requestToken')
         }
+        setWalletData(walletExists.data)
         setWalletcount(1)
       }
       

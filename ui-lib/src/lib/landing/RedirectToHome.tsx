@@ -6,12 +6,14 @@ import { TailSpin } from 'react-loader-spinner';
 import { useRouter } from 'next/router';
 import { getCurrentUser } from 'aws-amplify/auth';
 import { toast } from 'sonner';
+import { useWallet, useAssets } from '@meshsdk/react'
 
 interface RedirectToHomeProps {
   poweredby: boolean;
   appName: string;
   checkingWallet: string
   walletData: any
+  handleSetCheckingWallet: (data : string) => void
 }
 const optionsToDisplay : any = {
   hasTokenAuth:{
@@ -28,17 +30,51 @@ const optionsToDisplay : any = {
   }
 }
 const RedirectToHome = (props: RedirectToHomeProps) => {
-  const { poweredby, appName, checkingWallet, walletData} = props;
+  const { poweredby, appName, checkingWallet, walletData , handleSetCheckingWallet } = props;
   const [loading, setLoading] = useState<boolean>(false)
   const [claimed, setClaimed] = useState<boolean>(false)
+  const assets = useAssets() as Array<{ [key: string]: any }>
+  
   const router = useRouter();
 
   useEffect(() => {
     if(checkingWallet === 'hasTokenAuth'){
-
       router.push('/home');
     }
+    else if(checkingWallet === 'alreadyClaimToken'){
+      const fetchData = async() =>{
+            setLoading(true)
+            const balanceData = await getWalletBalanceByAddress(walletData.address)
+            const hasTokenAuth = balanceData[0].assets.some((asset: any) => asset.policy_id === process.env.NEXT_PUBLIC_TOKEN_AUTHORIZER &&
+            asset.asset_name === process.env.NEXT_PUBLIC_TOKEN_AUTHORIZER_NAME)
+            if (hasTokenAuth) {
+              console.log('hastokenAuth')  
+              setLoading(false)
+              handleSetCheckingWallet('hasTokenAuth')
+              return router.push('/home')
+            } else {
+              setLoading(false)
+              return setTimeout(() => {
+                fetchData()
+              }, 5000);
+            }
+        }
+      fetchData()
+    }
   }, [checkingWallet]);
+
+  const getWalletBalanceByAddress = async (address: any) =>{
+    const balanceFetchResponse = await fetch('/api/calls/backend/getWalletBalanceByAddress', {
+      method: 'POST',
+      headers: {
+          'Content-Type': 'application/json',
+      },
+      body: JSON.stringify(address),
+  })
+
+  const balanceData = await balanceFetchResponse.json()
+  return balanceData
+  }
 
   const requestToken = async () => {
     if (walletData) {
@@ -60,9 +96,10 @@ const RedirectToHome = (props: RedirectToHomeProps) => {
           })
           const data2 = response2.json()
           setClaimed(true)
-          return toast.success('Se ha enviado el token de acceso correctamente. Ten en cuenta que el token puede tardar hasta tres minutos en aparecer en tu billetera.',{
+          toast.success('Se ha enviado el token de acceso correctamente. Ten en cuenta que el token puede tardar hasta tres minutos en aparecer en tu billetera.',{
             duration: 5000,
           });
+          return handleSetCheckingWallet('alreadyClaimToken')
         }
       } catch (error) {
         console.error('Error al hacer la solicitud:', error);
@@ -76,9 +113,17 @@ const RedirectToHome = (props: RedirectToHomeProps) => {
       <h2 className="text-3xl font-normal pb-4 flex justify-center">
        {optionsToDisplay[checkingWallet]?.title}
       </h2>
-      <p className="text-sm font-light text-gray-500 text-center mb-8">
+      <p className="text-sm font-light text-gray-500 text-center mb-2">
       {optionsToDisplay[checkingWallet]?.paragraph}
       </p>
+      <div className='h-8 w-full mb-6'>
+      {checkingWallet === 'alreadyClaimToken' && loading &&
+      <div className="w-full flex text-md gap-2 items-center justify-center">
+        <TailSpin width="10" color="#0e7490" wrapperClass="" />
+        <p className='text-sm font-light text-gray-500'>Validando token en billetera</p>
+      </div>
+      }
+      </div>
       {checkingWallet === 'hasTokenAuth' &&
         <div className="flex text-xs gap-2 items-center justify-center">
           <TailSpin width="30" color="#0e7490" wrapperClass="" />
