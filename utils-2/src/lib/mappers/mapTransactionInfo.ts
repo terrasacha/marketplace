@@ -437,7 +437,7 @@ export async function mapTransactionListInfo({
       inputUTxOs: input_utxo,
       outputUTxOs: output_utxo,
       tx_time_live: getTimeLive(tx.tx_timestamp),
-      metadata: tx.metadata ? tx.metadata['674'].msg[0] : [],
+      metadata: tx.metadata ? tx.metadata['674']?.msg[0] : [],
     };
     return tx_info;
   });

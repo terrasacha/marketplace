@@ -116,7 +116,7 @@ export default function AssetCard(props: AssetCardProps) {
             </div>
             {/* Nombre token y cantidad */}
             <div className="w-full">
-              <p>{assetName}</p>
+              <p className='text-wrap break-all'>{assetName}</p>
               <p>
                 {checked
                   ? selectedSupply + ' / ' + totalAssets

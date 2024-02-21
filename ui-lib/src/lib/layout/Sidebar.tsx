@@ -119,7 +119,7 @@ export default function Sidebar(props: SidebarProps) {
             >
               <WalletIcon />
               <span className="flex-1 ms-3 text-left rtl:text-right whitespace-nowrap">
-                Wallet
+                Billetera
               </span>
               <ChevronDownIcon />
             </button>
@@ -132,7 +132,7 @@ export default function Sidebar(props: SidebarProps) {
                   href="/wallet"
                   className="flex items-center w-full p-2 pl-11 group text-black rounded-lg hover:bg-custom-dark hover:text-white transition duration-150 ease-linear"
                 >
-                  Dashboard
+                  Cuadro de mando
                 </Link>
               </li>
               <li>

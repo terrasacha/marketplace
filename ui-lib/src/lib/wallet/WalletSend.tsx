@@ -59,17 +59,8 @@ export default function WalletSend(props: AccountProps) {
   const newTransactionGroupInitialState = {
     recipients: [
       {
-        walletAddress:
-          'addr_test1qrylg6858m0ws6xt8ulg8zevr76pcpk778xtsw85wpkjkksumjx5z2n7cuw55fm6mh7wcjagcs869cr305gaym3s2wrs3lmdnt',
-        adaAmount: '10',
-        checked: false,
-        selectedAssets: [],
-        error: '',
-      },
-      {
-        walletAddress:
-          'addr_test1qq82smy4dtlu5f7xky3pgl0x895z4l6yn982z204rtuetxyw8uwuvkckf48yx8ler7f909he0lk92vjguavdsag6euvsjnxn04',
-        adaAmount: '5',
+        walletAddress: '',
+        adaAmount: '',
         checked: false,
         selectedAssets: [],
         error: '',

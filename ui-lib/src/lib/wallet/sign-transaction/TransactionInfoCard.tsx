@@ -47,7 +47,7 @@ export default function TransactionInfoCard(props: TransactionInfoCardProps) {
     inputUTxOs,
     outputUTxOs,
     is_collapsed,
-    metadata,
+    metadata = [],
     className,
   } = props;
 
