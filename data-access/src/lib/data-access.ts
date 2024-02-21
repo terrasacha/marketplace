@@ -704,6 +704,7 @@ export async function getWalletByUser(userId: string): Promise<any> {
               items {
                 id
                 address
+                stake_address
                 name
               }
             }

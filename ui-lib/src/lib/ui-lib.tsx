@@ -26,12 +26,14 @@ import WalletAssets from './wallet/WalletAssets';
 import WalletSend from './wallet/WalletSend';
 import TradeCard from './trade/TradeCard';
 import CreateOrderCard from './trade/create-order/CreateOrderCard';
+import OrderBookCard from './trade/OrderBookCard';
 import Recipient from './wallet/Recipient';
 import Transactions from './wallet/Transactions';
 import Assets from './wallet/assets/Assets';
 import Modal from './common/Modal';
 import Card from './common/Card';
 import Tooltip from './common/Tooltip';
+import LoadingOverlay from './common/LoadingOverlay';
 import CopyToClipboard from './common/CopyToClipboard';
 import ExternalLink from './common/ExternalLink';
 import Navbar from './layout/Navbar';
@@ -58,6 +60,9 @@ import { LoadingIcon } from './icons/LoadingIcon';
 import { BookIcon } from './icons/BookIcon';
 import { ChartIcon } from './icons/ChartIcon';
 import { MarketIcon } from './icons/MarketIcon';
+import { CubeSendIcon } from './icons/CubeSendIcon';
+import { TransferInIcon } from './icons/TransferInIcon';
+import { SearchIcon } from './icons/SearchIcon';
 export {
   LoginForm,
   SignUpForm,
@@ -71,6 +76,7 @@ export {
   WalletSend,
   TradeCard,
   CreateOrderCard,
+  OrderBookCard,
   Recipient,
   Transactions,
   Assets,
@@ -89,6 +95,7 @@ export {
   RedirectToHome,
   Card,
   Tooltip,
+  LoadingOverlay,
   CopyToClipboard,
   ExternalLink,
   Modal,
@@ -119,4 +126,7 @@ export {
   BookIcon,
   ChartIcon,
   MarketIcon,
+  CubeSendIcon,
+  TransferInIcon,
+  SearchIcon,
 };
