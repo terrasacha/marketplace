@@ -13,10 +13,13 @@ export default function AssetsList(props: AssesListProps) {
 
   // Pagination
   const indexOfLastItem = currentPage * itemsPerPage;
+  console.log("indexOfLastItem asset", indexOfLastItem)
+  console.log("itemsPerPage asset", itemsPerPage)
   const indexOfFirstItem = indexOfLastItem - itemsPerPage;
   const currentItems = assetsData.slice(indexOfFirstItem, indexOfLastItem);
 
   const totalItems = assetsData.length;
+  console.log("totalItems asset", totalItems)
   const canShowPrevious = currentPage > 1;
   const canShowNext = indexOfLastItem < totalItems;
 

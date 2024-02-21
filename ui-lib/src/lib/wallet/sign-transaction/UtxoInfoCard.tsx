@@ -77,7 +77,7 @@ export default function UtxoInfoCard(props: UtxoInfoCardProps) {
           return (
             <div key={index} className="flex justify-end">
               <p>
-                <span className="font-semibold">{asset.quantity}</span>{' '}
+                <span className="font-semibold">{parseFloat(asset.quantity).toLocaleString('es-CO')}</span>{' '}
                 {asset.asset_name}
               </p>
             </div>
