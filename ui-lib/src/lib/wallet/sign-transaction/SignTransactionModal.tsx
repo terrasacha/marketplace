@@ -42,6 +42,7 @@ export default function SignTransactionModal(props: SignTransactionModalProps) {
               handleOpenSignTransactionModal={handleOpenSignTransactionModal}
               cbor={newTransactionBuild.cbor}
               metadata={newTransactionBuild.metadata}
+              pendingTx={newTransactionBuild}
             />
             <TransactionInfoCard
               title={newTransactionBuild.title}
@@ -50,6 +51,7 @@ export default function SignTransactionModal(props: SignTransactionModalProps) {
               tx_type={newTransactionBuild.tx_type}
               tx_fee={newTransactionBuild.tx_fee}
               tx_value={newTransactionBuild.tx_value}
+              tx_assets={newTransactionBuild.tx_assets}
               block={newTransactionBuild.block}
               tx_size={newTransactionBuild.tx_size}
               inputUTxOs={newTransactionBuild.inputUTxOs}

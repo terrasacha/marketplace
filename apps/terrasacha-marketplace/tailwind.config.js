@@ -26,6 +26,9 @@ export default {
         'custom-hover': '#4aa3df',
         'custom-hover-invert': '#95e9fb',
       },
+      blur: {
+        xs: '2px',
+      }
     },
   },
   plugins: [

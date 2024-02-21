@@ -704,8 +704,8 @@ export async function getWalletByUser(userId: string): Promise<any> {
               items {
                 id
                 address
-                stake_address
                 claimed_token
+                stake_address
                 name
               }
             }

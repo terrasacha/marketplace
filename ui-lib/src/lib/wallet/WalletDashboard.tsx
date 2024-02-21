@@ -8,12 +8,10 @@ import {
   EyeOffIcon,
   Tooltip,
 } from '../ui-lib';
-import { CopyIcon } from '../ui-lib';
-import { ExternalLinkIcon } from '../ui-lib';
 import { Transactions } from '../ui-lib';
 import { WalletContext } from '@marketplaces/utils-2';
 // Definir el tipo de 'token'
-interface AccountProps {
+interface WalletDashboardProps {
   userWalletData: any;
   address: string;
   ada: number;
@@ -21,7 +19,7 @@ interface AccountProps {
   // Agrega cualquier otra propiedad que tenga tu token
 }
 
-export default function WalletDashboard(props: AccountProps) {
+export default function WalletDashboard(props: WalletDashboardProps) {
   const { walletData } = useContext<any>(WalletContext);
 
   const [showAddress, setShowAddress] = useState<boolean>(true);
@@ -95,7 +93,7 @@ export default function WalletDashboard(props: AccountProps) {
           </Card.Body>
         </Card>
         <div className="h-fit">
-          <Transactions />
+          <Transactions txPerPage={5}/>
         </div>
       </div>
       <div className="flex-col col-span-2 space-y-5 mt-5 2xl:mt-0">

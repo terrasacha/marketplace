@@ -1,19 +1,15 @@
-import React, { FormEvent, useContext, useEffect, useState } from 'react';
+import React, { useContext, useState } from 'react';
 import {
-  Assets,
   Card,
   LoadingIcon,
-  Modal,
   PencilIcon,
   Recipient,
   SelectTokensModal,
   SignTransactionModal,
-  TrashIcon,
 } from '../ui-lib';
 import { toast } from 'sonner';
-import { useWallet } from '@meshsdk/react';
 import { WalletContext } from '@marketplaces/utils-2';
-import { mapTransactionInfo } from '@marketplaces/utils-2';
+import { mapBuildTransactionInfo } from '@marketplaces/utils-2';
 
 // Definir el tipo de 'token'
 interface AccountProps {
@@ -23,6 +19,42 @@ interface AccountProps {
 
 export default function WalletSend(props: AccountProps) {
   const { walletID, walletData } = useContext<any>(WalletContext);
+  const [checkedAssetList, setCheckedAssetList] = useState<Array<any>>([]);
+
+  const handleAddCheckedAsset = (checkedAsset: any) => {
+    setCheckedAssetList((prevState: any) => {
+      const existingAssetIndex = prevState.findIndex(
+        (asset: any) =>
+          asset.fingerprint === checkedAsset.fingerprint &&
+          asset.recipientID === checkedAsset.recipientID
+      );
+
+      if (existingAssetIndex !== -1) {
+        // Actualizar el selectedSupply si el objeto ya existe
+        const updatedAssetList = [...prevState];
+        updatedAssetList[existingAssetIndex].selectedSupply =
+          checkedAsset.selectedSupply;
+        return updatedAssetList;
+      } else {
+        // Agregar el nuevo objeto al array si no existe
+        return [...prevState, checkedAsset];
+      }
+    });
+  };
+
+  const handleRemoveCheckedAsset = (
+    fingerprintToRemove: string,
+    recipientIDToRemove: number
+  ) => {
+    setCheckedAssetList((prevState: any) => {
+      const updatedAssetList = prevState.filter(
+        (asset: any) =>
+          asset.fingerprint !== fingerprintToRemove ||
+          asset.recipientID !== recipientIDToRemove
+      );
+      return updatedAssetList;
+    });
+  };
 
   const newTransactionGroupInitialState = {
     recipients: [
@@ -199,9 +231,7 @@ export default function WalletSend(props: AccountProps) {
   const handleSendTransaction = async () => {
     console.log('Transaccion: ', newTransactionGroup);
     if (!validateRecipients()) {
-      toast.error(
-        'Complete todos los campos poder continuar ...'
-      );
+      toast.error('Complete todos los campos poder continuar ...');
       return;
     }
     if (newTransactionGroup.messageError) {
@@ -213,10 +243,29 @@ export default function WalletSend(props: AccountProps) {
     setIsLoading(true);
     if (walletData) {
       // Listar addresses y valores a enviar
-      const addresses = newTransactionGroup.recipients.map((recipient) => ({
-        address: recipient.walletAddress,
-        lovelace: parseFloat(recipient.adaAmount) * 1000000,
-      }));
+      const addresses = newTransactionGroup.recipients.map((recipient) => {
+        const mappedMultiAssets = recipient.selectedAssets.reduce(
+          (acc: any, current: any) => {
+            const { policy_id, assetName, selectedSupply } = current;
+
+            if (!acc[policy_id]) {
+              acc[policy_id] = {};
+            }
+
+            acc[policy_id][assetName] = parseInt(selectedSupply, 10);
+
+            return acc;
+          },
+          {}
+        );
+        return {
+          address: recipient.walletAddress,
+          lovelace: parseFloat(recipient.adaAmount) * 1000000,
+          multiAsset: Object.entries(mappedMultiAssets).map(([key, value]) => ({
+            [key]: value,
+          })),
+        };
+      });
 
       const messageArray = newTransactionGroup.message
         .split('\n')
@@ -240,7 +289,7 @@ export default function WalletSend(props: AccountProps) {
       const buildTxResponse = await request.json();
       console.log('BuildTx Response: ', buildTxResponse);
 
-      const mappedTransactionData = await mapTransactionInfo({
+      const mappedTransactionData = await mapBuildTransactionInfo({
         tx_type: 'preview',
         walletAddress: walletData.address,
         buildTxResponse: buildTxResponse,
@@ -348,6 +397,10 @@ export default function WalletSend(props: AccountProps) {
           handleSetSelectedTokensToSelectTokensModal
         }
         handleAddRecipientSelectedAssets={handleAddRecipientSelectedAssets}
+        newTransactionGroup={newTransactionGroup}
+        handleAddCheckedAsset={handleAddCheckedAsset}
+        handleRemoveCheckedAsset={handleRemoveCheckedAsset}
+        checkedAssetList={checkedAssetList}
       />
       <SignTransactionModal
         signTransactionModal={signTransactionModal}
