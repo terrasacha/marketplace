@@ -7,6 +7,7 @@ import {
   ChevronRightIcon,
   CubeSendIcon,
   TransferInIcon,
+  LoadingIcon,
 } from '../../ui-lib';
 import {
   JsonView,
@@ -31,6 +32,8 @@ interface TransactionInfoCardProps {
   outputUTxOs: Array<any>;
   metadata: Array<string>;
   className?: string;
+  tx_confirmation_status?: string;
+  tx_confirmation_n?: number;
 }
 
 export default function TransactionInfoCard(props: TransactionInfoCardProps) {
@@ -47,18 +50,16 @@ export default function TransactionInfoCard(props: TransactionInfoCardProps) {
     inputUTxOs,
     outputUTxOs,
     is_collapsed,
-    metadata = [],
+    metadata = {},
     className,
+    tx_confirmation_status,
+    tx_confirmation_n,
   } = props;
 
   const [collapsed, setCollapsed] = useState(is_collapsed);
 
   const toggleCollapse = () => {
     setCollapsed(!collapsed);
-  };
-
-  const metadataJson = {
-    msg: metadata,
   };
 
   const isPositiveValue = (adaValue: string) => {
@@ -86,7 +87,7 @@ export default function TransactionInfoCard(props: TransactionInfoCardProps) {
         <div className="col-span-2 cursor-pointer" onClick={toggleCollapse}>
           <div className="flex justify-between items-center">
             <div className="flex-col">
-              <div className="flex">
+              <div className="flex space-x-2 items-center">
                 <div>
                   {tx_type === 'received' && (
                     <TransferInIcon className="mr-2 h-5 w-5" />
@@ -97,6 +98,14 @@ export default function TransactionInfoCard(props: TransactionInfoCardProps) {
                 </div>
 
                 <p className="font-semibold">{title}</p>
+                {tx_confirmation_status && (
+                  <>
+                    <LoadingIcon className="h-5 w-5" />
+                    <span className="bg-gray-100 text-gray-800 text-xs font-medium px-2.5 py-0.5 rounded  border border-gray-500">
+                      {tx_confirmation_status + ':' + tx_confirmation_n}
+                    </span>
+                  </>
+                )}
               </div>
               <div className="flex items-center space-x-2">
                 {!collapsed ? (
@@ -116,10 +125,12 @@ export default function TransactionInfoCard(props: TransactionInfoCardProps) {
                 {tx_value}
               </p>
               {tx_assets.map((asset: any, index: number) => {
-                if(index < 2) {
+                if (index < 2) {
                   return (
                     <p key={index}>
-                      {tx_type === 'sent' || tx_type === 'preview' ? '- ' : '+ '}
+                      {tx_type === 'sent' || tx_type === 'preview'
+                        ? '- '
+                        : '+ '}
                       <span className="font-semibold">
                         {parseFloat(asset.quantity).toLocaleString('es-CO')}
                       </span>
@@ -166,18 +177,18 @@ export default function TransactionInfoCard(props: TransactionInfoCardProps) {
                 </div>
               </div>
             </div>
-            {metadata.length > 0 && (
+            {Object.keys(metadata).length > 0 && (
               <div className="col-span-2 border-b py-2">
                 <div className="flex items-center">
                   <p>Metadata</p>
                   <CopyToClipboard
                     iconClassName="h-5 w-5 ml-2 hover:text-blue-600"
-                    copyValue={JSON.stringify(metadataJson)}
+                    copyValue={JSON.stringify(metadata)}
                     tooltipLabel="Copiar !"
                   />
                 </div>
                 <JsonView
-                  data={metadataJson}
+                  data={metadata}
                   shouldExpandNode={allExpanded}
                   style={defaultStyles}
                 />

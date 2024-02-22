@@ -14,7 +14,8 @@ interface TransactionsProps {
 
 export default function Transactions(props: TransactionsProps) {
   const { txPerPage } = props;
-  const { walletStakeAddress, walletData } = useContext<any>(WalletContext);
+  const { walletStakeAddress, walletData, fetchWalletData } =
+    useContext<any>(WalletContext);
   const [transactionsList, setTransactionsList] = useState<Array<any>>([]);
   const [isLoading, setIsLoading] = useState<boolean>(false);
 
@@ -32,7 +33,16 @@ export default function Transactions(props: TransactionsProps) {
 
     if (pendingTx && typeof pendingTx === 'string') {
       console.log('pendingTxFromRouter', pendingTx);
-      setPendingTransaction(JSON.parse(pendingTx));
+      setPendingTransaction((prevState: any) => {
+        return {
+          ...JSON.parse(pendingTx),
+          title: 'Envio de fondos',
+          tx_type: 'sent',
+          tx_confirmation_status: 'LOW',
+          tx_confirmation_n: 0,
+          subtitle: 'En espera de confirmación'
+        };
+      });
     }
   }, [router.query]);
 
@@ -63,20 +73,16 @@ export default function Transactions(props: TransactionsProps) {
       data: responseData.data,
     });
 
-    getPendingTransaction(mappedTransactionListData);
+    //getPendingTransaction(mappedTransactionListData);
     setTransactionsList(mappedTransactionListData);
     setPaginationMetadata(paginationMetadataItem);
     setIsLoading(false);
   };
 
-  const getPendingTransaction = async (
-    mappedTransactionListData: Array<any>
-  ) => {
-    const pendingTransactionItem = mappedTransactionListData.find(
-      (tx: any, index: number) => index === 0
-    );
+  const checkTxConfirmations = async () => {
+    console.log('pendingTransaction', pendingTransaction);
 
-    if (pendingTransactionItem) {
+    if (pendingTransaction) {
       const pendingTransactionItemRequest = await fetch(
         '/api/transactions/tx-status',
         {
@@ -84,13 +90,24 @@ export default function Transactions(props: TransactionsProps) {
           headers: {
             'Content-Type': 'application/json',
           },
-          body: JSON.stringify(pendingTransactionItem.tx_id),
+          body: JSON.stringify(pendingTransaction.tx_id),
         }
       );
       const responseData = await pendingTransactionItemRequest.json();
-      console.log('responseData', responseData);
+
       if (responseData[0].num_confirmations < 12) {
-        setPendingTransaction(pendingTransactionItem);
+        setPendingTransaction((prevState: any) => ({
+          ...prevState,
+          tx_confirmation_status: 'LOW',
+          tx_confirmation_n: responseData[0].num_confirmations || 0,
+        }));
+      } else {
+        setPendingTransaction(null);
+        await getTransactionsData();
+        // setTransactionsList((prevState) => [
+        //   pendingTransaction,
+        //   ...prevState,
+        // ]);
       }
     }
   };
@@ -102,40 +119,8 @@ export default function Transactions(props: TransactionsProps) {
   }, [walletData]);
 
   useEffect(() => {
-    const checkTxConfirmations = () => {
-      console.log('pendingTransaction', pendingTransaction);
-
-      const intervalo = setInterval(async () => {
-        if (pendingTransaction) {
-          const pendingTransactionItemRequest = await fetch(
-            '/api/transactions/tx-status',
-            {
-              method: 'POST',
-              headers: {
-                'Content-Type': 'application/json',
-              },
-              body: JSON.stringify(pendingTransaction.tx_id),
-            }
-          );
-          const responseData = await pendingTransactionItemRequest.json();
-
-          if (responseData[0].num_confirmations > 12) {
-            setTransactionsList((prevState) => {
-              return [pendingTransaction, ...prevState];
-            });
-            setPendingTransaction(null);
-          }
-        } else {
-          // Detener el intervalo si pendingTransaction es falsa
-          clearInterval(intervalo);
-        }
-      }, 20000); // Llamada cada 5 segundos (ajusta el intervalo según tus necesidades)
-
-      return () => clearInterval(intervalo); // Limpiar intervalo al desmontar el componente o cuando pendingTransaction cambie
-    };
-
     if (pendingTransaction) {
-      checkTxConfirmations();
+      setTimeout(checkTxConfirmations, 5000);
     }
   }, [pendingTransaction]);
 
@@ -161,7 +146,7 @@ export default function Transactions(props: TransactionsProps) {
     <Card className="col-span-2 h-fit">
       <Card.Header title="Transacciones" />
       <Card.Body>
-        {transactionsList.length === 0 && (
+        {transactionsList.length === 0 && !isLoading && (
           <p>Aún no has realizado transacciones</p>
         )}
         <div className="space-y-2">
@@ -182,14 +167,17 @@ export default function Transactions(props: TransactionsProps) {
                 outputUTxOs={pendingTransaction.outputUTxOs}
                 is_collapsed={true}
                 metadata={pendingTransaction.metadata}
+                tx_confirmation_status={pendingTransaction.tx_confirmation_status}
+                tx_confirmation_n={pendingTransaction.tx_confirmation_n}
               />
             </div>
           )}
           <p>Historial de transacciones de billetera</p>
           <LoadingOverlay visible={isLoading} className="space-y-2">
             {transactionsList &&
-              transactionsList.map((tx: any, index: number) => {
-                if (tx.tx_time_live > 20) {
+              transactionsList
+                .filter((tx: any) => tx.tx_id !== pendingTransaction?.tx_id)
+                .map((tx: any, index: number) => {
                   return (
                     <TransactionInfoCard
                       key={index}
@@ -208,8 +196,7 @@ export default function Transactions(props: TransactionsProps) {
                       metadata={tx.metadata}
                     />
                   );
-                }
-              })}
+                })}
           </LoadingOverlay>
           {/* <div className="relative space-y-2 min-h-20">
             {isLoading && (

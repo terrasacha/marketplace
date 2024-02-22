@@ -81,7 +81,7 @@ export default function CardProject(props: any) {
   };
 
   return (
-    <Card className='relative'>
+    <Card className="relative">
       <header className="h-52">
         <div className="relative flex w-full h-full">
           <Image
@@ -102,7 +102,7 @@ export default function CardProject(props: any) {
             <span className="bg-custom-dark text-custom-fondo text-sm font-medium px-2.5 py-0.5 rounded  border border-custom-fondo">
               {relevantInfo.status}
             </span>
-            <span className="bg-amber-400 text-custom-dark text-sm font-medium px-2.5 py-0.5 rounded border border-custom-dark">
+            <span className="bg-amber-400 text-sm font-medium px-2.5 py-0.5 rounded border border-custom-dark">
               {relevantInfo.tokenValue
                 ? `${parseFloat(relevantInfo.tokenValue).toLocaleString(
                     'es-CO'
@@ -139,12 +139,16 @@ export default function CardProject(props: any) {
           <div className="flex h-50">
             <p className="text-xs line-clamp-4 ">{project.description}</p>
           </div>
-          <span className="flex justify-center bg-amber-400 text-xs font-medium px-2.5 py-0.5 rounded border border-custom-dark">
-            Tokens disponibles para comprar:{' '}
-            {relevantInfo.tokenUnits
-              ? `${relevantInfo.tokenUnits.toLocaleString('es-CO')} `
-              : '0'}
-          </span>
+          <div className="flex justify-center bg-amber-400 text-xs px-2.5 py-0.5 rounded border border-custom-dark">
+            <p>
+              Tokens disponibles para comprar:{' '}
+              <span className="font-semibold">
+                {relevantInfo.tokenUnits
+                  ? `${relevantInfo.tokenUnits.toLocaleString('es-CO')} `
+                  : '0'}
+              </span>
+            </p>
+          </div>
           <Link
             className="flex justify-center w-full text-white bg-custom-dark hover:bg-custom-dark-hover focus:outline-none focus:ring-4 focus:ring-gray-300 font-medium rounded text-sm px-5 py-2.5 "
             href={`/projects/${project.id}`}

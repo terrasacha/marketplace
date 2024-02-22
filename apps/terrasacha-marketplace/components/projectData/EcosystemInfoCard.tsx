@@ -3,7 +3,7 @@ export default function EcosystemInfoCard({ projectEcosystem }: any) {
     <div className="w-full h-fit p-4 sm:p-8 dark:bg-gray-800 dark:border-gray-700">
       <div className="flex items-center justify-start mb-4">
         <svg width="17" height="17" viewBox="0 0 17 17" fill="none" xmlns="http://www.w3.org/2000/svg">
-          <g clip-path="url(#clip0_28_310)">
+          <g clipPath="url(#clip0_28_310)">
             <path d="M4.95833 15.5833V12.75H0L2.72708 8.49996H1.41667L6.375 1.41663L8.5 4.46246L10.625 1.41663L15.5833 8.49996H14.2729L17 12.75H12.0417V15.5833H9.20833V12.75H7.79167V15.5833H4.95833ZM11.8469 11.3333H14.4146L11.6698 7.08329H12.8562L10.625 3.89579L9.36771 5.68433L11.3333 8.49996H10.0229L11.8469 11.3333ZM2.58542 11.3333H10.1646L7.41979 7.08329H8.60625L6.375 3.89579L4.14375 7.08329H5.33021L2.58542 11.3333ZM2.58542 11.3333H5.33021H4.14375H8.60625H7.41979H10.1646H2.58542ZM11.8469 11.3333H10.0229H11.3333H9.36771H12.8562H11.6698H14.4146H11.8469Z" fill="#484848" />
           </g>
           <defs>
