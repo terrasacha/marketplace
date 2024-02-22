@@ -34,9 +34,7 @@ const LandingPage: MyPage = (props: any) => {
                     if (balanceData && balanceData.length > 0) {
                         const hasTokenAuth = balanceData[0].assets.some((asset: any) => asset.policy_id === process.env.NEXT_PUBLIC_TOKEN_AUTHORIZER &&
                             asset.asset_name === process.env.NEXT_PUBLIC_TOKEN_AUTHORIZER_NAME)
-                        console.log(hasTokenAuth, 'hasTokenAuth')
                         if (hasTokenAuth) {
-                            console.log('hasTokenAuth')
                             setCheckingWallet('hasTokenAuth')
                         } else {
                           walletData[0].claimed_token ? setCheckingWallet('alreadyClaimToken') : setCheckingWallet('requestToken')
@@ -73,7 +71,6 @@ const LandingPage: MyPage = (props: any) => {
   useEffect(() => {
     const fetchData = async () => {
     if (connected) {
-      console.log('connected2')
 
       setCheckingWallet('checking')
       const matchingAsset =
@@ -85,7 +82,6 @@ const LandingPage: MyPage = (props: any) => {
         )
       const changeAddress = await wallet.getChangeAddress();
       const rewardAddresses = await wallet.getRewardAddresses();
-      console.log(changeAddress, 'changeAddress')
 
       //Checkear si la wallet existe en la DB, si no existe crearla. Si tiene 'matchingasset' enviar claimed_token = true.
       if (matchingAsset !== undefined) {
@@ -101,7 +97,6 @@ const LandingPage: MyPage = (props: any) => {
             walletExists.data.claimed_token ? setCheckingWallet('alreadyClaimToken') : setCheckingWallet('requestToken')
           }
         } else {
-          console.log('requestToken')
           setCheckingWallet('requestToken')
         }
         setWalletData(walletExists.data)
@@ -123,7 +118,6 @@ const LandingPage: MyPage = (props: any) => {
       })
     })
     const walletInfoOnDB = await response.json() 
-    console.log(walletInfoOnDB, 'walletInfoOnDB')
     if(!walletInfoOnDB.data){
       const response = await fetch('/api/calls/backend/manageExternalWallets', {
         method: 'POST',

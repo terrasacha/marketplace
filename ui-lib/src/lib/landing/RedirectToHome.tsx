@@ -52,7 +52,6 @@ const RedirectToHome = (props: RedirectToHomeProps) => {
           const hasTokenAuth = balanceData[0].assets.some((asset: any) => asset.policy_id === process.env.NEXT_PUBLIC_TOKEN_AUTHORIZER &&
               asset.asset_name === process.env.NEXT_PUBLIC_TOKEN_AUTHORIZER_NAME);
           if (hasTokenAuth) {
-            console.log('hasTokenAuth');
             setLoading(false);
             setStatusText('Token encontrado, redirigiendo...');
             setShowButtonAccess(true);
@@ -97,7 +96,6 @@ const RedirectToHome = (props: RedirectToHomeProps) => {
         })
         
         const data = await response.json()
-        console.log(data, 'data')
         if(!data.detail){        
           const response2 = await fetch('api/calls/backend/walletClaimToken',{
             method: 'POST',
