@@ -51,7 +51,7 @@ const Login = (props: any) => {
             poweredby={false}
           />
         ) : (
-          checkingWallet !== 'checking' && <RedirectToHome poweredby={false} appName={'Suan'} checkingWallet={checkingWallet} walletData={walletData}/>
+          checkingWallet !== 'checking' && <RedirectToHome poweredby={false} appName={'Suan'} checkingWallet={checkingWallet} walletData={walletData} handleSetCheckingWallet={props.handleSetCheckingWallet}/>
         )}
       </div>
     </div>
