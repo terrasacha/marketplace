@@ -424,6 +424,8 @@ export async function mapTransactionListInfo({
       }
     );
 
+    console.log(tx.metadata)
+
     const tx_info: MappedTransactionInfoProps = {
       tx_type: tx_type,
       title: title,
@@ -437,12 +439,12 @@ export async function mapTransactionListInfo({
       inputUTxOs: input_utxo,
       outputUTxOs: output_utxo,
       tx_time_live: getTimeLive(tx.tx_timestamp),
-      metadata: tx.metadata ? tx.metadata['674'].msg[0] : [],
+      metadata: tx.metadata ? tx.metadata : [],
     };
     return tx_info;
   });
 
   console.log('mappedData: ', mappedData);
 
-  return mappedData;
+  return mappedData.reverse();
 }

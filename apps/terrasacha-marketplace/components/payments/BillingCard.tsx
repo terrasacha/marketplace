@@ -15,11 +15,7 @@ import {
 } from '@terrasacha/utils/generic/conversions';
 import ProjectInfoContext from '@terrasacha/store/projectinfo-context';
 import AlertMessage from '../common/AlertMessage';
-import {
-  createMintingTransaction,
-  createTransaction,
-  sign,
-} from '@terrasacha/backend';
+import { createMintingTransaction, sign } from '@marketplaces/data-access';
 import { cardanoscan } from '@terrasacha/backend/mint';
 import { BlockfrostProvider } from '@meshsdk/core';
 import Link from 'next/link';

@@ -215,7 +215,7 @@ export default function SelectTokensModal(props: SelectTokensModalProps) {
     handleOpenSelectTokensModal();
     setAssetsList(walletData.assets);
 
-    console.log("TotalCheckedAssetList", checkedAssetList);
+    console.log('TotalCheckedAssetList', checkedAssetList);
   };
 
   const handleAssetQuantityValue = (fingerprint: string, value: string) => {
@@ -242,31 +242,39 @@ export default function SelectTokensModal(props: SelectTokensModalProps) {
         Selecciona Assets
       </Modal.Header>
       <Modal.Body>
-        <AssetsFilter
+        {/* <AssetsFilter
           assetsFilter={assetsFilter}
           handleInputChange={handleFilterInputChange}
-        />
+        /> */}
         <div>
-          <p>Token Collection</p>
-          <div className="grid grid-cols-1 md:grid-cols-4 gap-2">
-            {assetsList.map((asset: any, index: number) => {
-              return (
-                <AssetCard
-                  key={index}
-                  recipientID={selectTokensModal.recipientID}
-                  assetName={asset.asset_name}
-                  policy_id={asset.policy_id}
-                  fingerprint={asset.fingerprint}
-                  availableSupplyValue={asset.quantity}
-                  selectedSupplyValue={asset.selectedSupply}
-                  isChecked={asset.checked}
-                  handleAddCheckedAsset={handleAddCheckedAsset}
-                  handleRemoveCheckedAsset={handleRemoveCheckedAsset}
-                  handleAssetQuantityValue={handleAssetQuantityValue}
-                />
-              );
-            })}
-          </div>
+          {assetsList.length > 0 ? (
+            <>
+              <p>Tús Activos</p>
+              <div className="grid grid-cols-1 md:grid-cols-4 gap-2">
+                {assetsList.map((asset: any, index: number) => {
+                  return (
+                    <AssetCard
+                      key={index}
+                      recipientID={selectTokensModal.recipientID}
+                      assetName={asset.asset_name}
+                      policy_id={asset.policy_id}
+                      fingerprint={asset.fingerprint}
+                      availableSupplyValue={asset.quantity}
+                      selectedSupplyValue={asset.selectedSupply}
+                      isChecked={asset.checked}
+                      handleAddCheckedAsset={handleAddCheckedAsset}
+                      handleRemoveCheckedAsset={handleRemoveCheckedAsset}
+                      handleAssetQuantityValue={handleAssetQuantityValue}
+                    />
+                  );
+                })}
+              </div>
+            </>
+          ) : (
+            <div className="flex items-center justify-center h-96">
+              No tienes activos disponibles para enviar
+            </div>
+          )}
         </div>
       </Modal.Body>
       <Modal.Footer className="justify-end">

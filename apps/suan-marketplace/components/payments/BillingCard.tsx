@@ -12,14 +12,10 @@ import { getIpfsUrlHash } from '@suan//utils/generic/ipfs';
 import { splitLongValues, txHashLink } from '@suan//utils/generic/conversions';
 import ProjectInfoContext from '@suan//store/projectinfo-context';
 import AlertMessage from '../common/AlertMessage';
-import {
-  createMintingTransaction,
-  createTransaction,
-  sign,
-} from '@suan//backend';
 import { cardanoscan } from '@suan//backend/mint';
 import { BlockfrostProvider } from '@meshsdk/core';
 import Link from 'next/link';
+import { createMintingTransaction, sign } from '@marketplaces/data-access';
 
 const PURCHASING_STEPS = {
   STARTING: 'starting',

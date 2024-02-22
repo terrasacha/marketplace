@@ -114,7 +114,7 @@ export function WalletContextProvider({
   };
 
   const contextProps = useMemo(
-    () => ({ walletID, walletName, walletAddress, walletStakeAddress, walletData, handleWalletData, connected }),
+    () => ({ walletID, walletName, walletAddress, walletStakeAddress, walletData, handleWalletData, fetchWalletData, connected }),
     [walletData]
   );
 
