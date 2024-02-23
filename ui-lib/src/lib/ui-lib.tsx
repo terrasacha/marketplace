@@ -66,6 +66,7 @@ import { MarketIcon } from './icons/MarketIcon';
 import { CubeSendIcon } from './icons/CubeSendIcon';
 import { TransferInIcon } from './icons/TransferInIcon';
 import { SearchIcon } from './icons/SearchIcon';
+import { RefreshIcon } from './icons/RefreshIcon';
 export {
   LoginForm,
   SignUpForm,
@@ -134,4 +135,5 @@ export {
   CubeSendIcon,
   TransferInIcon,
   SearchIcon,
+  RefreshIcon,
 };

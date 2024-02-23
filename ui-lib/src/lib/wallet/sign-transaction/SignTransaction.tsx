@@ -72,7 +72,7 @@ export default function SignTransaction(props: SignTransactionProps) {
       <div className="flex-col">
         <p className="font-semibold">Confirmar</p>
         <p>
-          Revise la transacción antes de firmar. Ingrese la contraseña de tú
+          Revise la transacción antes de firmar. Ingrese la contraseña de su
           billetera.
         </p>
       </div>

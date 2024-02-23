@@ -8,6 +8,9 @@ import {
   CubeSendIcon,
   TransferInIcon,
   LoadingIcon,
+  ExternalLink,
+  Tooltip,
+  ExternalLinkIcon,
 } from '../../ui-lib';
 import {
   JsonView,
@@ -32,6 +35,7 @@ interface TransactionInfoCardProps {
   outputUTxOs: Array<any>;
   metadata: Array<string>;
   className?: string;
+  tx_status?: string;
   tx_confirmation_status?: string;
   tx_confirmation_n?: number;
 }
@@ -52,6 +56,7 @@ export default function TransactionInfoCard(props: TransactionInfoCardProps) {
     is_collapsed,
     metadata = {},
     className,
+    tx_status,
     tx_confirmation_status,
     tx_confirmation_n,
   } = props;
@@ -100,7 +105,16 @@ export default function TransactionInfoCard(props: TransactionInfoCardProps) {
                 <p className="font-semibold">{title}</p>
                 {tx_confirmation_status && (
                   <>
-                    <LoadingIcon className="h-5 w-5" />
+                    {tx_status === 'pending' ? (
+                      <span className="flex items-center bg-gray-100 text-gray-800 text-xs font-medium px-2.5 py-0.5 rounded  border border-gray-500">
+                        Pendiente
+                        <LoadingIcon className="h-4 w-4 ml-2" />
+                      </span>
+                    ) : (
+                      <span className="bg-gray-100 text-gray-800 text-xs font-medium px-2.5 py-0.5 rounded  border border-gray-500">
+                        En Blockchain
+                      </span>
+                    )}
                     <span className="bg-gray-100 text-gray-800 text-xs font-medium px-2.5 py-0.5 rounded  border border-gray-500">
                       {tx_confirmation_status + ':' + tx_confirmation_n}
                     </span>
@@ -163,7 +177,26 @@ export default function TransactionInfoCard(props: TransactionInfoCardProps) {
                       tooltipLabel="Copiar !"
                     />
                   </div>
-                  <p className="text-wrap break-all">{tx_id}</p>
+                  {tx_type !== 'preview' ? (
+                    <Tooltip text="Consultar en CardanoScan Preview">
+                      <a
+                        href={
+                          'https://preview.cardanoscan.io/transaction/' + tx_id
+                        }
+                        target="_blank"
+                        className="cursor-pointer"
+                      >
+                        <div className="flex items-center">
+                          <p className="text-wrap break-all">{tx_id}</p>
+                          <div>
+                            <ExternalLinkIcon className="h-5 w-5 ml-2" />
+                          </div>
+                        </div>
+                      </a>
+                    </Tooltip>
+                  ) : (
+                    <p className="text-wrap break-all">{tx_id}</p>
+                  )}
                 </div>
                 <div className="flex flex-row lg:flex-col justify-between">
                   <p>{tx_type === 'preview' ? 'Tamaño Tx' : 'Bloque'}</p>
