@@ -1,8 +1,8 @@
 import React, { useEffect, useState } from 'react'
 import dynamic from 'next/dynamic'
-const Landing = dynamic(() => import('@terrasacha/components/landing/Landing'))
+const Landing = dynamic(() => import('@suan/components/landing/Landing'))
 import { useWallet } from '@meshsdk/react'
-import { MyPage } from '@terrasacha/components/common/types'
+import { MyPage } from '@suan/components/common/types'
 import { getCurrentUser } from 'aws-amplify/auth'
 const LandingPage: MyPage = (props: any) => {
   const { connected, wallet } = useWallet()
@@ -31,8 +31,8 @@ const LandingPage: MyPage = (props: any) => {
                     const walletAddress = walletData[0].address
                     const balanceData = await getWalletBalanceByAddress(walletAddress)
                     if (balanceData && balanceData.length > 0) {
-                        const hasTokenAuth = balanceData[0].assets.some((asset: any) => asset.policy_id === process.env.NEXT_PUBLIC_TOKEN_AUTHORIZER &&
-                            asset.asset_name === process.env.NEXT_PUBLIC_TOKEN_AUTHORIZER_NAME)
+                      const hasTokenAuth = balanceData[0]?.assets.some((asset: any) => asset.policy_id === process.env.NEXT_PUBLIC_TOKEN_AUTHORIZER &&
+                      asset.asset_name === process.env.NEXT_PUBLIC_TOKEN_AUTHORIZER_NAME) || false
                         if (hasTokenAuth) {
                             setCheckingWallet('hasTokenAuth')
                         } else {
@@ -85,8 +85,8 @@ const LandingPage: MyPage = (props: any) => {
       //Checkear si la wallet existe en la DB, si no existe crearla. Si tiene 'matchingasset' enviar claimed_token = true.
       //if (matchingAsset !== undefined) {
         const balanceData = await getWalletBalanceByAddress(changeAddress)
-        const hasTokenAuth = balanceData[0].assets.some((asset: any) => asset.policy_id === process.env.NEXT_PUBLIC_TOKEN_AUTHORIZER &&
-            asset.asset_name === process.env.NEXT_PUBLIC_TOKEN_AUTHORIZER_NAME)
+        const hasTokenAuth = balanceData[0]?.assets.some((asset: any) => asset.policy_id === process.env.NEXT_PUBLIC_TOKEN_AUTHORIZER &&
+            asset.asset_name === process.env.NEXT_PUBLIC_TOKEN_AUTHORIZER_NAME) || false
         const walletExists = await checkIfWalletExist(changeAddress, rewardAddresses[0], hasTokenAuth)
         
         if (walletExists.data.claimed_token) {

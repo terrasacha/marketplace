@@ -31,8 +31,8 @@ const LandingPage: MyPage = (props: any) => {
                     const walletAddress = walletData[0].address
                     const balanceData = await getWalletBalanceByAddress(walletAddress)
                     if (balanceData && balanceData.length > 0) {
-                        const hasTokenAuth = balanceData[0].assets.some((asset: any) => asset.policy_id === process.env.NEXT_PUBLIC_TOKEN_AUTHORIZER &&
-                            asset.asset_name === process.env.NEXT_PUBLIC_TOKEN_AUTHORIZER_NAME)
+                      const hasTokenAuth = balanceData[0]?.assets.some((asset: any) => asset.policy_id === process.env.NEXT_PUBLIC_TOKEN_AUTHORIZER &&
+                      asset.asset_name === process.env.NEXT_PUBLIC_TOKEN_AUTHORIZER_NAME) || false
                         if (hasTokenAuth) {
                             setCheckingWallet('hasTokenAuth')
                         } else {

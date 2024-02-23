@@ -94,8 +94,8 @@ const MainLayout = ({ children }: PropsWithChildren) => {
       const rewardAddresses = await wallet.getRewardAddresses();
 
       const balanceData = await getWalletBalanceByAddress(changeAddress)
-      const hasTokenAuth = balanceData[0].assets.some((asset: any) => asset.policy_id === process.env.NEXT_PUBLIC_TOKEN_AUTHORIZER &&
-          asset.asset_name === process.env.NEXT_PUBLIC_TOKEN_AUTHORIZER_NAME)
+      const hasTokenAuth = balanceData[0]?.assets.some((asset: any) => asset.policy_id === process.env.NEXT_PUBLIC_TOKEN_AUTHORIZER &&
+            asset.asset_name === process.env.NEXT_PUBLIC_TOKEN_AUTHORIZER_NAME) || false
       if (hasTokenAuth) {
       setWalletInfo({
         name: name,
