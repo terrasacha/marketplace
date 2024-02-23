@@ -13,75 +13,63 @@ const LandingPage: MyPage = (props: any) => {
 
   useEffect(() => {
     const fetchData = async () => {
-      try {
-        setLoading(true);
-        // Access home with wallet
-        const walletAccessResponse = await accessHomeWithWallet();
+        try {
+            setLoading(true)
+            // Access home with wallet
+            const walletAccessResponse = await accessHomeWithWallet()
 
-        if (walletAccessResponse) {
-          // Fetch wallet by user
-          const walletFetchResponse = await fetch(
-            '/api/calls/backend/getWalletByUser',
-            {
-              method: 'POST',
-              body: walletAccessResponse,
+            if (walletAccessResponse) {
+                // Fetch wallet by user
+                const walletFetchResponse = await fetch('/api/calls/backend/getWalletByUser', {
+                    method: 'POST',
+                    body: walletAccessResponse,
+                })
+
+                const walletData = await walletFetchResponse.json()
+                setWalletData(walletData[0])
+                if (walletData && walletData.length > 0) {
+                    const walletAddress = walletData[0].address
+                    const balanceData = await getWalletBalanceByAddress(walletAddress)
+                    if (balanceData && balanceData.length > 0) {
+                        const hasTokenAuth = balanceData[0].assets.some((asset: any) => asset.policy_id === process.env.NEXT_PUBLIC_TOKEN_AUTHORIZER &&
+                            asset.asset_name === process.env.NEXT_PUBLIC_TOKEN_AUTHORIZER_NAME)
+                        if (hasTokenAuth) {
+                            setCheckingWallet('hasTokenAuth')
+                        } else {
+                          walletData[0].claimed_token ? setCheckingWallet('alreadyClaimToken') : setCheckingWallet('requestToken')
+                            
+                        }
+                    } else {
+                      walletData[0].claimed_token ? setCheckingWallet('alreadyClaimToken') : setCheckingWallet('requestToken')
+                    }
+
+                    setWalletcount(walletData.length)
+                }
             }
-          );
-
-          const walletData = await walletFetchResponse.json();
-          setWalletData(walletData[0]);
-          if (walletData && walletData.length > 0) {
-            const walletAddress = walletData[0].address;
-            const balanceData = await getWalletBalanceByAddress(walletAddress);
-            if (balanceData && balanceData.length > 0) {
-              const hasTokenAuth = balanceData[0].assets.some(
-                (asset: any) =>
-                  asset.policy_id ===
-                    process.env.NEXT_PUBLIC_TOKEN_AUTHORIZER &&
-                  asset.asset_name ===
-                    process.env.NEXT_PUBLIC_TOKEN_AUTHORIZER_NAME
-              );
-              if (hasTokenAuth) {
-                setCheckingWallet('hasTokenAuth');
-              } else {
-                walletData[0].claimed_token
-                  ? setCheckingWallet('alreadyClaimToken')
-                  : setCheckingWallet('requestToken');
-              }
-            } else {
-              walletData[0].claimed_token
-                ? setCheckingWallet('alreadyClaimToken')
-                : setCheckingWallet('requestToken');
-            }
-
-            setWalletcount(walletData.length);
-          }
+        } catch (error) {
+            console.log(error)
+        } finally {
+            setLoading(false)
         }
-      } catch (error) {
-        console.log(error);
-      } finally {
-        setLoading(false);
-      }
-    };
+    }
 
-    fetchData();
-  }, []);
+    fetchData()
+}, [])
 
   const accessHomeWithWallet = async () => {
     try {
-      const user = await getCurrentUser();
-      return user.userId;
+      const user = await getCurrentUser()
+      return user.userId
     } catch {
-      return false;
+      return false
     }
-  };
-  const handleSetCheckingWallet = (data: string) => {
-    setCheckingWallet(data);
-  };
+  }
+  const handleSetCheckingWallet = (data : string) => {
+    setCheckingWallet(data)
+  }
   useEffect(() => {
     const fetchData = async () => {
-      if (connected) {
-        console.log('assets', assets);
+    if (connected) {
 
       setCheckingWallet('checking')
       /* const matchingAsset =
@@ -106,7 +94,7 @@ const LandingPage: MyPage = (props: any) => {
               console.log('hasTokenAuth')
               setCheckingWallet('hasTokenAuth')
           } else {
-            setCheckingWallet('requestToken');
+            walletExists.data.claimed_token ? setCheckingWallet('alreadyClaimToken') : setCheckingWallet('requestToken')
           }
         } else {
           setCheckingWallet('requestToken')
@@ -122,48 +110,41 @@ const LandingPage: MyPage = (props: any) => {
   fetchData()
   }, [connected])
 
-  const checkIfWalletExist = async (
-    address: string,
-    stake_address: string,
-    claimed_token: boolean
-  ) => {
-    const response = await fetch('/api/calls/backend/checkWalletByAddress', {
+  const checkIfWalletExist = async (address : string, stake_address : string, claimed_token : boolean) =>{
+    const response = await fetch('/api/calls/backend/checkWalletByAddress',{
       method: 'POST',
       body: JSON.stringify({
-        address,
-      }),
-    });
-    const walletInfoOnDB = await response.json();
-    if (!walletInfoOnDB.data) {
+        address
+      })
+    })
+    const walletInfoOnDB = await response.json() 
+    if(!walletInfoOnDB.data){
       const response = await fetch('/api/calls/backend/manageExternalWallets', {
         method: 'POST',
         body: JSON.stringify({
           address,
           stake_address,
-          claimed_token,
-        }),
-      });
-      const walletData = response.json();
-      return walletData;
+          claimed_token
+        })
+      })
+      const walletData = response.json()
+      return walletData
     }
-    return walletInfoOnDB;
-  };
+    return walletInfoOnDB
+  }
 
-  const getWalletBalanceByAddress = async (address: any) => {
-    const balanceFetchResponse = await fetch(
-      '/api/calls/backend/getWalletBalanceByAddress',
-      {
-        method: 'POST',
-        headers: {
+  const getWalletBalanceByAddress = async (address: any) =>{
+    const balanceFetchResponse = await fetch('/api/calls/backend/getWalletBalanceByAddress', {
+      method: 'POST',
+      headers: {
           'Content-Type': 'application/json',
-        },
-        body: JSON.stringify(address),
-      }
-    );
+      },
+      body: JSON.stringify(address),
+  })
 
-    const balanceData = await balanceFetchResponse.json();
-    return balanceData;
-  };
+  const balanceData = await balanceFetchResponse.json()
+  return balanceData
+  }
   return (
     <>
       <Landing
@@ -174,8 +155,8 @@ const LandingPage: MyPage = (props: any) => {
         walletData={walletData}
       />
     </>
-  );
-};
+  )
+}
 
-export default LandingPage;
-LandingPage.Layout = 'NoLayout';
+export default LandingPage
+LandingPage.Layout = 'NoLayout'
