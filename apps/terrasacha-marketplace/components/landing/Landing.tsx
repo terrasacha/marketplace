@@ -35,7 +35,7 @@ const Login = (props: any) => {
       <Image
         priority={true}
         src="/images/home-page/fondo_login.avif"
-        alt="landing-suan-image"
+        alt="landing-terrasacha-image"
         fill
         style={{ objectFit: 'cover', objectPosition: 'center', zIndex: '0' }}
       />
@@ -51,7 +51,7 @@ const Login = (props: any) => {
             poweredby={true}
           />
         ) : (
-          checkingWallet !== 'checking' && <RedirectToHome poweredby={true} appName={'Terrasacha'} checkingWallet={checkingWallet} walletData={walletData}/>
+          checkingWallet !== 'checking' && <RedirectToHome poweredby={true} appName={'Terrasacha'} checkingWallet={checkingWallet} walletData={walletData} handleSetCheckingWallet={props.handleSetCheckingWallet}/>
         )}
       </div>
     </div>

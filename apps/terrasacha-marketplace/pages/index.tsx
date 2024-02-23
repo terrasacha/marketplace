@@ -1,8 +1,8 @@
 import React, { useEffect, useState } from 'react'
 import dynamic from 'next/dynamic'
-const Landing = dynamic(() => import('@suan/components/landing/Landing'))
-import { useWallet, useAssets } from '@meshsdk/react'
-import { MyPage } from '@suan/components/common/types'
+const Landing = dynamic(() => import('@terrasacha/components/landing/Landing'))
+import { useWallet } from '@meshsdk/react'
+import { MyPage } from '@terrasacha/components/common/types'
 import { getCurrentUser } from 'aws-amplify/auth'
 const LandingPage: MyPage = (props: any) => {
   const { connected, wallet } = useWallet()
@@ -10,7 +10,6 @@ const LandingPage: MyPage = (props: any) => {
   const [loading, setLoading] = useState<boolean>(true)
   const [walletcount, setWalletcount] = useState<number>(0)
   const [walletData, setWalletData] = useState<any>(null)
-  const assets = useAssets() as Array<{ [key: string]: any }>
 
   useEffect(() => {
     const fetchData = async () => {
@@ -34,9 +33,7 @@ const LandingPage: MyPage = (props: any) => {
                     if (balanceData && balanceData.length > 0) {
                         const hasTokenAuth = balanceData[0].assets.some((asset: any) => asset.policy_id === process.env.NEXT_PUBLIC_TOKEN_AUTHORIZER &&
                             asset.asset_name === process.env.NEXT_PUBLIC_TOKEN_AUTHORIZER_NAME)
-                        console.log(hasTokenAuth, 'hasTokenAuth')
                         if (hasTokenAuth) {
-                            console.log('hasTokenAuth')
                             setCheckingWallet('hasTokenAuth')
                         } else {
                           walletData[0].claimed_token ? setCheckingWallet('alreadyClaimToken') : setCheckingWallet('requestToken')
@@ -73,47 +70,45 @@ const LandingPage: MyPage = (props: any) => {
   useEffect(() => {
     const fetchData = async () => {
     if (connected) {
-      console.log('connected2')
 
       setCheckingWallet('checking')
-      const matchingAsset =
+      /* const matchingAsset =
         assets &&
         assets.filter(
           (asset) =>
             asset.policyId === process.env.NEXT_PUBLIC_TOKEN_AUTHORIZER &&
             asset.assetName === process.env.NEXT_PUBLIC_TOKEN_AUTHORIZER_NAME
-        )
+        ) */
       const changeAddress = await wallet.getChangeAddress();
       const rewardAddresses = await wallet.getRewardAddresses();
-      console.log(changeAddress, 'changeAddress')
 
       //Checkear si la wallet existe en la DB, si no existe crearla. Si tiene 'matchingasset' enviar claimed_token = true.
-      if (matchingAsset !== undefined) {
-        const walletExists = await checkIfWalletExist(changeAddress, rewardAddresses[0], matchingAsset.length > 0)
+      //if (matchingAsset !== undefined) {
+        const balanceData = await getWalletBalanceByAddress(changeAddress)
+        const hasTokenAuth = balanceData[0].assets.some((asset: any) => asset.policy_id === process.env.NEXT_PUBLIC_TOKEN_AUTHORIZER &&
+            asset.asset_name === process.env.NEXT_PUBLIC_TOKEN_AUTHORIZER_NAME)
+        const walletExists = await checkIfWalletExist(changeAddress, rewardAddresses[0], hasTokenAuth)
         
         if (walletExists.data.claimed_token) {
-          const balanceData = await getWalletBalanceByAddress(walletExists.data.address)
-          const hasTokenAuth = balanceData[0].assets.some((asset: any) => asset.policy_id === process.env.NEXT_PUBLIC_TOKEN_AUTHORIZER &&
-              asset.asset_name === process.env.NEXT_PUBLIC_TOKEN_AUTHORIZER_NAME)
           if (hasTokenAuth) {
+              console.log('hasTokenAuth')
               setCheckingWallet('hasTokenAuth')
           } else {
             walletExists.data.claimed_token ? setCheckingWallet('alreadyClaimToken') : setCheckingWallet('requestToken')
           }
         } else {
-          console.log('requestToken')
-          setWalletData(walletExists.data)
           setCheckingWallet('requestToken')
         }
+        setWalletData(walletExists.data)
         setWalletcount(1)
-      }
+      //}
       
     } else {
       setCheckingWallet('uncheck')
     }
   }
   fetchData()
-  }, [connected, assets])
+  }, [connected])
 
   const checkIfWalletExist = async (address : string, stake_address : string, claimed_token : boolean) =>{
     const response = await fetch('/api/calls/backend/checkWalletByAddress',{
@@ -123,7 +118,6 @@ const LandingPage: MyPage = (props: any) => {
       })
     })
     const walletInfoOnDB = await response.json() 
-    console.log(walletInfoOnDB, 'walletInfoOnDB')
     if(!walletInfoOnDB.data){
       const response = await fetch('/api/calls/backend/manageExternalWallets', {
         method: 'POST',

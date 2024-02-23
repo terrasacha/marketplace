@@ -165,7 +165,6 @@ Los monederos de la era Byron no están soportados actualmente. Si necesita recu
                   className="border border-slate-200 py-2 px-5 rounded-lg bg-slate-200 text-gray-600 font-semibold hover:border-gray-500"
                   onClick={() =>
                     updateRecoveryWords(nextRecoveryWordIndex, word, 'button')
-                    updateRecoveryWords(nextRecoveryWordIndex, word, 'button')
                   }
                 >
                   {word}
