@@ -72,8 +72,6 @@ export function WalletContextProvider({
       //   }
       // );
       console.log(updatedWalletData, 'UpdatedWalletData');
-
-      setWalletData(updatedWalletData);
       return updatedWalletData;
     }
     return null;
@@ -99,9 +97,11 @@ export function WalletContextProvider({
         }
       );
       const responseData = await response.json();
+      setWalletData(responseData[0]);
 
       return responseData[0];
     }
+    setWalletData(null);
     return null;
   };
 
@@ -114,7 +114,16 @@ export function WalletContextProvider({
   };
 
   const contextProps = useMemo(
-    () => ({ walletID, walletName, walletAddress, walletStakeAddress, walletData, handleWalletData, fetchWalletData, connected }),
+    () => ({
+      walletID,
+      walletName,
+      walletAddress,
+      walletStakeAddress,
+      walletData,
+      handleWalletData,
+      fetchWalletData,
+      connected,
+    }),
     [walletData]
   );
 

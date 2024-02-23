@@ -3,9 +3,14 @@ import {
   Card,
   LoadingIcon,
   LoadingOverlay,
+  RefreshIcon,
   TransactionInfoCard,
 } from '../ui-lib';
-import { WalletContext, mapTransactionListInfo } from '@marketplaces/utils-2';
+import {
+  WalletContext,
+  getDateFromTimeStamp,
+  mapTransactionListInfo,
+} from '@marketplaces/utils-2';
 import { useRouter } from 'next/router';
 
 interface TransactionsProps {
@@ -30,6 +35,7 @@ export default function Transactions(props: TransactionsProps) {
 
   useEffect(() => {
     const pendingTx = router.query.pendingTx;
+    const currentDate = new Date();
 
     if (pendingTx && typeof pendingTx === 'string') {
       console.log('pendingTxFromRouter', pendingTx);
@@ -37,10 +43,11 @@ export default function Transactions(props: TransactionsProps) {
         return {
           ...JSON.parse(pendingTx),
           title: 'Envio de fondos',
+          subtitle: getDateFromTimeStamp(currentDate.getTime() / 1000),
           tx_type: 'sent',
+          tx_status: 'pending',
           tx_confirmation_status: 'LOW',
           tx_confirmation_n: 0,
-          subtitle: 'En espera de confirmación'
         };
       });
     }
@@ -98,6 +105,8 @@ export default function Transactions(props: TransactionsProps) {
       if (responseData[0].num_confirmations < 12) {
         setPendingTransaction((prevState: any) => ({
           ...prevState,
+          tx_status:
+            responseData[0].num_confirmations !== null && responseData[0].num_confirmations > 1 ? 'on-chain' : 'pending',
           tx_confirmation_status: 'LOW',
           tx_confirmation_n: responseData[0].num_confirmations || 0,
         }));
@@ -142,9 +151,27 @@ export default function Transactions(props: TransactionsProps) {
     setIsLoading(false);
   };
 
+  const handleRefresh = async () => {
+    setIsLoading(true);
+    await fetchWalletData();
+    await getTransactionsData();
+    setIsLoading(false);
+  };
   return (
     <Card className="col-span-2 h-fit">
-      <Card.Header title="Transacciones" />
+      <Card.Header
+        title="Transacciones"
+        tooltip={
+          <button
+            type="button"
+            className="text-white bg-custom-dark hover:bg-custom-dark-hover focus:outline-none focus:ring-4 focus:ring-gray-300 font-medium rounded text-sm p-2.5 "
+            disabled={isLoading}
+            onClick={() => handleRefresh()}
+          >
+            <RefreshIcon />
+          </button>
+        }
+      />
       <Card.Body>
         {transactionsList.length === 0 && !isLoading && (
           <p>Aún no has realizado transacciones</p>
@@ -167,7 +194,10 @@ export default function Transactions(props: TransactionsProps) {
                 outputUTxOs={pendingTransaction.outputUTxOs}
                 is_collapsed={true}
                 metadata={pendingTransaction.metadata}
-                tx_confirmation_status={pendingTransaction.tx_confirmation_status}
+                tx_status={pendingTransaction.tx_status}
+                tx_confirmation_status={
+                  pendingTransaction.tx_confirmation_status
+                }
                 tx_confirmation_n={pendingTransaction.tx_confirmation_n}
               />
             </div>

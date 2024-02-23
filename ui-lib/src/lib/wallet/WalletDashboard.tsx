@@ -39,9 +39,7 @@ export default function WalletDashboard(props: WalletDashboardProps) {
               <div className="flex gap-3 items-center">
                 <div className="flex-none">
                   <div className="relative inline-flex items-center justify-center w-16 h-16 overflow-hidden bg-white rounded-lg">
-                    <span className="font-medium text-custom-dark">
-                      NS
-                    </span>
+                    <span className="font-medium text-custom-dark">NS</span>
                   </div>
                 </div>
                 <div className="flex-1 w-64 text-white">
@@ -77,7 +75,9 @@ export default function WalletDashboard(props: WalletDashboardProps) {
                         <>********</>
                       )}
                     </p>
-                    <Tooltip text={showAddress ? "Ocultar Saldo" : "Mostrar Saldo"}>
+                    <Tooltip
+                      text={showAddress ? 'Ocultar Saldo' : 'Mostrar Saldo'}
+                    >
                       <div onClick={handleShowAddress}>
                         {showAddress ? (
                           <EyeIcon className="h-6 w-6 cursor-pointer" />
@@ -93,7 +93,7 @@ export default function WalletDashboard(props: WalletDashboardProps) {
           </Card.Body>
         </Card>
         <div className="h-fit">
-          <Transactions txPerPage={5}/>
+          <Transactions txPerPage={5} />
         </div>
       </div>
       <div className="flex-col col-span-2 space-y-5 mt-5 2xl:mt-0">

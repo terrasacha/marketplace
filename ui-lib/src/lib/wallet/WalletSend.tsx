@@ -280,15 +280,21 @@ export default function WalletSend(props: AccountProps) {
       const buildTxResponse = await request.json();
       console.log('BuildTx Response: ', buildTxResponse);
 
-      const mappedTransactionData = await mapBuildTransactionInfo({
-        tx_type: 'preview',
-        walletAddress: walletData.address,
-        buildTxResponse: buildTxResponse,
-        metadata: messageArray,
-      });
+      if(buildTxResponse?.success) {
 
-      setNewTransactionBuild(mappedTransactionData);
-      handleOpenSignTransactionModal();
+        const mappedTransactionData = await mapBuildTransactionInfo({
+          tx_type: 'preview',
+          walletAddress: walletData.address,
+          buildTxResponse: buildTxResponse,
+          metadata: messageArray,
+        });
+  
+        setNewTransactionBuild(mappedTransactionData);
+        handleOpenSignTransactionModal();
+
+      } else {
+        toast.error("Algo ha salido mal, revisa las direcciones de billetera ...")
+      }
     }
     setIsLoading(false);
   };
