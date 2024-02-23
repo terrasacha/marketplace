@@ -85,8 +85,8 @@ const LandingPage: MyPage = (props: any) => {
       //Checkear si la wallet existe en la DB, si no existe crearla. Si tiene 'matchingasset' enviar claimed_token = true.
       //if (matchingAsset !== undefined) {
         const balanceData = await getWalletBalanceByAddress(changeAddress)
-        const hasTokenAuth = balanceData[0].assets.some((asset: any) => asset.policy_id === process.env.NEXT_PUBLIC_TOKEN_AUTHORIZER &&
-            asset.asset_name === process.env.NEXT_PUBLIC_TOKEN_AUTHORIZER_NAME)
+        const hasTokenAuth = balanceData[0]?.assets.some((asset: any) => asset.policy_id === process.env.NEXT_PUBLIC_TOKEN_AUTHORIZER &&
+            asset.asset_name === process.env.NEXT_PUBLIC_TOKEN_AUTHORIZER_NAME) || false
         const walletExists = await checkIfWalletExist(changeAddress, rewardAddresses[0], hasTokenAuth)
         
         if (walletExists.data.claimed_token) {
