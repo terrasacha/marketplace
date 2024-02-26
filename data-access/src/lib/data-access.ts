@@ -786,13 +786,13 @@ export async function createExternalWallet(address: string, stake_address: strin
   return response;
 }
 
-export async function getWalletByAddress(address: string) {
+export async function getWalletByStakeAddress(stake_address: string) {
   try {
     const response = await axios.post(
       graphqlEndpoint,
       {
         query: `query getUserByWallet {
-          listWallets(filter: {address: {eq: "${address}"}}) {
+          listWallets(filter: {stake_address: {eq: "${stake_address}"}}) {
             items {
               id
               address

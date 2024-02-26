@@ -26,6 +26,7 @@ const LandingPage: MyPage = (props: any) => {
                 })
 
                 const walletData = await walletFetchResponse.json()
+                console.log(walletData, 'walletData 29')
                 setWalletData(walletData[0])
                 if (walletData && walletData.length > 0) {
                     const walletAddress = walletData[0].address
@@ -72,37 +73,28 @@ const LandingPage: MyPage = (props: any) => {
     if (connected) {
 
       setCheckingWallet('checking')
-      /* const matchingAsset =
-        assets &&
-        assets.filter(
-          (asset) =>
-            asset.policyId === process.env.NEXT_PUBLIC_TOKEN_AUTHORIZER &&
-            asset.assetName === process.env.NEXT_PUBLIC_TOKEN_AUTHORIZER_NAME
-        ) */
       const changeAddress = await wallet.getChangeAddress();
       const rewardAddresses = await wallet.getRewardAddresses();
+      const balanceData = await getWalletBalanceByAddress(changeAddress)
 
-      //Checkear si la wallet existe en la DB, si no existe crearla. Si tiene 'matchingasset' enviar claimed_token = true.
-      //if (matchingAsset !== undefined) {
-        const balanceData = await getWalletBalanceByAddress(changeAddress)
-        const hasTokenAuth = balanceData[0].assets.some((asset: any) => asset.policy_id === process.env.NEXT_PUBLIC_TOKEN_AUTHORIZER &&
-            asset.asset_name === process.env.NEXT_PUBLIC_TOKEN_AUTHORIZER_NAME)
-        const walletExists = await checkIfWalletExist(changeAddress, rewardAddresses[0], hasTokenAuth)
-        
-        if (walletExists.data.claimed_token) {
-          if (hasTokenAuth) {
-              console.log('hasTokenAuth')
-              setCheckingWallet('hasTokenAuth')
-          } else {
-            walletExists.data.claimed_token ? setCheckingWallet('alreadyClaimToken') : setCheckingWallet('requestToken')
-          }
+      const hasTokenStakeAddress = await checkTokenStakeAddress(rewardAddresses[0])
+      console.log(hasTokenStakeAddress)
+      const hasTokenAuth = balanceData[0].assets.some((asset: any) => asset.policy_id === process.env.NEXT_PUBLIC_TOKEN_AUTHORIZER &&
+          asset.asset_name === process.env.NEXT_PUBLIC_TOKEN_AUTHORIZER_NAME)
+      const walletExists = await checkIfWalletExist(changeAddress, rewardAddresses[0], hasTokenAuth)
+      if (walletExists.data.claimed_token) {
+        if (hasTokenAuth) {
+            console.log('hasTokenAuth')
+            setCheckingWallet('hasTokenAuth')
         } else {
-          setCheckingWallet('requestToken')
+          walletExists.data.claimed_token ? setCheckingWallet('alreadyClaimToken') : setCheckingWallet('requestToken')
         }
-        setWalletData(walletExists.data)
-        setWalletcount(1)
-      //}
-      
+      } else {
+        setCheckingWallet('requestToken')
+      }
+      setWalletData(walletExists.data)
+      setWalletcount(1)
+            
     } else {
       setCheckingWallet('uncheck')
     }
@@ -114,10 +106,11 @@ const LandingPage: MyPage = (props: any) => {
     const response = await fetch('/api/calls/backend/checkWalletByAddress',{
       method: 'POST',
       body: JSON.stringify({
-        address
+        stake_address
       })
     })
     const walletInfoOnDB = await response.json() 
+    console.log(walletInfoOnDB.data, 'walletInfoOnDB.data')
     if(!walletInfoOnDB.data){
       const response = await fetch('/api/calls/backend/manageExternalWallets', {
         method: 'POST',
@@ -144,6 +137,17 @@ const LandingPage: MyPage = (props: any) => {
 
   const balanceData = await balanceFetchResponse.json()
   return balanceData
+  }
+  const checkTokenStakeAddress = async (rewardAddresses: any) =>{
+    const response = await fetch('/api/calls/backend/checkTokenStakeAddress',{
+      method: 'POST',
+      headers: {
+          'Content-Type': 'application/json',
+      },
+      body: JSON.stringify(rewardAddresses),
+  })
+  const hasTokenStakeAddress = await response.json()
+  return hasTokenStakeAddress.data
   }
   return (
     <>
