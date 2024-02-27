@@ -119,7 +119,7 @@ export default function Sidebar(props: SidebarProps) {
             >
               <WalletIcon />
               <span className="flex-1 ms-3 text-left rtl:text-right whitespace-nowrap">
-                Wallet
+                Billetera
               </span>
               <ChevronDownIcon />
             </button>
@@ -132,7 +132,7 @@ export default function Sidebar(props: SidebarProps) {
                   href="/wallet"
                   className="flex items-center w-full p-2 pl-11 group text-black rounded-lg hover:bg-custom-dark hover:text-white transition duration-150 ease-linear"
                 >
-                  Dashboard
+                  Cuadro de mando
                 </Link>
               </li>
               <li>
@@ -183,45 +183,14 @@ export default function Sidebar(props: SidebarProps) {
           </li>
 
           <li className={connected ? 'hidden' : ''}>
-            <button
-              className="flex w-full items-center p-2 text-black rounded-lg hover:bg-custom-dark hover:text-white transition duration-150 ease-linear"
-              onClick={() => setDisplayMarketOptions(!displayMarketOptions)}
+            <Link
+              onClick={onClose}
+              href="/trade"
+              className="flex items-center p-2 text-black rounded-lg hover:bg-custom-dark hover:text-white transition duration-150 ease-linear"
             >
               <MarketIcon />
-              <span className="flex-1 ms-3 text-left rtl:text-right whitespace-nowrap">
-                Mercado P2P
-              </span>
-              <ChevronDownIcon />
-            </button>
-            <ul
-              id="dropdown-example"
-              className={`${!displayMarketOptions && 'hidden'} py-2 space-y-2 animate-fade animate-ease-in-out animate-duration-[400ms]`}
-            >
-              <li>
-                <Link
-                  href="/trade"
-                  className="flex items-center w-full p-2 pl-11 group text-black rounded-lg hover:bg-custom-dark hover:text-white transition duration-150 ease-linear"
-                >
-                  Comprar
-                </Link>
-              </li>
-              <li>
-                <Link
-                  href="/trade/create-order"
-                  className="flex items-center w-full p-2 pl-11 group text-black rounded-lg hover:bg-custom-dark hover:text-white transition duration-150 ease-linear"
-                >
-                  Vender
-                </Link>
-              </li>
-              <li>
-                <Link
-                  href="/trade"
-                  className="flex items-center w-full p-2 pl-11 group text-black rounded-lg hover:bg-custom-dark hover:text-white transition duration-150 ease-linear"
-                >
-                  Mis ordenes
-                </Link>
-              </li>
-            </ul>
+              <span className="flex-1 ml-3 whitespace-nowrap">Mercado P2P</span>
+            </Link>
           </li>
         </ul>
         <ul

@@ -15,35 +15,21 @@ const LandingPage: MyPage = (props: any) => {
     const fetchData = async () => {
         try {
             setLoading(true)
-            // Access home with wallet
             const walletAccessResponse = await accessHomeWithWallet()
-
             if (walletAccessResponse) {
-                // Fetch wallet by user
                 const walletFetchResponse = await fetch('/api/calls/backend/getWalletByUser', {
                     method: 'POST',
                     body: walletAccessResponse,
                 })
-
                 const walletData = await walletFetchResponse.json()
-                console.log(walletData, 'walletData 29')
                 setWalletData(walletData[0])
                 if (walletData && walletData.length > 0) {
-                    const walletAddress = walletData[0].address
-                    const balanceData = await getWalletBalanceByAddress(walletAddress)
-                    if (balanceData && balanceData.length > 0) {
-                        const hasTokenAuth = balanceData[0].assets.some((asset: any) => asset.policy_id === process.env.NEXT_PUBLIC_TOKEN_AUTHORIZER &&
-                            asset.asset_name === process.env.NEXT_PUBLIC_TOKEN_AUTHORIZER_NAME)
-                        if (hasTokenAuth) {
-                            setCheckingWallet('hasTokenAuth')
+                    const hasTokenAuthFunction = await checkTokenStakeAddress(walletData[0].stake_address)
+                    if (hasTokenAuthFunction) {
+                          setCheckingWallet('hasTokenAuth')
                         } else {
-                          walletData[0].claimed_token ? setCheckingWallet('alreadyClaimToken') : setCheckingWallet('requestToken')
-                            
+                          walletData[0].claimed_token ? setCheckingWallet('alreadyClaimToken') : setCheckingWallet('requestToken')  
                         }
-                    } else {
-                      walletData[0].claimed_token ? setCheckingWallet('alreadyClaimToken') : setCheckingWallet('requestToken')
-                    }
-
                     setWalletcount(walletData.length)
                 }
             }
@@ -75,26 +61,21 @@ const LandingPage: MyPage = (props: any) => {
       setCheckingWallet('checking')
       const changeAddress = await wallet.getChangeAddress();
       const rewardAddresses = await wallet.getRewardAddresses();
-      const balanceData = await getWalletBalanceByAddress(changeAddress)
-
-      const hasTokenStakeAddress = await checkTokenStakeAddress(rewardAddresses[0])
-      console.log(hasTokenStakeAddress)
-      const hasTokenAuth = balanceData[0].assets.some((asset: any) => asset.policy_id === process.env.NEXT_PUBLIC_TOKEN_AUTHORIZER &&
-          asset.asset_name === process.env.NEXT_PUBLIC_TOKEN_AUTHORIZER_NAME)
-      const walletExists = await checkIfWalletExist(changeAddress, rewardAddresses[0], hasTokenAuth)
-      if (walletExists.data.claimed_token) {
-        if (hasTokenAuth) {
-            console.log('hasTokenAuth')
-            setCheckingWallet('hasTokenAuth')
+      const hasTokenAuthFunction = await checkTokenStakeAddress(rewardAddresses[0])
+      const walletExists = await checkIfWalletExist(changeAddress, rewardAddresses[0], hasTokenAuthFunction)
+        
+        if (walletExists.data.claimed_token) {
+          if (hasTokenAuthFunction) {
+              setCheckingWallet('hasTokenAuth')
+          } else {
+            walletExists.data.claimed_token ? setCheckingWallet('alreadyClaimToken') : setCheckingWallet('requestToken')
+          }
         } else {
-          walletExists.data.claimed_token ? setCheckingWallet('alreadyClaimToken') : setCheckingWallet('requestToken')
+          setCheckingWallet('requestToken')
         }
-      } else {
-        setCheckingWallet('requestToken')
-      }
-      setWalletData(walletExists.data)
-      setWalletcount(1)
-            
+        setWalletData(walletExists.data)
+        setWalletcount(1)
+      
     } else {
       setCheckingWallet('uncheck')
     }
@@ -147,7 +128,7 @@ const LandingPage: MyPage = (props: any) => {
       body: JSON.stringify(rewardAddresses),
   })
   const hasTokenStakeAddress = await response.json()
-  return hasTokenStakeAddress.data
+  return hasTokenStakeAddress > 0
   }
   return (
     <>

@@ -1,16 +1,26 @@
 import getActualPeriod from './generic/getActualPeriod';
 import colorByLetter from './dicc';
 import getTTLDate from './generic/getTTLDate';
+import getDateFromTimeStamp from './generic/getDateFromTimeStamp';
 import hexToText from './generic/hexToText';
-import mapTransactionInfo from './mappers/mapTransactionInfo';
+import getTimeLive from './generic/getTimeLive';
+import assetDifference from './generic/assetDifference';
+import {
+  mapBuildTransactionInfo,
+  mapTransactionListInfo,
+} from './mappers/mapTransactionInfo';
 import WalletContext from './context/wallet-context';
 import { WalletContextProvider } from './context/wallet-context';
 
 export {
   getActualPeriod,
   getTTLDate,
-  mapTransactionInfo,
+  getDateFromTimeStamp,
+  mapBuildTransactionInfo,
+  mapTransactionListInfo,
   hexToText,
+  getTimeLive,
+  assetDifference,
   colorByLetter,
   WalletContext,
   WalletContextProvider,

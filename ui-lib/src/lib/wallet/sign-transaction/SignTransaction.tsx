@@ -1,20 +1,25 @@
 import { useContext, useState } from 'react';
 import { Card, LoadingIcon, LockIcon } from '../../ui-lib';
 import { WalletContext } from '@marketplaces/utils-2';
+import { useRouter } from 'next/router';
+import { toast } from 'sonner';
 
 interface SignTransactionProps {
   handleOpenSignTransactionModal: () => void;
   cbor: string;
   metadata: Array<string>;
+  pendingTx: any;
 }
 
 export default function SignTransaction(props: SignTransactionProps) {
-  const { handleOpenSignTransactionModal, cbor, metadata } = props;
+  const { handleOpenSignTransactionModal, cbor, metadata, pendingTx } = props;
   const { walletID } = useContext<any>(WalletContext);
 
   const [password, setPassword] = useState<any>('');
   const [passwordError, setPasswordError] = useState<boolean>(false);
   const [isLoading, setIsLoading] = useState<boolean>(false);
+
+  const router = useRouter();
 
   const handleSign = async () => {
     setIsLoading(true);
@@ -37,11 +42,28 @@ export default function SignTransaction(props: SignTransactionProps) {
     const signSubmitResponse = await response.json();
     console.log('Firmado de transacción: ', signSubmitResponse);
 
-    if (signSubmitResponse.isValidUser) {
-      handleOpenSignTransactionModal();
-    } else {
+    if (!signSubmitResponse.isValidUser) {
       setPasswordError(true);
+      setIsLoading(false);
+      return;
     }
+
+    if (signSubmitResponse?.txSubmit?.success) {
+      handleOpenSignTransactionModal();
+      toast.success('Seras redirigido en unos instantes...');
+
+      setTimeout(() => {
+        router.push({
+          pathname: '/wallet/transactions',
+          query: {
+            pendingTx: JSON.stringify(pendingTx),
+          },
+        });
+      }, 3000);
+    } else {
+      toast.error('Ha ocurrido un error al intentar realizar la transacción');
+    }
+
     setIsLoading(false);
   };
 
@@ -50,7 +72,7 @@ export default function SignTransaction(props: SignTransactionProps) {
       <div className="flex-col">
         <p className="font-semibold">Confirmar</p>
         <p>
-          Revise la transacción antes de firmar. Ingrese la contraseña de tú
+          Revise la transacción antes de firmar. Ingrese la contraseña de su
           billetera.
         </p>
       </div>

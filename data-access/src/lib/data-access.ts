@@ -704,8 +704,8 @@ export async function getWalletByUser(userId: string): Promise<any> {
               items {
                 id
                 address
-                stake_address
                 claimed_token
+                stake_address
                 name
               }
             }
@@ -782,7 +782,6 @@ export async function createExternalWallet(address: string, stake_address: strin
       },
     }
   );
-  console.log(response.data.errors, 'response en data-access  ')
   return response;
 }
 
@@ -808,12 +807,6 @@ export async function getWalletByStakeAddress(stake_address: string) {
         },
       }
     );
-    /* if (response.data.listWallets.items.length > 0) {
-      return response.data.listWallets.items[0];
-    } else {
-      return false;
-    } */
-    console.log(response)
     return response
   } catch (error) {
     console.log(error);

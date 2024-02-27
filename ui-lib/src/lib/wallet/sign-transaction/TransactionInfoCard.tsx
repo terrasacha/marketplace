@@ -5,6 +5,12 @@ import {
   ChevronDownIcon,
   ChevronUpIcon,
   ChevronRightIcon,
+  CubeSendIcon,
+  TransferInIcon,
+  LoadingIcon,
+  ExternalLink,
+  Tooltip,
+  ExternalLinkIcon,
 } from '../../ui-lib';
 import {
   JsonView,
@@ -24,9 +30,14 @@ interface TransactionInfoCardProps {
   tx_size: number;
   tx_value: string;
   tx_fee: string;
+  tx_assets: Array<any>;
   inputUTxOs: Array<any>;
   outputUTxOs: Array<any>;
   metadata: Array<string>;
+  className?: string;
+  tx_status?: string;
+  tx_confirmation_status?: string;
+  tx_confirmation_n?: number;
 }
 
 export default function TransactionInfoCard(props: TransactionInfoCardProps) {
@@ -36,13 +47,18 @@ export default function TransactionInfoCard(props: TransactionInfoCardProps) {
     tx_value,
     tx_size,
     tx_fee,
+    tx_assets,
     title,
     block,
     subtitle,
     inputUTxOs,
     outputUTxOs,
     is_collapsed,
-    metadata,
+    metadata = {},
+    className,
+    tx_status,
+    tx_confirmation_status,
+    tx_confirmation_n,
   } = props;
 
   const [collapsed, setCollapsed] = useState(is_collapsed);
@@ -51,12 +67,19 @@ export default function TransactionInfoCard(props: TransactionInfoCardProps) {
     setCollapsed(!collapsed);
   };
 
-  const metadataJson = {
-    msg: metadata,
+  const isPositiveValue = (adaValue: string) => {
+    if (adaValue.length === 0) {
+      return false;
+    }
+    const firstChar = adaValue.charAt(0);
+
+    return !(firstChar === '-');
   };
 
   return (
-    <div>
+    <div
+      className={`${className} shadow-[rgba(221,222,227,1)_1px_1px_4px_0px]`}
+    >
       {/* <div className="flex-col">
         <p className="font-semibold">Vista previa transacción</p>
         <p>
@@ -64,12 +87,40 @@ export default function TransactionInfoCard(props: TransactionInfoCardProps) {
           'ext' marca direcciones de billetera externa
         </p>
       </div> */}
-      <div className="border p-4 grid grid-cols-1 lg:grid-cols-2 gap-2">
+      <div className="border p-4 grid grid-cols-1 lg:grid-cols-2 gap-2 w-full">
         {/* Lo que será enviado más fees */}
         <div className="col-span-2 cursor-pointer" onClick={toggleCollapse}>
           <div className="flex justify-between items-center">
             <div className="flex-col">
-              <p className="font-semibold">{title}</p>
+              <div className="flex space-x-2 items-center">
+                <div>
+                  {tx_type === 'received' && (
+                    <TransferInIcon className="mr-2 h-5 w-5" />
+                  )}
+                  {tx_type === 'sent' && (
+                    <CubeSendIcon className="mr-2 h-6 w-6" />
+                  )}
+                </div>
+
+                <p className="font-semibold">{title}</p>
+                {tx_confirmation_status && (
+                  <>
+                    {tx_status === 'pending' ? (
+                      <span className="flex items-center bg-gray-100 text-gray-800 text-xs font-medium px-2.5 py-0.5 rounded  border border-gray-500">
+                        Pendiente
+                        <LoadingIcon className="h-4 w-4 ml-2" />
+                      </span>
+                    ) : (
+                      <span className="bg-gray-100 text-gray-800 text-xs font-medium px-2.5 py-0.5 rounded  border border-gray-500">
+                        En Blockchain
+                      </span>
+                    )}
+                    <span className="bg-gray-100 text-gray-800 text-xs font-medium px-2.5 py-0.5 rounded  border border-gray-500">
+                      {tx_confirmation_status + ':' + tx_confirmation_n}
+                    </span>
+                  </>
+                )}
+              </div>
               <div className="flex items-center space-x-2">
                 {!collapsed ? (
                   <ChevronDownIcon className="w-5 h-5" />
@@ -79,8 +130,36 @@ export default function TransactionInfoCard(props: TransactionInfoCardProps) {
                 <p>{subtitle}</p>
               </div>
             </div>
-            <div>
-              <p className="text-red-500">{tx_value}</p>
+            <div className="text-right">
+              <p
+                className={`${
+                  isPositiveValue(tx_value) ? 'text-green-500' : 'text-red-500'
+                }`}
+              >
+                {tx_value}
+              </p>
+              {tx_assets.map((asset: any, index: number) => {
+                if (index < 2) {
+                  return (
+                    <p key={index}>
+                      {tx_type === 'sent' || tx_type === 'preview'
+                        ? '- '
+                        : '+ '}
+                      <span className="font-semibold">
+                        {parseFloat(asset.quantity).toLocaleString('es-CO')}
+                      </span>
+                      {' ' + asset.name}
+                    </p>
+                  );
+                }
+              })}
+              {tx_assets.length > 2 && (
+                <p>
+                  Otros{' '}
+                  <span className="font-semibold">{tx_assets.length - 2}</span>{' '}
+                  Tokens
+                </p>
+              )}
             </div>
           </div>
         </div>
@@ -98,7 +177,26 @@ export default function TransactionInfoCard(props: TransactionInfoCardProps) {
                       tooltipLabel="Copiar !"
                     />
                   </div>
-                  <p className="text-wrap break-all">{tx_id}</p>
+                  {tx_type !== 'preview' ? (
+                    <Tooltip text="Consultar en CardanoScan Preview">
+                      <a
+                        href={
+                          'https://preview.cardanoscan.io/transaction/' + tx_id
+                        }
+                        target="_blank"
+                        className="cursor-pointer"
+                      >
+                        <div className="flex items-center">
+                          <p className="text-wrap break-all">{tx_id}</p>
+                          <div>
+                            <ExternalLinkIcon className="h-5 w-5 ml-2" />
+                          </div>
+                        </div>
+                      </a>
+                    </Tooltip>
+                  ) : (
+                    <p className="text-wrap break-all">{tx_id}</p>
+                  )}
                 </div>
                 <div className="flex flex-row lg:flex-col justify-between">
                   <p>{tx_type === 'preview' ? 'Tamaño Tx' : 'Bloque'}</p>
@@ -112,18 +210,18 @@ export default function TransactionInfoCard(props: TransactionInfoCardProps) {
                 </div>
               </div>
             </div>
-            {metadata.length > 0 && (
+            {Object.keys(metadata).length > 0 && (
               <div className="col-span-2 border-b py-2">
                 <div className="flex items-center">
                   <p>Metadata</p>
                   <CopyToClipboard
                     iconClassName="h-5 w-5 ml-2 hover:text-blue-600"
-                    copyValue={JSON.stringify(metadataJson)}
+                    copyValue={JSON.stringify(metadata)}
                     tooltipLabel="Copiar !"
                   />
                 </div>
                 <JsonView
-                  data={metadataJson}
+                  data={metadata}
                   shouldExpandNode={allExpanded}
                   style={defaultStyles}
                 />

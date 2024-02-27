@@ -12,6 +12,7 @@ export function WalletContextProvider({
   const [walletID, setWalletID] = useState<any>(null);
   const [walletName, setWalletName] = useState<any>(null);
   const [walletAddress, setWalletAddress] = useState<any>(null);
+  const [walletStakeAddress, setWalletStakeAddress] = useState<any>(null);
   const [walletData, setWalletData] = useState<any>(null);
 
   const handleWalletData = async (data: any) => {
@@ -20,6 +21,7 @@ export function WalletContextProvider({
       setWalletID(data[0].id);
       setWalletName(data[0].name);
       setWalletAddress(data[0].address);
+      setWalletStakeAddress(data[0].stake_address);
       const updatedWalletData = await fetchWalletData(data[0].address);
       const projectsData = await getProjects();
 
@@ -70,8 +72,6 @@ export function WalletContextProvider({
       //   }
       // );
       console.log(updatedWalletData, 'UpdatedWalletData');
-
-      setWalletData(updatedWalletData);
       return updatedWalletData;
     }
     return null;
@@ -97,9 +97,11 @@ export function WalletContextProvider({
         }
       );
       const responseData = await response.json();
+      setWalletData(responseData[0]);
 
       return responseData[0];
     }
+    setWalletData(null);
     return null;
   };
 
@@ -112,7 +114,16 @@ export function WalletContextProvider({
   };
 
   const contextProps = useMemo(
-    () => ({ walletID, walletName, walletData, handleWalletData, connected }),
+    () => ({
+      walletID,
+      walletName,
+      walletAddress,
+      walletStakeAddress,
+      walletData,
+      handleWalletData,
+      fetchWalletData,
+      connected,
+    }),
     [walletData]
   );
 

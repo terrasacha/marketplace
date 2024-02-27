@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react';
-import { getActualPeriod } from '@suan//utils/generic/getActualPeriod';
+import { getActualPeriod } from '@suan/utils/generic/getActualPeriod';
 import AreaChartComponent from './MonthChart';
 import BarChartComponent from './TokenChart';
 
