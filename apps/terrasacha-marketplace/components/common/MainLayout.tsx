@@ -152,7 +152,7 @@ const MainLayout = ({ children }: PropsWithChildren) => {
     const response = await fetch('/api/calls/backend/checkWalletByAddress',{
       method: 'POST',
       body: JSON.stringify({
-        address
+        stake_address
       })
     })
     const walletInfoOnDB = await response.json() 
