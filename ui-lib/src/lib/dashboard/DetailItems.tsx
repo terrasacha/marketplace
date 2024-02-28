@@ -1,7 +1,9 @@
 import React from 'react';
-
+import { useRouter } from 'next/router';
 const DetailItems = (props: any) => {
   const { foundElement } = props;
+  console.log(foundElement)
+  const router = useRouter()
   
   if (!foundElement) return <></>;
   
@@ -18,10 +20,12 @@ const DetailItems = (props: any) => {
         <tbody>
           {foundElement.map((item: any, index: number) => (
             <tr key={index} className="border-t text-gray-500">
-              <td className="px-6 py-4">{item.product}</td>
+              <td className="px-6 py-4">{item.projectName}</td>
               <td className="px-6 py-4 text-center">{item.amountOfTokens}</td>
               <td className="px-6 py-4 flex justify-center">
-                <button className="flex justify-center text-white bg-custom-dark hover:bg-custom-dark-hover focus:outline-none focus:ring-4 focus:ring-gray-300 font-medium rounded text-sm px-5 py-2.5">
+                <button 
+                  onClick={() => router.push(`/projects/${item.projectID}/dashboard`)}
+                  className="flex justify-center text-white bg-custom-dark hover:bg-custom-dark-hover focus:outline-none focus:ring-4 focus:ring-gray-300 font-medium rounded text-sm px-5 py-2.5">
                   Ir a dashboard del proyecto
                 </button>
               </td>

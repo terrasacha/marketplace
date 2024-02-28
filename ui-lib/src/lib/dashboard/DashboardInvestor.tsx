@@ -5,7 +5,8 @@ import { ItemsDashboard, TransactionsTable, DetailItems, LineChartComponent, Pie
 interface Transaction {
   amountOfTokens: number;
   tokenName: string;
-  product: string
+  projectName: string;
+  projectID: string
 }
 
 function DashboardInvestor(props: { transactions: any[] }) {
@@ -48,13 +49,15 @@ function DashboardInvestor(props: { transactions: any[] }) {
       return {
         amountOfTokens,
         tokenName: foundElement.tokenName,
-        product: foundElement.transactionsDetail[0].product.name || ''
+        projectName: foundElement.transactionsDetail[0].product.name || '',
+        projectID: foundElement.transactionsDetail[0].product.id || ''
       };
     }
     return {
       amountOfTokens: 0,
       tokenName: foundElement.tokenName,
-      product: foundElement.transactionsDetail[0].product.name || ''
+      projectName: foundElement.transactionsDetail[0].product.name || '',
+      projectID: foundElement.transactionsDetail[0].product.id || ''
     };
   }).filter(element => element.amountOfTokens !== null && element.amountOfTokens !== 0);
 
