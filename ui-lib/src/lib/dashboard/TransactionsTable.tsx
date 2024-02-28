@@ -1,5 +1,5 @@
 import React from 'react';
-import { getActualPeriod } from '@suan/utils/generic/getActualPeriod';
+import { getActualPeriod } from "@marketplaces/utils-2"
 
 interface Transaction {
   tokenName: string;
@@ -38,7 +38,7 @@ const TransactionsTable: React.FC<TransactionsTableProps> = ({
       <div className="overflow-x-auto max-w-full">
         <table className="w-full table-auto text-left text-sm font-light">
           <thead>
-            <tr className="border-b font-medium dark:border-neutral-500 text-sm text-[#2E7D96] pr-2 font-semibold">
+            <tr className="border-b  dark:border-neutral-500 text-sm text-[#2E7D96] pr-2 font-semibold">
               <th scope="col" className="px-6 py-4">
                 Nombre del proyecto
               </th>

@@ -1,16 +1,14 @@
 import { useEffect, useState } from "react";
 import { useWallet, useAssets } from "@meshsdk/react";
-import ItemsDashboard from "./MainItemsDashboard";
-import TransactionsTable from "./TransactionsTable";
-import DetailItems from "./DetailItems";
-import { LineChartComponent, PieChartComponent } from "@marketplaces/ui-lib";
+import { ItemsDashboard, TransactionsTable, DetailItems, LineChartComponent, PieChartComponent } from '@marketplaces/ui-lib'
+
 interface Transaction {
   amountOfTokens: number;
   tokenName: string;
   transactionDetails: [];
 }
 
-function Dashboard(props: { transactions: any[] }) {
+function DashboardInvestor(props: { transactions: any[] }) {
   const { transactions } = props;
   const assets = useAssets() as Array<{ [key: string]: any }>;
   const { wallet, connected } = useWallet();
@@ -85,7 +83,7 @@ function Dashboard(props: { transactions: any[] }) {
         </h2>
         <div className="w-full">
         
-          <h3 className="font-semibold my-3 pl-2 pb-2">Información general de tus proyectos</h3>
+          <h3 className="font-semibold my-3 pl-2 pb-2 text-xl">Información general de tus proyectos</h3>
           <div className="flex flex-col w-full">
             <ItemsDashboard NewElements={newElements} />
             {/* <div className="bg-white dark:bg-[#69a1b3] shadow-lg rounded-mdp-3 border-b-4 border-white dark:border-[#588695] dark:text-gray-800">
@@ -94,25 +92,22 @@ function Dashboard(props: { transactions: any[] }) {
               </div>
             </div> */}
           </div>
-          <h3 className="font-semibold my-3 pl-2 pb-2">Detalles de tus proyectos</h3>
-              {/* {FoundElement && <DetailItems foundElement={FoundElement} />} */}
+          <h3 className="font-semibold my-3 pl-2 pb-2 text-xl">Detalles de tus proyectos</h3>
 
           {/* BOX FOR GRAPHS */}
           <div className="grid grid-cols-1 lg:grid-cols-2 2xl:grid-cols-7 gap-4">
-            <div className="bg-white p-4 rounded shadow-md lg:col-span-2 2xl:col-span-3 flex justify-center items-center">
+            <div className="relative bg-custom-dark-hover p-4 rounded-md shadow-lg lg:col-span-2 2xl:col-span-5 flex flex-col justify-center items-center">
+              <h4 className="w-full text-[#ddd] text-md font-semibold">Evolución del proyecto</h4>
               <LineChartComponent />
-            </div>
+            </div>            
+            <div className="relative bg-custom-dark-hover p-4 rounded-md shadow-lg lg:col-span-2 2xl:col-span-2 flex flex-col justify-center items-center">
+            <h4 className="absolute top-4 left-6 w-full text-[#ddd] text-md font-semibold">Tokens de tu billetera</h4>
             
-            <div className="bg-white p-4 rounded shadow-md lg:col-span-1 2xl:col-span-2 flex justify-center items-center">
-            <LineChartComponent />
-              
-            </div>
-            
-            <div className="bg-white p-4 rounded shadow-md lg:col-span-1 2xl:col-span-2 flex justify-center items-center">
             <PieChartComponent />
             </div>
           </div>
           <div className="overflow-x-auto max-w-full">
+              {FoundElement && <DetailItems foundElement={FoundElement} />}
             {newElements && <TransactionsTable NewElements={newElements} />}
           </div>
         </div>
@@ -122,4 +117,4 @@ function Dashboard(props: { transactions: any[] }) {
   );
 }
 
-export default Dashboard;
+export default DashboardInvestor;

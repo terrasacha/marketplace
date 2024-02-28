@@ -1,5 +1,5 @@
 // pages/dashboard/index.tsx
-import Dashboard from '../../components/dashboard/Dashboard';
+import { DashboardInvestor } from '@marketplaces/ui-lib';
 import { getTransactions } from '@suan//backend';
 import { MyPage } from '@suan//components/common/types';
 
@@ -8,7 +8,7 @@ const DashboardPage: MyPage = (props: any) => {
   return (
     <>
       <div>
-        <Dashboard transactions={transactions} />
+        <DashboardInvestor transactions={transactions} />
       </div>
     </>
   );

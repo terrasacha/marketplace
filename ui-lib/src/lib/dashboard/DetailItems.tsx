@@ -1,7 +1,5 @@
 import { useEffect, useState } from 'react';
-import { getActualPeriod } from '@suan/utils/generic/getActualPeriod';
-import AreaChartComponent from './MonthChart';
-import BarChartComponent from './TokenChart';
+import { getActualPeriod } from '@marketplaces/utils-2';
 
 interface TransactionData {
   tokenName: string;
@@ -285,7 +283,7 @@ const DetailItems: React.FC<DetailProps> = ({ foundElement }) => {
         <TransactionItem label="Inversión" value={calculateInvestment()} />
         <TransactionItem label="Ganancia" value={calculateGain()} />
       </ul>
-      <div className="flex flex-col sm:flex-row">
+      {/* <div className="flex flex-col sm:flex-row">
         <div className="md:w-70 mt-4 p-4 bg-white" style={{ flex: 1 }}>
           <h3 className="text-l font-semibold">Precio</h3>
           <div className="mt-4 p-4">
@@ -310,7 +308,7 @@ const DetailItems: React.FC<DetailProps> = ({ foundElement }) => {
             />
           </div>
         </div>
-      </div>
+      </div> */}
     </div>
   );
 };

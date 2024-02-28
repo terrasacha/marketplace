@@ -67,6 +67,10 @@ import { CubeSendIcon } from './icons/CubeSendIcon';
 import { TransferInIcon } from './icons/TransferInIcon';
 import { SearchIcon } from './icons/SearchIcon';
 import { RefreshIcon } from './icons/RefreshIcon';
+import ItemsDashboard from './dashboard/MainItemsDashboard';
+import TransactionsTable from './dashboard/TransactionsTable';
+import DetailItems from './dashboard/DetailItems';
+import DashboardInvestor from './dashboard/DashboardInvestor';
 export {
   LoginForm,
   SignUpForm,
@@ -136,4 +140,8 @@ export {
   TransferInIcon,
   SearchIcon,
   RefreshIcon,
+  ItemsDashboard,
+  TransactionsTable,
+  DetailItems,
+  DashboardInvestor
 };
