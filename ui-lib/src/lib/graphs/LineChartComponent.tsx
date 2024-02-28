@@ -66,7 +66,6 @@ export const data = {
       ],
       segment: {
         borderDash: ((ctx :any) => {
-          console.log(ctx.p0.raw.period)
           if(ctx.p0.raw.period > 1) return [4,4]
           return [0, 0]
         }),

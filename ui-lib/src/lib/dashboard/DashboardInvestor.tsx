@@ -5,7 +5,7 @@ import { ItemsDashboard, TransactionsTable, DetailItems, LineChartComponent, Pie
 interface Transaction {
   amountOfTokens: number;
   tokenName: string;
-  transactionDetails: [];
+  product: string
 }
 
 function DashboardInvestor(props: { transactions: any[] }) {
@@ -34,6 +34,7 @@ function DashboardInvestor(props: { transactions: any[] }) {
 
     return acc;
   }, {});
+  console.log(groupedData,'groupedData')
 
   // Nuevo array con la información agrupada por nombre de token
   const otroArray = Object.values(groupedData);
@@ -47,13 +48,13 @@ function DashboardInvestor(props: { transactions: any[] }) {
       return {
         amountOfTokens,
         tokenName: foundElement.tokenName,
-        transactionDetails: foundElement.transactionsDetail,
+        product: foundElement.transactionsDetail[0].product.name || ''
       };
     }
     return {
       amountOfTokens: 0,
       tokenName: foundElement.tokenName,
-      transactionDetails: foundElement.transactionsDetail,
+      product: foundElement.transactionsDetail[0].product.name || ''
     };
   }).filter(element => element.amountOfTokens !== null && element.amountOfTokens !== 0);
 
