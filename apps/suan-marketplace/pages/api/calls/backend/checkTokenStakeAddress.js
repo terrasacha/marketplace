@@ -3,7 +3,7 @@ export default async function handler(req, res) {
         try {
             let stake_address = req.body
             const url =
-                `https://93jp7ynsqv.us-east-1.awsapprunner.com/api/v1/wallet/account-tx/?stake=${stake_address}&all=true`;
+                `https://93jp7ynsqv.us-east-1.awsapprunner.com/api/v1/wallet/account-utxo/?stake=${stake_address}&all=true`;
 
             const response = await fetch(url, {
                 method: 'POST',
@@ -14,7 +14,7 @@ export default async function handler(req, res) {
             });
 
             const data = await response.json();
-            const tokenAccess = validateTokenAccess(data.data, stake_address)
+            const tokenAccess = validateTokenAccess(data.data)
             res.status(200).json(tokenAccess);
         } catch (error) {
             res.status(500).json({ error: 'Error al procesar la solicitud' });
@@ -24,8 +24,19 @@ export default async function handler(req, res) {
     }
 }
 
-
-function validateTokenAccess(data, stake_address) {
+function validateTokenAccess(data) {
+    let hasTokenAuth = false
+    data.some(item => {
+        item.asset_list.some(asset => {
+            if (asset.policy_id === process.env.NEXT_PUBLIC_TOKEN_AUTHORIZER
+                && asset.asset_name === process.env.NEXT_PUBLIC_TOKEN_AUTHORIZER_NAME_HEX) {
+                hasTokenAuth = true
+            }
+        })
+    })
+    return hasTokenAuth
+}
+/* function validateTokenAccess(data, stake_address) {
     let token_recieved = 0
     let token_send = 0
 
@@ -57,4 +68,4 @@ function validateTokenAccess(data, stake_address) {
     console.log(token_recieved - token_send, 'me quedan')
     return token_recieved - token_send
 
-}
+} */

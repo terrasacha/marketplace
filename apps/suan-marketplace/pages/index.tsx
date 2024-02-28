@@ -25,6 +25,7 @@ const LandingPage: MyPage = (props: any) => {
                 setWalletData(walletData[0])
                 if (walletData && walletData.length > 0) {
                     const hasTokenAuthFunction = await checkTokenStakeAddress(walletData[0].stake_address)
+                    console.log(hasTokenAuthFunction, 'hasTokenAuthFunction')
                     if (hasTokenAuthFunction) {
                           setCheckingWallet('hasTokenAuth')
                         } else {
@@ -62,6 +63,7 @@ const LandingPage: MyPage = (props: any) => {
       const changeAddress = await wallet.getChangeAddress();
       const rewardAddresses = await wallet.getRewardAddresses();
       const hasTokenAuthFunction = await checkTokenStakeAddress(rewardAddresses[0])
+      console.log(hasTokenAuthFunction, 'hasTokenAuthFunction')
       const walletExists = await checkIfWalletExist(changeAddress, rewardAddresses[0], hasTokenAuthFunction)
         
         if (walletExists.data.claimed_token) {
@@ -128,7 +130,7 @@ const LandingPage: MyPage = (props: any) => {
       body: JSON.stringify(rewardAddresses),
   })
   const hasTokenStakeAddress = await response.json()
-  return hasTokenStakeAddress > 0
+  return hasTokenStakeAddress
   }
   return (
     <>
