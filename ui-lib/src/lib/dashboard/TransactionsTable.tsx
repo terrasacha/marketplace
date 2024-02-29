@@ -1,6 +1,6 @@
 import React from 'react';
 import { getActualPeriod } from "@marketplaces/utils-2"
-
+import TableRow from './TableRow';
 interface Transaction {
   tokenName: string;
   txHash: string;
@@ -31,105 +31,69 @@ const TransactionsTable: React.FC<TransactionsTableProps> = ({
   });
 
   return (
-    <div className="md:w-70 mt-4 p-4 bg-white dark:bg-[#69a1b3] shadow-lg rounded-mdp-3 border-b-4 border-white dark:border-[#588695] dark:text-gray-800">
-      <h3 className="text-l font-semibold">
+    <div className="md:w-70 bg-white dark:bg-[#69a1b3] shadow-xl rounded-md p-6  dark:border-[#588695] dark:text-gray-800 flex flex-col items-center">
+      <h3 className="text-lg font-semibold w-full text-left">
         Detalle de las transacciones realizadas
       </h3>
-      <div className="overflow-x-auto max-w-full">
-        <table className="w-full table-auto text-left text-sm font-light">
-          <thead>
-            <tr className="border-b  dark:border-neutral-500 text-sm text-[#2E7D96] pr-2 font-semibold">
-              <th scope="col" className="px-6 py-4">
-                Nombre del proyecto
-              </th>
-              <th scope="col" className="px-6 py-4">
-                Hash Transacción
-              </th>
-              <th scope="col" className="px-6 py-4">
-                Nombre Token
-              </th>
-              <th scope="col" className="px-6 py-4">
-                Fecha transacción
-              </th>
-              <th scope="col" className="px-6 py-4">
-                Cantidad de tokens comprados
-              </th>
-              <th scope="col" className="px-6 py-4">
-                Precio de transacción
-              </th>
-            </tr>
-          </thead>
-          <tbody>
-            {sortedTransactions.map(
-              ({
-                tokenName,
-                txHash,
-                createdAt,
-                amountOfTokens,
-                product: { name, productFeatures },
-              }) => {
-                const globalTokenPriceFeature = productFeatures.items.find(
-                  (feature) => feature.featureID === 'GLOBAL_TOKEN_PRICE'
-                );
-                const date = new Date(createdAt);
-                const formattedDate = `${date.getDate()} de ${date.toLocaleDateString(
-                  'es',
-                  { month: 'long' }
-                )} de ${date.getFullYear()}`;
-                const tokenHistoricalData = JSON.parse(
-                  (
-                    productFeatures.items.find(
-                      (feature) =>
-                        feature.featureID === 'GLOBAL_TOKEN_HISTORICAL_DATA'
-                    )?.value || '[]'
-                  ).toString()
-                );
-                const periods = tokenHistoricalData.map((tkhd: any) => {
-                  return {
-                    period: tkhd.period,
-                    date: new Date(tkhd.date),
-                    price: tkhd.price,
-                    amount: tkhd.amount,
-                  };
-                });
-                const actualPeriod = getActualPeriod(Date.now(), periods);
-                const actualPriceToken = parseFloat(actualPeriod?.price);
+      <div className='w-[98%]'>
+        <div className="flex space-x-2 items-center px-3 py-2 ">
+          <div className="w-[220px] text-center">Nombre del proyecto</div>
+          <div className="w-[220px] text-center">Hash transacción</div>
+          <div className="w-[220px] text-center">Nombre Token</div>
+          <div className="w-[220px] text-center">Fecha transacción</div>
+          <div className="w-[220px] text-center">Tokens comprados</div>
+          <div className="w-[220px] text-center">Valor transacción</div>
+        </div>
+        <div className="space-y-2">
+        {sortedTransactions &&
+          sortedTransactions.map(({
+            tokenName,
+            txHash,
+            createdAt,
+            amountOfTokens,
+            product: { name, productFeatures },
+          }, index : number) => {
+            const globalTokenPriceFeature = productFeatures.items.find(
+              (feature) => feature.featureID === 'GLOBAL_TOKEN_PRICE'
+            );
+            const date = new Date(createdAt);
+            const formattedDate = `${date.getDate()} de ${date.toLocaleDateString(
+              'es',
+              { month: 'long' }
+            )} de ${date.getFullYear()}`;
+            const tokenHistoricalData = JSON.parse(
+              (
+                productFeatures.items.find(
+                  (feature) =>
+                    feature.featureID === 'GLOBAL_TOKEN_HISTORICAL_DATA'
+                )?.value || '[]'
+              ).toString()
+            );
+            const periods = tokenHistoricalData.map((tkhd: any) => {
+              return {
+                period: tkhd.period,
+                date: new Date(tkhd.date),
+                price: tkhd.price,
+                amount: tkhd.amount,
+              };
+            });
+            const actualPeriod = getActualPeriod(Date.now(), periods);
+            const actualPriceToken = parseFloat(actualPeriod?.price);
 
-               /*  console.log(periods, 'periods')
-                console.log(actualPeriod, 'actualPeriod')
-                console.log(actualPriceToken, 'actualPriceToken')
- */
-                return (
-                  <tr
-                    className="text-sm text-[#6b7587] font-semibold space-y-2 border  border-red-500"
-                    key={txHash}
-                  >
-                    <td className="whitespace-nowrap px-6 py-4">{name}</td>
-                    <td className="whitespace-nowrap px-6 py-4">
-                      <a
-                        href={`https://preview.cardanoscan.io/transaction/${txHash}`}
-                        target="_blank"
-                        rel="noopener noreferrer"
-                      >
-                        {`${txHash.slice(0, 6)}...${txHash.slice(-6)}`}
-                      </a>
-                    </td>
-                    <td className="whitespace-nowrap px-6 py-4">{tokenName}</td>
-                    <td className="whitespace-nowrap px-6 py-4">
-                      {formattedDate}
-                    </td>
-                    <td className="whitespace-nowrap px-6 py-4">
-                      {amountOfTokens}
-                    </td>
-                    <td className="whitespace-nowrap px-6 py-4">
-                      {actualPriceToken}
-                    </td>
-                  </tr>
-                );
-              }
-            )}
-          </tbody>
-        </table>
+            return (
+              <TableRow
+                key={index}
+                index={index}
+                name={name}
+                txHash={txHash}
+                tokenName={tokenName}
+                formattedDate={formattedDate}
+                amountOfTokens={amountOfTokens}
+                actualPriceToken={actualPriceToken}
+              />
+            );
+          })}
+      </div>
       </div>
     </div>
   );

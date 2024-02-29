@@ -1,9 +1,9 @@
-import { MyPage } from '@suan//components/common/types';
+import { MyPage } from '@terrasacha//components/common/types';
 import {
   getProject,
   getProjectData,
 } from '@marketplaces/data-access';
-import { mapProjectData } from '@suan//lib/mappers';
+import { mapProjectData } from '@terrasacha//lib/mappers';
 import { DashboardProject } from "@marketplaces/ui-lib"
 
 const DashboardPage: MyPage = (props : any) => {

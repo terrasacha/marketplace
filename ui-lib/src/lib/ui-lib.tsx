@@ -71,6 +71,8 @@ import ItemsDashboard from './dashboard/MainItemsDashboard';
 import TransactionsTable from './dashboard/TransactionsTable';
 import DetailItems from './dashboard/DetailItems';
 import DashboardInvestor from './dashboard/DashboardInvestor';
+import TableRow from './dashboard/TableRow'
+import DashboardProject from './dashboard/dashboard-project/DashboardProject'
 export {
   LoginForm,
   SignUpForm,
@@ -143,5 +145,7 @@ export {
   ItemsDashboard,
   TransactionsTable,
   DetailItems,
-  DashboardInvestor
+  DashboardInvestor,
+  TableRow,
+  DashboardProject
 };

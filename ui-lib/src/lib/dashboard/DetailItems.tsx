@@ -1,5 +1,6 @@
 import React from 'react';
 import { useRouter } from 'next/router';
+import ItemRow from './ItemRow';
 const DetailItems = (props: any) => {
   const { foundElement } = props;
   console.log(foundElement)
@@ -8,31 +9,20 @@ const DetailItems = (props: any) => {
   if (!foundElement) return <></>;
   
   return (
-    <div className="p-6 rounded-sm shadow-md w-full m-4 overflow-x-auto flex justify-center">
-      <table className="w-[95%] table-auto">
-        <thead>
-          <tr className="">
-            <th className="px-6 py-3 text-left">Nombre del proyecto</th>
-            <th className="px-6 py-3">Cantidad de Tokens</th>
-            <th className="px-6 py-3">{" "}</th>
-          </tr>
-        </thead>
-        <tbody>
-          {foundElement.map((item: any, index: number) => (
-            <tr key={index} className="border-t text-gray-500">
-              <td className="px-6 py-4">{item.projectName}</td>
-              <td className="px-6 py-4 text-center">{item.amountOfTokens}</td>
-              <td className="px-6 py-4 flex justify-center">
-                <button 
-                  onClick={() => router.push(`/projects/${item.projectID}/dashboard`)}
-                  className="flex justify-center text-white bg-custom-dark hover:bg-custom-dark-hover focus:outline-none focus:ring-4 focus:ring-gray-300 font-medium rounded text-sm px-5 py-2.5">
-                  Ir a dashboard del proyecto
-                </button>
-              </td>
-            </tr>
-          ))}
-        </tbody>
-      </table>
+    <div className="p-6 rounded-md shadow-xl w-full overflow-x-auto flex flex-col items-center">
+      <h3 className="text-lg font-semibold w-full text-left">
+        Detalle de las transacciones realizadas
+      </h3>
+      <div className='w-[98%]'>
+        <div className="flex space-x-2 items-center px-3 py-2 justify-around">
+          <div className="w-[220px] text-center">Nombre del proyecto</div>
+          <div className="w-[220px] text-center">Token Comprados</div>
+          <div className="w-[220px] text-center">Información detallada</div>
+        </div>
+      {foundElement.map((item: any, index: number) => (
+        <ItemRow projectID={item.projectID} projectName={item.projectName} amountOfTokens={item.amountOfTokens} key={index}/>
+        ))}
+      </div>
     </div>
   );
 };

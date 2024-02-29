@@ -552,6 +552,7 @@ export async function getTransactions() {
                 createdAt
                 description
                 name
+                id
                 category {
                   name
                 }
@@ -562,7 +563,6 @@ export async function getTransactions() {
               txHash
               createdAt
               id
-              orderID
               stakeAddress
               tokenName
             }
@@ -583,7 +583,6 @@ export async function getTransactions() {
     return [];
   }
 }
-
 export async function getImages(imageURL: string) {
   try {
     const url = `https://kiosuanbcrjsappcad3eb2dd1b14457b491c910d5aa45dd145518-dev.s3.amazonaws.com/public/${imageURL}`;

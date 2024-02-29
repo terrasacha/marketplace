@@ -36,7 +36,6 @@ function DashboardInvestor(props: { transactions: any[] }) {
 
     return acc;
   }, {});
-  console.log(groupedData,'groupedData')
 
   // Nuevo array con la información agrupada por nombre de token
   const otroArray = Object.values(groupedData);
@@ -91,11 +90,6 @@ function DashboardInvestor(props: { transactions: any[] }) {
           <h3 className="font-semibold my-3 pl-2 pb-2 text-xl">Información general de tus proyectos</h3>
           <div className="flex flex-col w-full">
             <ItemsDashboard NewElements={newElements} />
-            {/* <div className="bg-white dark:bg-[#69a1b3] shadow-lg rounded-mdp-3 border-b-4 border-white dark:border-[#588695] dark:text-gray-800">
-              <div className="project_details p-4">
-                {FoundElement && <PieChartComponent foundElement={FoundElement} />}
-              </div>
-            </div> */}
           </div>
           <h3 className="font-semibold my-3 pl-2 pb-2 text-xl">Detalles de tus proyectos</h3>
 
@@ -111,9 +105,11 @@ function DashboardInvestor(props: { transactions: any[] }) {
             <PieChartComponent />
             </div>
           </div>
-          <div className="overflow-x-auto max-w-full">
+          <div className="w-full mt-4">
               {FoundElement && <DetailItems foundElement={FoundElement} />}
-            {newElements && <TransactionsTable NewElements={newElements} />}
+          </div>
+          <div className="w-full mt-4">
+              {newElements && <TransactionsTable NewElements={newElements} />}
           </div>
         </div>
       </div>
