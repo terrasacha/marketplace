@@ -21,11 +21,13 @@ ChartJS.register(
   Legend
 )
 
+export default function LineChartComponent(props : any) {
+  const { axisColor, graphsColor  } = props
 
-const labels = ['0', '1', '2', '3', '4', '5', '6', '7', '8']
+  const labels = ['0', '1', '2', '3', '4', '5', '6', '7', '8']
 
 
-export const data = {
+const data = {
   labels,
   datasets: [
     {
@@ -76,8 +78,9 @@ export const data = {
     },
   ],
 }
-export const options = {
+const options = {
   responsive: true,
+  maintainAspectRatio: false,
   plugins: {
     legend: {
       position: 'top',
@@ -128,7 +131,6 @@ export const options = {
     yAxisKey: 'value'
   }
 }
-export default function LineChartComponent() {
   return(
         //@ts-ignore
         <Line options={options} data={data} />

@@ -95,13 +95,12 @@ function DashboardInvestor(props: { transactions: any[] }) {
 
           {/* BOX FOR GRAPHS */}
           <div className="grid grid-cols-1 lg:grid-cols-2 2xl:grid-cols-7 gap-4">
-            <div className="relative bg-custom-dark-hover p-4 rounded-md shadow-lg lg:col-span-2 2xl:col-span-5 flex flex-col justify-center items-center">
+            <div className="relative bg-custom-dark-hover p-5 rounded-md shadow-xl lg:col-span-2 2xl:col-span-5 flex flex-col justify-center items-center max-h-96">
               <h4 className="w-full text-[#ddd] text-md font-semibold">Evolución del proyecto</h4>
               <LineChartComponent />
             </div>            
-            <div className="relative bg-custom-dark-hover p-4 rounded-md shadow-lg lg:col-span-2 2xl:col-span-2 flex flex-col justify-center items-center">
-            <h4 className="absolute top-4 left-6 w-full text-[#ddd] text-md font-semibold">Tokens de tu billetera</h4>
-            
+            <div className="relative bg-custom-dark-hover p-5 rounded-md shadow-xl lg:col-span-2 2xl:col-span-2 flex flex-col justify-center items-center max-h-96">
+            <h4 className="top-4 left-6 w-full text-[#ddd] text-md font-semibold">Tokens de tu billetera</h4>
             <PieChartComponent />
             </div>
           </div>
