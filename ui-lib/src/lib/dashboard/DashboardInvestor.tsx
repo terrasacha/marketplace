@@ -16,6 +16,7 @@ function DashboardInvestor(props: { transactions: any[] }) {
   const [walletStakeID, setWalletStakeID] = useState<string | undefined>(undefined);
 
   const newElements = transactions.filter(transaction => transaction.stakeAddress === walletStakeID);
+  console.log(newElements, 'newElements')
   const groupedData = newElements.reduce((acc, item) => {
     const { tokenName, createdAt, amountOfTokens, product, ...rest } = item;
 

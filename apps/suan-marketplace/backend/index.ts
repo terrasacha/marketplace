@@ -563,7 +563,6 @@ export async function getTransactions() {
               txHash
               createdAt
               id
-              orderID
               stakeAddress
               tokenName
             }

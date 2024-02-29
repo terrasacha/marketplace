@@ -95,9 +95,13 @@ const TransactionsTable: React.FC<TransactionsTableProps> = ({
                 const actualPeriod = getActualPeriod(Date.now(), periods);
                 const actualPriceToken = parseFloat(actualPeriod?.price);
 
+               /*  console.log(periods, 'periods')
+                console.log(actualPeriod, 'actualPeriod')
+                console.log(actualPriceToken, 'actualPriceToken')
+ */
                 return (
                   <tr
-                    className="text-sm text-[#6b7587] font-semibold"
+                    className="text-sm text-[#6b7587] font-semibold space-y-2 border  border-red-500"
                     key={txHash}
                   >
                     <td className="whitespace-nowrap px-6 py-4">{name}</td>
