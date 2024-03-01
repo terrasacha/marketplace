@@ -1,19 +1,48 @@
-import { useState } from 'react';
+import { useContext, useEffect, useState } from 'react';
 import { Card, CreateOrderCard, OrderBookCard } from '../ui-lib';
+import { WalletContext } from '@marketplaces/utils-2';
 
 export default function TradeCard(props: any) {
+  const { walletData } = useContext<any>(WalletContext);
+
   const [activeTab, setActiveTab] = useState<string>('my_orders');
+  const [orderList, setOrderList] = useState<Array<any> | null>(null);
+  const [orderHistory, setOrderHistory] = useState<Array<any> | null>(null);
 
   const handleSetActiveTab = (tab: string) => {
     setActiveTab(tab);
   };
+
+  const getOrderList = async () => {
+    const request1 = await fetch(`/api/calls/getOrders`);
+
+    const orders = await request1.json();
+    setOrderList(orders);
+
+    const request2 = await fetch(
+      `/api/calls/getOrders?walletAddress=${walletData.address}`
+    );
+
+    const ordersHistory = await request2.json();
+    setOrderHistory(ordersHistory);
+  };
+
+  useEffect(() => {
+    getOrderList();
+  }, []);
+
   return (
     <div className="grid grid-cols-3 gap-5">
       <div className="col-span-3 xl:col-span-1">
-        <CreateOrderCard />
+        <CreateOrderCard
+          userAssetList={walletData.assets}
+          walletAddress={walletData.address}
+          walletStakeAddress={walletData.stake_address}
+          getOrderList={getOrderList}
+        />
       </div>
       <div className="col-span-3 xl:col-span-2">
-        <OrderBookCard />
+        <OrderBookCard orderList={orderList} />
       </div>
       <div className="col-span-3">
         <Card>
