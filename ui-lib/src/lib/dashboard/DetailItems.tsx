@@ -9,10 +9,7 @@ const DetailItems = (props: any) => {
   if (!foundElement) return <></>;
   
   return (
-    <div className="p-6 rounded-md shadow-xl w-full overflow-x-auto flex flex-col items-center">
-      <h3 className="text-lg font-semibold w-full text-left">
-        Detalle de las tokens adquiridos
-      </h3>
+    <div>
       <div className='w-[98%]'>
         <div className="flex space-x-2 items-center px-3 py-2 justify-around">
           <div className="w-[220px] text-center">Nombre del proyecto</div>

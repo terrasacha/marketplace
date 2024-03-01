@@ -31,10 +31,8 @@ const TransactionsTable: React.FC<TransactionsTableProps> = ({
   });
 
   return (
-    <div className="md:w-70 bg-white dark:bg-[#69a1b3] shadow-xl rounded-md p-6  dark:border-[#588695] dark:text-gray-800 flex flex-col items-center">
-      <h3 className="text-lg font-semibold w-full text-left">
-        Detalle de las transacciones realizadas
-      </h3>
+    <div>
+      <p>Historial de transacciones de billetera</p>
       <div className='w-[98%]'>
         <div className="flex space-x-2 items-center px-3 py-2 ">
           <div className="w-[220px] text-center">Nombre del proyecto</div>

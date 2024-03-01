@@ -1,6 +1,7 @@
 import { useEffect, useState } from "react";
 import { useWallet, useAssets } from "@meshsdk/react";
 import { ItemsDashboard, TransactionsTable, DetailItems, LineChartComponent, PieChartComponent } from '@marketplaces/ui-lib'
+import { Card } from '../ui-lib'
 import { getActualPeriod } from "@marketplaces/utils-2";
 interface Transaction {
   amountOfTokens: number;
@@ -36,14 +37,12 @@ function DashboardInvestor(props: { transactions: any[] }) {
       }
     })
     const maxPeriod = dataToPlot ? dataToPlot.sort((a, b) => b.data.length - a.data.length)[0]?.data.length : 0
-    console.log(maxPeriod, 'maxPeriodmaxPeriodmaxPeriod')
     return {
       dataToPlot,
       maxPeriod
     }
   }
   const lineChartData = createLineChartData(arrayUniqueTokenData)
-  
   
   const groupedData = newElements.reduce((acc, item) => {
     const { tokenName, createdAt, amountOfTokens, product, ...rest } = item;
@@ -67,7 +66,7 @@ function DashboardInvestor(props: { transactions: any[] }) {
 
   // Nuevo array con la información agrupada por nombre de token
   const otroArray = Object.values(groupedData);
-  const FoundElement: Transaction[] = otroArray.map((foundElement: any) => {
+  const FoundElement: any = otroArray.map((foundElement: any) => {
     const matchingAsset = assets && assets.find(asset => {
       return asset.assetName === foundElement.tokenName;
     });
@@ -87,8 +86,9 @@ function DashboardInvestor(props: { transactions: any[] }) {
       projectName: foundElement.transactionsDetail[0].product.name || '',
       projectID: foundElement.transactionsDetail[0].product.id || ''
     };
-  }).filter(element => element.amountOfTokens !== null && element.amountOfTokens !== 0);
-
+  }).filter(element => element.amountOfTokens !== null && element.amountOfTokens !== 0)
+  .sort((a, b) => b.amountOfTokens - a.amountOfTokens)
+  console.log(FoundElement, 'FoundElement')
   useEffect(() => {
     async function loadWalletStakeID() {
       try {
@@ -110,34 +110,53 @@ function DashboardInvestor(props: { transactions: any[] }) {
   return (
     <div className="h-auto w-full px-5 pt-6">
       <div className="p-4 border-gray-200 rounded-lg">
-        <h2 className="text-4xl lg:text-5xl font-semibold text-gray-900 dark:text-gray-500">
+        <h2 className="text-4xl lg:text-5xl font-semibold text-gray-900 dark:text-gray-500 mb-5">
           Tus Proyectos
         </h2>
-        <div className="w-full">
-        
-          <h3 className="font-semibold my-3 pl-2 pb-2 text-xl">Información general de tus proyectos</h3>
-          <div className="flex flex-col w-full">
-            <ItemsDashboard NewElements={newElements} />
-          </div>
-          <h3 className="font-semibold my-3 pl-2 pb-2 text-xl">Detalles de tus proyectos</h3>
-
+        <div className="w-full flex flex-col col-span-3 space-y-5">
+          <Card className="h-fit">
+            <Card.Header title="Información general de tus proyectos" />
+            <Card.Body>
+              <h3 className="font-semibold my-3 pl-2 pb-2 text-xl">Información general de tus proyectos</h3>
+              <div className="flex flex-col w-full">
+                <ItemsDashboard NewElements={newElements} />
+              </div>
+            </Card.Body>
+          </Card>
           {/* BOX FOR GRAPHS */}
-          <div className="grid grid-cols-1 lg:grid-cols-2 2xl:grid-cols-7 gap-4">
-            <div className="relative bg-custom-dark-hover p-5 rounded-md shadow-xl lg:col-span-2 2xl:col-span-5 flex flex-col justify-center items-center max-h-96">
-              <h4 className="w-full text-[#ddd] text-md font-semibold">Evolución del proyecto</h4>
-              {lineChartData && <LineChartComponent lineChartData={lineChartData}/>}
-            </div>            
-            <div className="relative bg-custom-dark-hover p-5 rounded-md shadow-xl lg:col-span-2 2xl:col-span-2 flex flex-col justify-center items-center max-h-96">
-            <h4 className="top-4 left-6 w-full text-[#ddd] text-md font-semibold">Tokens de tu billetera</h4>
-            <PieChartComponent />
-            </div>
-          </div>
-          <div className="w-full mt-4">
-              {FoundElement && <DetailItems foundElement={FoundElement} />}
-          </div>
-          <div className="w-full mt-4">
-              {newElements && <TransactionsTable NewElements={newElements} />}
-          </div>
+          <Card className="h-fit">
+            <Card.Header title="Detalle de tus proyectos" />
+            <Card.Body>
+              <div className="grid grid-cols-1 lg:grid-cols-2 2xl:grid-cols-7 gap-4">
+                <div className="relative bg-custom-dark-hover p-5 rounded-md shadow-xl lg:col-span-2 2xl:col-span-5 flex flex-col justify-center items-center max-h-96">
+                  <h4 className="w-full text-[#ddd] text-md font-semibold">Evolución del proyecto</h4>
+                  {lineChartData && <LineChartComponent lineChartData={lineChartData}/>}
+                </div>            
+                <div className="relative bg-custom-dark-hover p-5 rounded-md shadow-xl lg:col-span-2 2xl:col-span-2 flex flex-col justify-center items-center max-h-96">
+                <h4 className="top-4 left-6 w-full text-[#ddd] text-md font-semibold">Tokens de tu billetera</h4>
+                {FoundElement && <PieChartComponent foundElement={FoundElement}/>}
+                </div>
+              </div>
+            </Card.Body>
+          </Card>
+          {
+          FoundElement && 
+          <Card className="h-fit">
+            <Card.Header title="Detalle de tokens adquiridos" />
+            <Card.Body>
+              <DetailItems foundElement={FoundElement} />
+            </Card.Body>
+          </Card>
+          }
+          {
+          newElements && 
+          <Card className="h-fit">
+            <Card.Header title="Detalle de las transacciones realizadas" />
+            <Card.Body>
+            <TransactionsTable NewElements={newElements} />
+            </Card.Body>
+          </Card>
+          }
         </div>
       </div>
     </div>

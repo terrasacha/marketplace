@@ -217,10 +217,6 @@ const timeBetweenDates = (firstPeriod: any, lastPeriod: any) => {
   let months = totalMonths % 12;
 
   let daysInLastMonth = endDate.diff(startDate.add(years, 'years').add(months, 'months'), 'days');
-
-  console.log('Years:', years);
-  console.log('Months:', months);
-  console.log('Days:', daysInLastMonth);
   return { years, months, days: daysInLastMonth }
 }
 const mapProjectGeneralAspects = async (data: any): Promise<any> => {
@@ -591,7 +587,7 @@ export const mapProjectData = async (data: any): Promise<any> => {
         historicalData: tokenHistoricalData,
         transactionsNumber: data.transactions.items.length,
         name: tokenName,
-        actualPeriod: actualPeriod.period || 'unknown',
+        actualPeriod: actualPeriod?.period || 'unknown',
         actualPeriodTokenPrice: actualPeriod?.price || '',
         lifeTimeProject: lifeTimeProject || 'unknown',
         currency: tokenCurrency,

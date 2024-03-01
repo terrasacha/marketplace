@@ -1,17 +1,19 @@
+import { getPolygonByCadastralNumber } from '@terrasacha/backend';
 import {
   parseSerializedKoboData,
   convertAWSDatetimeToDate,
   getElapsedTime,
   capitalizeWords,
   getActualPeriod,
-} from "./util";
+} from './util';
 
+const moment = require('moment');
 export const mapGeoData = async (validatorDocuments: any): Promise<any> => {
-  const extensionesPermitidas = [".kml", ".kmz"];
+  const extensionesPermitidas = ['.kml', '.kmz'];
 
   const archivosFiltrados = validatorDocuments.filter((archivo: any) => {
     const filePath = archivo.filePathS3;
-    const extension = filePath.slice(filePath.lastIndexOf("."));
+    const extension = filePath.slice(filePath.lastIndexOf('.'));
 
     return extensionesPermitidas.includes(extension);
   });
@@ -21,7 +23,7 @@ export const mapGeoData = async (validatorDocuments: any): Promise<any> => {
 
 export const mapProjectVerifiers = async (data: any): Promise<string[]> => {
   const projectVerifiers = data.userProducts.items
-    .filter((up: any) => up.user.role === "validator")
+    .filter((up: any) => up.user.role === 'validator')
     .map((userProduct: any) => {
       return userProduct.user.id;
     });
@@ -36,7 +38,7 @@ export const mapProjectVerifiersNames = async (
   data: any
 ): Promise<string[]> => {
   const projectVerifiersNames = data.userProducts.items
-    .filter((up: any) => up.user.role === "validator")
+    .filter((up: any) => up.user.role === 'validator')
     .map((userProduct: any) => {
       return userProduct.user.name;
     });
@@ -51,10 +53,10 @@ export const mapVerificationsData = async (
     const verificationData = verifications.map(async (verification: any) => {
       return {
         id: verification.id,
-        verifierID: verification.userVerifierID || "",
-        verifierName: verification.userVerifier?.name || "",
-        postulantName: verification.userVerified?.name || "",
-        postulantID: verification.userVerifiedID || "",
+        verifierID: verification.userVerifierID || '',
+        verifierName: verification.userVerifier?.name || '',
+        postulantName: verification.userVerified?.name || '',
+        postulantID: verification.userVerifiedID || '',
         messages: await Promise.all(
           verification.verificationComments.items
             .sort(function (a: any, b: any) {
@@ -90,8 +92,8 @@ export const mapVerificationsData = async (
 
 export const mapDocumentsData = async (data: any): Promise<any[]> => {
   const PFNameMapper: Record<string, string> = {
-    B_owner_certificado: "Certificado de tradición",
-    C_plano_predio: "Plano del predio",
+    B_owner_certificado: 'Certificado de tradición',
+    C_plano_predio: 'Plano del predio',
   };
   const verifiablePF = data.productFeatures.items.filter(
     (pf: any) => pf.feature.isVerifable === true
@@ -99,7 +101,7 @@ export const mapDocumentsData = async (data: any): Promise<any[]> => {
 
   const documentsPromises = verifiablePF.map((pf: any) =>
     pf.documents.items
-      .filter((document: any) => document.status !== "validatorFile")
+      .filter((document: any) => document.status !== 'validatorFile')
       .map(async (document: any) => {
         return {
           id: document.id,
@@ -125,30 +127,30 @@ export const mapLocationData = async (
 ): Promise<any> => {
   if (!location) {
     return {
-      lat: "",
-      lng: "",
-      alt: "",
-      pres: "",
+      lat: '',
+      lng: '',
+      alt: '',
+      pres: '',
     };
   }
 
-  const [lat, lng, alt, pres] = location.split(" ").map(parseFloat);
+  const [lat, lng, alt, pres] = location.split(' ').map(parseFloat);
 
   return {
-    lat: isNaN(lat) ? "" : lat,
-    lng: isNaN(lng) ? "" : lng,
-    alt: isNaN(alt) ? "" : alt,
-    pres: isNaN(pres) ? "" : pres,
+    lat: isNaN(lat) ? '' : lat,
+    lng: isNaN(lng) ? '' : lng,
+    alt: isNaN(alt) ? '' : alt,
+    pres: isNaN(pres) ? '' : pres,
   };
 };
 
 export const mapStatus = async (obj: string): Promise<string | boolean> => {
   const mapper: Record<string, string> = {
-    draft: "En borrador",
-    verified: "Verificado",
-    on_verification: "En verificación",
-    in_blockchain: "En blockchain",
-    in_equilibrium: "En equilibrio",
+    draft: 'En borrador',
+    verified: 'Verificado',
+    on_verification: 'En verificación',
+    in_blockchain: 'En blockchain',
+    in_equilibrium: 'En equilibrio',
   };
 
   return mapper[obj] || false;
@@ -156,8 +158,8 @@ export const mapStatus = async (obj: string): Promise<string | boolean> => {
 
 export const mapCategory = async (obj: string): Promise<string | boolean> => {
   const mapper: Record<string, string> = {
-    PROYECTO_PLANTACIONES: "Proyecto Plantaciones",
-    "REDD+": "REDD+",
+    PROYECTO_PLANTACIONES: 'Proyecto Plantaciones',
+    'REDD+': 'REDD+',
   };
 
   return mapper[obj] || false;
@@ -167,13 +169,13 @@ export const mapUseTypes = async (
   types: string[] | string | null
 ): Promise<string[] | boolean> => {
   const mapper: Record<string, string> = {
-    potreros: "Potreros",
-    plantaciones_forestales1: "Plantaciones Forestales 1",
-    plantaciones_forestales2: "Plantaciones Forestales 2",
-    plantaciones_forestales3: "Plantaciones Forestales 3",
-    frutales1: "Frutales 1",
-    frutales2: "Frutales 2",
-    otros: "Otros",
+    potreros: 'Potreros',
+    plantaciones_forestales1: 'Plantaciones Forestales 1',
+    plantaciones_forestales2: 'Plantaciones Forestales 2',
+    plantaciones_forestales3: 'Plantaciones Forestales 3',
+    frutales1: 'Frutales 1',
+    frutales2: 'Frutales 2',
+    otros: 'Otros',
   };
 
   if (Array.isArray(types)) {
@@ -188,8 +190,8 @@ export const mapTrueOrFalseAnswers = async (
   answer: string
 ): Promise<string | boolean> => {
   const mapper: Record<string, string> = {
-    yes: "Si",
-    no: "No",
+    yes: 'Si',
+    no: 'No',
   };
 
   return mapper[answer] || false;
@@ -199,16 +201,26 @@ export const mapTemporalOrPermanent = async (
   answer: string
 ): Promise<string | boolean> => {
   const mapper: Record<string, string> = {
-    temporal: "Temporal",
-    permanente: "Permanente",
+    temporal: 'Temporal',
+    permanente: 'Permanente',
   };
 
   return mapper[answer] || false;
 };
 // Importa aquí tus funciones como parseSerializedKoboData, mapTrueOrFalseAnswers, mapTemporalOrPermanent y mapUseTypes
+const timeBetweenDates = (firstPeriod: any, lastPeriod: any) => {
+  let startDate = moment(firstPeriod, 'DD-MM-YYYY');
+  let endDate = moment(lastPeriod, 'DD-MM-YYYY');
 
+  let totalMonths = endDate.diff(startDate, 'months');
+  let years = Math.floor(totalMonths / 12);
+  let months = totalMonths % 12;
+
+  let daysInLastMonth = endDate.diff(startDate.add(years, 'years').add(months, 'months'), 'days');
+  return { years, months, days: daysInLastMonth }
+}
 const mapProjectGeneralAspects = async (data: any): Promise<any> => {
-  let parsedData: any = "";
+  let parsedData: any = '';
   if (data) {
     parsedData = await parseSerializedKoboData(data);
   }
@@ -216,51 +228,51 @@ const mapProjectGeneralAspects = async (data: any): Promise<any> => {
   return {
     postulant: {
       livesOnProperty:
-        (await mapTrueOrFalseAnswers(parsedData?.G_habita_predio)) || "",
-      timeLivingOnProperty: parsedData?.G_habita_years || "",
+        (await mapTrueOrFalseAnswers(parsedData?.G_habita_predio)) || '',
+      timeLivingOnProperty: parsedData?.G_habita_years || '',
       typeOfStay:
-        (await mapTemporalOrPermanent(parsedData?.G_Temporal_permanente)) || "",
+        (await mapTemporalOrPermanent(parsedData?.G_Temporal_permanente)) || '',
     },
-    households: parsedData?.G_viviendas_number || "",
-    familiesNumber: parsedData?.G_familias || "",
-    membersPerFamily: parsedData?.G_familias_miembros || "",
-    roadsStatus: parsedData?.G_vias_state || "",
-    municipalDistance: parsedData?.G_distancia_predio_municipal || "",
-    conveyance: parsedData?.G_transport_mean || "",
+    households: parsedData?.G_viviendas_number || '',
+    familiesNumber: parsedData?.G_familias || '',
+    membersPerFamily: parsedData?.G_familias_miembros || '',
+    roadsStatus: parsedData?.G_vias_state || '',
+    municipalDistance: parsedData?.G_distancia_predio_municipal || '',
+    conveyance: parsedData?.G_transport_mean || '',
     neighborhoodRoads:
-      (await mapTrueOrFalseAnswers(parsedData?.G_caminos_existence)) || "",
-    collapseRisk: parsedData?.G_risks_erosion_derrumbe || "",
+      (await mapTrueOrFalseAnswers(parsedData?.G_caminos_existence)) || '',
+    collapseRisk: parsedData?.G_risks_erosion_derrumbe || '',
   };
 };
 
 const mapProjectEcosystems = async (data: any): Promise<any> => {
-  let parsedData: any = "";
+  let parsedData: any = '';
   if (data) {
     parsedData = await parseSerializedKoboData(data);
   }
 
   return {
     waterSprings: {
-      exist: (await mapTrueOrFalseAnswers(parsedData?.F_nacimiento_agua)) || "",
-      quantity: parsedData?.F_nacimiento_agua_quantity || "",
+      exist: (await mapTrueOrFalseAnswers(parsedData?.F_nacimiento_agua)) || '',
+      quantity: parsedData?.F_nacimiento_agua_quantity || '',
     },
     concessions: {
-      exist: (await mapTrueOrFalseAnswers(parsedData?.F_agua_concede)) || "",
-      entity: parsedData?.F_agua_concede_entity || "",
+      exist: (await mapTrueOrFalseAnswers(parsedData?.F_agua_concede)) || '',
+      entity: parsedData?.F_agua_concede_entity || '',
     },
-    deforestationThreats: parsedData?.F_amenazas_defo_desc || "",
-    conservationProjects: parsedData?.F_conservacion_desc || "",
+    deforestationThreats: parsedData?.F_amenazas_defo_desc || '',
+    conservationProjects: parsedData?.F_conservacion_desc || '',
     diversity: {
-      fauna: parsedData?.F_especies_fauna || "",
-      flora: parsedData?.F_especies_flora || "",
-      mammals: parsedData?.F_especies_mamiferos || "",
-      birds: parsedData?.F_especies_aves || "",
+      fauna: parsedData?.F_especies_fauna || '',
+      flora: parsedData?.F_especies_flora || '',
+      mammals: parsedData?.F_especies_mamiferos || '',
+      birds: parsedData?.F_especies_aves || '',
     },
   };
 };
 
 const mapProjectUses = async (data: any): Promise<any> => {
-  let parsedData: any = "";
+  let parsedData: any = '';
   if (data) {
     parsedData = await parseSerializedKoboData(data);
   }
@@ -269,62 +281,62 @@ const mapProjectUses = async (data: any): Promise<any> => {
     actualUse: {
       types: (await mapUseTypes(parsedData?.D_actual_use)) || [],
       potreros: {
-        ha: parsedData?.D_area_potrero || "",
+        ha: parsedData?.D_area_potrero || '',
       },
       plantacionesForestales1: {
-        especie: parsedData?.D_especie_plantaciones1 || "",
-        ha: parsedData?.D_ha_plantaciones1 || "",
+        especie: parsedData?.D_especie_plantaciones1 || '',
+        ha: parsedData?.D_ha_plantaciones1 || '',
       },
       plantacionesForestales2: {
-        especie: parsedData?.D_especie_plantaciones2 || "",
-        ha: parsedData?.D_ha_plantaciones2 || "",
+        especie: parsedData?.D_especie_plantaciones2 || '',
+        ha: parsedData?.D_ha_plantaciones2 || '',
       },
       plantacionesForestales3: {
-        especie: parsedData?.D_especie_plantaciones3 || "",
-        ha: parsedData?.D_ha_plantaciones3 || "",
+        especie: parsedData?.D_especie_plantaciones3 || '',
+        ha: parsedData?.D_ha_plantaciones3 || '',
       },
       frutales1: {
-        especie: parsedData?.D_especie_frutales1 || "",
-        ha: parsedData?.D_ha_frutales1 || "",
+        especie: parsedData?.D_especie_frutales1 || '',
+        ha: parsedData?.D_ha_frutales1 || '',
       },
       frutales2: {
-        especie: parsedData?.D_especie_frutales2 || "",
-        ha: parsedData?.D_ha_frutales2 || "",
+        especie: parsedData?.D_especie_frutales2 || '',
+        ha: parsedData?.D_ha_frutales2 || '',
       },
       otros: {
-        especie: parsedData?.D_especie_otros || "",
-        ha: parsedData?.D_ha_otros || "",
+        especie: parsedData?.D_especie_otros || '',
+        ha: parsedData?.D_ha_otros || '',
       },
     },
     replaceUse: {
       types: (await mapUseTypes(parsedData?.D_replace_use)) || [],
       potreros: {
-        newUse: parsedData?.D_replace_potrero_use || "",
-        ha: parsedData?.D_replace_ha_potrero_use || "",
+        newUse: parsedData?.D_replace_potrero_use || '',
+        ha: parsedData?.D_replace_ha_potrero_use || '',
       },
       plantacionesForestales1: {
-        newUse: parsedData?.D_replace_plantaciones1_use || "",
-        ha: parsedData?.D_replace_ha_plantaciones1_use || "",
+        newUse: parsedData?.D_replace_plantaciones1_use || '',
+        ha: parsedData?.D_replace_ha_plantaciones1_use || '',
       },
       plantacionesForestales2: {
-        newUse: parsedData?.D_replace_plantaciones2_use || "",
-        ha: parsedData?.D_replace_ha_plantaciones2_use || "",
+        newUse: parsedData?.D_replace_plantaciones2_use || '',
+        ha: parsedData?.D_replace_ha_plantaciones2_use || '',
       },
       plantacionesForestales3: {
-        newUse: parsedData?.D_replace_plantaciones3_use || "",
-        ha: parsedData?.D_replace_ha_plantaciones3_use || "",
+        newUse: parsedData?.D_replace_plantaciones3_use || '',
+        ha: parsedData?.D_replace_ha_plantaciones3_use || '',
       },
       frutales1: {
-        newUse: parsedData?.D_replace_frutales1_use || "",
-        ha: parsedData?.D_replace_ha_frutales1_use || "",
+        newUse: parsedData?.D_replace_frutales1_use || '',
+        ha: parsedData?.D_replace_ha_frutales1_use || '',
       },
       frutales2: {
-        newUse: parsedData?.D_replace_frutales2_use || "",
-        ha: parsedData?.D_replace_ha_frutales2_use || "",
+        newUse: parsedData?.D_replace_frutales2_use || '',
+        ha: parsedData?.D_replace_ha_frutales2_use || '',
       },
       otros: {
-        newUse: parsedData?.D_replace_otros_use || "",
-        ha: parsedData?.D_replace_ha_otros_use || "",
+        newUse: parsedData?.D_replace_otros_use || '',
+        ha: parsedData?.D_replace_ha_otros_use || '',
       },
     },
   };
@@ -336,36 +348,36 @@ export const mapProjectData = async (data: any): Promise<any> => {
 
   const tokenName: string =
     data.productFeatures.items.filter((item: any) => {
-      return item.featureID === "GLOBAL_TOKEN_NAME";
-    })[0]?.value || "";
+      return item.featureID === 'GLOBAL_TOKEN_NAME';
+    })[0]?.value || '';
   const tokenCurrency: string =
     data.productFeatures.items.filter((item: any) => {
-      return item.featureID === "GLOBAL_TOKEN_CURRENCY";
-    })[0]?.value || "";
+      return item.featureID === 'GLOBAL_TOKEN_CURRENCY';
+    })[0]?.value || '';
   const pfTokenNameID: string =
     data.productFeatures.items.filter((item: any) => {
-      return item.featureID === "GLOBAL_TOKEN_NAME";
-    })[0]?.id || "";
+      return item.featureID === 'GLOBAL_TOKEN_NAME';
+    })[0]?.id || '';
 
   const pfTokenPriceID: string =
     data.productFeatures.items.filter((item: any) => {
-      return item.featureID === "GLOBAL_TOKEN_PRICE";
-    })[0]?.id || "";
+      return item.featureID === 'GLOBAL_TOKEN_PRICE';
+    })[0]?.id || '';
 
   const pfTokenAmountID: string =
     data.productFeatures.items.filter((item: any) => {
-      return item.featureID === "GLOBAL_AMOUNT_OF_TOKENS";
-    })[0]?.id || "";
+      return item.featureID === 'GLOBAL_AMOUNT_OF_TOKENS';
+    })[0]?.id || '';
 
   const pfTokenHistoricalDataID: string =
     data.productFeatures.items.filter((item: any) => {
-      return item.featureID === "GLOBAL_TOKEN_HISTORICAL_DATA";
-    })[0]?.id || "";
+      return item.featureID === 'GLOBAL_TOKEN_HISTORICAL_DATA';
+    })[0]?.id || '';
 
   const tokenHistoricalData: any[] = JSON.parse(
     data.productFeatures.items.filter((item: any) => {
-      return item.featureID === "GLOBAL_TOKEN_HISTORICAL_DATA";
-    })[0]?.value || "[]"
+      return item.featureID === 'GLOBAL_TOKEN_HISTORICAL_DATA';
+    })[0]?.value || '[]'
   );
 
   const periods: any[] = tokenHistoricalData.map((tkhd: any) => {
@@ -376,163 +388,185 @@ export const mapProjectData = async (data: any): Promise<any> => {
       amount: tkhd.amount,
     };
   });
+  const lifeTimeProject: any = timeBetweenDates(periods[0].date, periods[periods.length - 1].date)
   const actualPeriod: any = await getActualPeriod(Date.now(), periods);
 
   const pfProjectValidatorDocumentsID: string =
     data.productFeatures.items.filter((item: any) => {
-      return item.featureID === "GLOBAL_PROJECT_VALIDATOR_FILES";
-    })[0]?.id || "";
+      return item.featureID === 'GLOBAL_PROJECT_VALIDATOR_FILES';
+    })[0]?.id || '';
 
   const projectValidatorDocuments: any[] = JSON.parse(
     data.productFeatures.items.filter((item: any) => {
-      return item.featureID === "GLOBAL_PROJECT_VALIDATOR_FILES";
-    })[0]?.value || "[]"
+      return item.featureID === 'GLOBAL_PROJECT_VALIDATOR_FILES';
+    })[0]?.value || '[]'
   );
   const productsOfCycleProject: any[] = JSON.parse(
     data.productFeatures.items.filter((item: any) => {
-      return item.featureID === "GLOBAL_PRODUCTOS_DEL_CICLO_DE_PROYECTO";
-    })[0]?.value || "[]"
+      return item.featureID === 'GLOBAL_PRODUCTOS_DEL_CICLO_DE_PROYECTO';
+    })[0]?.value || '[]'
   );
   const revenuesByProduct: any[] = JSON.parse(
     data.productFeatures.items.filter((item: any) => {
-      return item.featureID === "GLOBAL_INGRESOS_POR_PRODUCTO";
-    })[0]?.value || "[]"
+      return item.featureID === 'GLOBAL_INGRESOS_POR_PRODUCTO';
+    })[0]?.value || '[]'
   );
   const cashFlowResume: any[] = JSON.parse(
     data.productFeatures.items.filter((item: any) => {
-      return item.featureID === "GLOBAL_RESUMEN_FLUJO_DE_CAJA";
-    })[0]?.value || "[]"
+      return item.featureID === 'GLOBAL_RESUMEN_FLUJO_DE_CAJA';
+    })[0]?.value || '[]'
   );
 
   const financialIndicators = JSON.parse(
     data.productFeatures.items.filter((item: any) => {
-      return item.featureID === "GLOBAL_INDICADORES_FINANCIEROS";
-    })[0]?.value || "[]"
+      return item.featureID === 'GLOBAL_INDICADORES_FINANCIEROS';
+    })[0]?.value || '[]'
   );
 
   const financialIndicatorsID =
     data.productFeatures.items.filter((item: any) => {
-      return item.featureID === "GLOBAL_INDICADORES_FINANCIEROS";
+      return item.featureID === 'GLOBAL_INDICADORES_FINANCIEROS';
     })[0]?.id || null;
 
   // A
   const postulantName: string =
     data.productFeatures.items.filter((item: any) => {
-      return item.featureID === "A_postulante_name";
-    })[0]?.value || "";
+      return item.featureID === 'A_postulante_name';
+    })[0]?.value || '';
   const postulantDocType: string =
     data.productFeatures.items.filter((item: any) => {
-      return item.featureID === "A_postulante_doctype";
-    })[0]?.value || "";
+      return item.featureID === 'A_postulante_doctype';
+    })[0]?.value || '';
   const postulantDocNumber: string =
     data.productFeatures.items.filter((item: any) => {
-      return item.featureID === "A_postulante_id";
-    })[0]?.value || "";
+      return item.featureID === 'A_postulante_id';
+    })[0]?.value || '';
   const postulantEmail: string =
     data.productFeatures.items.filter((item: any) => {
-      return item.featureID === "A_postulante_email";
-    })[0]?.value || "";
+      return item.featureID === 'A_postulante_email';
+    })[0]?.value || '';
   const vereda: string =
     data.productFeatures.items.filter((item: any) => {
-      return item.featureID === "A_vereda";
-    })[0]?.value || "";
+      return item.featureID === 'A_vereda';
+    })[0]?.value || '';
   const municipio: string =
     data.productFeatures.items.filter((item: any) => {
-      return item.featureID === "A_municipio";
-    })[0]?.value || "";
+      return item.featureID === 'A_municipio';
+    })[0]?.value || '';
   const matricula: string =
     data.productFeatures.items.filter((item: any) => {
-      return item.featureID === "A_matricula";
-    })[0]?.value || "";
+      return item.featureID === 'A_matricula';
+    })[0]?.value || '';
   const fichaCatrastal: string =
     data.productFeatures.items.filter((item: any) => {
-      return item.featureID === "A_ficha_catastral";
-    })[0]?.value || "";
+      return item.featureID === 'A_ficha_catastral';
+    })[0]?.value || '';
 
   // B
   const ownerName: string =
     data.productFeatures.items.filter((item: any) => {
-      return item.featureID === "B_owner";
-    })[0]?.value || "";
+      return item.featureID === 'B_owner';
+    })[0]?.value || '';
   const ownerDocType: string =
     data.productFeatures.items.filter((item: any) => {
-      return item.featureID === "B_owner_doctype";
-    })[0]?.value || "";
+      return item.featureID === 'B_owner_doctype';
+    })[0]?.value || '';
   const ownerDocNumber: string =
     data.productFeatures.items.filter((item: any) => {
-      return item.featureID === "B_owner_id";
-    })[0]?.value || "";
+      return item.featureID === 'B_owner_id';
+    })[0]?.value || '';
 
   // C
   const location: string =
     data.productFeatures.items.filter((item: any) => {
-      return item.featureID === "C_ubicacion";
-    })[0]?.value || "";
+      return item.featureID === 'C_ubicacion';
+    })[0]?.value || '';
 
   // D
   const area: string =
     data.productFeatures.items.filter((item: any) => {
-      return item.featureID === "D_area";
-    })[0]?.value || "0";
+      return item.featureID === 'D_area';
+    })[0]?.value || '0';
   const projectUses: string =
     data.productFeatures.items.filter((item: any) => {
-      return item.featureID === "D_actual_use";
-    })[0]?.value || "";
+      return item.featureID === 'D_actual_use';
+    })[0]?.value || '';
 
   // E
   const restrictionsDesc: string =
     data.productFeatures.items.filter((item: any) => {
-      return item.featureID === "E_restriccion_desc";
-    })[0]?.value || "";
+      return item.featureID === 'E_restriccion_desc';
+    })[0]?.value || '';
 
   const restrictionsOther: string =
     data.productFeatures.items.filter((item: any) => {
-      return item.featureID === "E_resctriccion_other";
-    })[0]?.value || "";
+      return item.featureID === 'E_resctriccion_other';
+    })[0]?.value || '';
 
   // F
   const projectEcosystem: string =
     data.productFeatures.items.filter((item: any) => {
-      return item.featureID === "F_nacimiento_agua";
-    })[0]?.value || "";
+      return item.featureID === 'F_nacimiento_agua';
+    })[0]?.value || '';
 
   // G
   const propertyGeneralAspects: string =
     data.productFeatures.items.filter((item: any) => {
-      return item.featureID === "G_habita_predio";
-    })[0]?.value || "";
+      return item.featureID === 'G_habita_predio';
+    })[0]?.value || '';
 
   // H
   const technicalAssistance: string =
     data.productFeatures.items.filter(
-      (item: any) => item.featureID === "H_asistance_desc"
-    )[0]?.value || "";
+      (item: any) => item.featureID === 'H_asistance_desc'
+    )[0]?.value || '';
 
   const strategicAllies: string =
     data.productFeatures.items.filter(
-      (item: any) => item.featureID === "H_aliados_estrategicos_desc"
-    )[0]?.value || "";
+      (item: any) => item.featureID === 'H_aliados_estrategicos_desc'
+    )[0]?.value || '';
 
   const communityGroups: string =
     data.productFeatures.items.filter(
-      (item: any) => item.featureID === "H_grupo_comunitario_desc"
-    )[0]?.value || "";
+      (item: any) => item.featureID === 'H_grupo_comunitario_desc'
+    )[0]?.value || '';
 
   const postulantID: string =
     data.userProducts.items.filter(
-      (up: any) => up.user?.role === "constructor"
-    )[0]?.user.id || "";
+      (up: any) => up.user?.role === 'constructor'
+    )[0]?.user.id || '';
 
   const pfOwnersDataID =
     data.productFeatures.items.filter((item: any) => {
-      return item.featureID === "B_owners";
-    })[0]?.id || "";
+      return item.featureID === 'B_owners';
+    })[0]?.id || '';
 
   const ownersData = JSON.parse(
     data.productFeatures.items.filter((item: any) => {
-      return item.featureID === "B_owners";
-    })[0]?.value || "[]"
+      return item.featureID === 'B_owners';
+    })[0]?.value || '[]'
   );
+
+  // Cadsatral Data
+  const pfCadastralDataID =
+    data.productFeatures.items.filter((item: any) => {
+      return item.featureID === 'A_predio_ficha_catastral';
+    })[0]?.id || '';
+
+  const cadastralData = JSON.parse(
+    data.productFeatures.items.filter((item: any) => {
+      return item.featureID === 'A_predio_ficha_catastral';
+    })[0]?.value || '[]'
+  );
+
+  // geo json
+  const cadastralNumbersArray =
+    cadastralData.map(
+      (item: any) => item.cadastralNumber
+    );
+  const geoJsonPredialData = await getPolygonByCadastralNumber(
+    cadastralNumbersArray
+  )
 
   return {
     projectInfo: {
@@ -553,9 +587,11 @@ export const mapProjectData = async (data: any): Promise<any> => {
         historicalData: tokenHistoricalData,
         transactionsNumber: data.transactions.items.length,
         name: tokenName,
-        actualPeriodTokenPrice: actualPeriod?.price || "",
+        actualPeriod: actualPeriod?.period || 'unknown',
+        actualPeriodTokenPrice: actualPeriod?.price || '',
+        lifeTimeProject: lifeTimeProject || 'unknown',
         currency: tokenCurrency,
-        actualPeriodTokenAmount: actualPeriod?.amount || "",
+        actualPeriodTokenAmount: actualPeriod?.amount || '',
       },
       location: {
         vereda: vereda,
@@ -582,6 +618,10 @@ export const mapProjectData = async (data: any): Promise<any> => {
     projectOwners: {
       pfID: pfOwnersDataID,
       owners: ownersData,
+    },
+    projectCadastralRecords: {
+      pfID: pfCadastralDataID,
+      cadastralRecords: cadastralData,
     },
     projectUses: await mapProjectUses(projectUses),
     projectRestrictions: {
@@ -611,5 +651,6 @@ export const mapProjectData = async (data: any): Promise<any> => {
       cashFlowResume: cashFlowResume,
       financialIndicators: { financialIndicatorsID, financialIndicators },
     },
+    projectPredialGeoJson: geoJsonPredialData
   };
 };

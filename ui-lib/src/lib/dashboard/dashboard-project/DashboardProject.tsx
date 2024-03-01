@@ -1,12 +1,36 @@
+import { useEffect, useState, useContext } from "react";
 import { LineChartComponent } from "../../ui-lib";
 import { getActualPeriod } from "@marketplaces/utils-2";
 import DefaultCard from "./DefaultCard";
 import TokenCard from "./TokenCard";
+import { useWallet } from "@meshsdk/react";
+import { WalletContext } from '@marketplaces/utils-2';
+
 
 export default function DashboardProject(props: any){
-    const project = props.project;
-    const projectData = props.projectData;
+  const { walletData } = useContext<any>(WalletContext);
+  console.log(walletData, 'walletData Dashboard')
+  const { project, projectData, transactions,projectId } = props
+  const { wallet, connected } = useWallet();
+  const [walletStakeID, setWalletStakeID] = useState<string | undefined>(undefined);
 
+    useEffect(() => {
+      async function loadWalletStakeID() {
+        try {
+          if (connected) {
+            const addresses = await wallet.getRewardAddresses();
+            if (addresses.length > 0) {
+              const firstAddress = addresses[0];
+              setWalletStakeID(firstAddress);
+            }
+          }
+        } catch (error) {
+          console.error(error);
+        }
+      }
+  
+      loadWalletStakeID();
+    }, [connected, wallet]);
     const projectStatusMapper: any = {
       draft: 'En borrador',
       verified: 'Verificado',
@@ -19,6 +43,9 @@ export default function DashboardProject(props: any){
       'Validación externa': 'En validación externa',
       'Registro del proyecto': 'Registrado',
     };
+
+    const newElements = transactions.filter((transaction : any)=> transaction.stakeAddress === 'stake_test1uztmgf6mhtcf94fmx7ms49gevrzhxl4cpcxr8pq6hcl54jsekplg0' && transaction.productID === projectId);
+    const totalTokens = newElements.reduce((sum : number, transaction : any) => sum + transaction.amountOfTokens, 0);
     const tokenHistoricalData = JSON.parse(
       project.productFeatures.items.filter((item: any) => {
         return item.featureID === 'GLOBAL_TOKEN_HISTORICAL_DATA';
@@ -61,7 +88,6 @@ export default function DashboardProject(props: any){
       tokenCurrency: tokenCurrency,
     };
     const formatProjectDuration = (data : any) =>{
-      console.log(data)
       let year = ''
       let month = ''
       let day = ''
@@ -92,7 +118,7 @@ export default function DashboardProject(props: any){
           {
           [
             { title: "Total tokens vendidos", value: relevantInfo.tokenUnits ? `${relevantInfo.tokenUnits.toLocaleString('es-CO')} ` : '0' },
-            { title: "Tokens propios" },
+            { title: "Tokens propios", value: totalTokens || 0 },
             { title: "Capital invertido" },
             { title: "Precio actual del token", value: projectData.projectInfo.token.actualPeriodTokenPrice },
             { title: "Ganancias" },
@@ -108,7 +134,7 @@ export default function DashboardProject(props: any){
         <div className="grid grid-cols-2 lg:grid-cols-4 2xl:grid-cols-4 gap-6 mt-8">
           
           <div className="bg-custom-dark-hover p-4 rounded-md shadow-lg col-span-2 lg:col-span-4 2xl:col-span-3 lg:row-span-3 flex justify-center h-80">
-            <LineChartComponent />
+            {/* <LineChartComponent /> */}
           </div>
           {
             [

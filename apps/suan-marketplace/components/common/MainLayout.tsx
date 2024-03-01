@@ -40,7 +40,6 @@ const MainLayout = ({ children }: PropsWithChildren) => {
           });
           const wallet = await response.json();
           if (wallet.length < 0) return router.push('/')
-          console.log(wallet, 'wallet')
           if (wallet.length > 0) {
             const walletData = await handleWalletData(wallet);
             const walletAddress = wallet[0].address
@@ -92,7 +91,7 @@ const MainLayout = ({ children }: PropsWithChildren) => {
       ) */
       const changeAddress = await wallet.getChangeAddress();
       const rewardAddresses = await wallet.getRewardAddresses();
-
+      
       const balanceData = await getWalletBalanceByAddress(changeAddress)
       const hasTokenAuth = balanceData[0]?.assets.some((asset: any) => asset.policy_id === process.env.NEXT_PUBLIC_TOKEN_AUTHORIZER &&
             asset.asset_name === process.env.NEXT_PUBLIC_TOKEN_AUTHORIZER_NAME) || false
@@ -102,11 +101,6 @@ const MainLayout = ({ children }: PropsWithChildren) => {
         addr: changeAddress,
         externalWallet: true,
       });
-      console.log({
-        name: name,
-        addr: changeAddress,
-        externalWallet: true,
-      })
       if (hasTokenAuth) {
         setAllowAccess(true);
       } else {
@@ -156,6 +150,7 @@ const MainLayout = ({ children }: PropsWithChildren) => {
       })
     })
     const walletInfoOnDB = await response.json() 
+    const walletData = await handleWalletData([walletInfoOnDB.data]);
     if(!walletInfoOnDB.data){
       const response = await fetch('/api/calls/backend/manageExternalWallets', {
         method: 'POST',
@@ -187,8 +182,8 @@ const MainLayout = ({ children }: PropsWithChildren) => {
             appName="Suan"
             image="/images/home-page/suan_logo.png"
             heightLogo={120}
-            widthLogo={60}
-            poweredBy={false}
+            widthLogo={120}
+            poweredBy={true}
           />
           <main className="lg:ml-80 mt-20">{children}</main>
         </>

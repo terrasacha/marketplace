@@ -13,9 +13,9 @@ export default function TableRow(props: any) {
 
 
   return (
-    <div className="flex space-x-2 items-center bg-custom-dark-hover text-white rounded-lg px-3 py-2">
+    <div className="flex space-x-2 items-center border bg-custom-dark text-[#f6f6f6] rounded-md p-4 shadow-[rgba(221,222,227,1)_1px_1px_4px_0px]">
       <div className=''>
-        <div className="w-[220px] text-center">
+        <div className="w-[220px] text-center font-bold">
         <p>{name}</p>
         </div>
       </div>

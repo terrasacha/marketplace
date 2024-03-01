@@ -570,6 +570,7 @@ export async function getTransactions() {
         query MyQuery {
           listTransactions {
             items {
+              productID
               product {
                 productFeatures {
                   items {
@@ -590,7 +591,6 @@ export async function getTransactions() {
               txHash
               createdAt
               id
-              orderID
               stakeAddress
               tokenName
             }

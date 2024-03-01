@@ -19,7 +19,7 @@ export function WalletContextProvider({
     if (data) {
       console.log('GetUserWallet', data);
       setWalletID(data[0].id);
-      setWalletName(data[0].name);
+      setWalletName(data[0].name || '');
       setWalletAddress(data[0].address);
       setWalletStakeAddress(data[0].stake_address);
       const updatedWalletData = await fetchWalletData(data[0].address);

@@ -11,7 +11,7 @@ const DashboardItem: React.FC<DashboardItemProps> = ({ icon, value, label }) => 
 				<p className="text-[#DDD] text-2xl">{value}</p>
 				<p>{label}</p>
 			</div>
-			<div className="flex justify-center items-center w-14 h-14 bg-amber-500 dark:bg-white rounded-full transition-all duration-300 transform group-hover:rotate-12">
+			<div className="flex justify-center items-center w-14 h-14 bg-amber-500 dark:bg-white rounded-full">
 				{icon}
 			</div>
 		</div>
