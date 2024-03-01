@@ -15,14 +15,13 @@ export function WalletContextProvider({
   const [walletStakeAddress, setWalletStakeAddress] = useState<any>(null);
   const [walletData, setWalletData] = useState<any>(null);
 
-  const handleWalletData = async (data: any) => {
-    if (data) {
-      console.log('GetUserWallet', data);
-      setWalletID(data[0].id);
-      setWalletName(data[0].name);
-      setWalletAddress(data[0].address);
-      setWalletStakeAddress(data[0].stake_address);
-      const updatedWalletData = await fetchWalletData(data[0].address);
+  const handleWalletData = async ({waleltID, walletName, walletAddress}: any) => {
+    if (walletAddress) {
+      setWalletID(waleltID);
+      setWalletName(walletName);
+      setWalletAddress(walletAddress);
+      const updatedWalletData = await fetchWalletData(walletAddress);
+      setWalletStakeAddress(updatedWalletData.stake_address);
       const projectsData = await getProjects();
 
       const mappedAssetsPrice = await Promise.all(

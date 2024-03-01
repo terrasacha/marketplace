@@ -692,8 +692,8 @@ export async function verifyWallet(stakeAddress: string) {
 }
 
 export async function getWalletByUser(userId: string): Promise<any> {
-  let output = ''
-  let response = ''
+  let output = '';
+  let response = '';
   try {
     response = await axios.post(
       graphqlEndpoint,
@@ -721,9 +721,9 @@ export async function getWalletByUser(userId: string): Promise<any> {
     //@ts-ignore
     output = response.data.data.getUser?.wallets?.items || [];
   } catch (error) {
-    console.log(error)
+    console.log(error);
     //@ts-ignore
-    output = error
+    output = error;
   }
 
   return output;
@@ -758,7 +758,11 @@ export async function createWallet(rewardAddresses: string, userId: string) {
   );
   return response;
 }
-export async function createExternalWallet(address: string, stake_address: string, claimed_token: boolean) {
+export async function createExternalWallet(
+  address: string,
+  stake_address: string,
+  claimed_token: boolean
+) {
   const response = await axios.post(
     graphqlEndpoint,
     {
@@ -807,10 +811,10 @@ export async function getWalletByStakeAddress(stake_address: string) {
         },
       }
     );
-    return response
+    return response;
   } catch (error) {
     console.log(error);
-    return false
+    return false;
   }
 }
 export async function createCoreWallet(id: string, name: string) {
@@ -837,7 +841,12 @@ export async function createCoreWallet(id: string, name: string) {
   }
 }
 
-export async function updateWallet({ id, name, passphrase, claimed_token }: any) {
+export async function updateWallet({
+  id,
+  name,
+  passphrase,
+  claimed_token,
+}: any) {
   const hash = await encryptPassword(passphrase);
   const response = await axios.post(
     graphqlEndpoint,
@@ -901,22 +910,27 @@ export async function claimToken({ id }: any) {
 }
 
 export async function createOrder(objeto: any) {
-  const response = await axios.post(
-    graphqlEndpoint,
-    {
-      query: `mutation MyMutation {
-        createOrder(input: {currencyCode: ${objeto.currencyCode}, externalOrderId: "${objeto.externalOrderId}", fiatTotalAmount: "${objeto.fiatTotalAmount}", statusCode: "${objeto.statusCode}", userProductID: "${objeto.userProductID}"}) {
-          id
-        }
-      }`,
-    },
-    {
-      headers: {
-        'x-api-key': awsAppSyncApiKey,
+  try {
+    const response = await axios.post(
+      graphqlEndpoint,
+      {
+        query: `mutation MyMutation {
+          createOrder(input: {tokenName: "${objeto.tokenName}", tokenAmount: ${objeto.tokenAmount}, walletAddress: "${objeto.walletAddress}", walletStakeAddress: "${objeto.walletStakeAddress}"}) {
+            id
+          }
+        }`,
       },
-    }
-  );
-  return response;
+      {
+        headers: {
+          'x-api-key': awsAppSyncApiKey,
+        },
+      }
+    );
+    return response.data.data.createOrder;
+  } catch (error) {
+    console.error('Error creating order:', error);
+    return false;
+  }
 }
 
 export async function createTransaction({
@@ -1075,7 +1089,10 @@ export async function verifyOwners(payload: any) {
   }
 }
 
-export async function validatePassword(password: string, walletStakeID: string) {
+export async function validatePassword(
+  password: string,
+  walletStakeID: string
+) {
   try {
     const response = await axios.post(
       graphqlEndpoint,
@@ -1093,13 +1110,50 @@ export async function validatePassword(password: string, walletStakeID: string) 
       }
     );
     if (response.data.data.getWallet) {
-      const hash = response.data.data.getWallet.password
+      const hash = response.data.data.getWallet.password;
       return bcrypt.compareSync(password, hash);
     } else {
       return false;
     }
   } catch (error) {
     console.error('Error checking wallet password:', error);
+    return false;
+  }
+}
+
+export async function getOrdersList(
+  filterByWalletAddress: string | null = null
+) {
+  try {
+    const response = await axios.post(
+      graphqlEndpoint,
+      {
+        query: `query getOrders {
+        listOrders ${
+          filterByWalletAddress
+            ? '(filter: {walletAddress: {eq: "' + filterByWalletAddress + '"}})'
+            : ''
+        } {
+          items {
+            id
+            tokenAmount
+            tokenName
+            walletStakeAddress
+            walletAddress
+          }
+        }
+      }`,
+      },
+      {
+        headers: {
+          'x-api-key': awsAppSyncApiKey,
+        },
+      }
+    );
+
+    return response.data.data.listOrders.items;
+  } catch (error) {
+    console.error('Error getting Orders List:', error);
     return false;
   }
 }

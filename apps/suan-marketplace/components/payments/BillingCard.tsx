@@ -43,6 +43,7 @@ export function BillingCard({
   const [txHash, setTxHash] = useState<string>('');
   const [tokensBuyed, setTokensBuyed] = useState<string>('');
 
+  console.log('projectInfo', projectInfo);
   let blockFrostKeysPreview: string;
   if (process.env.NEXT_PUBLIC_blockFrostKeysPreview) {
     blockFrostKeysPreview = process.env.NEXT_PUBLIC_blockFrostKeysPreview;
@@ -206,6 +207,8 @@ export function BillingCard({
     });
 
   const startMinting = async () => {
+    // Inicio de compra
+
     try {
       setTxHash('');
       setStep(PURCHASING_STEPS.PROCESSING);
@@ -261,77 +264,115 @@ export function BillingCard({
       console.log('recipientAddress', recipientAddress);
       console.log('tokenAmount', tokenAmount);
       console.log('truncated_metadata', truncated_metadata);
-      const { maskedTx, originalMetadata, simpleScriptPolicyID } =
-        await createMintingTransaction(
-          `/mint/create-tx`,
-          recipientAddress,
-          utxos,
-          parseInt(tokenAmount),
-          truncated_metadata,
-          parseFloat(adaPrice.toFixed(6))
+      console.log('ada Price', Math.round(adaPrice * 1000000));
+
+      const createMintTransaction = await createMintingTransaction(
+        `/mint/create-tx`,
+        recipientAddress,
+        utxos,
+        parseInt(tokenAmount),
+        truncated_metadata,
+        Math.round(adaPrice * 1000000)
+      );
+
+      if (createMintTransaction.status) {
+        const { maskedTx, originalMetadata, simpleScriptPolicyID, feeAmount } =
+          createMintTransaction;
+
+        console.log('feeAmount', feeAmount);
+        const signedTx = await wallet.signTx(maskedTx, true);
+        setTransactionStatusMessage('Transacción en proceso...');
+
+        const { appWalletSignedTx } = await sign(
+          `/mint/sign`,
+          signedTx,
+          originalMetadata
         );
 
-      // const decodedMaskedTx = cbor.decode(maskedTx)
-      // console.log(decodedMaskedTx)
+        console.log(signedTx);
+        console.log(originalMetadata);
 
-      const signedTx = await wallet.signTx(maskedTx, true);
-      setTransactionStatusMessage('Transacción en proceso...');
+        const txHash = await wallet.submitTx(appWalletSignedTx);
 
-      const { appWalletSignedTx } = await sign(
-        `/mint/sign`,
-        signedTx,
-        originalMetadata
-      );
+        //8726ae04e47a9d651336da628998eda52c7b4ab0a4f86deb90e51d83 token en hexadecimal
+        const createTransactionPayload = {
+          productID: projectInfo.projectID,
+          stakeAddress: walletStakeID[0],
+          policyID: simpleScriptPolicyID,
+          addressDestination: recipientAddress,
+          addressOrigin:
+            'addr_test1vqkge7txl2vdw26efyv7cytjl8l6n8678kz09agc0r34pdss0xtmp', //Desde donde se envian los fondos al usuario ADRESS MASTER,
+          amountOfTokens: parseInt(tokenAmount),
+          fees: parseInt(feeAmount) / 1000000, //Comision,
+          //metadataUrl: JSON.stringify(metadata),
+          network: networkId,
+          tokenName: projectInfo.tokenName,
+          txCborhex: signedTx,
+          txHash: txHash,
+          txIn: utxos[0].input.txHash, //,
+          txProcessed: true, // Si se proceso en block chain
+          type: 'mint',
+        };
+        console.log(createTransactionPayload);
+        // const createTransactionResult = await createTransaction(
+        //   createTransactionPayload
+        // );
+        const requestOptions = {
+          method: 'POST', // Método de solicitud
+          headers: {
+            'Content-Type': 'application/json', // Tipo de contenido del cuerpo de la solicitud
+          },
+          body: JSON.stringify(createTransactionPayload), // Datos que se enviarán en el cuerpo de la solicitud
+        };
 
-      const txHash = await wallet.submitTx(appWalletSignedTx);
-      console.log(utxos);
+        const createTransactionResult = await fetch(
+          '/api/calls/createTransaction',
+          requestOptions
+        );
+        console.log('CreateTranscation: ', createTransactionResult);
+        console.log('signedTx', signedTx);
+        console.log('txHash', txHash);
+        setTokensBuyed(tokenAmount);
+        setTxHash(txHash);
+        setTransactionStatusMessage(
+          'Esperando confirmación de la red, por favor no abandone la pagina...'
+        );
+        blockfrostProvider.onTxConfirmed(txHash, async () => {
+          setStep(PURCHASING_STEPS.FINISHED);
+        });
+      } else {
+        const { minAdaValue } = createMintTransaction;
 
-      //8726ae04e47a9d651336da628998eda52c7b4ab0a4f86deb90e51d83 token en hexadecimal
-      const createTransactionPayload = {
-        productID: projectInfo.projectID,
-        stakeAddress: walletStakeID[0],
-        policyID: simpleScriptPolicyID,
-        addressDestination: recipientAddress,
-        addressOrigin:
-          'addr_test1vqkge7txl2vdw26efyv7cytjl8l6n8678kz09agc0r34pdss0xtmp', //Desde donde se envian los fondos al usuario ADRESS MASTER,
-        amountOfTokens: parseInt(tokenAmount),
-        fees: 0, //Comision,
-        //metadataUrl: JSON.stringify(metadata),
-        network: networkId,
-        tokenName: projectInfo.tokenName,
-        txCborhex: signedTx,
-        txHash: txHash,
-        txIn: utxos[0].input.txHash, //,
-        txProcessed: true, // Si se proceso en block chain
-        type: 'mint',
-      };
-      console.log(createTransactionPayload);
-      // const createTransactionResult = await createTransaction(
-      //   createTransactionPayload
-      // );
-      const requestOptions = {
-        method: 'POST', // Método de solicitud
-        headers: {
-          'Content-Type': 'application/json', // Tipo de contenido del cuerpo de la solicitud
-        },
-        body: JSON.stringify(createTransactionPayload), // Datos que se enviarán en el cuerpo de la solicitud
-      };
+        // Calcular cantidad minima que se debe comprar
+        const minAssestsToBuy = Math.ceil(
+          minAdaValue / Math.round(adaPrice * 1000000)
+        );
 
-      const createTransactionResult = await fetch(
-        '/api/calls/createTransaction',
-        requestOptions
-      );
-      console.log('CreateTranscation: ', createTransactionResult);
-      console.log('signedTx', signedTx);
-      console.log('txHash', txHash);
-      setTokensBuyed(tokenAmount);
-      setTxHash(txHash);
-      setTransactionStatusMessage(
-        'Esperando confirmación de la red, por favor no abandone la pagina...'
-      );
-      blockfrostProvider.onTxConfirmed(txHash, async () => {
-        setStep(PURCHASING_STEPS.FINISHED);
-      });
+        setValidationError(
+          <>
+            <span className="font-medium">Oops!</span> la cantidad minima de
+            tokens que puedes comprar son {minAssestsToBuy}
+          </>
+        );
+
+        setAlertMessage({
+          type: 'failure',
+          title: 'Error !',
+          message: 'Ingresa una cantidad valida.',
+          visible: true,
+        });
+
+        setTimeout(() => {
+          setAlertMessage({
+            type: '',
+            title: '',
+            message: '',
+            visible: false,
+          });
+        }, 4000);
+
+        setStep(PURCHASING_STEPS.STARTING);
+      }
     } catch (error) {
       setStep(PURCHASING_STEPS.ERROR);
       console.log(error);

@@ -1,7 +1,13 @@
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { Card, CreateOrderCard, SearchIcon } from '../ui-lib';
 
-export default function OrderBookCard(props: any) {
+interface OrderBookCardProps {
+  orderList?: Array<any> | null;
+}
+
+export default function OrderBookCard(props: OrderBookCardProps) {
+  const { orderList } = props;
+
   return (
     <Card>
       <Card.Header
@@ -33,116 +39,33 @@ export default function OrderBookCard(props: any) {
             <div className="w-full text-center"></div>
           </div>
           <div className="space-y-1">
-            <div className="flex space-x-2 items-center bg-custom-dark text-white rounded-lg px-3 py-2">
-              <div className="w-full text-center">
-                <p>SUAN-243637095</p>
-              </div>
-              <div className="w-full text-center">
-                <p>5</p>
-              </div>
-              <div className="w-full text-center">
-                <p>t₳ 120</p>
-              </div>
-              <div className="w-full text-center">
-                <p>600</p>
-              </div>
-              <div className="w-full text-center">
-                <button
-                  type="button"
-                  className="text-yellow-300 hover:text-white border border-yellow-300 hover:bg-yellow-400 focus:outline-none focus:ring-4 focus:ring-yellow-300 font-medium rounded text-sm px-5 py-2.5 "
-                >
-                  Comprar
-                </button>
-              </div>
-            </div>
-            <div className="flex space-x-2 items-center bg-custom-dark text-white rounded-lg px-3 py-2">
-              <div className="w-full text-center">
-                <p>SUAN-243637095</p>
-              </div>
-              <div className="w-full text-center">
-                <p>5</p>
-              </div>
-              <div className="w-full text-center">
-                <p>t₳ 120</p>
-              </div>
-              <div className="w-full text-center">
-                <p>600</p>
-              </div>
-              <div className="w-full text-center">
-                <button
-                  type="button"
-                  className="text-yellow-300 hover:text-white border border-yellow-300 hover:bg-yellow-400 focus:outline-none focus:ring-4 focus:ring-yellow-300 font-medium rounded text-sm px-5 py-2.5 "
-                >
-                  Comprar
-                </button>
-              </div>
-            </div>
-            <div className="flex space-x-2 items-center bg-custom-dark text-white rounded-lg px-3 py-2">
-              <div className="w-full text-center">
-                <p>SUAN-243637095</p>
-              </div>
-              <div className="w-full text-center">
-                <p>5</p>
-              </div>
-              <div className="w-full text-center">
-                <p>t₳ 120</p>
-              </div>
-              <div className="w-full text-center">
-                <p>600</p>
-              </div>
-              <div className="w-full text-center">
-                <button
-                  type="button"
-                  className="text-yellow-300 hover:text-white border border-yellow-300 hover:bg-yellow-400 focus:outline-none focus:ring-4 focus:ring-yellow-300 font-medium rounded text-sm px-5 py-2.5 "
-                >
-                  Comprar
-                </button>
-              </div>
-            </div>
-            <div className="flex space-x-2 items-center bg-custom-dark text-white rounded-lg px-3 py-2">
-              <div className="w-full text-center">
-                <p>SUAN-243637095</p>
-              </div>
-              <div className="w-full text-center">
-                <p>5</p>
-              </div>
-              <div className="w-full text-center">
-                <p>t₳ 120</p>
-              </div>
-              <div className="w-full text-center">
-                <p>600</p>
-              </div>
-              <div className="w-full text-center">
-                <button
-                  type="button"
-                  className="text-yellow-300 hover:text-white border border-yellow-300 hover:bg-yellow-400 focus:outline-none focus:ring-4 focus:ring-yellow-300 font-medium rounded text-sm px-5 py-2.5 "
-                >
-                  Comprar
-                </button>
-              </div>
-            </div>
-            <div className="flex space-x-2 items-center bg-custom-dark text-white rounded-lg px-3 py-2">
-              <div className="w-full text-center">
-                <p>SUAN-243637095</p>
-              </div>
-              <div className="w-full text-center">
-                <p>5</p>
-              </div>
-              <div className="w-full text-center">
-                <p>t₳ 120</p>
-              </div>
-              <div className="w-full text-center">
-                <p>600</p>
-              </div>
-              <div className="w-full text-center">
-                <button
-                  type="button"
-                  className="text-yellow-300 hover:text-white border border-yellow-300 hover:bg-yellow-400 focus:outline-none focus:ring-4 focus:ring-yellow-300 font-medium rounded text-sm px-5 py-2.5 "
-                >
-                  Comprar
-                </button>
-              </div>
-            </div>
+            {orderList &&
+              orderList.map((order: any, index: number) => {
+                return (
+                  <div key={index} className="flex space-x-2 items-center bg-custom-dark text-white rounded-lg px-3 py-2">
+                    <div className="w-full text-center">
+                      <p>{order.tokenName}</p>
+                    </div>
+                    <div className="w-full text-center">
+                      <p>{order.tokenAmount}</p>
+                    </div>
+                    <div className="w-full text-center">
+                      <p>t₳ 0</p>
+                    </div>
+                    <div className="w-full text-center">
+                      <p>0</p>
+                    </div>
+                    <div className="w-full text-center">
+                      <button
+                        type="button"
+                        className="text-yellow-300 hover:text-white border border-yellow-300 hover:bg-yellow-400 focus:outline-none focus:ring-4 focus:ring-yellow-300 font-medium rounded text-sm px-5 py-2.5 "
+                      >
+                        Comprar
+                      </button>
+                    </div>
+                  </div>
+                );
+              })}
           </div>
 
           <div className="flex flex-col items-center mt-5">

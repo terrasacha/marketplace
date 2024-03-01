@@ -25,7 +25,7 @@ import WalletTransactions from './wallet/WalletTransactions';
 import WalletAssets from './wallet/WalletAssets';
 import WalletSend from './wallet/WalletSend';
 import TradeCard from './trade/TradeCard';
-import CreateOrderCard from './trade/create-order/CreateOrderCard';
+import CreateOrderCard from './trade/CreateOrderCard';
 import OrderBookCard from './trade/OrderBookCard';
 import Recipient from './wallet/Recipient';
 import Transactions from './wallet/Transactions';
