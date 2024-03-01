@@ -22,14 +22,47 @@ ChartJS.register(
 )
 
 export default function LineChartComponent(props : any) {
-  const { axisColor, graphsColor  } = props
+  const { axisColor, graphsColor, lineChartData  } = props
+  console.log(lineChartData, 'lineChartData')
+  const labels = Array.from({ length: lineChartData.maxPeriod + 1}, (_, index) => index.toString());
 
-  const labels = ['0', '1', '2', '3', '4', '5', '6', '7', '8']
-
-
+  console.log(lineChartData.dataToPlot.map((item : any) =>{
+    return(
+    {
+        label: item.name,
+        data: item.data,
+        segment: {
+          borderDash: ((ctx :any) => {
+            if(ctx.p0.raw.period > item.actualPeriod || 0) return [4,4]
+            return [0, 0]
+          }),
+        },
+        borderColor: 'rgb(217 119 6)',
+        backgroundColor: 'rgba(217, 119, 6, 0.5)',
+        stepped: 'before',
+      }
+    )
+}))
 const data = {
   labels,
-  datasets: [
+  datasets: lineChartData.dataToPlot.map((item : any) =>{
+    return(
+    {
+        label: item.name,
+        data: item.data,
+        segment: {
+          borderDash: ((ctx :any) => {
+            if(ctx.p0.raw.period > item.actualPeriod || 0) return [4,4]
+            return [0, 0]
+          }),
+        },
+        borderColor: 'rgb(217 119 6)',
+        backgroundColor: 'rgba(217, 119, 6, 0.5)',
+        stepped: 'before',
+      }
+    )
+})
+ /*  datasets: [
     {
       label: 'Token 1',
       data: [
@@ -76,7 +109,7 @@ const data = {
       backgroundColor: 'rgba(251, 191, 36, 0.5)',
       stepped: 'before',
     },
-  ],
+  ], */
 }
 const options = {
   responsive: true,

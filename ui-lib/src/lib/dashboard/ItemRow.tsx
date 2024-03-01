@@ -10,7 +10,7 @@ export default function ItemRow(props: any) {
     const router = useRouter()
  
    return (
-     <div className="flex justify-around space-x-2 items-center bg-custom-dark-hover text-white rounded-lg px-3 py-2">
+     <div className="flex justify-around space-x-2 items-center bg-custom-dark-hover text-white rounded-lg px-3 py-2 mt-2">
        <div className=''>
          <div className="w-[220px] text-center">
          <p>{projectName}</p>

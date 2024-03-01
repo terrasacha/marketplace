@@ -1,7 +1,7 @@
 import { useEffect, useState } from "react";
 import { useWallet, useAssets } from "@meshsdk/react";
 import { ItemsDashboard, TransactionsTable, DetailItems, LineChartComponent, PieChartComponent } from '@marketplaces/ui-lib'
-
+import { getActualPeriod } from "@marketplaces/utils-2";
 interface Transaction {
   amountOfTokens: number;
   tokenName: string;
@@ -16,7 +16,35 @@ function DashboardInvestor(props: { transactions: any[] }) {
   const [walletStakeID, setWalletStakeID] = useState<string | undefined>(undefined);
 
   const newElements = transactions.filter(transaction => transaction.stakeAddress === walletStakeID);
-  console.log(newElements, 'newElements')
+  const setUniquetokenData = new Set();
+  const arrayUniqueTokenData = newElements.filter(item => !setUniquetokenData.has(item.tokenName) && setUniquetokenData.add(item.tokenName));
+
+  function createLineChartData(data : Array<any>){
+    const dataToPlot = data.map(item =>{
+      let periods =  item.product.productFeatures.items.filter((pf : any)=> pf.featureID === "GLOBAL_TOKEN_HISTORICAL_DATA" )
+      periods = JSON.parse(periods[0].value).map((p : any) =>{
+        return {
+            period: parseInt(p.period),
+            value: p.price,
+            date: p.date
+        }
+      })
+      return {
+        name: item.tokenName,
+        data: periods,
+        actualPeriod: getActualPeriod(Date.now(), periods)
+      }
+    })
+    const maxPeriod = dataToPlot ? dataToPlot.sort((a, b) => b.data.length - a.data.length)[0]?.data.length : 0
+    console.log(maxPeriod, 'maxPeriodmaxPeriodmaxPeriod')
+    return {
+      dataToPlot,
+      maxPeriod
+    }
+  }
+  const lineChartData = createLineChartData(arrayUniqueTokenData)
+  
+  
   const groupedData = newElements.reduce((acc, item) => {
     const { tokenName, createdAt, amountOfTokens, product, ...rest } = item;
 
@@ -97,7 +125,7 @@ function DashboardInvestor(props: { transactions: any[] }) {
           <div className="grid grid-cols-1 lg:grid-cols-2 2xl:grid-cols-7 gap-4">
             <div className="relative bg-custom-dark-hover p-5 rounded-md shadow-xl lg:col-span-2 2xl:col-span-5 flex flex-col justify-center items-center max-h-96">
               <h4 className="w-full text-[#ddd] text-md font-semibold">Evolución del proyecto</h4>
-              <LineChartComponent />
+              {lineChartData && <LineChartComponent lineChartData={lineChartData}/>}
             </div>            
             <div className="relative bg-custom-dark-hover p-5 rounded-md shadow-xl lg:col-span-2 2xl:col-span-2 flex flex-col justify-center items-center max-h-96">
             <h4 className="top-4 left-6 w-full text-[#ddd] text-md font-semibold">Tokens de tu billetera</h4>

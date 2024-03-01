@@ -78,6 +78,7 @@ const ItemsDashboard: React.FC<ItemsDashboardProps> = ({ NewElements }) => {
 				lastPrice,
 				amountOfTokens,
 				totalValue,
+				token_name: transaction.tokenName,
 				transactionDate,
 				tokenRange,
 			};
@@ -85,12 +86,14 @@ const ItemsDashboard: React.FC<ItemsDashboardProps> = ({ NewElements }) => {
 			return {
 				lastPrice: null,
 				amountOfTokens: transaction.amountOfTokens,
+				token_name: transaction.tokenName,
 				totalValue: null,
 				transactionDate,
 				tokenRange,
 			};
 		}
 	});
+
 	// Calcula la suma de los totalValue de todos los elementos en results
 	const totalValueSum = results.reduce((sum, result) => {
 		if (typeof result.totalValue === "number") {
