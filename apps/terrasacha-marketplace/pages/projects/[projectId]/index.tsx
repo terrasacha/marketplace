@@ -17,6 +17,7 @@ import TabsComponents from '@terrasacha//components/home-page/TabsProject';
 import FinancialTab from '@terrasacha//components/home-page/ProjectTabs/FinancialTab';
 import EarningsTab from '@terrasacha//components/home-page/ProjectTabs/EarningsTab';
 import ProjectionsTab from '@terrasacha//components/home-page/ProjectTabs/ProjectionsTab';
+import { Card } from '@marketplaces/ui-lib';
 
 const ProjectDataModal = dynamic(
   () => import('@terrasacha/components/modals/ProjectDataModal')
@@ -167,130 +168,35 @@ const Product: MyPage = (props: any) => {
     project.description?.split(' ').slice(0, 70).join(' ') || '' + '...';
   const fullDescription = project.description;
   return (
-    <div className="project w-full pt-20 flex flex-col items-center bg-[#f4f8f9] ">
-      <div className="project-detail h-auto w-11/12">
-        <div className="details-general">
-          <PageHeader imageURL={imageData}></PageHeader>
-          <div className="project-categories relative h-auto pt-10 flex items-center">
-            <div className="px-5 py-2 rounded-[.2rem] mr-2 text-xs text-[#1E446E] bg-[#D6F8F4]">
-              {relevantInfo.category}
-            </div>
-            <div className="px-5 py-2 rounded-[.2rem] mr-2 text-xs text-[#1E446E] bg-[#D6F8F4]">
-              {relevantInfo.dateOfInscription}
-            </div>
-          </div>
-          <div className="sm:project-info pt-4 flex sm:flex-row flex-col flex-col-reverse">
-            <div className="sm:details-map flex justify-end items-start sm:w-1/2 h-300 rounded-lg overflow-hidden ">
-              {projectData.projectPredialGeoJson && (
-                <GoogleMapReact
-                  bootstrapURLKeys={{
-                    key: 'AIzaSyCzXTla3o3V7o72HS_mvJfpVaIcglon38U',
-                  }}
-                  defaultCenter={{
-                    lat: projectData.projectInfo.location.coords.lat,
-                    lng: projectData.projectInfo.location.coords.lng,
-                  }}
-                  defaultZoom={12}
-                  onGoogleApiLoaded={({ map, maps }) => {
-                    console.log(
-                      projectData.projectPredialGeoJson,
-                      'polygonsFetchedData'
-                    );
-
-                    if (projectData.projectPredialGeoJson.features.length > 0) {
-                      // Load GeoJSON.
-                      map.data.addGeoJson(projectData.projectPredialGeoJson);
-                      console.log('entro');
-
-                      // Create empty bounds object
-                      let bounds = new maps.LatLngBounds();
-
-                      map.data.addListener('click', (event: any) => {
-                        const codigo = event.feature.getProperty('CODIGO');
-                        console.log('Este es el codigo: ', codigo);
-                        const contentString = `
-                        <div class='infoWindowContainer'>
-                          <p>Identificador catastral: ${codigo}</p>
-                        </div>
-                      `;
-
-                        let infoWindow = new maps.InfoWindow({
-                          content: contentString,
-                          ariaLabel: codigo,
-                        });
-                        //setInfoWindow(infoWindow);
-                        infoWindow.setPosition(event.latLng);
-                        infoWindow.open(map, event.latLng);
-                      });
-
-                      map.data.forEach(function (feature: any) {
-                        var geo = feature.getGeometry();
-
-                        geo.forEachLatLng(function (LatLng: any) {
-                          bounds.extend(LatLng);
-                        });
-                      });
-
-                      map.fitBounds(bounds);
-                    }
-                    // const contentString =
-                    //   '<div id="content">' +
-                    //   '<div id="siteNotice">' +
-                    //   "</div>" +
-                    //   '<h1 id="firstHeading" class="firstHeading">Uluru</h1>' +
-                    //   '<div id="bodyContent">' +
-                    //   "<p><b>Uluru</b>, also referred to as <b>Ayers Rock</b>, is a large " +
-                    //   "sandstone rock formation in the southern part of the " +
-                    //   "Northern Territory, central Australia. It lies 335&#160;km (208&#160;mi) " +
-                    //   "south west of the nearest large town, Alice Springs; 450&#160;km " +
-                    //   "(280&#160;mi) by road. Kata Tjuta and Uluru are the two major " +
-                    //   "features of the Uluru - Kata Tjuta National Park. Uluru is " +
-                    //   "sacred to the Pitjantjatjara and Yankunytjatjara, the " +
-                    //   "Aboriginal people of the area. It has many springs, waterholes, " +
-                    //   "rock caves and ancient paintings. Uluru is listed as a World " +
-                    //   "Heritage Site.</p>" +
-                    //   '<p>Attribution: Uluru, <a href="https://en.wikipedia.org/w/index.php?title=Uluru&oldid=297882194">' +
-                    //   "https://en.wikipedia.org/w/index.php?title=Uluru</a> " +
-                    //   "(last visited June 22, 2009).</p>" +
-                    //   "</div>" +
-                    //   "</div>";
-
-                    // const infowindow = new maps.InfoWindow({
-                    //   content: contentString,
-                    //   ariaLabel: "Uluru",
-                    // });
-
-                    // projectData.projectGeoData.map((geoData: any) => {
-                    //   new maps.KmlLayer(geoData.fileURLS3, {
-                    //     suppressInfoWindows: true,
-                    //     preserveViewport: false,
-                    //     map: map,
-                    //   }).addListener('click', function (event: any) {});
-                    // });
-                  }}
-                  yesIWantToUseGoogleMapApiInternals
-                ></GoogleMapReact>
-              )}
-            </div>
-            <div className="sm:detail-info mt-2 sm:mt-0 sm:w-1/2 sm:pl-8">
+    <div className="h-auto w-full p-5">
+      <PageHeader imageURL={imageData}></PageHeader>
+      <div className="grid grid-cols-2 gap-5">
+        {/* Content */}
+        <div className="col-span-2 xl:col-span-1">
+          <Card>
+            <Card.Body>
               <div className="info-title">
                 <h3 className="text-xl font-semibold">
                   {relevantInfo.name} |{' '}
                   {relevantInfo.tokenName ? relevantInfo.tokenName : 'ETH'}
                 </h3>
-                <p className="info-amount font-medium text-[#484848]">
-                  Cantidad de tokens disponibles:{' '}
-                  {relevantInfo.tokenUnits.toLocaleString('es-CO') + ' ' ||
-                    '0 '}
-                </p>
               </div>
-              <div className="info-price pt-4">
-                <div className="price text-[#2E7D96]">
+              {/* Tags */}
+              <div className="flex items-center space-x-2 mt-2">
+                <span className="bg-gray-100 text-gray-800 text-sm font-medium px-2.5 py-0.5 rounded  border border-gray-500">
+                  {relevantInfo.category}
+                </span>
+                <span className="bg-gray-100 text-gray-800 text-sm font-medium px-2.5 py-0.5 rounded border border-gray-500">
+                  {relevantInfo.dateOfInscription}
+                </span>
+              </div>
+              <div className="info-price mt-2">
+                <div className="text-4xl font-bold">
                   {parseFloat(relevantInfo.price).toLocaleString('es-CO')}{' '}
                   {relevantInfo.tokenCurrency}
                   <span className="price-span">/ tCO2eq</span>
                 </div>
-                <div className="description-price pt-4 text-[#484848]">
+                <div className="description-price">
                   <Transition
                     show={expanded}
                     enter="transition-opacity duration-300"
@@ -301,14 +207,14 @@ const Product: MyPage = (props: any) => {
                     leaveTo="opacity-0"
                   >
                     {(ref) => (
-                      <p className="text-gray-800 md:text-sm">
+                      <p className="md:text-sm">
                         {fullDescription}
                       </p>
                     )}
                   </Transition>
                   {!expanded && (
                     <div>
-                      <p className="text-xs text-gray-80 md:text-sm">
+                      <p className="text-xs md:text-sm">
                         {truncatedDescription}
                       </p>
                       {truncatedDescription.length !==
@@ -324,97 +230,167 @@ const Product: MyPage = (props: any) => {
                   )}
                 </div>
 
-                <div className="flex flex-col sm:flex-row">
-                  <div className="flex flex-col items-center justify-center h-32 sm:w-1/2">
-                    <div className="w-11/12">
-                      <h4 className="pb-2 font-semibold">Status</h4>
-                      <div className="w-full bg-[#A7E4EC]  h-2 dark:bg-gray-700">
-                        <div
-                          className="bg-[#287993] h-2"
-                          style={{ width: `${relevantInfo.porcentageBuyed}%` }}
-                        ></div>
-                      </div>
-                      <p className="flex relative w-full text-sm pt-2 items-center">
-                        <svg
-                          className="w-3 h-3 text-[#287993] dark:text-white mr-2"
-                          aria-hidden="true"
-                          xmlns="http://www.w3.org/2000/svg"
-                          fill="currentColor"
-                          viewBox="0 0 21 21"
-                        >
-                          <path d="M20.817 9.085a10 10 0 0 0-19.77 2.9A10.108 10.108 0 0 0 6.762 20a9.689 9.689 0 0 0 4.2 1h.012a3.011 3.011 0 0 0 2.144-.884A2.968 2.968 0 0 0 14 18v-.86A1.041 1.041 0 0 1 15 16h2.7a2.976 2.976 0 0 0 2.838-2.024 9.93 9.93 0 0 0 .279-4.891ZM5.5 12a1 1 0 1 1 0-2 1 1 0 0 1 0 2Zm2.707-3.793a1 1 0 1 1-1.414-1.414 1 1 0 0 1 1.414 1.414Zm2.872-1.624a1 1 0 1 1 0-2 1 1 0 0 1 0 2Zm4.128 1.624a1 1 0 1 1-1.414-1.413 1 1 0 0 1 1.414 1.413Z" />
-                        </svg>
-                        Total Retirements{' '}
-                        <span className="absolute right-1 font-semibold">
-                          {project.counterNumberOfTimesBuyed}
-                        </span>
-                      </p>
-                      <p className="flex relative w-full text-sm items-center">
-                        <svg
-                          className="w-3 h-3 text-[#A7E4EC] dark:text-white mr-2"
-                          aria-hidden="true"
-                          xmlns="http://www.w3.org/2000/svg"
-                          fill="currentColor"
-                          viewBox="0 0 21 21"
-                        >
-                          <path d="M20.817 9.085a10 10 0 0 0-19.77 2.9A10.108 10.108 0 0 0 6.762 20a9.689 9.689 0 0 0 4.2 1h.012a3.011 3.011 0 0 0 2.144-.884A2.968 2.968 0 0 0 14 18v-.86A1.041 1.041 0 0 1 15 16h2.7a2.976 2.976 0 0 0 2.838-2.024 9.93 9.93 0 0 0 .279-4.891ZM5.5 12a1 1 0 1 1 0-2 1 1 0 0 1 0 2Zm2.707-3.793a1 1 0 1 1-1.414-1.414 1 1 0 0 1 1.414 1.414Zm2.872-1.624a1 1 0 1 1 0-2 1 1 0 0 1 0 2Zm4.128 1.624a1 1 0 1 1-1.414-1.413 1 1 0 0 1 1.414 1.413Z" />
-                        </svg>
-                        Suministro Restante{' '}
-                        <span className="absolute right-1 font-semibold">
-                          {relevantInfo.tokenUnits
-                            ? relevantInfo.tokenUnits.toLocaleString('es-CO')
-                            : 0}
-                        </span>
-                      </p>
-                    </div>
+                <button
+                  className="flex w-full justify-center text-gray-900 hover:text-white border border-gray-800 hover:bg-gray-900 focus:ring-4 focus:outline-none focus:ring-gray-300 font-medium rounded-lg text-sm px-5 py-2.5 text-center mt-5"
+                  onClick={() => setOpenModal('projectDataModal')}
+                >
+                  Detalles del proyecto
+                </button>
+                <div className="flex flex-col space-y-2 mt-20">
+                  <div className="flex justify-center bg-amber-400 text-sm px-2.5 py-0.5 rounded border border-custom-dark">
+                    <p>
+                      Tokens disponibles para comprar:{' '}
+                      <span className="font-semibold">
+                        {relevantInfo.tokenUnits
+                          ? `${relevantInfo.tokenUnits.toLocaleString(
+                              'es-CO'
+                            )} `
+                          : '0'}
+                      </span>
+                    </p>
                   </div>
-
-                  <div className="description-cta flex pt-8 flex-col sm:w-1/2">
-                    <Link href={`/projects/${project.id}/purchase`}>
-                      <button className="block mb-2 mx-auto border rounded-lg text-sm text-white bg-[#2E7D96] py-2 px-10 border-[#2E7D96]  hover:bg-[#436d7b]">
-                        Comprar
-                      </button>
-                    </Link>
-                    <a
-                      href="#"
-                      className="details_register text-[#287993] pt-2 pl-1 mb-2 text-center"
-                      onClick={() => setOpenModal('projectDataModal')}
-                    >
-                      Ver detalles de registro
-                    </a>
-                  </div>
+                  <Link
+                    className="flex justify-center w-full text-amber-400 bg-custom-dark hover:bg-custom-dark-hover focus:outline-none focus:ring-4 focus:ring-gray-300 font-medium rounded text-lg px-5 py-2.5 "
+                    href={`/projects/${project.id}/purchase`}
+                  >
+                    Ir a comprar !
+                  </Link>
                 </div>
               </div>
-            </div>
-          </div>
+            </Card.Body>
+          </Card>
         </div>
-      </div>
 
-      <div className="border-t border-1 w-11/12"></div>
-      <div className="detail-tabs">
-        <div className="detail-div border-[#ABABAB] flex justify-center">
-          <div className="tabs mt-2 pt-2 flex md:flex-row  flex-col">
-            {tabs.map((tab, index) => (
-              <button
-                key={index}
-                className={`" m-2 border rounded-lg text-[#2E2F30] py-2 px-10 border-[#D9D9D9] hover:bg-[#1F0004] ${
-                  activeTab === index
-                    ? 'border-b-2 border-[#1F0004] text-[#FFF] bg-[#6C000D] font-bold'
-                    : 'bg-[#D9D9D9] font-semibold border-b-2 border-transparent '
-                }`}
-                onClick={() => setActiveTab(index)}
-              >
-                {tab}
-              </button>
-            ))}
+        {/* Map */}
+        <div className="col-span-2 xl:col-span-1 order-first xl:order-none">
+          <div className="flex w-full h-300 xl:h-full rounded-lg overflow-hidden border shadow-[rgba(221,222,227,1)_1px_1px_4px_0px] bg-custom-fondo animate-fade animate-ease-in animate-duration-300">
+            {projectData.projectPredialGeoJson && (
+              <GoogleMapReact
+                bootstrapURLKeys={{
+                  key: 'AIzaSyCzXTla3o3V7o72HS_mvJfpVaIcglon38U',
+                }}
+                defaultCenter={{
+                  lat: projectData.projectInfo.location.coords.lat,
+                  lng: projectData.projectInfo.location.coords.lng,
+                }}
+                defaultZoom={12}
+                onGoogleApiLoaded={({ map, maps }) => {
+                  console.log(
+                    projectData.projectPredialGeoJson,
+                    'polygonsFetchedData'
+                  );
+
+                  if (projectData.projectPredialGeoJson.features.length > 0) {
+                    // Load GeoJSON.
+                    map.data.addGeoJson(projectData.projectPredialGeoJson);
+                    console.log('entro');
+
+                    // Create empty bounds object
+                    let bounds = new maps.LatLngBounds();
+
+                    map.data.addListener('click', (event: any) => {
+                      const codigo = event.feature.getProperty('CODIGO');
+                      console.log('Este es el codigo: ', codigo);
+                      const contentString = `
+                        <div class='infoWindowContainer'>
+                          <p>Identificador catastral: ${codigo}</p>
+                        </div>
+                      `;
+
+                      let infoWindow = new maps.InfoWindow({
+                        content: contentString,
+                        ariaLabel: codigo,
+                      });
+                      //setInfoWindow(infoWindow);
+                      infoWindow.setPosition(event.latLng);
+                      infoWindow.open(map, event.latLng);
+                    });
+
+                    map.data.forEach(function (feature: any) {
+                      var geo = feature.getGeometry();
+
+                      geo.forEachLatLng(function (LatLng: any) {
+                        bounds.extend(LatLng);
+                      });
+                    });
+
+                    map.fitBounds(bounds);
+                  }
+                  // const contentString =
+                  //   '<div id="content">' +
+                  //   '<div id="siteNotice">' +
+                  //   "</div>" +
+                  //   '<h1 id="firstHeading" class="firstHeading">Uluru</h1>' +
+                  //   '<div id="bodyContent">' +
+                  //   "<p><b>Uluru</b>, also referred to as <b>Ayers Rock</b>, is a large " +
+                  //   "sandstone rock formation in the southern part of the " +
+                  //   "Northern Territory, central Australia. It lies 335&#160;km (208&#160;mi) " +
+                  //   "south west of the nearest large town, Alice Springs; 450&#160;km " +
+                  //   "(280&#160;mi) by road. Kata Tjuta and Uluru are the two major " +
+                  //   "features of the Uluru - Kata Tjuta National Park. Uluru is " +
+                  //   "sacred to the Pitjantjatjara and Yankunytjatjara, the " +
+                  //   "Aboriginal people of the area. It has many springs, waterholes, " +
+                  //   "rock caves and ancient paintings. Uluru is listed as a World " +
+                  //   "Heritage Site.</p>" +
+                  //   '<p>Attribution: Uluru, <a href="https://en.wikipedia.org/w/index.php?title=Uluru&oldid=297882194">' +
+                  //   "https://en.wikipedia.org/w/index.php?title=Uluru</a> " +
+                  //   "(last visited June 22, 2009).</p>" +
+                  //   "</div>" +
+                  //   "</div>";
+
+                  // const infowindow = new maps.InfoWindow({
+                  //   content: contentString,
+                  //   ariaLabel: "Uluru",
+                  // });
+
+                  // projectData.projectGeoData.map((geoData: any) => {
+                  //   new maps.KmlLayer(geoData.fileURLS3, {
+                  //     suppressInfoWindows: true,
+                  //     preserveViewport: false,
+                  //     map: map,
+                  //   }).addListener('click', function (event: any) {});
+                  // });
+                }}
+                yesIWantToUseGoogleMapApiInternals
+              ></GoogleMapReact>
+            )}
           </div>
         </div>
-        <div className="tab-component mt-4 p-8 rounded-lg bg-[#FFF]">
-          {tabComponents.map((TabComponent, index) => (
-            <div key={index} className={activeTab === index ? '' : 'hidden'}>
-              <TabComponent tabData={tabProps[index]} />
-            </div>
-          ))}
+
+        {/* Tabs */}
+        <div className="col-span-2">
+          <Card>
+            <header>
+              <ul className="flex text-sm font-medium text-center rounded-t-lg border-b">
+                {tabs.map((tab: any, index: number) => {
+                  return (
+                    <li key={index} className="w-full focus-within:z-10">
+                      <button
+                        className={`inline-block w-full p-4 border-r border-gray-200 hover:text-gray-700 focus:ring-4 focus:ring-blue-300 focus:outline-none ${
+                          activeTab === index
+                            ? 'bg-gray-100 text-gray-900'
+                            : 'bg-white hover:bg-gray-50'
+                        }`}
+                        onClick={() => setActiveTab(index)}
+                      >
+                        {tab}
+                      </button>
+                    </li>
+                  );
+                })}
+              </ul>
+            </header>
+            <Card.Body>
+              {tabComponents.map((TabComponent, index) => (
+                <div
+                  key={index}
+                  className={activeTab === index ? '' : 'hidden'}
+                >
+                  <TabComponent tabData={tabProps[index]} />
+                </div>
+              ))}
+            </Card.Body>
+          </Card>
         </div>
       </div>
       {openModal === 'projectDataModal' && (

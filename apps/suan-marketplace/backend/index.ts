@@ -577,6 +577,8 @@ export async function getTransactions() {
       }
     );
 
+    console.log("Hola", response.data.data)
+
     return response.data.data.listTransactions.items;
   } catch (error) {
     console.error("Error fetching transactions:", error);

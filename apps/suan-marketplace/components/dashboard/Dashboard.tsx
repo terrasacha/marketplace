@@ -1,9 +1,11 @@
-import { useEffect, useState } from "react";
+import { useContext, useEffect, useState } from "react";
 import { useWallet, useAssets } from "@meshsdk/react";
 import PieChartComponent from "./PieChart";
 import ItemsDashboard from "./MainItemsDashboard";
 import TransactionsTable from "./TransactionsTable";
 import DetailItems from "./DetailItems";
+import { WalletContext } from "@marketplaces/utils-2";
+import { Transactions } from "@marketplaces/ui-lib";
 
 interface Transaction {
   amountOfTokens: number;
@@ -13,6 +15,8 @@ interface Transaction {
 
 function Dashboard(props: { transactions: any[] }) {
   const { transactions } = props;
+  const { walletData } = useContext<any>(WalletContext);
+  console.log("walletData", walletData)
   const assets = useAssets() as Array<{ [key: string]: any }>;
   const { wallet, connected } = useWallet();
   const [walletStakeID, setWalletStakeID] = useState<string | undefined>(undefined);
@@ -97,14 +101,15 @@ function Dashboard(props: { transactions: any[] }) {
             </div>
           </div>
           <h3 className="text-l font-semibold m-3 p-4 pb-2">Detalles de tus proyectos</h3>
-          <div className="md:w-70 mt-4 p-4 bg-white dark:bg-[#69a1b3] shadow-lg rounded-mdp-3 border-b-4 border-white dark:border-[#588695] dark:text-gray-800">
+          <div className="md:w-70 mt-4 p-4 mb-4 bg-white dark:bg-[#69a1b3] shadow-lg rounded-mdp-3 border-b-4 border-white dark:border-[#588695] dark:text-gray-800">
             <div className="project_details">
               {FoundElement && <DetailItems foundElement={FoundElement} />}
             </div>
           </div>
-          <div className="overflow-x-auto max-w-full">
+            <Transactions txPerPage={5}/>
+          {/* <div className="overflow-x-auto max-w-full">
             {newElements && <TransactionsTable NewElements={newElements} />}
-          </div>
+          </div> */}
         </div>
       </div>
     </div>

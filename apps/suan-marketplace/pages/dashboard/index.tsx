@@ -1,6 +1,6 @@
 // pages/dashboard/index.tsx
+import { getTransactions } from '@marketplaces/data-access';
 import Dashboard from '../../components/dashboard/Dashboard';
-import { getTransactions } from '@suan//backend';
 import { MyPage } from '@suan//components/common/types';
 
 const DashboardPage: MyPage = (props: any) => {

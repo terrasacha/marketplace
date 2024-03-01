@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useState } from 'react';
 import {
   PieChart,
   Pie,
@@ -6,7 +6,7 @@ import {
   Tooltip,
   Legend,
   ResponsiveContainer,
-} from "recharts";
+} from 'recharts';
 
 interface BlockchainCardProps {
   project: any;
@@ -38,23 +38,23 @@ export default function BlockchainCard({ project }: BlockchainCardProps) {
   const [newData, setNewData] = useState<any>(null); // Nueva variable de estado
 
   const traducciones: Traducciones = {
-    buffer: "Buffer",
-    comunity: "Comunidad",
-    investor: "Inversionista",
-    owner: "Propietario",
-    suan: "Suan",
+    buffer: 'Buffer',
+    comunity: 'Comunidad',
+    investor: 'Inversionista',
+    owner: 'Propietario',
+    suan: 'Suan',
   };
 
   const COLORS = [
-    "#0088FE",
-    "#00C49F",
-    "#FFBB28",
-    "#FF8042",
-    "#AF19FF",
-    "#FF1942",
-    "#00FF99",
-    "#FF6600",
-    "#8A2BE2",
+    '#0088FE',
+    '#00C49F',
+    '#FFBB28',
+    '#FF8042',
+    '#AF19FF',
+    '#FF1942',
+    '#00FF99',
+    '#FF6600',
+    '#8A2BE2',
   ];
 
   useEffect(() => {
@@ -69,19 +69,31 @@ export default function BlockchainCard({ project }: BlockchainCardProps) {
   }, []);
 
   function getGlobalTokenTotalAmount(project: any): number {
-    const GLOBAL_TOKEN_TOTAL_AMOUNT = "GLOBAL_TOKEN_TOTAL_AMOUNT";
+    const GLOBAL_TOKEN_TOTAL_AMOUNT = 'GLOBAL_TOKEN_TOTAL_AMOUNT';
     const featureItem = project.productFeatures.items.find(
       (item: any) => item.featureID === GLOBAL_TOKEN_TOTAL_AMOUNT
     );
+
     return featureItem ? Number(featureItem.value) : 0;
   }
 
   function getNewChartData(project: any): any {
-    return JSON.parse(
+    let chartData: any = {};
+    console.log('productFeatures', project.productFeatures);
+
+    const tokenAmountDistribution = JSON.parse(
       project.productFeatures.items.filter(
-        (item: any) => item.featureID === "GLOBAL_TOKEN_AMOUNT_DISTRIBUTION"
-      )[0]?.value || "[]"
+        (item: any) => item.featureID === 'GLOBAL_TOKEN_AMOUNT_DISTRIBUTION'
+      )[0]?.value || '[]'
     );
+
+    console.log('tokenAmountDistribution', tokenAmountDistribution);
+
+    tokenAmountDistribution.forEach((tad: any) => {
+      chartData[tad.CONCEPTO] = tad.CANTIDAD;
+    });
+
+    return chartData;
   }
 
   function transformDataForChart(
@@ -97,7 +109,7 @@ export default function BlockchainCard({ project }: BlockchainCardProps) {
   return (
     <div className="items-center justify-center flex sm:flex-row flex-col w-full">
       <p>
-        Esta sera la distribución de los{" "}
+        Esta sera la distribución de los{' '}
         <strong>{getGlobalTokenTotalAmount(project)}</strong> tokens destinados
         a este proyecto
       </p>

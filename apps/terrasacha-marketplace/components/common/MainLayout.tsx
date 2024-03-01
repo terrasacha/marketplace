@@ -42,7 +42,11 @@ const MainLayout = ({ children }: PropsWithChildren) => {
           if (wallet.length < 0) return router.push('/')
           console.log(wallet, 'wallet')
           if (wallet.length > 0) {
-            const walletData = await handleWalletData(wallet);
+            const walletData = await handleWalletData({
+              walletID: wallet[0].id,
+              walletName: wallet[0].name,
+              walletAddress: wallet[0].address,
+            });
             const walletAddress = wallet[0].address
             const balanceData = await getWalletBalanceByAddress(walletAddress)
             if (balanceData && balanceData.length > 0) {
@@ -92,6 +96,12 @@ const MainLayout = ({ children }: PropsWithChildren) => {
       ) */
       const changeAddress = await wallet.getChangeAddress();
       const rewardAddresses = await wallet.getRewardAddresses();
+
+      const walletData = await handleWalletData({
+        walletID: '',
+        walletName: '',
+        walletAddress: changeAddress,
+      });
 
       const balanceData = await getWalletBalanceByAddress(changeAddress)
       const hasTokenAuth = balanceData[0]?.assets.some((asset: any) => asset.policy_id === process.env.NEXT_PUBLIC_TOKEN_AUTHORIZER &&

@@ -104,9 +104,15 @@ const MainLayout = ({ children }: PropsWithChildren) => {
         const changeAddress = await wallet.getChangeAddress();
         const rewardAddresses = await wallet.getRewardAddresses();
 
-        const balanceData = await getWalletBalanceByAddress(changeAddress);
+        const walletData = await handleWalletData({
+          walletID: '',
+          walletName: '',
+          walletAddress: changeAddress,
+        });
+
+        // const balanceData = await getWalletBalanceByAddress(changeAddress);
         const hasTokenAuth =
-          balanceData[0]?.assets.some(
+          walletData.assets.some(
             (asset: any) =>
               asset.policy_id === process.env.NEXT_PUBLIC_TOKEN_AUTHORIZER &&
               asset.asset_name === process.env.NEXT_PUBLIC_TOKEN_AUTHORIZER_NAME

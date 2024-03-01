@@ -76,12 +76,24 @@ export default function BlockchainCard({ project }: BlockchainCardProps) {
     return featureItem ? Number(featureItem.value) : 0;
   }
 
+
   function getNewChartData(project: any): any {
-    return JSON.parse(
+    let chartData: any = {};
+    console.log('productFeatures', project.productFeatures);
+
+    const tokenAmountDistribution = JSON.parse(
       project.productFeatures.items.filter(
-        (item: any) => item.featureID === "GLOBAL_TOKEN_AMOUNT_DISTRIBUTION"
-      )[0]?.value || "[]"
+        (item: any) => item.featureID === 'GLOBAL_TOKEN_AMOUNT_DISTRIBUTION'
+      )[0]?.value || '[]'
     );
+
+    console.log('tokenAmountDistribution', tokenAmountDistribution);
+
+    tokenAmountDistribution.forEach((tad: any) => {
+      chartData[tad.CONCEPTO] = tad.CANTIDAD;
+    });
+
+    return chartData;
   }
 
   function transformDataForChart(
