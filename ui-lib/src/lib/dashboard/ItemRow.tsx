@@ -11,11 +11,14 @@ export default function ItemRow(props: any) {
  
    return (
      <div className="flex justify-around space-x-2 items-center bg-custom-dark-hover text-white rounded-lg px-3 py-2 mt-2">
-       <div className=''>
-         <div className="w-[220px] text-center">
-         <p>{projectName}</p>
-         </div>
-       </div>
+       <div className="flex justify-start items-center w-[400px] space-x-2">
+        <div className="relative inline-flex items-center justify-center w-7 h-7 overflow-hidden bg-white rounded-full">
+          <span className="font-medium text-custom-dark dark:text-gray-300">
+            {projectName.charAt(0)}
+          </span>
+        </div>
+        <p>{projectName}</p>
+      </div>
        <div className="w-[220px] text-center">
          <p>{amountOfTokens}</p>
        </div>

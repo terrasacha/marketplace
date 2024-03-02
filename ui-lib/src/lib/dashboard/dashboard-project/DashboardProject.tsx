@@ -111,7 +111,7 @@ export default function DashboardProject(props: any){
           {project.name}
         </h2>
   
-        <div className="grid grid-cols-2 lg:grid-cols-2 2xl:grid-cols-4 gap-6">
+        <div className="grid grid-cols-2 lg:grid-cols-2 2xl:grid-cols-4 gap-3">
           <div className="row-span-2 lg:col-span-1 2xl:col-span-1 lg:row-span-2">
             <TokenCard projectName={project.name} categoryName={projectData.projectInfo.category}/>
           </div>
@@ -131,7 +131,7 @@ export default function DashboardProject(props: any){
           }
           
         </div>
-        <div className="grid grid-cols-2 lg:grid-cols-4 2xl:grid-cols-4 gap-6 mt-8">
+        <div className="grid grid-cols-2 lg:grid-cols-4 2xl:grid-cols-4 gap-3 mt-4">
           
           <div className="bg-custom-dark-hover p-4 rounded-md shadow-lg col-span-2 lg:col-span-4 2xl:col-span-3 lg:row-span-3 flex justify-center h-80">
             {/* <LineChartComponent /> */}
@@ -149,7 +149,7 @@ export default function DashboardProject(props: any){
           }
         
         </div>
-        <div className="grid grid-cols-2 lg:grid-cols-2 2xl:grid-cols-2 gap-6 mt-8">
+        <div className="grid grid-cols-2 lg:grid-cols-2 2xl:grid-cols-2 gap-3 mt-4">
           {
             [
               { title: "Progreso proyecto", value:`${(projectData.projectInfo.token.actualPeriod / projectData.projectInfo.token.historicalData.length) * 100} %` },

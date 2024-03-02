@@ -2,6 +2,7 @@ import { useEffect, useState } from "react";
 import { useWallet, useAssets } from "@meshsdk/react";
 import { ItemsDashboard, TransactionsTable, DetailItems, LineChartComponent, PieChartComponent } from '@marketplaces/ui-lib'
 import { Card } from '../ui-lib'
+import { Transactions } from "../ui-lib";
 import { getActualPeriod } from "@marketplaces/utils-2";
 interface Transaction {
   amountOfTokens: number;
@@ -88,7 +89,6 @@ function DashboardInvestor(props: { transactions: any[] }) {
     };
   }).filter(element => element.amountOfTokens !== null && element.amountOfTokens !== 0)
   .sort((a, b) => b.amountOfTokens - a.amountOfTokens)
-  console.log(FoundElement, 'FoundElement')
   useEffect(() => {
     async function loadWalletStakeID() {
       try {
@@ -117,7 +117,6 @@ function DashboardInvestor(props: { transactions: any[] }) {
           <Card className="h-fit">
             <Card.Header title="Información general de tus proyectos" />
             <Card.Body>
-              <h3 className="font-semibold my-3 pl-2 pb-2 text-xl">Información general de tus proyectos</h3>
               <div className="flex flex-col w-full">
                 <ItemsDashboard NewElements={newElements} />
               </div>
@@ -150,12 +149,7 @@ function DashboardInvestor(props: { transactions: any[] }) {
           }
           {
           newElements && 
-          <Card className="h-fit">
-            <Card.Header title="Detalle de las transacciones realizadas" />
-            <Card.Body>
-            <TransactionsTable NewElements={newElements} />
-            </Card.Body>
-          </Card>
+            <Transactions txPerPage={8}/>
           }
         </div>
       </div>

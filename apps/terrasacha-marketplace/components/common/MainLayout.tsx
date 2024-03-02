@@ -82,13 +82,6 @@ const MainLayout = ({ children }: PropsWithChildren) => {
   useEffect(() => {
     if (connected) {
       const fetchData = async () =>{
-      /* const matchingAsset =
-      assets &&
-      assets.filter(
-        (asset) =>
-          asset.policyId === process.env.NEXT_PUBLIC_TOKEN_AUTHORIZER &&
-          asset.assetName === process.env.NEXT_PUBLIC_TOKEN_AUTHORIZER_NAME
-      ) */
       const changeAddress = await wallet.getChangeAddress();
       const rewardAddresses = await wallet.getRewardAddresses();
       
@@ -111,7 +104,6 @@ const MainLayout = ({ children }: PropsWithChildren) => {
       const walletExists = await checkIfWalletExist(changeAddress, rewardAddresses[0], true)
       if(walletExists){
       const balanceData : any = await getWalletBalanceByAddress(changeAddress)
-      console.log(balanceData, 'balanceData')
       const balance = balanceData[0].balance / 1000000
       setBalance(balance)
       }
@@ -150,7 +142,7 @@ const MainLayout = ({ children }: PropsWithChildren) => {
       })
     })
     const walletInfoOnDB = await response.json() 
-    const walletData = await handleWalletData(walletInfoOnDB);
+    const walletData = await handleWalletData([walletInfoOnDB.data]);
     if(!walletInfoOnDB.data){
       const response = await fetch('/api/calls/backend/manageExternalWallets', {
         method: 'POST',
@@ -160,7 +152,8 @@ const MainLayout = ({ children }: PropsWithChildren) => {
           claimed_token
         })
       })
-      const walletData = response.json()
+      const walletData = await response.json()
+      await handleWalletData([walletData.data]);
       return walletData
     }
     return walletInfoOnDB
@@ -181,9 +174,9 @@ const MainLayout = ({ children }: PropsWithChildren) => {
             user={user}
             appName="Terrasacha"
             image="/images/home-page/terrasacha_logo_vertical.png"
-            heightLogo={120}
+            heightLogo={60}
             widthLogo={120}
-            poweredBy={false}
+            poweredBy={true}
           />
           <main className="lg:ml-80 mt-20">{children}</main>
         </>
