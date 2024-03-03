@@ -175,8 +175,8 @@ const MainLayout = ({ children }: PropsWithChildren) => {
             appName="Suan"
             image="/images/home-page/suan_logo.png"
             heightLogo={120}
-            widthLogo={120}
-            poweredBy={true}
+            widthLogo={60}
+            poweredBy={false}
           />
           <main className="lg:ml-80 mt-20">{children}</main>
         </>
