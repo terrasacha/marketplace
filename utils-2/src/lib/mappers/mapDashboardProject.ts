@@ -1,25 +1,47 @@
 import { getActualPeriod } from "../utils-2";
 
 function createLineChartData(data: Array<any>) {
+    console.log(data,'data linechart')
     const dataToPlot = data.map(item => {
         let periods = item.product.productFeatures.items.filter((pf: any) => pf.featureID === "GLOBAL_TOKEN_HISTORICAL_DATA")
         periods = JSON.parse(periods[0].value).map((p: any) => {
             return {
                 period: parseInt(p.period),
                 value: p.price,
-                date: p.date
+                date: p.date,
+                volume: p.amount,
             }
         })
         return {
             name: item.tokenName,
             data: periods,
-            actualPeriod: getActualPeriod(Date.now(), periods)
+            actualPeriod: getActualPeriod(Date.now(), periods),
+
         }
     })
+    const dataToPlotVolume = data.map(item => {
+        let periods = item.product.productFeatures.items.filter((pf: any) => pf.featureID === "GLOBAL_TOKEN_HISTORICAL_DATA")
+        periods = JSON.parse(periods[0].value).map((p: any, index: number, array: any[]) => {
+            const previousValues = array.slice(0, index).map((prev: any) => prev.amount);
+            const sumPreviousValues = previousValues.reduce((acc: number, curr: number) => acc + curr, 0);
+            return {
+                period: parseInt(p.period),
+                value: p.amount + sumPreviousValues,
+                date: p.date,
+            }
+        })
+        return {
+            name: item.tokenName,
+            data: periods,
+            actualPeriod: getActualPeriod(Date.now(), periods),
+        }
+    })
+    
     const maxPeriod = dataToPlot ? dataToPlot.sort((a, b) => b.data.length - a.data.length)[0]?.data.length : 0
     return {
         dataToPlot,
-        maxPeriod
+        maxPeriod,
+        dataToPlotVolume
     }
 }
 
@@ -163,6 +185,7 @@ export async function mapDashboardProject(transactions: Array<any>, project: any
         tokenTotal: parseInt(actualPeriod?.amount),
         tokenUnits: parseInt(actualPeriod?.amount) - parseInt(totalTokensSold),
         tokenValue: actualPeriod?.price,
+        tokenPercentageSold: (parseInt(totalTokensSold) * 100 ) / parseInt(actualPeriod?.amount) ,
         tokenCurrency: tokenCurrency,
     };
     const formatProjectDuration = (data: any) => {
@@ -186,6 +209,7 @@ export async function mapDashboardProject(transactions: Array<any>, project: any
 
     return {
         relevantInfo,
+        totalTokensSold,
         totalTokens,
         projectDuration,
         totalGananciaCOP,

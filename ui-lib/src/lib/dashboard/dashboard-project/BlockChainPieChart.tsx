@@ -1,13 +1,8 @@
-import React, { useEffect, useState } from "react";
-import {
-  PieChart,
-  Pie,
-  Cell,
-  Tooltip,
-  Legend,
-  ResponsiveContainer,
-} from "recharts";
+import React, { useEffect, useState } from 'react';
 
+import { Pie } from 'react-chartjs-2';
+import { Chart as ChartJS, ArcElement, Tooltip, Legend } from 'chart.js';
+import { Card } from '../../ui-lib';
 interface BlockChainPieChartProps {
   project: any;
 }
@@ -33,43 +28,48 @@ const CustomTooltip = ({ active, payload }: any) => {
   return null;
 };
 
-export default function BlockChainPieChart({ project }: BlockChainPieChartProps) {
+export default function BlockChainPieChart({
+  project,
+}: BlockChainPieChartProps) {
   const [newChartData, setChartData] = useState<ChartDataItem[]>([]);
   const [newData, setNewData] = useState<any>(null); // Nueva variable de estado
-
+  const [globalTokenAmount, setGlobalTokenAmount] = useState<any>(null);
   const traducciones: Traducciones = {
-    buffer: "Buffer",
-    comunity: "Comunidad",
-    investor: "Inversionista",
-    owner: "Propietario",
-    suan: "Suan",
+    buffer: 'Buffer',
+    comunity: 'Comunidad',
+    investor: 'Inversionista',
+    owner: 'Propietario',
+    suan: 'Suan',
   };
 
   const COLORS = [
-    "#0088FE",
-    "#00C49F",
-    "#FFBB28",
-    "#FF8042",
-    "#AF19FF",
-    "#FF1942",
-    "#00FF99",
-    "#FF6600",
-    "#8A2BE2",
+    '#0088FE',
+    '#00C49F',
+    '#FFBB28',
+    '#FF8042',
+    '#AF19FF',
+    '#FF1942',
+    '#00FF99',
+    '#FF6600',
+    '#8A2BE2',
   ];
 
   useEffect(() => {
     const globalTokenTotalAmount = getGlobalTokenTotalAmount(project);
     const newData = getNewChartData(project);
+    console.log(newData, 'newData');
     setNewData(newData);
+    setGlobalTokenAmount(globalTokenTotalAmount);
 
     if (newData) {
       const chartData = transformDataForChart(newData, globalTokenTotalAmount);
+      console.log(chartData, 'chartData');
       setChartData(chartData);
     }
   }, []);
 
   function getGlobalTokenTotalAmount(project: any): number {
-    const GLOBAL_TOKEN_TOTAL_AMOUNT = "GLOBAL_TOKEN_TOTAL_AMOUNT";
+    const GLOBAL_TOKEN_TOTAL_AMOUNT = 'GLOBAL_TOKEN_TOTAL_AMOUNT';
     const featureItem = project.productFeatures.items.find(
       (item: any) => item.featureID === GLOBAL_TOKEN_TOTAL_AMOUNT
     );
@@ -79,8 +79,8 @@ export default function BlockChainPieChart({ project }: BlockChainPieChartProps)
   function getNewChartData(project: any): any {
     return JSON.parse(
       project.productFeatures.items.filter(
-        (item: any) => item.featureID === "GLOBAL_TOKEN_AMOUNT_DISTRIBUTION"
-      )[0]?.value || "[]"
+        (item: any) => item.featureID === 'GLOBAL_TOKEN_AMOUNT_DISTRIBUTION'
+      )[0]?.value || '[]'
     );
   }
 
@@ -88,42 +88,68 @@ export default function BlockChainPieChart({ project }: BlockChainPieChartProps)
     data: any,
     totalAmount: number
   ): ChartDataItem[] {
-    return Object.keys(data).map((key) => ({
-      name: traducciones[key] || key,
-      value: Number(((Number(data[key]) / totalAmount) * 100).toFixed(1)),
-    }));
+    let dataFormatted = data.map((item: any) => {
+      console.log(item, 'item');
+      return {
+        name: item.CONCEPTO,
+        value: item.CANTIDAD,
+      };
+    });
+    return dataFormatted;
   }
 
+  const data = {
+    labels: newChartData.map((item: any) => item.name),
+    datasets: [
+      {
+        label: 'Tokens repartidos',
+        data: newChartData.map((item: any) => item.value),
+        backgroundColor: [
+          'rgba(217, 119, 6, 0.9)',
+          'rgba(251, 191, 36, 0.9)',
+          'rgba(245, 158, 11, 0.9)',
+          'rgba(180, 83 ,9, 0.9)',
+          'rgba(146, 64 ,14, 0.9)',
+          'rgba(255, 251, 235, 0.9)',
+          'rgba(254, 243, 199, 0.9)',
+          'rgba(253, 230, 138, 0.9)',
+          'rgba(252, 211, 77, 0.9)',
+        ],
+        borderColor: [
+          'rgba(217, 119, 6, 1)',
+          'rgba(251, 191, 36, 1)',
+          'rgba(245, 158, 11, 1)',
+          'rgba(180, 83 ,9, 1)',
+          'rgba(146, 64 ,14, 1)',
+          'rgba(255, 251, 235, 1)',
+          'rgba(254, 243, 199, 1)',
+          'rgba(253, 230, 138, 1)',
+          'rgba(252, 211, 77, 1)',
+        ],
+        borderWidth: 1,
+      },
+    ],
+  };
+
+  const options = {
+    responsive: true,
+    plugins: {
+      legend: {
+        labels: {
+          color: '#DDD',
+        },
+      },
+    },
+  };
+
+  console.log(newChartData);
+
   return (
-    <div className="items-center justify-center flex sm:flex-row flex-col w-full">
-      <p>
-        Esta sera la distribución de los{" "}
-        <strong>{getGlobalTokenTotalAmount(project)}</strong> tokens destinados
-        a este proyecto
-      </p>
-      <ResponsiveContainer width="100%" height={300}>
-        <PieChart>
-          <Pie
-            dataKey="value"
-            data={newChartData}
-            cx="50%"
-            cy="50%"
-            outerRadius={100}
-            innerRadius={50}
-            fill="#8884d8"
-            labelLine={false}
-          >
-            {newChartData.map((entry, index) => (
-              <Cell
-                key={`cell-${index}`}
-                fill={COLORS[index % COLORS.length]}
-              />
-            ))}
-          </Pie>
-          <Tooltip content={<CustomTooltip />} />
-          <Legend layout="horizontal" align="center" verticalAlign="bottom" />
-        </PieChart>
-      </ResponsiveContainer>
-    </div>
+    <Card className="h-fit !bg-custom-dark-hover text-white">
+      <Card.Header title={`Distribución de tokens`} />
+      <Card.Body>
+        <Pie data={data} options={options} />
+      </Card.Body>
+    </Card>
   );
 }
