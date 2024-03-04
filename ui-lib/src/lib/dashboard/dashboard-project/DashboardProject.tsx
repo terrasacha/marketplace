@@ -164,8 +164,8 @@ export default function DashboardProject(props: any) {
           </div>
         ))}
       </div>
-      <div className="grid grid-cols-1 lg:grid-cols-8 2xl:grid-cols-8 gap-6 mt-4">
-        <div className="lg:col-span-5">
+      <div className="grid grid-cols-1 lg:grid-cols-9 2xl:grid-cols-9 gap-6 mt-4">
+        <div className="lg:col-span-6">
           <ActualUseAndPotentialInfoCard
             actualUse={projectData.projectUses.actualUse}
             replaceUse={projectData.projectUses.replaceUse}

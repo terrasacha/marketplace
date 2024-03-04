@@ -8,6 +8,7 @@ import {
   Title,
   Tooltip,
   Legend,
+  Filler,
 } from 'chart.js';
 import { Line } from 'react-chartjs-2';
 ChartJS.register(
@@ -17,7 +18,8 @@ ChartJS.register(
   LineElement,
   Title,
   Tooltip,
-  Legend
+  Legend,
+  Filler
 );
 
 export default function LineChartComponent(props: any) {
@@ -47,11 +49,12 @@ export default function LineChartComponent(props: any) {
     datasets.push(
       ...lineChartData.dataToPlotVolume.map((item: any) => {
         return {
-          label: item.name,
+          label: 'Volumen (tCO2eq)',
           data: item.data,
           borderColor: 'rgb(54, 162, 235)',
           backgroundColor: 'rgba(54, 162, 235, 0.5)',
           yAxisID: 'y1',
+          fill: true,
         };
       })
     );
