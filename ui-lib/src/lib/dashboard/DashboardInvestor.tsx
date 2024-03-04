@@ -1,4 +1,4 @@
-import { use, useEffect, useState } from 'react';
+import { useContext, useEffect, useState } from 'react';
 import { useWallet, useAssets } from '@meshsdk/react';
 import {
   ItemsDashboard,
@@ -8,7 +8,11 @@ import {
 } from '@marketplaces/ui-lib';
 import { Card } from '../ui-lib';
 import TransactionShort from './TransactionsShort';
-import { mapTransactionListDashboard } from '@marketplaces/utils-2';
+import { WalletContext } from '@marketplaces/utils-2';
+import {
+  mapTransactionListDashboard,
+  mapWalletDataDashboardInvestor,
+} from '@marketplaces/utils-2';
 interface Transaction {
   amountOfTokens: number;
   tokenName: string;
@@ -17,21 +21,23 @@ interface Transaction {
 }
 
 function DashboardInvestor(props: { transactions: any[] }) {
+  const { walletData } = useContext<any>(WalletContext);
   const { transactions } = props;
   const assets = useAssets() as Array<{ [key: string]: any }>;
   const { wallet, connected } = useWallet();
   const [walletStakeID, setWalletStakeID] = useState<string | undefined>(
     undefined
   );
-  const [mappedTransactionList, setMappedTransactionList] = useState<any>(null);
+  const [mappetWalletData, setMappetWalletData] = useState<any>(null);
 
   useEffect(() => {
-    if (assets && walletStakeID) {
-      mapTransactionListDashboard(transactions, walletStakeID, assets).then(
-        (data) => setMappedTransactionList(data)
-      );
+    if (walletData) {
+      mapWalletDataDashboardInvestor(walletData).then((data) => {
+        setMappetWalletData(data);
+        console.log(data, 'mapWallet');
+      });
     }
-  }, [walletStakeID, assets]);
+  }, [walletData]);
 
   useEffect(() => {
     async function loadWalletStakeID() {
@@ -51,7 +57,7 @@ function DashboardInvestor(props: { transactions: any[] }) {
 
     loadWalletStakeID();
   }, [connected, wallet]);
-  if (!mappedTransactionList) return <></>;
+  if (!mappetWalletData) return <></>;
   return (
     <div className="h-auto w-full px-5 pt-6">
       <div className="p-4 border-gray-200 rounded-lg">
@@ -63,7 +69,12 @@ function DashboardInvestor(props: { transactions: any[] }) {
             <Card.Header title="Información general de tus proyectos" />
             <Card.Body>
               <div className="flex flex-col w-full">
-                <ItemsDashboard NewElements={mappedTransactionList.inversion} />
+                <ItemsDashboard
+                  valueTotalPortfolio={
+                    mappetWalletData.transactions.valueTotalPortfolio
+                  }
+                  amountOfTokens={mappetWalletData.amountOfTokens}
+                />
               </div>
             </Card.Body>
           </Card>
@@ -76,9 +87,9 @@ function DashboardInvestor(props: { transactions: any[] }) {
                   <h4 className="w-full text-[#ddd] text-md font-semibold">
                     Evolución del proyecto
                   </h4>
-                  {mappedTransactionList && (
+                  {mappetWalletData && (
                     <LineChartComponent
-                      lineChartData={mappedTransactionList.lineChartData}
+                      lineChartData={mappetWalletData.lineChartData}
                       plotVolume={false}
                     />
                   )}
@@ -87,26 +98,22 @@ function DashboardInvestor(props: { transactions: any[] }) {
                   <h4 className="top-4 left-6 w-full text-[#ddd] text-md font-semibold">
                     Tokens de tu billetera
                   </h4>
-                  {mappedTransactionList && (
+                  {mappetWalletData && (
                     <PieChartComponent
-                      foundElement={mappedTransactionList.FoundElement}
+                      foundElement={mappetWalletData.dataPieChart}
                     />
                   )}
                 </div>
               </div>
             </Card.Body>
           </Card>
-          {mappedTransactionList && (
-            <Card className="h-fit">
-              <Card.Header title="Detalle de tokens adquiridos" />
-              <Card.Body>
-                <DetailItems
-                  foundElement={mappedTransactionList.FoundElement}
-                />
-              </Card.Body>
-            </Card>
-          )}
-          {mappedTransactionList && <TransactionShort txPerPage={8} />}
+          <Card className="h-fit">
+            <Card.Header title="Detalle de tokens adquiridos" />
+            <Card.Body>
+              <DetailItems foundElement={mappetWalletData.assets} />
+            </Card.Body>
+          </Card>
+          <TransactionShort txPerPage={8} />
         </div>
       </div>
     </div>

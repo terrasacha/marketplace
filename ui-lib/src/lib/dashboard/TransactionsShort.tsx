@@ -33,7 +33,6 @@ export default function TransactionShort(props: TransactionsProps) {
     const currentDate = new Date();
 
     if (pendingTx && typeof pendingTx === 'string') {
-      console.log('pendingTxFromRouter', pendingTx);
       setPendingTransaction((prevState: any) => {
         return {
           ...JSON.parse(pendingTx),
@@ -69,21 +68,34 @@ export default function TransactionShort(props: TransactionsProps) {
       pageSize: responseData.page_size,
       totalItems: responseData.total_count,
     };
-    console.log('paginationMetadataItem', paginationMetadataItem);
     const mappedTransactionListData = await mapTransactionListInfo({
       walletAddress: walletData.address,
       data: responseData.data,
     });
-
+    const filterMappedTransactionListData = mappedTransactionListData.filter(
+      (transaction) =>
+        transaction.outputUTxOs.some((output) =>
+          output.asset_list.some(
+            (asset: any) =>
+              asset.policy_id ===
+              '8726ae04e47a9d651336da628998eda52c7b4ab0a4f86deb90e51d83'
+          )
+        ) ||
+        transaction.inputUTxOs.some((input) =>
+          input.asset_list.some(
+            (asset: any) =>
+              asset.policy_id ===
+              '8726ae04e47a9d651336da628998eda52c7b4ab0a4f86deb90e51d83'
+          )
+        )
+    );
     //getPendingTransaction(mappedTransactionListData);
-    setTransactionsList(mappedTransactionListData);
+    setTransactionsList(filterMappedTransactionListData);
     setPaginationMetadata(paginationMetadataItem);
     setIsLoading(false);
   };
 
   const checkTxConfirmations = async () => {
-    console.log('pendingTransaction', pendingTransaction);
-
     if (pendingTransaction) {
       const pendingTransactionItemRequest = await fetch(
         '/api/transactions/tx-status',

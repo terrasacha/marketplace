@@ -900,6 +900,61 @@ export async function claimToken({ id }: any) {
   return response;
 }
 
+export async function getPeriodTokenData(tokens_name: Array<string>) {
+  try {
+    let tokensToQuery = tokens_name.map(token => `{value: {eq: "${token}"}}`).join(", ") || "";
+    const response = await axios.post(
+      graphqlEndpoint,
+      { 
+        query: `query MyQuery {
+          listProductFeatures(
+            filter: {
+              featureID: {eq: "GLOBAL_TOKEN_NAME"},
+              or: [${tokensToQuery}]
+            },
+            limit: 1000
+          ) {
+            items {
+              id
+              productID
+              value
+              product {
+                name
+                productFeatures(filter: {featureID: {eq: "GLOBAL_TOKEN_HISTORICAL_DATA"}}) {
+                  items {
+                    featureID
+                    id
+                    value
+                  }
+                }
+              }
+            }
+          }
+        }`,
+      },
+      {
+        headers: {
+          'x-api-key': awsAppSyncApiKey,
+        },
+      }
+    );
+
+    let data = response.data.data.listProductFeatures.items.map((item : any) =>{
+      return {
+          asset_name: item.value,
+          periods: item.product.productFeatures.items[0].value,
+          productID: item.productID,
+          productName: item.product.name
+      }
+    })
+    return data;
+  } catch (error) {
+    console.log(error);
+    return false;
+  }
+}
+
+
 export async function createOrder(objeto: any) {
   const response = await axios.post(
     graphqlEndpoint,

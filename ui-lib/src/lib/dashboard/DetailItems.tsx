@@ -6,7 +6,7 @@ const DetailItems = (props: any) => {
   const router = useRouter();
 
   if (!foundElement) return <></>;
-
+  console.log(foundElement);
   return (
     <div>
       <div className="w-[98%]">
@@ -17,9 +17,9 @@ const DetailItems = (props: any) => {
         </div>
         {foundElement.map((item: any, index: number) => (
           <ItemRow
-            projectID={item.projectID}
-            projectName={item.projectName}
-            amountOfTokens={item.amountOfTokens}
+            productID={item.productID}
+            projectName={item.asset_name}
+            amountOfTokens={item.quantity}
             key={index}
           />
         ))}

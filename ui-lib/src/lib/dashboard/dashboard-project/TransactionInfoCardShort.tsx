@@ -1,5 +1,6 @@
 import { useContext, useState } from 'react';
 import {
+  UtxoInfoCard,
   CopyToClipboard,
   ChevronDownIcon,
   ChevronUpIcon,
@@ -11,7 +12,6 @@ import {
   Tooltip,
   ExternalLinkIcon,
 } from '../../ui-lib';
-import UtxoJustToken from './UtxoJustToken';
 import {
   JsonView,
   allExpanded,
@@ -40,9 +40,7 @@ interface TransactionInfoCardProps {
   tx_confirmation_n?: number;
 }
 
-export default function TransactionInfoCardShort(
-  props: TransactionInfoCardProps
-) {
+export default function TransactionInfoCard(props: TransactionInfoCardProps) {
   const {
     tx_id,
     tx_type,
@@ -212,23 +210,57 @@ export default function TransactionInfoCardShort(
                 </div>
               </div>
             </div>
+            {Object.keys(metadata).length > 0 && (
+              <div className="col-span-2 border-b py-2">
+                <div className="flex items-center">
+                  <p>Metadata</p>
+                  <CopyToClipboard
+                    iconClassName="h-5 w-5 ml-2 hover:text-blue-600"
+                    copyValue={JSON.stringify(metadata)}
+                    tooltipLabel="Copiar !"
+                  />
+                </div>
+                <JsonView
+                  data={metadata}
+                  shouldExpandNode={allExpanded}
+                  style={defaultStyles}
+                />
+              </div>
+            )}
+            {/* UTXO Input */}
+            <div className="col-span-2 lg:col-span-1">
+              <p>{inputUTxOs.length + ' UTxO Input(s)'}</p>
+              <div className="flex flex-col space-y-1">
+                {inputUTxOs.map((utxo: any, index: number) => {
+                  return (
+                    <UtxoInfoCard
+                      key={index}
+                      address={utxo.address}
+                      isOwnerAddress={utxo.isOwnerAddress}
+                      intValuePart={utxo.formatedADAValue.intPart}
+                      floatValuePart={utxo.formatedADAValue.floatPart}
+                      asset_list={utxo.asset_list}
+                      tx_hash={utxo.tx_hash}
+                    />
+                  );
+                })}
+              </div>
+            </div>
             {/* UTXO Output */}
             <div className="col-span-2 lg:col-span-1">
-              <p>Assets</p>
+              <p>{outputUTxOs.length + ' UTxO Output(s)'}</p>
               <div className="flex flex-col space-y-1">
                 {outputUTxOs.map((utxo: any, index: number) => {
-                  if (utxo.asset_list.length > 0) {
-                    return (
-                      <UtxoJustToken
-                        key={index}
-                        address={utxo.address}
-                        isOwnerAddress={utxo.isOwnerAddress}
-                        intValuePart={utxo.formatedADAValue.intPart}
-                        floatValuePart={utxo.formatedADAValue.floatPart}
-                        asset_list={utxo.asset_list}
-                      />
-                    );
-                  }
+                  return (
+                    <UtxoInfoCard
+                      key={index}
+                      address={utxo.address}
+                      isOwnerAddress={utxo.isOwnerAddress}
+                      intValuePart={utxo.formatedADAValue.intPart}
+                      floatValuePart={utxo.formatedADAValue.floatPart}
+                      asset_list={utxo.asset_list}
+                    />
+                  );
                 })}
               </div>
             </div>
