@@ -17,6 +17,7 @@ const initialStatewalletInfo = {
 };
 const MainLayout = ({ children }: PropsWithChildren) => {
   const { connect, connected, disconnect, name, wallet } = useWallet();
+  const { walletData } = useContext<any>(WalletContext);
   const [allowAccess, setAllowAccess] = useState<boolean>(false);
   const [user, setUser] = useState<any>(null);
   const [walletInfo, setWalletInfo] = useState<any>(initialStatewalletInfo);
@@ -25,7 +26,11 @@ const MainLayout = ({ children }: PropsWithChildren) => {
   const router = useRouter();
 
   const { handleWalletData } = useContext<any>(WalletContext);
-
+  useEffect(() => {
+    if (walletData) {
+      setBalance((walletData.balance / 1000000).toFixed(4));
+    }
+  }, [walletData]);
   useEffect(() => {
     const fetchData = async () => {
       let access = false;
@@ -38,17 +43,16 @@ const MainLayout = ({ children }: PropsWithChildren) => {
             body: res,
           });
           const wallet = await response.json();
+          console.log(wallet, 'wallet a checkear');
           if (wallet.length < 0) return router.push('/');
-          console.log(wallet, 'wallet');
           if (wallet.length > 0) {
             const walletData = await handleWalletData({
-              walletID: wallet[0].id,
+              waleltID: wallet[0].id,
               walletName: wallet[0].name,
               walletAddress: wallet[0].address,
             });
             const walletAddress = wallet[0].address;
             const balanceData = await getWalletBalanceByAddress(walletAddress);
-            console.log(balanceData)
             if (balanceData && balanceData.length > 0) {
               const hasTokenAuth =
                 balanceData[0]?.assets.some(
@@ -94,59 +98,29 @@ const MainLayout = ({ children }: PropsWithChildren) => {
   useEffect(() => {
     if (connected) {
       const fetchData = async () => {
-        /* const matchingAsset =
-      assets &&
-      assets.filter(
-        (asset) =>
-          asset.policyId === process.env.NEXT_PUBLIC_TOKEN_AUTHORIZER &&
-          asset.assetName === process.env.NEXT_PUBLIC_TOKEN_AUTHORIZER_NAME
-      ) */
         const changeAddress = await wallet.getChangeAddress();
         const rewardAddresses = await wallet.getRewardAddresses();
 
-        const walletData = await handleWalletData({
-          walletID: '',
-          walletName: '',
-          walletAddress: changeAddress,
-        });
-
-        // const balanceData = await getWalletBalanceByAddress(changeAddress);
-        const hasTokenAuth =
-          walletData.assets.some(
-            (asset: any) =>
-              asset.policy_id === process.env.NEXT_PUBLIC_TOKEN_AUTHORIZER &&
-              asset.asset_name === process.env.NEXT_PUBLIC_TOKEN_AUTHORIZER_NAME
-          ) || false;
-        if (hasTokenAuth) {
+        const hasTokenAuthFunction = await checkTokenStakeAddress(
+          rewardAddresses[0]
+        );
+        const walletExists = await checkIfWalletExist(
+          changeAddress,
+          rewardAddresses[0],
+          true
+        );
+        if (hasTokenAuthFunction) {
           setWalletInfo({
             name: name,
             addr: changeAddress,
             externalWallet: true,
           });
-          console.log({
-            name: name,
-            addr: changeAddress,
-            externalWallet: true,
-          });
-          if (hasTokenAuth) {
+          if (hasTokenAuthFunction) {
             setAllowAccess(true);
           } else {
             sessionStorage.removeItem('preferredWalletSuan');
             disconnect();
             return router.push('/');
-          }
-          const walletExists = await checkIfWalletExist(
-            changeAddress,
-            rewardAddresses[0],
-            true
-          );
-          if (walletExists) {
-            const balanceData: any = await getWalletBalanceByAddress(
-              changeAddress
-            );
-            console.log(balanceData, 'balanceData');
-            const balance = balanceData[0].balance / 1000000;
-            setBalance(balance);
           }
         }
       };
@@ -154,6 +128,17 @@ const MainLayout = ({ children }: PropsWithChildren) => {
     }
   }, [connected]);
 
+  const checkTokenStakeAddress = async (rewardAddresses: any) => {
+    const response = await fetch('/api/calls/backend/checkTokenStakeAddress', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify(rewardAddresses),
+    });
+    const hasTokenStakeAddress = await response.json();
+    return hasTokenStakeAddress;
+  };
   const accessHomeWithWallet = async () => {
     try {
       const user = await getCurrentUser();
@@ -190,6 +175,12 @@ const MainLayout = ({ children }: PropsWithChildren) => {
       }),
     });
     const walletInfoOnDB = await response.json();
+    console.log(walletInfoOnDB, 'walletInfoOnDB a checkear');
+    const walletData = await handleWalletData({
+      waleltID: walletInfoOnDB.data.id,
+      walletName: '',
+      walletAddress: walletInfoOnDB.data.address,
+    });
     if (!walletInfoOnDB.data) {
       const response = await fetch('/api/calls/backend/manageExternalWallets', {
         method: 'POST',
@@ -199,7 +190,8 @@ const MainLayout = ({ children }: PropsWithChildren) => {
           claimed_token,
         }),
       });
-      const walletData = response.json();
+      const walletData = await response.json();
+      await handleWalletData([walletData.data]);
       return walletData;
     }
     return walletInfoOnDB;

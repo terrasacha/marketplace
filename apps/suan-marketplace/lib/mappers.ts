@@ -7,6 +7,7 @@ import {
   getActualPeriod,
 } from './util';
 
+const moment = require('moment');
 export const mapGeoData = async (validatorDocuments: any): Promise<any> => {
   const extensionesPermitidas = ['.kml', '.kmz'];
 
@@ -207,7 +208,17 @@ export const mapTemporalOrPermanent = async (
   return mapper[answer] || false;
 };
 // Importa aquí tus funciones como parseSerializedKoboData, mapTrueOrFalseAnswers, mapTemporalOrPermanent y mapUseTypes
+const timeBetweenDates = (firstPeriod: any, lastPeriod: any) => {
+  let startDate = moment(firstPeriod, 'DD-MM-YYYY');
+  let endDate = moment(lastPeriod, 'DD-MM-YYYY');
 
+  let totalMonths = endDate.diff(startDate, 'months');
+  let years = Math.floor(totalMonths / 12);
+  let months = totalMonths % 12;
+
+  let daysInLastMonth = endDate.diff(startDate.add(years, 'years').add(months, 'months'), 'days');
+  return { years, months, days: daysInLastMonth }
+}
 const mapProjectGeneralAspects = async (data: any): Promise<any> => {
   let parsedData: any = '';
   if (data) {
@@ -377,6 +388,7 @@ export const mapProjectData = async (data: any): Promise<any> => {
       amount: tkhd.amount,
     };
   });
+  const lifeTimeProject: any = timeBetweenDates(periods[0].date, periods[periods.length - 1].date)
   const actualPeriod: any = await getActualPeriod(Date.now(), periods);
 
   const pfProjectValidatorDocumentsID: string =
@@ -549,9 +561,9 @@ export const mapProjectData = async (data: any): Promise<any> => {
 
   // geo json
   const cadastralNumbersArray =
-      cadastralData.map(
-        (item: any) => item.cadastralNumber
-      );
+    cadastralData.map(
+      (item: any) => item.cadastralNumber
+    );
   const geoJsonPredialData = await getPolygonByCadastralNumber(
     cadastralNumbersArray
   )
@@ -575,7 +587,9 @@ export const mapProjectData = async (data: any): Promise<any> => {
         historicalData: tokenHistoricalData,
         transactionsNumber: data.transactions.items.length,
         name: tokenName,
+        actualPeriod: actualPeriod?.period || 'unknown',
         actualPeriodTokenPrice: actualPeriod?.price || '',
+        lifeTimeProject: lifeTimeProject || 'unknown',
         currency: tokenCurrency,
         actualPeriodTokenAmount: actualPeriod?.amount || '',
       },

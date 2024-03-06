@@ -552,6 +552,7 @@ export async function getTransactions() {
                 createdAt
                 description
                 name
+                id
                 category {
                   name
                 }
@@ -562,7 +563,6 @@ export async function getTransactions() {
               txHash
               createdAt
               id
-              orderID
               stakeAddress
               tokenName
             }

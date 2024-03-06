@@ -9,6 +9,9 @@ import {
   mapBuildTransactionInfo,
   mapTransactionListInfo,
 } from './mappers/mapTransactionInfo';
+import { mapTransactionListDashboard } from './mappers/mapDashboardInvestor';
+import { mapWalletDataDashboardInvestor } from './mappers/mapWalletDataDashboardInvestor';
+import { mapDashboardProject } from './mappers/mapDashboardProject';
 import WalletContext from './context/wallet-context';
 import { WalletContextProvider } from './context/wallet-context';
 
@@ -18,6 +21,9 @@ export {
   getDateFromTimeStamp,
   mapBuildTransactionInfo,
   mapTransactionListInfo,
+  mapDashboardProject,
+  mapWalletDataDashboardInvestor,
+  mapTransactionListDashboard,
   hexToText,
   getTimeLive,
   assetDifference,

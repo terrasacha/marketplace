@@ -15,7 +15,11 @@ export function WalletContextProvider({
   const [walletStakeAddress, setWalletStakeAddress] = useState<any>(null);
   const [walletData, setWalletData] = useState<any>(null);
 
-  const handleWalletData = async ({waleltID, walletName, walletAddress}: any) => {
+  const handleWalletData = async ({
+    waleltID,
+    walletName,
+    walletAddress,
+  }: any) => {
     if (walletAddress) {
       setWalletID(waleltID);
       setWalletName(walletName);
@@ -80,6 +84,8 @@ export function WalletContextProvider({
     setWalletID(null);
     setWalletName(null);
     setWalletData(null);
+    setWalletAddress(null);
+    setWalletStakeAddress(null);
   };
 
   const fetchWalletData = async (wAddress: string | null = null) => {
@@ -120,6 +126,7 @@ export function WalletContextProvider({
       walletStakeAddress,
       walletData,
       handleWalletData,
+      handleClearData,
       fetchWalletData,
       connected,
     }),

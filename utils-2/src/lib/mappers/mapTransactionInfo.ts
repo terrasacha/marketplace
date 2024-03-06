@@ -424,7 +424,6 @@ export async function mapTransactionListInfo({
       }
     );
 
-    console.log(tx.metadata)
 
     const tx_info: MappedTransactionInfoProps = {
       tx_type: tx_type,
