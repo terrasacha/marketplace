@@ -26,8 +26,9 @@ export default function LineChartComponent(props: any) {
   const { axisColor, graphsColor, lineChartData, plotVolume } = props;
   const labels = Array.from(
     { length: lineChartData.maxPeriod + 1 },
-    (_, index) => index.toString()
+    (_, index) => (index + 1).toString()
   );
+  console.log(lineChartData, 'lineChartData');
   const datasets = lineChartData.dataToPlot
     ? [
         ...lineChartData.dataToPlot.map((item: any) => {

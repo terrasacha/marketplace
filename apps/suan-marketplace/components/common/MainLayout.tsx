@@ -43,7 +43,6 @@ const MainLayout = ({ children }: PropsWithChildren) => {
             body: res,
           });
           const wallet = await response.json();
-          console.log(wallet, 'wallet a checkear');
           if (wallet.length < 0) return router.push('/');
           if (wallet.length > 0) {
             const walletData = await handleWalletData({
@@ -175,7 +174,6 @@ const MainLayout = ({ children }: PropsWithChildren) => {
       }),
     });
     const walletInfoOnDB = await response.json();
-    console.log(walletInfoOnDB, 'walletInfoOnDB a checkear');
     const walletData = await handleWalletData({
       waleltID: walletInfoOnDB.data.id,
       walletName: '',
