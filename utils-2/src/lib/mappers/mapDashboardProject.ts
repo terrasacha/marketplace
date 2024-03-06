@@ -108,6 +108,8 @@ export async function mapDashboardProject( project: any, projectData: any, proje
     console.log(project)
     const projectMunicipio = project.productFeatures.items.filter( (pf : any) => pf.featureID === 'A_municipio')[0].value
     const projectVereda = project.productFeatures.items.filter( (pf : any) => pf.featureID === 'A_vereda')[0].value
+    const projectPeriod = project.productFeatures.items.filter( ( pf : any) => pf.featureID === 'GLOBAL_TOKEN_HISTORICAL_DATA')[0].value
+    const projectTokenName = project.productFeatures.items.filter( (pf : any) => pf.featureID === 'GLOBAL_TOKEN_NAME')[0].value
     const assetFromSuan = walletData.assets.filter((asset : any)=> asset.policy_id === "8726ae04e47a9d651336da628998eda52c7b4ab0a4f86deb90e51d83")
     const dataFromQuery = await fetch('/api/calls/getPeriodToken',{
         method: 'POST',
@@ -129,7 +131,11 @@ export async function mapDashboardProject( project: any, projectData: any, proje
     });
     const asset = assetFromSuan.filter((asset : any)=> asset.productID === projectId)
     console.log(asset, 'assetFromSuan')
-    const lineChartData = createLineChartData(asset)
+    const lineChartData = createLineChartData([{
+        //@ts-ignore
+        periods: JSON.parse(projectPeriod),
+        asset_name: projectTokenName
+    }])
     const totalTokens = asset[0] ? parseInt(asset[0].quantity) : 0
     
     
