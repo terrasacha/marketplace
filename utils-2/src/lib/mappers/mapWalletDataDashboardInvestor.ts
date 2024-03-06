@@ -1,6 +1,8 @@
 import { getActualPeriod, mapTransactionListInfo} from "../utils-2"
 
+
 export async function mapWalletDataDashboardInvestor( walletData : any){
+  
     const assetFromSuan = walletData.assets.filter((asset : any)=> asset.policy_id === "8726ae04e47a9d651336da628998eda52c7b4ab0a4f86deb90e51d83")
     const dataPieChart = assetFromSuan.map((asset : any) =>{ return { tokenName: asset.asset_name, amountOfTokens: parseInt(asset.quantity)}})
     const dataFromQuery = await fetch('/api/calls/getPeriodToken',{
@@ -11,27 +13,31 @@ export async function mapWalletDataDashboardInvestor( walletData : any){
     }
     )
     const data = await dataFromQuery.json()
-
-    assetFromSuan.forEach((item : any)=> {
+    console.log(assetFromSuan,'assetFromSuan')
+    assetFromSuan.forEach(async(item : any)=> {
       let match = data.find((item2 : any)=> item2.asset_name === item.asset_name);
-      if (match) item.productID = match.productID;
-  });
-
+      if (match){
+        item.productID = match.productID
+        item.currency = match.currency
+        item.periods = JSON.parse(match.periods)
+      };
+      item.actualPeriod = getActualPeriod(Date.now(), item.periods);
+      item.diffBetweenFirsLastPeriod = item.actualPeriod && item.actualPeriod.price - item.periods[0].price || 0
+    });
     const lineChartData = createLineChartData(data)
     const tokenQuantities   = assetFromSuan.map( (asset : any) => parseInt(asset.quantity))
     const amountOfTokens = tokenQuantities.reduce((total : number, current : number) => total + current, 0)
     const transacionsData = await getTransactionsData(walletData.stake_address, walletData.address)
-
+    
+    
     const valueUtxos = transacionsData.map((item : any) => parseFloat(item.tx_value.split(' ')[2]))
 
-    const valueTotalPortfolio = valueUtxos.reduce((total : number, current : number) => total + current, 0)
     return{
         assets: assetFromSuan,
         dataPieChart,
         lineChartData,
         amountOfTokens,
         transactions: {
-          valueTotalPortfolio: valueTotalPortfolio.toFixed(4),
           transacionsData
         }
     }
@@ -81,7 +87,7 @@ const getTransactionsData = async (stake_address : string, address : string) => 
   };
 
 function createLineChartData(data: any) {
-    const dataToPlot = data.map((item : any) => {
+    const dataToPlot = data && data.map((item : any) => {
         let periods = JSON.parse(item.periods).map((p: any) => {
             return {
                 period: parseInt(p.period),
@@ -94,7 +100,7 @@ function createLineChartData(data: any) {
             data: periods,
             actualPeriod: getActualPeriod(Date.now(), periods)
         }
-    })
+    }) || null
     const maxPeriod = dataToPlot ? dataToPlot.sort((a : any, b : any) => b.data.length - a.data.length)[0]?.data.length : 0
     return {
         dataToPlot,

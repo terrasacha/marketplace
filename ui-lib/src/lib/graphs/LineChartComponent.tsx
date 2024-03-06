@@ -28,23 +28,27 @@ export default function LineChartComponent(props: any) {
     { length: lineChartData.maxPeriod + 1 },
     (_, index) => index.toString()
   );
-  const datasets = [
-    ...lineChartData.dataToPlot.map((item: any) => {
-      return {
-        label: item.name,
-        data: item.data,
-        segment: {
-          borderDash: (ctx: any) => {
-            if (ctx.p0.raw.period > item.actualPeriod || 0) return [4, 4];
-            return [0, 0];
-          },
-        },
-        borderColor: 'rgb(217 119 6)',
-        backgroundColor: 'rgba(217, 119, 6, 0.5)',
-        stepped: 'before',
-      };
-    }),
-  ];
+  const datasets = lineChartData.dataToPlot
+    ? [
+        ...lineChartData.dataToPlot.map((item: any) => {
+          return {
+            label: item.name,
+            data: item.data,
+            segment: {
+              borderDash: (ctx: any) => {
+                if (ctx.p0.raw.period > item.actualPeriod.period || 0)
+                  return [4, 4];
+                return [0, 0];
+              },
+            },
+            borderColor: 'rgb(217 119 6)',
+            backgroundColor: 'rgba(217, 119, 6, 0.5)',
+            stepped: 'before',
+          };
+        }),
+      ]
+    : [];
+
   if (plotVolume) {
     datasets.push(
       ...lineChartData.dataToPlotVolume.map((item: any) => {

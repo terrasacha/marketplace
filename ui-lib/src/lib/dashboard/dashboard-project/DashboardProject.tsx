@@ -1,45 +1,36 @@
 import { useEffect, useState, useContext } from 'react';
 import { LineChartComponent } from '../../ui-lib';
-import { getActualPeriod } from '@marketplaces/utils-2';
 import DefaultCard from './DefaultCard';
+import DefaultCardClient from './DefaultCardClient';
 import TokenCard from './TokenCard';
-import { useWallet } from '@meshsdk/react';
+/* import { useWallet } from '@meshsdk/react'; */
 import { WalletContext } from '@marketplaces/utils-2';
 import { mapDashboardProject } from '@marketplaces/utils-2';
 import ActualUseAndPotentialInfoCard from './ActualUseAndPotentialInfoCard';
 import BlockChainPieChart from './BlockChainPieChart';
+
 export default function DashboardProject(props: any) {
   const { walletData } = useContext<any>(WalletContext);
-  console.log(walletData, 'walletData Dashboard');
-  const { project, projectData, transactions, projectId } = props;
-  const { wallet, connected } = useWallet();
-  const [walletStakeID, setWalletStakeID] = useState<string | undefined>(
-    undefined
-  );
+  const { project, projectData, projectId } = props;
+  /* const { wallet, connected } = useWallet(); */
   const [dashboardProjectData, setDashboardProjectData] = useState<any>(null);
 
   useEffect(() => {
-    if (walletStakeID) {
-      mapDashboardProject(
-        transactions,
-        project,
-        projectData,
-        projectId,
-        walletStakeID
-      ).then((data) => {
-        console.log(data);
-        setDashboardProjectData(data);
-      });
+    if (walletData) {
+      mapDashboardProject(project, projectData, projectId, walletData).then(
+        (data: any) => {
+          setDashboardProjectData(data);
+        }
+      );
     }
-  }, [walletStakeID]);
-  useEffect(() => {
+  }, [walletData]);
+  /* useEffect(() => {
     async function loadWalletStakeID() {
       try {
         if (connected) {
           const addresses = await wallet.getRewardAddresses();
           if (addresses.length > 0) {
             const firstAddress = addresses[0];
-            setWalletStakeID(firstAddress);
           }
         }
       } catch (error) {
@@ -48,7 +39,7 @@ export default function DashboardProject(props: any) {
     }
 
     loadWalletStakeID();
-  }, [connected, wallet]);
+  }, [connected, wallet]); */
 
   if (!dashboardProjectData) return <></>;
   return (
@@ -77,11 +68,14 @@ export default function DashboardProject(props: any) {
           {
             title: 'Tokens propios',
             value: dashboardProjectData.totalTokens || 0,
+            percentage:
+              dashboardProjectData.relevantInfo.tokenPercentageTokensOwn,
           },
           {
-            title: 'Capital invertido',
-            value: `${dashboardProjectData.totalInvestmentCOP} COP`,
+            title: 'Valor total en portfolio',
+            value: dashboardProjectData.asset,
             image: 'naturaleza',
+            extra: 'client',
           },
 
           {
@@ -93,28 +87,41 @@ export default function DashboardProject(props: any) {
             }`,
           },
           {
-            title: 'Ganancias',
-            value: `${dashboardProjectData.totalGananciaCOP} COP`,
-            percentage: `${
-              (dashboardProjectData.totalGananciaCOP * 100) /
-              dashboardProjectData.totalInvestmentCOP
-            }`,
+            title: 'Crecimiento precio del token',
+            value: `${
+              dashboardProjectData.actualProfit *
+              dashboardProjectData.totalTokens
+            } ${dashboardProjectData.relevantInfo.tokenCurrency}`,
+            percentage: dashboardProjectData.actualProfitPercentage,
           },
           {
             title: 'Precio actual del token',
-            value: projectData.projectInfo.token.actualPeriodTokenPrice,
+            value: `${
+              projectData.projectInfo.token.actualPeriodTokenPrice || 'unknown'
+            } ${dashboardProjectData.relevantInfo.tokenCurrency}`,
             image: 'money_managment',
           },
         ].map((info, index) => (
           <div key={index} className="lg:col-span-1">
-            <DefaultCard
-              title={info.title}
-              value={info.value}
-              //@ts-ignore
-              subtitle={info.subtitle}
-              image={info.image}
-              percentage={info.percentage}
-            />
+            {!info.extra ? (
+              <DefaultCard
+                title={info.title}
+                value={info.value}
+                //@ts-ignore
+                subtitle={info.subtitle}
+                image={info.image}
+                percentage={info.percentage}
+              />
+            ) : (
+              <DefaultCardClient
+                title={info.title}
+                value={info.value}
+                //@ts-ignore
+                subtitle={info.subtitle}
+                image={info.image}
+                percentage={info.percentage}
+              />
+            )}
           </div>
         ))}
       </div>
@@ -130,11 +137,15 @@ export default function DashboardProject(props: any) {
           />
         </div>
         {[
-          { title: 'Colombia', image: 'tierra' },
           {
-            title: 'Tokens disponibles',
+            title: dashboardProjectData.relevantInfo.municipio,
+            value: dashboardProjectData.relevantInfo.vereda,
+            image: 'tierra',
+          },
+          {
+            title: 'Total de Tokens disponibles',
             subtitle: 'Toneladas disponibles',
-            value: projectData.projectInfo.token.actualPeriodTokenAmount,
+            value: dashboardProjectData.totalAmountOfTokens,
             image: 'tokens',
           },
           {

@@ -520,6 +520,24 @@ export async function getProject(projectId: string) {
           order
           status
           updatedAt
+          timeOnVerification
+          projectReadiness
+          categoryID
+          userProducts {
+            items {
+              user {
+                id
+                role
+                name
+              }
+            }
+          }
+          transactions {
+            items {
+              id
+              amountOfTokens
+            }
+          }
           images {
             items {
               id
@@ -535,19 +553,62 @@ export async function getProject(projectId: string) {
           category{
             name
           }
-          transactions {
+          productFeatures {
+        items {
+          id
+          value
+          isToBlockChain
+          order
+          isOnMainCard
+          isResult
+          productID
+          verifications {
+            items {
+              userVerifierID
+              userVerifiedID
+              verificationComments {
+                items {
+                  comment
+                  createdAt
+                  id
+                  isCommentByVerifier
+                }
+              }
+              userVerified {
+                name
+              }
+              userVerifier {
+                name
+              }
+              id
+            }
+          }
+          documents {
             items {
               id
-              amountOfTokens
+              url
+              isApproved
+              docHash
+              data
+              isUploadedToBlockChain
+              productFeatureID
+              signed
+              signedHash
+              status
+              timeStamp
+              userID
             }
           }
-          productFeatures {
-            items {
-              featureID
-              value
-
-            }
+          feature {
+            name
+            isVerifable
           }
+          featureID
+          createdAt
+          updatedAt
+        }
+        nextToken
+      }
         }
       }`,
     },
@@ -920,7 +981,14 @@ export async function getPeriodTokenData(tokens_name: Array<string>) {
               value
               product {
                 name
-                productFeatures(filter: {featureID: {eq: "GLOBAL_TOKEN_HISTORICAL_DATA"}}) {
+                productFeatures(
+                  filter: {
+                    or: [
+                      {featureID: {eq: "GLOBAL_TOKEN_HISTORICAL_DATA"}},
+                      {featureID: {eq: "GLOBAL_TOKEN_CURRENCY"}}
+                    ]
+                  }
+                ) {
                   items {
                     featureID
                     id
@@ -940,13 +1008,17 @@ export async function getPeriodTokenData(tokens_name: Array<string>) {
     );
 
     let data = response.data.data.listProductFeatures.items.map((item : any) =>{
+      let periods = item.product.productFeatures.items.filter((pf : any)=> pf.featureID === "GLOBAL_TOKEN_HISTORICAL_DATA")[0].value
+      let currency = item.product.productFeatures.items.filter((pf : any)=> pf.featureID === "GLOBAL_TOKEN_CURRENCY")[0].value
       return {
           asset_name: item.value,
-          periods: item.product.productFeatures.items[0].value,
+          periods,
+          currency,
           productID: item.productID,
           productName: item.product.name
       }
     })
+    console.log(data)
     return data;
   } catch (error) {
     console.log(error);
@@ -1156,5 +1228,18 @@ export async function validatePassword(password: string, walletStakeID: string) 
   } catch (error) {
     console.error('Error checking wallet password:', error);
     return false;
+  }
+}
+
+
+export async function coingeckoPrices(crypto: string, base_currency: string) {
+  try {
+    const response = await fetch(
+      `/api/mint/oracle?crypto=${crypto}&base_currency=${base_currency}`
+    );
+    const data = await response.json();
+    return data.finalRate;
+  } catch (error) {
+    console.error("Error", error);
   }
 }

@@ -9,10 +9,7 @@ import {
 import { Card } from '../ui-lib';
 import TransactionShort from './TransactionsShort';
 import { WalletContext } from '@marketplaces/utils-2';
-import {
-  mapTransactionListDashboard,
-  mapWalletDataDashboardInvestor,
-} from '@marketplaces/utils-2';
+import { mapWalletDataDashboardInvestor } from '@marketplaces/utils-2';
 interface Transaction {
   amountOfTokens: number;
   tokenName: string;
@@ -20,9 +17,8 @@ interface Transaction {
   projectID: string;
 }
 
-function DashboardInvestor(props: { transactions: any[] }) {
+function DashboardInvestor() {
   const { walletData } = useContext<any>(WalletContext);
-  const { transactions } = props;
   const assets = useAssets() as Array<{ [key: string]: any }>;
   const { wallet, connected } = useWallet();
   const [walletStakeID, setWalletStakeID] = useState<string | undefined>(
@@ -34,7 +30,6 @@ function DashboardInvestor(props: { transactions: any[] }) {
     if (walletData) {
       mapWalletDataDashboardInvestor(walletData).then((data) => {
         setMappetWalletData(data);
-        console.log(data, 'mapWallet');
       });
     }
   }, [walletData]);
@@ -70,10 +65,8 @@ function DashboardInvestor(props: { transactions: any[] }) {
             <Card.Body>
               <div className="flex flex-col w-full">
                 <ItemsDashboard
-                  valueTotalPortfolio={
-                    mappetWalletData.transactions.valueTotalPortfolio
-                  }
                   amountOfTokens={mappetWalletData.amountOfTokens}
+                  assets={mappetWalletData.assets}
                 />
               </div>
             </Card.Body>

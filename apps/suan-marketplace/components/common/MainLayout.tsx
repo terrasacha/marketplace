@@ -1,4 +1,3 @@
-
 import React, {
   PropsWithChildren,
   useContext,
@@ -18,6 +17,7 @@ const initialStatewalletInfo = {
 };
 const MainLayout = ({ children }: PropsWithChildren) => {
   const { connect, connected, disconnect, name, wallet } = useWallet();
+  const { walletData } = useContext<any>(WalletContext);
   const [allowAccess, setAllowAccess] = useState<boolean>(false);
   const [user, setUser] = useState<any>(null);
   const [walletInfo, setWalletInfo] = useState<any>(initialStatewalletInfo);
@@ -26,7 +26,11 @@ const MainLayout = ({ children }: PropsWithChildren) => {
   const router = useRouter();
 
   const { handleWalletData } = useContext<any>(WalletContext);
-
+  useEffect(() => {
+    if (walletData) {
+      setBalance((walletData.balance / 1000000).toFixed(4));
+    }
+  }, [walletData]);
   useEffect(() => {
     const fetchData = async () => {
       let access = false;
@@ -39,26 +43,33 @@ const MainLayout = ({ children }: PropsWithChildren) => {
             body: res,
           });
           const wallet = await response.json();
-          if (wallet.length < 0) return router.push('/')
+          if (wallet.length < 0) return router.push('/');
           if (wallet.length > 0) {
             const walletData = await handleWalletData(wallet);
-            const walletAddress = wallet[0].address
-            const balanceData = await getWalletBalanceByAddress(walletAddress)
+            const walletAddress = wallet[0].address;
+            const balanceData = await getWalletBalanceByAddress(walletAddress);
             if (balanceData && balanceData.length > 0) {
-                const hasTokenAuth = balanceData[0]?.assets.some((asset: any) => asset.policy_id === process.env.NEXT_PUBLIC_TOKEN_AUTHORIZER &&
-                    asset.asset_name === process.env.NEXT_PUBLIC_TOKEN_AUTHORIZER_NAME) || false
-                if (hasTokenAuth) {
-                  const address =balanceData[0].address;
-                  setAllowAccess(true);
-                  setWalletInfo({
-                    name: (wallet[0] as any)?.name,
-                    addr: address,
-                  });
-                  const balance = (parseInt(balanceData[0].balance) / 1000000).toFixed(4) || 0;
-                  setBalance(balance);
-                  access = true;
-                }
+              const hasTokenAuth =
+                balanceData[0]?.assets.some(
+                  (asset: any) =>
+                    asset.policy_id ===
+                      process.env.NEXT_PUBLIC_TOKEN_AUTHORIZER &&
+                    asset.asset_name ===
+                      process.env.NEXT_PUBLIC_TOKEN_AUTHORIZER_NAME
+                ) || false;
+              if (hasTokenAuth) {
+                const address = balanceData[0].address;
+                setAllowAccess(true);
+                setWalletInfo({
+                  name: (wallet[0] as any)?.name,
+                  addr: address,
+                });
+                const balance =
+                  (parseInt(balanceData[0].balance) / 1000000).toFixed(4) || 0;
+                setBalance(balance);
+                access = true;
               }
+            }
           }
         }
 
@@ -81,38 +92,48 @@ const MainLayout = ({ children }: PropsWithChildren) => {
 
   useEffect(() => {
     if (connected) {
-      const fetchData = async () =>{
-      const changeAddress = await wallet.getChangeAddress();
-      const rewardAddresses = await wallet.getRewardAddresses();
-      
-      const balanceData = await getWalletBalanceByAddress(changeAddress)
-      const hasTokenAuth = balanceData[0]?.assets.some((asset: any) => asset.policy_id === process.env.NEXT_PUBLIC_TOKEN_AUTHORIZER &&
-            asset.asset_name === process.env.NEXT_PUBLIC_TOKEN_AUTHORIZER_NAME) || false
-      if (hasTokenAuth) {
-      setWalletInfo({
-        name: name,
-        addr: changeAddress,
-        externalWallet: true,
-      });
-      if (hasTokenAuth) {
-        setAllowAccess(true);
-      } else {
-        sessionStorage.removeItem('preferredWalletSuan');
-        disconnect();
-        return router.push('/');
-      }
-      const walletExists = await checkIfWalletExist(changeAddress, rewardAddresses[0], true)
-      if(walletExists){
-      const balanceData : any = await getWalletBalanceByAddress(changeAddress)
-      const balance = balanceData[0].balance / 1000000
-      setBalance(balance)
-      }
-      }
-    }
-      fetchData()
+      const fetchData = async () => {
+        const changeAddress = await wallet.getChangeAddress();
+        const rewardAddresses = await wallet.getRewardAddresses();
+
+        const hasTokenAuthFunction = await checkTokenStakeAddress(
+          rewardAddresses[0]
+        );
+        const walletExists = await checkIfWalletExist(
+          changeAddress,
+          rewardAddresses[0],
+          true
+        );
+        if (hasTokenAuthFunction) {
+          setWalletInfo({
+            name: name,
+            addr: changeAddress,
+            externalWallet: true,
+          });
+          if (hasTokenAuthFunction) {
+            setAllowAccess(true);
+          } else {
+            sessionStorage.removeItem('preferredWalletSuan');
+            disconnect();
+            return router.push('/');
+          }
+        }
+      };
+      fetchData();
     }
   }, [connected]);
 
+  const checkTokenStakeAddress = async (rewardAddresses: any) => {
+    const response = await fetch('/api/calls/backend/checkTokenStakeAddress', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify(rewardAddresses),
+    });
+    const hasTokenStakeAddress = await response.json();
+    return hasTokenStakeAddress;
+  };
   const accessHomeWithWallet = async () => {
     try {
       const user = await getCurrentUser();
@@ -122,42 +143,49 @@ const MainLayout = ({ children }: PropsWithChildren) => {
       return false;
     }
   };
-  const getWalletBalanceByAddress = async (address: any) =>{
-    const balanceFetchResponse = await fetch('/api/calls/backend/getWalletBalanceByAddress', {
-      method: 'POST',
-      headers: {
+  const getWalletBalanceByAddress = async (address: any) => {
+    const balanceFetchResponse = await fetch(
+      '/api/calls/backend/getWalletBalanceByAddress',
+      {
+        method: 'POST',
+        headers: {
           'Content-Type': 'application/json',
-      },
-      body: JSON.stringify(address),
-  })
+        },
+        body: JSON.stringify(address),
+      }
+    );
 
-  const balanceData = await balanceFetchResponse.json()
-  return balanceData
-  }
-  const checkIfWalletExist = async (address : string, stake_address : string, claimed_token : boolean) =>{
-    const response = await fetch('/api/calls/backend/checkWalletByAddress',{
+    const balanceData = await balanceFetchResponse.json();
+    return balanceData;
+  };
+  const checkIfWalletExist = async (
+    address: string,
+    stake_address: string,
+    claimed_token: boolean
+  ) => {
+    const response = await fetch('/api/calls/backend/checkWalletByAddress', {
       method: 'POST',
       body: JSON.stringify({
-        stake_address
-      })
-    })
-    const walletInfoOnDB = await response.json() 
+        stake_address,
+      }),
+    });
+    const walletInfoOnDB = await response.json();
     const walletData = await handleWalletData([walletInfoOnDB.data]);
-    if(!walletInfoOnDB.data){
+    if (!walletInfoOnDB.data) {
       const response = await fetch('/api/calls/backend/manageExternalWallets', {
         method: 'POST',
         body: JSON.stringify({
           address,
           stake_address,
-          claimed_token
-        })
-      })
-      const walletData = await response.json()
+          claimed_token,
+        }),
+      });
+      const walletData = await response.json();
       await handleWalletData([walletData.data]);
-      return walletData
+      return walletData;
     }
-    return walletInfoOnDB
-  }
+    return walletInfoOnDB;
+  };
   const handleSidebarClose = () => {
     setIsOpen(false);
   };

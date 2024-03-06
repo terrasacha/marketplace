@@ -1,14 +1,17 @@
-import { useState } from 'react';
+import { use, useContext, useState } from 'react';
 import { useWallet } from '@meshsdk/react';
 import { Button } from 'flowbite-react';
 import { WalletIcon } from '../icons/WalletIcon';
 import { WalletOffIcon } from '../icons/WalletOffIcon';
 import { useRouter } from 'next/router';
 import dynamic from 'next/dynamic';
+import { WalletContext } from '@marketplaces/utils-2';
+
 const SelectWalletModal = dynamic(() => import('../modals/SelectWalletModal'));
 
 export default function CardanoWallet() {
   const { connected, disconnect } = useWallet();
+  const { handleClearData } = useContext<any>(WalletContext);
   const router = useRouter();
   const [openModal, setOpenModal] = useState<string | undefined>();
 
@@ -23,6 +26,7 @@ export default function CardanoWallet() {
         <Button
           onClick={() => {
             disconnect();
+            handleClearData();
             sessionStorage.removeItem('preferredWalletSuan');
             router.push('/');
           }}

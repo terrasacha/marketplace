@@ -1,14 +1,58 @@
+import { useState, useEffect } from 'react';
 import DashboardItem from './DashboardItem';
+import DashboardItemToggle from './DashboardItemToggle';
+import { coingeckoPrices } from '@marketplaces/data-access';
 
 interface ItemsDashboardProps {
-  valueTotalPortfolio: any;
-  amountOfTokens: any;
+  amountOfTokens: number;
+  assets: Array<any>;
 }
 
 const ItemsDashboard: React.FC<ItemsDashboardProps> = ({
-  valueTotalPortfolio,
   amountOfTokens,
+  assets,
 }) => {
+  const [profit, setProfit] = useState<number | object>(0);
+  const [portfolioValue, setPortfolioValue] = useState<number>(0);
+  useEffect(() => {
+    sumProfits();
+    ADApriceTotal(assets).then((data: any) => setPortfolioValue(data));
+  }, [assets]);
+
+  const sumProfits = () => {
+    let sumCOP = 0;
+    let sumUSD = 0;
+    assets.forEach((item) => {
+      if (item.currency === 'COP')
+        sumCOP += item.diffBetweenFirsLastPeriod * item.quantity;
+      else if (item.currency === 'USD')
+        sumUSD += item.diffBetweenFirsLastPeriod * item.quantity;
+    });
+    setProfit({
+      COP: sumCOP,
+      USD: sumUSD,
+    });
+  };
+  const ADApriceTotal = async (assets: Array<any>) => {
+    let totalprice = 0;
+    const COP = await coingeckoPrices('cardano', 'COP');
+    const USD = await coingeckoPrices('cardano', 'USD');
+    let rates: any = {
+      COP,
+      USD,
+    };
+    assets.map(async (item: any) => {
+      item.ADAprice = item.actualPeriod
+        ? (parseFloat(item.actualPeriod.price) / rates[item.currency]) *
+          item.quantity
+        : (parseFloat(item.periods[item.periods.length - 1].price) /
+            rates[item.currency]) *
+          item.quantity;
+      totalprice += item.ADAprice;
+    });
+    return totalprice.toFixed(4);
+  };
+
   return (
     <div className="mb-8 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-2 2xl:grid-cols-3 gap-3">
       <DashboardItem
@@ -29,7 +73,7 @@ const ItemsDashboard: React.FC<ItemsDashboardProps> = ({
             ></path>
           </svg>
         }
-        value={`₳ ${valueTotalPortfolio}`}
+        value={`₳ ${portfolioValue}`}
         label="Valor del portfolio"
       />
       <DashboardItem
@@ -53,7 +97,7 @@ const ItemsDashboard: React.FC<ItemsDashboardProps> = ({
         value={`${amountOfTokens}`}
         label="Tokens adquiridos"
       />
-      <DashboardItem
+      <DashboardItemToggle
         icon={
           <svg
             width="30"
@@ -71,8 +115,8 @@ const ItemsDashboard: React.FC<ItemsDashboardProps> = ({
             ></path>
           </svg>
         }
-        value={`0 COP`}
-        label="Ganancia total"
+        values={profit}
+        label="Aumento de valor"
       />
     </div>
   );

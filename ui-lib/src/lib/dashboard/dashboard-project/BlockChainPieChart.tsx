@@ -57,13 +57,11 @@ export default function BlockChainPieChart({
   useEffect(() => {
     const globalTokenTotalAmount = getGlobalTokenTotalAmount(project);
     const newData = getNewChartData(project);
-    console.log(newData, 'newData');
     setNewData(newData);
     setGlobalTokenAmount(globalTokenTotalAmount);
 
     if (newData) {
       const chartData = transformDataForChart(newData, globalTokenTotalAmount);
-      console.log(chartData, 'chartData');
       setChartData(chartData);
     }
   }, []);
@@ -89,7 +87,6 @@ export default function BlockChainPieChart({
     totalAmount: number
   ): ChartDataItem[] {
     let dataFormatted = data.map((item: any) => {
-      console.log(item, 'item');
       return {
         name: item.CONCEPTO,
         value: item.CANTIDAD,
@@ -141,8 +138,6 @@ export default function BlockChainPieChart({
       },
     },
   };
-
-  console.log(newChartData);
 
   return (
     <Card className="h-fit !bg-custom-dark-hover text-white">

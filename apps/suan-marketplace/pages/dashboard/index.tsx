@@ -4,33 +4,14 @@ import { getTransactions } from '@suan//backend';
 import { MyPage } from '@suan//components/common/types';
 
 const DashboardPage: MyPage = (props: any) => {
-  const transactions = props.transactions;
   return (
     <>
       <div>
-        <DashboardInvestor transactions={transactions} />
+        <DashboardInvestor />
       </div>
     </>
   );
 };
-
-export async function getServerSideProps() {
-  try {
-    const transactions = await getTransactions();
-    return {
-      props: {
-        transactions: transactions,
-      },
-    };
-  } catch (error) {
-    console.error('Error:', error);
-    return {
-      props: {
-        transactions: [], // Return an empty array or some default value in case of an error
-      },
-    };
-  }
-}
 
 DashboardPage.Layout = 'Main'; // Asigna el diseño principal (Main)
 

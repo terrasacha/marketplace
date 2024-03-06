@@ -1,10 +1,11 @@
-import { getActualPeriod } from "../utils-2";
+import { getActualPeriod, mapTransactionListInfo } from "../utils-2";
+import { coingeckoPrices } from '@marketplaces/data-access';
 
 function createLineChartData(data: Array<any>) {
-    console.log(data,'data linechart')
+    console.log(data,'createLineChartData')
     const dataToPlot = data.map(item => {
-        let periods = item.product.productFeatures.items.filter((pf: any) => pf.featureID === "GLOBAL_TOKEN_HISTORICAL_DATA")
-        periods = JSON.parse(periods[0].value).map((p: any) => {
+        let periods = item.periods
+        periods = periods.map((p: any) => {
             return {
                 period: parseInt(p.period),
                 value: p.price,
@@ -13,15 +14,15 @@ function createLineChartData(data: Array<any>) {
             }
         })
         return {
-            name: item.tokenName,
+            name: item.asset_name,
             data: periods,
             actualPeriod: getActualPeriod(Date.now(), periods),
 
         }
     })
     const dataToPlotVolume = data.map(item => {
-        let periods = item.product.productFeatures.items.filter((pf: any) => pf.featureID === "GLOBAL_TOKEN_HISTORICAL_DATA")
-        periods = JSON.parse(periods[0].value).map((p: any, index: number, array: any[]) => {
+        let periods = item.periods
+        periods = periods.map((p: any, index: number, array: any[]) => {
             const previousValues = array.slice(0, index).map((prev: any) => prev.amount);
             const sumPreviousValues = previousValues.reduce((acc: number, curr: number) => acc + curr, 0);
             return {
@@ -31,7 +32,7 @@ function createLineChartData(data: Array<any>) {
             }
         })
         return {
-            name: item.tokenName,
+            name: item.asset_name,
             data: periods,
             actualPeriod: getActualPeriod(Date.now(), periods),
         }
@@ -44,9 +45,112 @@ function createLineChartData(data: Array<any>) {
         dataToPlotVolume
     }
 }
+const formatProjectDuration = (data: any) => {
+    let year = ''
+    let month = ''
+    let day = ''
 
-export async function mapDashboardProject(transactions: Array<any>, project: any, projectData: any, projectId: string, walletStakeID: any) {
-    const projectStatusMapper: any = {
+    if (data.days && data.days > 0) {
+        day = data.days > 1 ? ` y ${data.days} días` : ` y ${data.days} día`
+    }
+    if (data.months && data.months > 0) {
+        month = data.months > 1 ? ` ${data.months} meses` : ` ${data.months} mes`
+    }
+    if (data.years && data.years > 0) {
+        year = data.years > 1 ? `${data.years} años,` : `${data.years} año,`
+    }
+    return `${year}${month}${day}`
+}
+const getTransactionsData = async (stake_address : string, address : string) => {
+    const payload = {
+      stake: stake_address,
+      all: true
+    };
+    const response = await fetch('/api/transactions/account-tx', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify(payload),
+    });
+    const responseData = await response.json();
+
+    const paginationMetadataItem = {
+      currentPage: responseData.current_page,
+      pageSize: responseData.page_size,
+      totalItems: responseData.total_count,
+    };
+    const mappedTransactionListData = await mapTransactionListInfo({
+      walletAddress: address,
+      data: responseData.data,
+    });
+    const filterMappedTransactionListData = mappedTransactionListData.filter(
+      (transaction : any) =>
+        transaction.outputUTxOs.some((output : any) =>
+          output.asset_list.some(
+            (asset: any) =>
+              asset.policy_id ===
+              '8726ae04e47a9d651336da628998eda52c7b4ab0a4f86deb90e51d83'
+          )
+        ) ||
+        transaction.inputUTxOs.some((input : any) =>
+          input.asset_list.some(
+            (asset: any) =>
+              asset.policy_id ===
+              '8726ae04e47a9d651336da628998eda52c7b4ab0a4f86deb90e51d83'
+          )
+        )
+    );
+    return filterMappedTransactionListData
+  };
+export async function mapDashboardProject( project: any, projectData: any, projectId: string, walletData: any) {
+
+    console.log(project)
+    const projectMunicipio = project.productFeatures.items.filter( (pf : any) => pf.featureID === 'A_municipio')[0].value
+    const projectVereda = project.productFeatures.items.filter( (pf : any) => pf.featureID === 'A_vereda')[0].value
+    const assetFromSuan = walletData.assets.filter((asset : any)=> asset.policy_id === "8726ae04e47a9d651336da628998eda52c7b4ab0a4f86deb90e51d83")
+    const dataFromQuery = await fetch('/api/calls/getPeriodToken',{
+        method: 'POST',
+        body: JSON.stringify({
+            assets_name: assetFromSuan.map((asset : any) => asset.asset_name)
+        }),
+    }
+    )
+    const data = await dataFromQuery.json() 
+    assetFromSuan.forEach((item : any)=> {
+        let match = data.find((item2 : any)=> item2.asset_name === item.asset_name);
+        if (match){
+            item.productID = match.productID
+            item.currency = match.currency
+            item.periods = JSON.parse(match.periods)
+        };
+        item.actualPeriod = getActualPeriod(Date.now(), item.periods);
+        item.diffBetweenFirsLastPeriod = item.actualPeriod && item.actualPeriod.price - item.periods[0].price || 0
+    });
+    const asset = assetFromSuan.filter((asset : any)=> asset.productID === projectId)
+    console.log(asset, 'assetFromSuan')
+    const lineChartData = createLineChartData(asset)
+    const totalTokens = asset[0] ? parseInt(asset[0].quantity) : 0
+    
+    
+    const tokenHistoricalData = JSON.parse(
+        project.productFeatures.items.filter((item: any) => {
+            return item.featureID === 'GLOBAL_TOKEN_HISTORICAL_DATA';
+        })[0]?.value || '[]'
+        );
+        
+        const periods = tokenHistoricalData.map((tkhd: any) => {
+            return {
+                period: tkhd.period,
+                date: new Date(tkhd.date),
+                price: tkhd.price,
+                amount: tkhd.amount,
+            };
+        });
+        const actualPeriod = getActualPeriod(Date.now(), periods);
+        const actualProfit = actualPeriod && actualPeriod.price - tokenHistoricalData[0].price || 0
+        const actualProfitPercentage = actualPeriod && (actualPeriod.price * 100) / tokenHistoricalData[0].price || 0
+        const projectStatusMapper: any = {
         draft: 'En borrador',
         verified: 'Verificado',
         on_verification: 'En verificación',
@@ -58,164 +162,57 @@ export async function mapDashboardProject(transactions: Array<any>, project: any
         'Validación externa': 'En validación externa',
         'Registro del proyecto': 'Registrado',
     };
-
-    const newElements = transactions.filter((transaction: any) => transaction.stakeAddress === walletStakeID && transaction.productID === projectId);
-    const totalTokens = newElements.reduce((sum: number, transaction: any) => sum + transaction.amountOfTokens, 0);
-    const tokenHistoricalData = JSON.parse(
-        project.productFeatures.items.filter((item: any) => {
-            return item.featureID === 'GLOBAL_TOKEN_HISTORICAL_DATA';
-        })[0]?.value || '[]'
-    );
-
-    const setUniquetokenData = new Set();
-    const arrayUniqueTokenData = newElements.filter(item => !setUniquetokenData.has(item.tokenName) && setUniquetokenData.add(item.tokenName));
-    const lineChartData = createLineChartData(arrayUniqueTokenData)
-    const results = newElements.map((transaction, index) => {
-        const transactionDateFormat = transaction.createdAt;
-        const transactionDate = transactionDateFormat.slice(0, 10);
-        const tokenHistoricalData = JSON.parse(
-            (transaction.product.productFeatures.items.find(
-                (feature: any) => feature.featureID === "GLOBAL_TOKEN_HISTORICAL_DATA"
-            )?.value || "[]").toString()
-        )
-        const tokenCurrency = transaction.product.productFeatures.items.find((pf: any) => pf.featureID === 'GLOBAL_TOKEN_CURRENCY')?.value
-        tokenHistoricalData.sort((a: any, b: any) => new Date(a.date).getTime() - new Date(b.date).getTime());
-        const periods = tokenHistoricalData.map((tkhd: any) => {
-            return {
-                period: tkhd.period,
-                date: new Date(tkhd.date),
-                datePeriod: tkhd.date,
-                price: tkhd.price,
-                amount: tkhd.amount,
-            };
-        });
-        let periodOfBuy = determinatePeriodOfBuy(transactionDate, tokenHistoricalData)
-        //Rango de fechas
-        let startDate: any = 0; // Inicializa la fecha de inicio en null
-        periods.sort((a: any, b: any) => parseInt(b.period) - parseInt(a.period));
-        const lastPeriod = periods[0];
-
-        if (lastPeriod) {
-            const lastPrice = lastPeriod.price;
-            const amountOfTokens = transaction.amountOfTokens;
-            const totalValue = lastPrice * amountOfTokens;
-
-            return {
-                lastPrice,
-                amountOfTokens,
-                totalValue,
-                token_name: transaction.tokenName,
-                transactionDate,
-                tokenCurrency,
-                periodOfBuy
-            };
-        } else {
-            return {
-                lastPrice: null,
-                amountOfTokens: transaction.amountOfTokens,
-                token_name: transaction.tokenName,
-                totalValue: null,
-                transactionDate,
-                tokenCurrency,
-                periodOfBuy
-            };
-        }
-    });
-    function determinatePeriodOfBuy(dateOfTransaction: any, tokenHData: Array<any>) {
-        dateOfTransaction = new Date(dateOfTransaction);
-        const index = tokenHData.findIndex(periodo => dateOfTransaction < new Date(periodo.date));
-        return index === -1 ? tokenHData[tokenHData.length] : tokenHData[index]
-    }
-    // Calcula la suma de los totalValue de todos los elementos en results
-
-    let totalInvestmentCOP = 0
-    let totalInvestmentUSD = 0
-    let totalSumValueCOP = 0
-    let totalSumValueUSD = 0
-    let totalGananciaCOP = 0
-    let totalGananciaUSD = 0
-    console.log(results)
-    results.forEach(result => {
-        if (typeof result.totalValue === "number") {
-            //@ts-ignore
-            if (result.tokenCurrency === 'COP') {
-                totalInvestmentCOP += result.periodOfBuy.price * result.amountOfTokens;
-                totalSumValueCOP += result.totalValue
-                //@ts-ignore
-            } else if (result.tokenCurrency === 'USD') {
-                totalInvestmentUSD += result.periodOfBuy.price * result.amountOfTokens;
-                totalSumValueUSD += result.totalValue
-            }
-        }
-    });
-    totalGananciaCOP = totalSumValueCOP - totalInvestmentCOP
-    totalGananciaUSD = totalSumValueUSD - totalInvestmentUSD
-
-
+    
+    
+    
+    
     const tokenCurrency: string =
-        project.productFeatures.items.filter((item: any) => {
-            return item.featureID === 'GLOBAL_TOKEN_CURRENCY';
-        })[0]?.value || '';
-    const periods = tokenHistoricalData.map((tkhd: any) => {
-        return {
-            period: tkhd.period,
-            date: new Date(tkhd.date),
-            price: tkhd.price,
-            amount: tkhd.amount,
-        };
-    });
-    const actualPeriod = getActualPeriod(Date.now(), periods);
+    project.productFeatures.items.filter((item: any) => {
+        return item.featureID === 'GLOBAL_TOKEN_CURRENCY';
+    })[0]?.value || '';
+    
+    const totalAmountOfTokens = project.productFeatures.items.filter((item: any) => {
+        return item.featureID === 'GLOBAL_TOKEN_TOTAL_AMOUNT';
+    })[0]?.value
     const totalTokensSold = project.transactions.items.reduce(
         (acc: any, item: any) => {
             return acc + item.amountOfTokens;
         },
         0
-    );
+        );
 
     let relevantInfo = {
         name: project.name
-            .toLowerCase()
-            .replace(/(?:^|\s)\S/g, (char: string) => char.toUpperCase()),
+        .toLowerCase()
+        .replace(/(?:^|\s)\S/g, (char: string) => char.toUpperCase()),
         status: projectStatusMapper[project.status],
         dateOfInscription: project.createdAt.split('-')[0],
         category: project.category.name
-            .toLowerCase()
-            .replace(/(?:^|\s)\S/g, (char: string) => char.toUpperCase()),
+        .toLowerCase()
+        .replace(/(?:^|\s)\S/g, (char: string) => char.toUpperCase()),
+        municipio: projectMunicipio,
+        vereda: projectVereda,
         encodedCategory: encodeURIComponent(project.categoryID),
         tokenTotal: parseInt(actualPeriod?.amount),
         tokenUnits: parseInt(actualPeriod?.amount) - parseInt(totalTokensSold),
         tokenValue: actualPeriod?.price,
-        tokenPercentageSold: (parseInt(totalTokensSold) * 100 ) / parseInt(actualPeriod?.amount) ,
+        tokenPercentageSold: ((parseInt(totalTokensSold) * 100 ) / totalAmountOfTokens).toFixed(1),
+        tokenPercentageTokensOwn: (( totalTokens * 100 ) / totalAmountOfTokens).toFixed(1),
+        totalAmountOfTokens,
         tokenCurrency: tokenCurrency,
     };
-    const formatProjectDuration = (data: any) => {
-        let year = ''
-        let month = ''
-        let day = ''
-
-        if (data.days && data.days > 0) {
-            day = data.days > 1 ? ` y ${data.days} días` : ` y ${data.days} día`
-        }
-        if (data.months && data.months > 0) {
-            month = data.months > 1 ? ` ${data.months} meses` : ` ${data.months} mes`
-        }
-        if (data.years && data.years > 0) {
-            year = data.years > 1 ? `${data.years} años,` : `${data.years} año,`
-        }
-        return `${year}${month}${day}`
-    }
+    
     let projectDuration = formatProjectDuration(projectData.projectInfo.token.lifeTimeProject)
 
-
     return {
+        asset: asset[0],
         relevantInfo,
+        totalAmountOfTokens,
         totalTokensSold,
         totalTokens,
         projectDuration,
-        totalGananciaCOP,
-        totalGananciaUSD,
-        totalInvestmentCOP,
-        totalInvestmentUSD,
+        actualProfit,
+        actualProfitPercentage,
         lineChartData
     }
 
