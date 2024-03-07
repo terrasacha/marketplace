@@ -1,5 +1,4 @@
 import { useContext, useEffect, useState } from 'react';
-import { useWallet, useAssets } from '@meshsdk/react';
 import {
   ItemsDashboard,
   DetailItems,
@@ -19,40 +18,17 @@ interface Transaction {
 
 function DashboardInvestor() {
   const { walletData } = useContext<any>(WalletContext);
-  const assets = useAssets() as Array<{ [key: string]: any }>;
-  const { wallet, connected } = useWallet();
-  const [walletStakeID, setWalletStakeID] = useState<string | undefined>(
-    undefined
-  );
-  const [mappetWalletData, setMappetWalletData] = useState<any>(null);
+  const [mappedWalletData, setMappedWalletData] = useState<any>(null);
 
   useEffect(() => {
     if (walletData) {
       mapWalletDataDashboardInvestor(walletData).then((data) => {
-        setMappetWalletData(data);
+        setMappedWalletData(data);
       });
     }
   }, [walletData]);
 
-  useEffect(() => {
-    async function loadWalletStakeID() {
-      try {
-        if (connected) {
-          const addresses = await wallet.getRewardAddresses();
-          if (addresses.length > 0) {
-            const firstAddress = addresses[0];
-
-            setWalletStakeID(firstAddress);
-          }
-        }
-      } catch (error) {
-        console.error(error);
-      }
-    }
-
-    loadWalletStakeID();
-  }, [connected, wallet]);
-  if (!mappetWalletData) return <></>;
+  if (!mappedWalletData) return <></>;
   return (
     <div className="h-auto w-full px-5 pt-6">
       <div className="p-4 border-gray-200 rounded-lg">
@@ -65,8 +41,9 @@ function DashboardInvestor() {
             <Card.Body>
               <div className="flex flex-col w-full">
                 <ItemsDashboard
-                  amountOfTokens={mappetWalletData.amountOfTokens}
-                  assets={mappetWalletData.assets}
+                  amountOfTokens={mappedWalletData.amountOfTokens}
+                  assets={mappedWalletData.assets}
+                  rates={mappedWalletData.rates}
                 />
               </div>
             </Card.Body>
@@ -80,9 +57,9 @@ function DashboardInvestor() {
                   <h4 className="w-full text-[#ddd] text-md font-semibold">
                     Evolución del proyecto
                   </h4>
-                  {mappetWalletData && (
+                  {mappedWalletData && (
                     <LineChartComponent
-                      lineChartData={mappetWalletData.lineChartData}
+                      lineChartData={mappedWalletData.lineChartData}
                       plotVolume={false}
                     />
                   )}
@@ -91,9 +68,9 @@ function DashboardInvestor() {
                   <h4 className="top-4 left-6 w-full text-[#ddd] text-md font-semibold">
                     Tokens de tu billetera
                   </h4>
-                  {mappetWalletData && (
+                  {mappedWalletData && (
                     <PieChartComponent
-                      foundElement={mappetWalletData.dataPieChart}
+                      foundElement={mappedWalletData.dataPieChart}
                     />
                   )}
                 </div>
@@ -103,7 +80,7 @@ function DashboardInvestor() {
           <Card className="h-fit">
             <Card.Header title="Detalle de tokens adquiridos" />
             <Card.Body>
-              <DetailItems foundElement={mappetWalletData.assets} />
+              <DetailItems foundElement={mappedWalletData.assets} />
             </Card.Body>
           </Card>
           <TransactionShort txPerPage={8} />

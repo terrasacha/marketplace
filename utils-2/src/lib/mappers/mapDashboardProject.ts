@@ -1,14 +1,14 @@
 import { getActualPeriod, mapTransactionListInfo } from "../utils-2";
 import { coingeckoPrices } from '@marketplaces/data-access';
-
-function createLineChartData(data: Array<any>) {
-    console.log(data,'createLineChartData')
-    const dataToPlot = data.map(item => {
+function createLineChartData(data: any) {
+    const convert1 = (price: number) => { return (price / data[0].rates.ADArateCOP) * data[0].rates.ADArateUSD} 
+    const dataToPlot = data.map((item : any) => {
         let periods = item.periods
         periods = periods.map((p: any) => {
+            let price = data[0].asset_currency === 'COP'? convert1(p.price) : p.price
             return {
                 period: parseInt(p.period),
-                value: p.price,
+                value: price,
                 date: p.date,
                 volume: p.amount,
             }
@@ -20,7 +20,7 @@ function createLineChartData(data: Array<any>) {
 
         }
     })
-    const dataToPlotVolume = data.map(item => {
+    const dataToPlotVolume = data.map((item : any) => {
         let periods = item.periods
         periods = periods.map((p: any, index: number, array: any[]) => {
             const previousValues = array.slice(0, index).map((prev: any) => prev.amount);
@@ -38,7 +38,7 @@ function createLineChartData(data: Array<any>) {
         }
     })
     
-    const maxPeriod = dataToPlot ? dataToPlot.sort((a, b) => b.data.length - a.data.length)[0]?.data.length : 0
+    const maxPeriod = dataToPlot ? dataToPlot.sort((a : any, b : any) => b.data.length - a.data.length)[0]?.data.length : 0
     return {
         dataToPlot,
         maxPeriod,
@@ -61,55 +61,39 @@ const formatProjectDuration = (data: any) => {
     }
     return `${year}${month}${day}`
 }
-const getTransactionsData = async (stake_address : string, address : string) => {
-    const payload = {
-      stake: stake_address,
-      all: true
-    };
-    const response = await fetch('/api/transactions/account-tx', {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-      },
-      body: JSON.stringify(payload),
-    });
-    const responseData = await response.json();
+const calculateDeltaPrice = async(actualProfit : number, totalTokens : number, currency : string, rates : any) => {
+    const totalDelta = actualProfit
+    //const ADArateUSD = await coingeckoPrices("cardano", "USD")
+    if(currency === "COP"){
+        //const ADArateCOP = await coingeckoPrices("cardano", "COP")
+        return ((totalDelta / rates.ADArateCOP) * rates.ADArateUSD).toFixed(4)
+    } 
+    return (totalDelta / rates.ADArateUSD).toFixed(4)
+}
+const calculateActualTokenPrice = (actualPrice : number, currency : string, rates : any) =>{
+    if(!actualPrice) return "unknown"
 
-    const paginationMetadataItem = {
-      currentPage: responseData.current_page,
-      pageSize: responseData.page_size,
-      totalItems: responseData.total_count,
-    };
-    const mappedTransactionListData = await mapTransactionListInfo({
-      walletAddress: address,
-      data: responseData.data,
-    });
-    const filterMappedTransactionListData = mappedTransactionListData.filter(
-      (transaction : any) =>
-        transaction.outputUTxOs.some((output : any) =>
-          output.asset_list.some(
-            (asset: any) =>
-              asset.policy_id ===
-              '8726ae04e47a9d651336da628998eda52c7b4ab0a4f86deb90e51d83'
-          )
-        ) ||
-        transaction.inputUTxOs.some((input : any) =>
-          input.asset_list.some(
-            (asset: any) =>
-              asset.policy_id ===
-              '8726ae04e47a9d651336da628998eda52c7b4ab0a4f86deb90e51d83'
-          )
-        )
-    );
-    return filterMappedTransactionListData
-  };
+    if(currency === "COP"){
+        //const ADArateCOP = await coingeckoPrices("cardano", "COP")
+        return ((actualPrice / rates.ADArateCOP) * rates.ADArateUSD).toFixed(4)
+    } 
+    return (actualPrice / rates.ADArateUSD).toFixed(4)
+}
+
+const getRates = async() => {
+    const ADArateUSD = await coingeckoPrices("cardano", "USD")
+    const ADArateCOP = await coingeckoPrices("cardano", "COP")
+
+    return { ADArateCOP, ADArateUSD}
+}
 export async function mapDashboardProject( project: any, projectData: any, projectId: string, walletData: any) {
-
-    console.log(project)
+    
+    const rates = await getRates()
     const projectMunicipio = project.productFeatures.items.filter( (pf : any) => pf.featureID === 'A_municipio')[0].value
     const projectVereda = project.productFeatures.items.filter( (pf : any) => pf.featureID === 'A_vereda')[0].value
     const projectPeriod = project.productFeatures.items.filter( ( pf : any) => pf.featureID === 'GLOBAL_TOKEN_HISTORICAL_DATA')[0].value
     const projectTokenName = project.productFeatures.items.filter( (pf : any) => pf.featureID === 'GLOBAL_TOKEN_NAME')[0].value
+    const projectCurrency = project.productFeatures.items.filter( (pf : any) => pf.featureID === 'GLOBAL_TOKEN_CURRENCY')[0].value
     const assetFromSuan = walletData.assets.filter((asset : any)=> asset.policy_id === "8726ae04e47a9d651336da628998eda52c7b4ab0a4f86deb90e51d83")
     const dataFromQuery = await fetch('/api/calls/getPeriodToken',{
         method: 'POST',
@@ -130,11 +114,12 @@ export async function mapDashboardProject( project: any, projectData: any, proje
         item.diffBetweenFirsLastPeriod = item.actualPeriod && item.actualPeriod.price - item.periods[0].price || 0
     });
     const asset = assetFromSuan.filter((asset : any)=> asset.productID === projectId)
-    console.log(asset, 'assetFromSuan')
     const lineChartData = createLineChartData([{
         //@ts-ignore
         periods: JSON.parse(projectPeriod),
-        asset_name: projectTokenName
+        asset_name: projectTokenName,
+        asset_currency: projectCurrency,
+        rates
     }])
     const totalTokens = asset[0] ? parseInt(asset[0].quantity) : 0
     
@@ -155,7 +140,7 @@ export async function mapDashboardProject( project: any, projectData: any, proje
         });
         const actualPeriod = getActualPeriod(Date.now(), periods);
         const actualProfit = actualPeriod && actualPeriod.price - tokenHistoricalData[0].price || 0
-        const actualProfitPercentage = actualPeriod && (actualPeriod.price * 100) / tokenHistoricalData[0].price || 0
+        const actualProfitPercentage = actualPeriod && ((actualPeriod.price - tokenHistoricalData[0].price)* 100) / tokenHistoricalData[0].price || "0.0"
         const projectStatusMapper: any = {
         draft: 'En borrador',
         verified: 'Verificado',
@@ -208,14 +193,20 @@ export async function mapDashboardProject( project: any, projectData: any, proje
         tokenCurrency: tokenCurrency,
     };
     
-    let projectDuration = formatProjectDuration(projectData.projectInfo.token.lifeTimeProject)
-
+    const projectDuration = formatProjectDuration(projectData.projectInfo.token.lifeTimeProject)
+    const actualTokenPriceUSD = calculateActualTokenPrice(projectData.projectInfo.token.actualPeriodTokenPrice,relevantInfo.tokenCurrency, rates)
+    const tokenDeltaPrice = await calculateDeltaPrice(actualProfit, totalTokens, relevantInfo.tokenCurrency, rates)
+    const progressproject = projectData.projectInfo.token.actualPeriod && (projectData.projectInfo.token.actualPeriod / projectData.projectInfo.token.historicalData.length) * 100 || "0.0"
     return {
         asset: asset[0],
         relevantInfo,
         totalAmountOfTokens,
         totalTokensSold,
         totalTokens,
+        tokenDeltaPrice,
+        actualTokenPriceUSD,
+        rates,
+        progressproject,
         projectDuration,
         actualProfit,
         actualProfitPercentage,

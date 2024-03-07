@@ -75,30 +75,22 @@ export default function DashboardProject(props: any) {
             title: 'Valor total en portfolio',
             value: dashboardProjectData.asset,
             image: 'naturaleza',
+            rates: dashboardProjectData.rates,
             extra: 'client',
           },
 
           {
             title: 'Progreso proyecto',
-            percentage: `${
-              (projectData.projectInfo.token.actualPeriod /
-                projectData.projectInfo.token.historicalData.length) *
-              100
-            }`,
+            percentage: dashboardProjectData.progressproject,
           },
           {
             title: 'Crecimiento precio del token',
-            value: `${
-              dashboardProjectData.actualProfit *
-              dashboardProjectData.totalTokens
-            } ${dashboardProjectData.relevantInfo.tokenCurrency}`,
+            value: `${dashboardProjectData.tokenDeltaPrice} USD`,
             percentage: dashboardProjectData.actualProfitPercentage,
           },
           {
             title: 'Precio actual del token',
-            value: `${
-              projectData.projectInfo.token.actualPeriodTokenPrice || 'unknown'
-            } ${dashboardProjectData.relevantInfo.tokenCurrency}`,
+            value: `${dashboardProjectData.actualTokenPriceUSD} USD`,
             image: 'money_managment',
           },
         ].map((info, index) => (
@@ -116,6 +108,7 @@ export default function DashboardProject(props: any) {
               <DefaultCardClient
                 title={info.title}
                 value={info.value}
+                rates={info.rates}
                 //@ts-ignore
                 subtitle={info.subtitle}
                 image={info.image}

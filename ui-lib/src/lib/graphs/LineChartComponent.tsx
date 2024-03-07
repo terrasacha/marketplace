@@ -87,7 +87,7 @@ export default function LineChartComponent(props: any) {
       },
       title: {
         display: true,
-        text: 'Valor del token',
+        text: 'Valor del token $USD',
         color: '#DDDDDD',
       },
     },

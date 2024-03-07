@@ -1,8 +1,15 @@
 import { getActualPeriod, mapTransactionListInfo} from "../utils-2"
+import { coingeckoPrices } from '@marketplaces/data-access';
 
+const getRates = async() => {
+  const ADArateUSD = await coingeckoPrices("cardano", "USD")
+  const ADArateCOP = await coingeckoPrices("cardano", "COP")
 
+  return { ADArateCOP, ADArateUSD}
+}
 export async function mapWalletDataDashboardInvestor( walletData : any){
-  
+
+    const rates = await getRates()
     const assetFromSuan = walletData.assets.filter((asset : any)=> asset.policy_id === "8726ae04e47a9d651336da628998eda52c7b4ab0a4f86deb90e51d83")
     const dataPieChart = assetFromSuan.map((asset : any) =>{ return { tokenName: asset.asset_name, amountOfTokens: parseInt(asset.quantity)}})
     const dataFromQuery = await fetch('/api/calls/getPeriodToken',{
@@ -24,7 +31,7 @@ export async function mapWalletDataDashboardInvestor( walletData : any){
       item.actualPeriod = getActualPeriod(Date.now(), item.periods);
       item.diffBetweenFirsLastPeriod = item.actualPeriod && item.actualPeriod.price - item.periods[0].price || 0
     });
-    const lineChartData = createLineChartData(data)
+    const lineChartData = createLineChartData(data , rates)
     const tokenQuantities   = assetFromSuan.map( (asset : any) => parseInt(asset.quantity))
     const amountOfTokens = tokenQuantities.reduce((total : number, current : number) => total + current, 0)
     const transacionsData = await getTransactionsData(walletData.stake_address, walletData.address)
@@ -39,7 +46,8 @@ export async function mapWalletDataDashboardInvestor( walletData : any){
         amountOfTokens,
         transactions: {
           transacionsData
-        }
+        },
+        rates
     }
 }
 
@@ -86,12 +94,15 @@ const getTransactionsData = async (stake_address : string, address : string) => 
     return filterMappedTransactionListData
   };
 
-function createLineChartData(data: any) {
+function createLineChartData(data: any, rates: any) {
+  console.log(data,'createLineChartData')
+  const convert1 = (price: number) => { return (price / rates.ADArateCOP) * rates.ADArateUSD} 
     const dataToPlot = data && data.map((item : any) => {
         let periods = JSON.parse(item.periods).map((p: any) => {
+            let price = item.currency === 'COP'? convert1(p.price) : p.price
             return {
                 period: parseInt(p.period),
-                value: p.price,
+                value: price, 
                 date: p.date
             }
         })

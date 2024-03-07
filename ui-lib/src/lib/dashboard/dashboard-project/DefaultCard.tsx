@@ -1,8 +1,12 @@
 import { totalmem } from 'os';
 
 export default function DefaultCard(props: any) {
-  const { title, value, subtitle, image, percentage } = props;
-  const offset = `calc(3.14 * ${percentage})`;
+  let { title, value, subtitle, image, percentage } = props;
+
+  let percentageGraph = percentage;
+  if (percentage && percentage > 100) {
+    percentageGraph = 100;
+  }
   return (
     <div className="p-4 border rounded-lg shadow-[rgba(221,222,227,1)_1px_1px_4px_0px] text-dark-900 bg-custom-fondo w-full flex items-center animate-fade animate-ease-in animate-duration-300 h-24">
       <div className="flex flex-col justify-start w-[80%]">
@@ -33,7 +37,7 @@ export default function DefaultCard(props: any) {
                 cy="50"
                 r="40"
                 fill="transparent"
-                stroke-dashoffset={`calc(3.14 * (-0.8 * ${percentage} + 128))`}
+                stroke-dashoffset={`calc(3.14 * (-0.8 * ${percentageGraph} + 128))`}
               ></circle>
               <text
                 x="52"

@@ -1,25 +1,25 @@
 import { useState, useEffect } from 'react';
 import DashboardItem from './DashboardItem';
 import DashboardItemToggle from './DashboardItemToggle';
-import { coingeckoPrices } from '@marketplaces/data-access';
 
 interface ItemsDashboardProps {
   amountOfTokens: number;
   assets: Array<any>;
+  rates: any;
 }
 
 const ItemsDashboard: React.FC<ItemsDashboardProps> = ({
   amountOfTokens,
   assets,
+  rates,
 }) => {
-  const [profit, setProfit] = useState<number | object>(0);
+  const [profit, setProfit] = useState<number | any>(0);
   const [portfolioValue, setPortfolioValue] = useState<number>(0);
   useEffect(() => {
-    sumProfits();
     ADApriceTotal(assets).then((data: any) => setPortfolioValue(data));
   }, [assets]);
 
-  const sumProfits = () => {
+  const sumProfits = (COP: number, USD: number) => {
     let sumCOP = 0;
     let sumUSD = 0;
     assets.forEach((item) => {
@@ -28,29 +28,31 @@ const ItemsDashboard: React.FC<ItemsDashboardProps> = ({
       else if (item.currency === 'USD')
         sumUSD += item.diffBetweenFirsLastPeriod * item.quantity;
     });
+    const totalProfit = ((sumCOP / COP) * USD + sumUSD).toFixed(4);
     setProfit({
       COP: sumCOP,
       USD: sumUSD,
+      totalProfit,
     });
   };
   const ADApriceTotal = async (assets: Array<any>) => {
     let totalprice = 0;
-    const COP = await coingeckoPrices('cardano', 'COP');
-    const USD = await coingeckoPrices('cardano', 'USD');
-    let rates: any = {
-      COP,
-      USD,
+    let ratesLocal: any = {
+      COP: rates.ADArateCOP,
+      USD: rates.ADArateUSD,
     };
+    console.log(rates, 'rates');
     assets.map(async (item: any) => {
       item.ADAprice = item.actualPeriod
-        ? (parseFloat(item.actualPeriod.price) / rates[item.currency]) *
+        ? (parseFloat(item.actualPeriod.price) / ratesLocal[item.currency]) *
           item.quantity
         : (parseFloat(item.periods[item.periods.length - 1].price) /
-            rates[item.currency]) *
+            ratesLocal[item.currency]) *
           item.quantity;
       totalprice += item.ADAprice;
     });
-    return totalprice.toFixed(4);
+    sumProfits(ratesLocal.COP, ratesLocal.USD);
+    return (totalprice * ratesLocal.USD).toFixed(4);
   };
 
   return (
@@ -73,7 +75,7 @@ const ItemsDashboard: React.FC<ItemsDashboardProps> = ({
             ></path>
           </svg>
         }
-        value={`₳ ${portfolioValue}`}
+        value={`${portfolioValue} USD`}
         label="Valor del portfolio"
       />
       <DashboardItem
@@ -97,7 +99,7 @@ const ItemsDashboard: React.FC<ItemsDashboardProps> = ({
         value={`${amountOfTokens}`}
         label="Tokens adquiridos"
       />
-      <DashboardItemToggle
+      <DashboardItem
         icon={
           <svg
             width="30"
@@ -115,7 +117,7 @@ const ItemsDashboard: React.FC<ItemsDashboardProps> = ({
             ></path>
           </svg>
         }
-        values={profit}
+        value={`${profit.totalProfit} USD`}
         label="Aumento de valor"
       />
     </div>

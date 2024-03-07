@@ -2,37 +2,30 @@ import { useState, useEffect } from 'react';
 import { coingeckoPrices } from '@marketplaces/data-access';
 
 export default function DefaultCardClient(props: any) {
-  const { title, value, subtitle, image, percentage } = props;
+  const { title, value, subtitle, image, percentage, rates } = props;
 
-  const [portfolioValue, setPortfolioValue] = useState<number>(0);
-  const [rate, setRate] = useState<any>(null);
-
-  useEffect(() => {
-    if (value) {
-      coingeckoPrices('cardano', value.currency).then((data) => setRate(data));
-    }
-  }, []);
+  const [portfolioValue, setPortfolioValue] = useState<any>(0);
 
   useEffect(() => {
-    if (typeof rate === 'number') {
-      ADApriceTotal(value).then((data: any) => setPortfolioValue(data));
-    }
-  }, [rate]);
+    ADApriceTotal(value).then((data) => setPortfolioValue(data));
+  }, [value]);
 
   const ADApriceTotal = async (asset: any) => {
     console.log(asset, 'assetDefaultCardClient');
-    try {
-      const profit = asset.actualPeriod
-        ? (parseFloat(asset.actualPeriod.price) / rate) * asset.quantity
-        : (parseFloat(asset.periods[asset.periods.length - 1].price) / rate) *
-          asset.quantity;
-
+    let profit = 0;
+    if (!asset) return (profit = 0);
+    if (asset && asset.currency === 'COP') {
+      profit =
+        (asset.actualPeriod &&
+          ((asset.actualPeriod.price * asset.quantity) / rates.ADArateCOP) *
+            rates.ADArateUSD) ||
+        0;
       return profit.toFixed(4);
-    } catch (error) {
-      console.error('Error fetching rate:', error);
-      // Manejar el error aquí, ya sea lanzándolo nuevamente para que lo maneje un componente superior o retornando un valor predeterminado.
-      return 'Error';
     }
+
+    profit = (asset.actualPeriod.price * asset.quantity) / rates.ADArateUSD;
+
+    return profit.toFixed(4);
   };
 
   const offset = `calc(3.14 * ${percentage})`;
@@ -41,7 +34,7 @@ export default function DefaultCardClient(props: any) {
       <div className="flex flex-col justify-start w-[80%]">
         <h4 className="text-sm font-semibold">{title || 'Title'}</h4>
         <p className="text-xs text-[#a7a7a7]">{subtitle || ' '}</p>
-        <p className="text-xl font-bold">{`₳ ${portfolioValue}` || ''}</p>
+        <p className="text-xl font-bold">{`${portfolioValue} USD` || ''}</p>
       </div>
       <div className="w-[20%] flex justify-center items-center">
         {image && (
