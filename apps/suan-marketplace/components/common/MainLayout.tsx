@@ -49,6 +49,7 @@ const MainLayout = ({ children }: PropsWithChildren) => {
               waleltID: wallet[0].id,
               walletName: wallet[0].name,
               walletAddress: wallet[0].address,
+              isWalletBySuan: true
             });
             const walletAddress = wallet[0].address;
             const balanceData = await getWalletBalanceByAddress(walletAddress);
@@ -189,6 +190,7 @@ const MainLayout = ({ children }: PropsWithChildren) => {
         }),
       });
       const walletData = await response.json();
+      
       await handleWalletData([walletData.data]);
       return walletData;
     }

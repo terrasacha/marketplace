@@ -8,7 +8,6 @@ import {
   getProjectData,
 } from '@suan//backend';
 import { Transition } from '@headlessui/react';
-import PageHeader from '@suan//components/common/PageHeader';
 import { MyPage } from '@suan//components/common/types';
 import { getActualPeriod } from '@suan//utils/generic/getActualPeriod';
 import { mapProjectData } from '@suan//lib/mappers';
@@ -17,7 +16,7 @@ import TabsComponents from '@suan//components/home-page/TabsProject';
 import FinancialTab from '@suan//components/home-page/ProjectTabs/FinancialTab';
 import EarningsTab from '@suan//components/home-page/ProjectTabs/EarningsTab';
 import ProjectionsTab from '@suan//components/home-page/ProjectTabs/ProjectionsTab';
-import { Card } from '@marketplaces/ui-lib';
+import { Card, PageHeader } from '@marketplaces/ui-lib';
 
 const ProjectDataModal = dynamic(
   () => import('@suan/components/modals/ProjectDataModal')
@@ -91,6 +90,9 @@ const Product: MyPage = (props: any) => {
 
   const tokenUnits: number =
     totalTokensFromFirstToActualPeriod - parseInt(totalTokensSold);
+
+  // const tokenUnits: number =
+  //   parseInt(actualPeriod?.amount) - parseInt(totalTokensSold);
 
   const coordString: string =
     project.productFeatures.items.filter((item: any) => {
@@ -206,11 +208,7 @@ const Product: MyPage = (props: any) => {
                     leaveFrom="opacity-100"
                     leaveTo="opacity-0"
                   >
-                    {(ref) => (
-                      <p className="md:text-sm">
-                        {fullDescription}
-                      </p>
-                    )}
+                    {(ref) => <p className="md:text-sm">{fullDescription}</p>}
                   </Transition>
                   {!expanded && (
                     <div>

@@ -33,6 +33,7 @@ import Assets from './wallet/assets/Assets';
 import Modal from './common/Modal';
 import Card from './common/Card';
 import Tooltip from './common/Tooltip';
+import PageHeader from './common/PageHeader';
 import LoadingOverlay from './common/LoadingOverlay';
 import CopyToClipboard from './common/CopyToClipboard';
 import ExternalLink from './common/ExternalLink';
@@ -105,6 +106,7 @@ export {
   RedirectToHome,
   Card,
   Tooltip,
+  PageHeader,
   LineChartComponent,
   PieChartComponent,
   LoadingOverlay,

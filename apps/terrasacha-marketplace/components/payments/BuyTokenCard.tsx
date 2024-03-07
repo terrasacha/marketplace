@@ -27,6 +27,7 @@ export function BuyTokenCard({
           creationDate={projectInfo.createdAt}
           availableAmount={projectInfo.availableAmount}
           tokenPrice={projectInfo.tokenPrice}
+          tokenImageUrl={projectInfo.tokenImageUrl}
         />
         <div>
           <span>Cantidad de tokens:</span>

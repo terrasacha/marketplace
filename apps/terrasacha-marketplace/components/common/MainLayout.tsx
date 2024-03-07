@@ -49,6 +49,7 @@ const MainLayout = ({ children }: PropsWithChildren) => {
               waleltID: wallet[0].id,
               walletName: wallet[0].name,
               walletAddress: wallet[0].address,
+              isWalletBySuan: true
             });
             const walletAddress = wallet[0].address;
             const balanceData = await getWalletBalanceByAddress(walletAddress);
@@ -188,9 +189,14 @@ const MainLayout = ({ children }: PropsWithChildren) => {
           claimed_token,
         }),
       });
-      const walletData = await response.json();
-      await handleWalletData([walletData.data]);
-      return walletData;
+      const data = await response.json();
+
+      await handleWalletData({
+        waleltID: data.data.id,
+        walletName: '',
+        walletAddress: data.data.address,
+      });
+      return data;
     }
     return walletInfoOnDB;
   };

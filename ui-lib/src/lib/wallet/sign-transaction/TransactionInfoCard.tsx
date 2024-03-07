@@ -78,7 +78,7 @@ export default function TransactionInfoCard(props: TransactionInfoCardProps) {
 
   return (
     <div
-      className={`${className} shadow-[rgba(221,222,227,1)_1px_1px_4px_0px]`}
+      className={`${className} shadow-[rgba(221,222,227,1)_1px_1px_4px_0px] border rounded-lg`}
     >
       {/* <div className="flex-col">
         <p className="font-semibold">Vista previa transacción</p>
@@ -87,7 +87,7 @@ export default function TransactionInfoCard(props: TransactionInfoCardProps) {
           'ext' marca direcciones de billetera externa
         </p>
       </div> */}
-      <div className="border p-4 grid grid-cols-1 lg:grid-cols-2 gap-2 w-full">
+      <div className="p-4 grid grid-cols-1 lg:grid-cols-2 gap-2 w-full">
         {/* Lo que será enviado más fees */}
         <div className="col-span-2 cursor-pointer" onClick={toggleCollapse}>
           <div className="flex justify-between items-center">
