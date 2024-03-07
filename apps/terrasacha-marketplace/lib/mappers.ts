@@ -623,10 +623,6 @@ export const mapProjectData = async (data: any): Promise<any> => {
       pfID: pfCadastralDataID,
       cadastralRecords: cadastralData,
     },
-    projectCadastralRecords: {
-      pfID: pfCadastralDataID,
-      cadastralRecords: cadastralData,
-    },
     projectUses: await mapProjectUses(projectUses),
     projectRestrictions: {
       desc: restrictionsDesc,
@@ -655,7 +651,6 @@ export const mapProjectData = async (data: any): Promise<any> => {
       cashFlowResume: cashFlowResume,
       financialIndicators: { financialIndicatorsID, financialIndicators },
     },
-    projectPredialGeoJson: geoJsonPredialData
     projectPredialGeoJson: geoJsonPredialData
   };
 };
