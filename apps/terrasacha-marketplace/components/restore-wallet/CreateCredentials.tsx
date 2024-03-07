@@ -6,24 +6,35 @@ import { RestoreWalletContext } from '@marketplaces/ui-lib';
 import { TailSpin } from 'react-loader-spinner';
 import { toast } from 'sonner';
 
-const deafultState = { walletname: '', password: '', passwordConfirm: '', mnemonics: '' };
+const deafultState = {
+  walletname: '',
+  password: '',
+  passwordConfirm: '',
+  mnemonics: '',
+};
 const deafultStateShowInfo = { password: false, passwordConfirm: false };
 const CreateCredentials = (props: any) => {
-  const { recoveryWords, user, setWalletInfo } = useContext<any>(RestoreWalletContext);
+  const { recoveryWords, user, setWalletInfo } =
+    useContext<any>(RestoreWalletContext);
   const setCurrentSection = props.setCurrentSection;
   const [inputValue, setInputValue] = useState(deafultState) as any[];
   const [showInfo, setShowInfo] = useState(deafultStateShowInfo) as any[];
   const [errors, setErrors] = useState(deafultState) as any[];
   const [loading, setLoading] = useState(false) as any[];
 
-  useEffect(() =>{
-    if(errors.mnemonics !== ''){
-        toast.error(errors.mnemonics);
-      }
-  }, [errors.mnemonics])
+  useEffect(() => {
+    if (errors.mnemonics !== '') {
+      toast.error(errors.mnemonics);
+    }
+  }, [errors.mnemonics]);
 
   const handleInputChange = (event: React.ChangeEvent<HTMLInputElement>) => {
-    setErrors({ walletname: '', password: '', passwordConfirm: '', mnemonics: errors.mnemonics });
+    setErrors({
+      walletname: '',
+      password: '',
+      passwordConfirm: '',
+      mnemonics: errors.mnemonics,
+    });
     setInputValue({
       ...inputValue,
       [event.target.name]: event.target.value,
@@ -72,44 +83,48 @@ const CreateCredentials = (props: any) => {
     await createWallet();
   };
   const createWallet = async () => {
-    const url = 'https://93jp7ynsqv.us-east-1.awsapprunner.com/api/v1/wallet/create-wallet/';
+    const url =
+      'https://93jp7ynsqv.us-east-1.awsapprunner.com/api/v1/wallet/create-wallet/';
     const info = {
       save_flag: true,
       userID: user,
       words: recoveryWords.join(' '),
+      localName: '',
+      save_local: false,
     };
-    console.log(info, 'info')
+    console.log(info, 'info');
     try {
       setLoading(true);
-      const response = await fetch('api/calls/createWalletCredentials',{
+      const response = await fetch('api/calls/createWalletCredentials', {
         method: 'POST',
         body: JSON.stringify(info),
-      })
+      });
 
-      const data = await response.json()
-      if(!data.detail){
+      const data = await response.json();
+      if (!data.detail) {
         setWalletInfo({
           name: inputValue.walletname,
           passwd: inputValue.password,
         });
-        const response2 = await fetch('api/calls/backend/updateWallet',{
+        const response2 = await fetch('api/calls/backend/updateWallet', {
           method: 'POST',
           body: JSON.stringify({
             id: data.data.wallet_id,
             name: inputValue.walletname,
             passphrase: inputValue.password,
           }),
-        })
-        const data2 = response2.json()
-      }else{
+        });
+        const data2 = response2.json();
+      } else {
         setErrors({
           ...errors,
-          mnemonics: 'La frase introducida no corresponde a una billetera existente. Por favor, vuelve a introducir la frase de recuperación.'
-        })
+          mnemonics:
+            'La frase introducida no corresponde a una billetera existente. Por favor, vuelve a introducir la frase de recuperación.',
+        });
         return setLoading(false);
       }
       //setCurrentSection(4);
-      setCurrentSection(3)
+      setCurrentSection(3);
     } catch (error) {
       console.error('Error al hacer la solicitud:', error);
     } finally {
@@ -224,8 +239,9 @@ const CreateCredentials = (props: any) => {
               color="#fff"
               wrapperClass="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2"
             />
-          ) :
-          'Continuar'}
+          ) : (
+            'Continuar'
+          )}
         </button>
       </div>
     </div>

@@ -62,7 +62,9 @@ const formatProjectDuration = (data: any) => {
     return `${year}${month}${day}`
 }
 const calculateDeltaPrice = async(actualProfit : number, totalTokens : number, currency : string, rates : any) => {
-    const totalDelta = actualProfit
+    console.log(actualProfit, 'calculateDeltaPrice')
+    if(!actualProfit || actualProfit === 0) return 0
+    const totalDelta = actualProfit 
     //const ADArateUSD = await coingeckoPrices("cardano", "USD")
     if(currency === "COP"){
         //const ADArateCOP = await coingeckoPrices("cardano", "COP")
@@ -109,9 +111,9 @@ export async function mapDashboardProject( project: any, projectData: any, proje
             item.productID = match.productID
             item.currency = match.currency
             item.periods = JSON.parse(match.periods)
+            item.actualPeriod = getActualPeriod(Date.now(), item.periods);
+            item.diffBetweenFirsLastPeriod = item.actualPeriod && item.actualPeriod.price - item.periods[0].price || 0
         };
-        item.actualPeriod = getActualPeriod(Date.now(), item.periods);
-        item.diffBetweenFirsLastPeriod = item.actualPeriod && item.actualPeriod.price - item.periods[0].price || 0
     });
     const asset = assetFromSuan.filter((asset : any)=> asset.productID === projectId)
     const lineChartData = createLineChartData([{
