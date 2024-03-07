@@ -65,6 +65,7 @@ class CardFooter extends React.Component<CardFooterProps> {
 
 interface CardProps {
   className?: string;
+  bgColor?: string;
   children?: ReactNode;
 }
 
@@ -74,13 +75,14 @@ class Card extends React.Component<CardProps> {
   static Footer = CardFooter;
 
   render() {
-    const { className = '', children } = this.props;
+    const {
+      className = '',
+      children,
+      bgColor = 'bg-custom-fondo',
+    } = this.props;
     return (
       <div
-        className={
-          className +
-          ' border rounded-lg shadow-[rgba(221,222,227,1)_1px_1px_4px_0px] text-dark-900 bg-custom-fondo animate-fade animate-ease-in animate-duration-300'
-        }
+        className={`border rounded-lg shadow-[rgba(221,222,227,1)_1px_1px_4px_0px] text-dark-900 ${bgColor} animate-fade animate-ease-in animate-duration-300 ${className}`}
       >
         {children}
       </div>

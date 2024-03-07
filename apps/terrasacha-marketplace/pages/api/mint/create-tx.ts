@@ -125,8 +125,6 @@ export default async function handler(
 
       const costLovelace = price * quantity;
 
-      const selectedUtxos = largestFirst(costLovelace.toString(), utxos, true);
-
       const simpleScriptPolicyID =
         ForgeScript.withOneSignature(appWalletAddress);
 
@@ -145,40 +143,41 @@ export default async function handler(
         assetMetadata.token_name,
         quantity
       );
+      const finalCost =
+        costLovelace > minAdaValue
+          ? costLovelace.toString()
+          : minAdaValue.toString();
+      console.log(minAdaValue);
+      const asset: Mint = {
+        assetName: assetName,
+        assetQuantity: quantity.toString(),
+        metadata: assetMetadata,
+        label: '721',
+        recipient: {
+          address: recipientAddress,
+        },
+      };
 
-      if (costLovelace > minAdaValue) {
-        const asset: Mint = {
-          assetName: assetName,
-          assetQuantity: quantity.toString(),
-          metadata: assetMetadata,
-          label: '721',
-          recipient: {
-            address: recipientAddress,
-          },
-        };
+      const tx = new Transaction({ initiator: appWallet });
 
-        const tx = new Transaction({ initiator: appWallet });
-        tx.setTxInputs(selectedUtxos);
-        tx.mintAsset(simpleScriptPolicyID, asset);
-        tx.sendLovelace(bankWalletAddress, costLovelace.toString());
-        tx.setChangeAddress(recipientAddress);
-        const unsignedTx = await tx.build();
-        const feeAmount = await getFeeAmount(unsignedTx)
-        console.log('unsignedTx', unsignedTx);
-        const originalMetadata = Transaction.readMetadata(unsignedTx);
-        const maskedTx = Transaction.maskMetadata(unsignedTx);
-        res
-          .status(200)
-          .json({
-            status: true,
-            maskedTx,
-            originalMetadata,
-            simpleScriptPolicyID,
-            feeAmount
-          });
-      } else {
-        res.status(200).json({ status: false, minAdaValue });
-      }
+      const selectedUtxos = largestFirst(finalCost, utxos, true);
+
+      tx.setTxInputs(selectedUtxos);
+      tx.mintAsset(simpleScriptPolicyID, asset);
+      tx.sendLovelace(bankWalletAddress, finalCost);
+      tx.setChangeAddress(recipientAddress);
+      const unsignedTx = await tx.build();
+      const feeAmount = await getFeeAmount(unsignedTx);
+      const originalMetadata = Transaction.readMetadata(unsignedTx);
+      const maskedTx = Transaction.maskMetadata(unsignedTx);
+      res.status(200).json({
+        status: true,
+        maskedTx,
+        originalMetadata,
+        simpleScriptPolicyID,
+        costLovelace: finalCost,
+        feeAmount,
+      });
     } catch (error) {
       res
         .status(500)

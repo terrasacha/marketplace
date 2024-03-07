@@ -69,12 +69,18 @@ export default function BlockchainCard({ project }: BlockchainCardProps) {
   }, []);
 
   function getGlobalTokenTotalAmount(project: any): number {
-    const GLOBAL_TOKEN_TOTAL_AMOUNT = 'GLOBAL_TOKEN_TOTAL_AMOUNT';
-    const featureItem = project.productFeatures.items.find(
-      (item: any) => item.featureID === GLOBAL_TOKEN_TOTAL_AMOUNT
+    const totalTokensPF = JSON.parse(
+      project.productFeatures.items.find(
+        (item: any) => item.featureID === 'GLOBAL_TOKEN_HISTORICAL_DATA'
+      )?.value || '[]'
     );
 
-    return featureItem ? Number(featureItem.value) : 0;
+    const totalTokens = totalTokensPF.reduce(
+      (sum: number, item: any) => sum + parseInt(item.amount),
+      0
+    );
+
+    return totalTokens;
   }
 
   function getNewChartData(project: any): any {

@@ -56,10 +56,21 @@ export default function CardProject(props: any) {
       amount: tkhd.amount,
     };
   });
-  const actualPeriod = getActualPeriod(Date.now(), periods);
+  const actualPeriod: any = getActualPeriod(Date.now(), periods);
   const totalTokensSold = project.transactions.items.reduce(
     (acc: any, item: any) => {
       return acc + item.amountOfTokens;
+    },
+    0
+  );
+
+  const totalTokensFromFirstToActualPeriod: number = tokenHistoricalData.reduce(
+    (acc: any, hd: any) => {
+      if (parseInt(hd.period) <= parseInt(actualPeriod.period)) {
+        return acc + hd.amount;
+      } else {
+        return acc;
+      }
     },
     0
   );
@@ -75,7 +86,7 @@ export default function CardProject(props: any) {
       .replace(/(?:^|\s)\S/g, (char: string) => char.toUpperCase()),
     encodedCategory: encodeURIComponent(project.categoryID),
     tokenTotal: parseInt(actualPeriod?.amount),
-    tokenUnits: parseInt(actualPeriod?.amount) - parseInt(totalTokensSold),
+    tokenUnits: totalTokensFromFirstToActualPeriod - parseInt(totalTokensSold),
     tokenValue: actualPeriod?.price,
     tokenCurrency: tokenCurrency,
   };

@@ -8,7 +8,6 @@ import {
   getProjectData,
 } from '@terrasacha/backend';
 import { Transition } from '@headlessui/react';
-import PageHeader from '@terrasacha//components/common/PageHeader';
 import { MyPage } from '@terrasacha//components/common/types';
 import { getActualPeriod } from '@terrasacha//utils/generic/getActualPeriod';
 import { mapProjectData } from '@terrasacha//lib/mappers';
@@ -17,7 +16,7 @@ import TabsComponents from '@terrasacha//components/home-page/TabsProject';
 import FinancialTab from '@terrasacha//components/home-page/ProjectTabs/FinancialTab';
 import EarningsTab from '@terrasacha//components/home-page/ProjectTabs/EarningsTab';
 import ProjectionsTab from '@terrasacha//components/home-page/ProjectTabs/ProjectionsTab';
-import { Card } from '@marketplaces/ui-lib';
+import { Card, PageHeader } from '@marketplaces/ui-lib';
 
 const ProjectDataModal = dynamic(
   () => import('@terrasacha/components/modals/ProjectDataModal')

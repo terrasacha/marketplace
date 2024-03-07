@@ -1,10 +1,10 @@
 import React, { useEffect, useContext } from 'react';
 import { getImagesCategories, getProject } from '@suan//backend';
 import PaymentPage from '@suan//components/payments/PaymentPage';
-import PageHeader from '@suan//components/common/PageHeader';
 import ProjectInfoContext from '@suan//store/projectinfo-context';
 import { MyPage } from '@suan//components/common/types';
 import { getActualPeriod } from '@suan//utils/generic/getActualPeriod';
+import { PageHeader } from '@marketplaces/ui-lib';
 
 const PurchasePage: MyPage = (props: any) => {
   const { project, image } = props;
@@ -73,11 +73,9 @@ const PurchasePage: MyPage = (props: any) => {
 
   return (
     <>
-      <div className="w-full pt-20 flex flex-col items-center bg-[#F4F8F9]">
-        <div className="relative bg-transparent w-11/12 lg:w-8/12 max-w-screen-xl">
-          <PageHeader imageURL={image}></PageHeader>
-          <PaymentPage></PaymentPage>
-        </div>
+      <div className="h-auto w-full p-5">
+        <PageHeader></PageHeader>
+        <PaymentPage></PaymentPage>
       </div>
       {/* <Modal
         show={openModal === "newPaymentMethodModal"}

@@ -45,6 +45,7 @@ const MainLayout = ({ children }: PropsWithChildren) => {
               walletID: wallet[0].id,
               walletName: wallet[0].name,
               walletAddress: wallet[0].address,
+              isWalletBySuan: true
             });
             const walletAddress = wallet[0].address;
             const balanceData = await getWalletBalanceByAddress(walletAddress);
@@ -108,6 +109,7 @@ const MainLayout = ({ children }: PropsWithChildren) => {
           walletID: '',
           walletName: '',
           walletAddress: changeAddress,
+          isWalletBySuan: false
         });
 
         // const balanceData = await getWalletBalanceByAddress(changeAddress);

@@ -1,7 +1,7 @@
-import { useRouter } from "next/router";
-import Image from 'next/image'
+import { useRouter } from 'next/router';
+import Image from 'next/image';
 
-export default function PageHeader({ imageURL }: { imageURL: string }) {
+export default function PageHeader({ imageURL }: { imageURL?: string }) {
   const router = useRouter();
   return (
     <div>
@@ -28,9 +28,19 @@ export default function PageHeader({ imageURL }: { imageURL: string }) {
           Regresar
         </button>
       </div>
-      <div className="relative w-100 h-52 mb-4">
-        <Image className="rounded-lg" src={imageURL} alt="banner" fill priority sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw" style={{objectFit: "cover"}}/>
-      </div>
+      {imageURL && (
+        <div className="relative w-100 h-52 mb-4">
+          <Image
+            className="rounded-lg"
+            src={imageURL}
+            alt="banner"
+            fill
+            priority
+            sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
+            style={{ objectFit: 'cover' }}
+          />
+        </div>
+      )}
     </div>
   );
 }

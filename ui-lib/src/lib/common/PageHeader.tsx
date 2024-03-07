@@ -1,14 +1,14 @@
-import { useRouter } from "next/router";
-import Image from 'next/image'
+import { useRouter } from 'next/router';
+import Image from 'next/image';
 
-export default function PageHeader({ imageURL }: { imageURL: string }) {
+export default function PageHeader({ imageURL }: { imageURL?: string }) {
   const router = useRouter();
   return (
     <div>
       <div className="flex justify-between">
         <button
           onClick={() => router.back()}
-          className="flex items-center text-[#287993] text-sm mt-7 mb-2"
+          className="flex items-center text-[#287993] text-sm mb-5"
         >
           <svg
             className="w-3 h-3 mr-2 text-[#287993]  dark:text-white"
@@ -28,9 +28,19 @@ export default function PageHeader({ imageURL }: { imageURL: string }) {
           Regresar
         </button>
       </div>
-      <div className="relative w-100 h-52 mb-4">
-        <Image className="rounded-lg rounded-t-2xl rounded-tl-2xl" src={imageURL} alt="banner" fill priority sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw" style={{objectFit: "cover"}}/>
-      </div>
+      {imageURL && (
+        <div className="relative w-100 h-52 mb-4">
+          <Image
+            className="rounded-lg"
+            src={imageURL}
+            alt="banner"
+            fill
+            priority
+            sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
+            style={{ objectFit: 'cover' }}
+          />
+        </div>
+      )}
     </div>
   );
 }

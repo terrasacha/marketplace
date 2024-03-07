@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useState } from 'react';
 import {
   PieChart,
   Pie,
@@ -6,7 +6,7 @@ import {
   Tooltip,
   Legend,
   ResponsiveContainer,
-} from "recharts";
+} from 'recharts';
 
 interface BlockchainCardProps {
   project: any;
@@ -38,23 +38,23 @@ export default function BlockchainCard({ project }: BlockchainCardProps) {
   const [newData, setNewData] = useState<any>(null); // Nueva variable de estado
 
   const traducciones: Traducciones = {
-    buffer: "Buffer",
-    comunity: "Comunidad",
-    investor: "Inversionista",
-    owner: "Propietario",
-    suan: "Suan",
+    buffer: 'Buffer',
+    comunity: 'Comunidad',
+    investor: 'Inversionista',
+    owner: 'Propietario',
+    suan: 'Suan',
   };
 
   const COLORS = [
-    "#0088FE",
-    "#00C49F",
-    "#FFBB28",
-    "#FF8042",
-    "#AF19FF",
-    "#FF1942",
-    "#00FF99",
-    "#FF6600",
-    "#8A2BE2",
+    '#0088FE',
+    '#00C49F',
+    '#FFBB28',
+    '#FF8042',
+    '#AF19FF',
+    '#FF1942',
+    '#00FF99',
+    '#FF6600',
+    '#8A2BE2',
   ];
 
   useEffect(() => {
@@ -69,13 +69,19 @@ export default function BlockchainCard({ project }: BlockchainCardProps) {
   }, []);
 
   function getGlobalTokenTotalAmount(project: any): number {
-    const GLOBAL_TOKEN_TOTAL_AMOUNT = "GLOBAL_TOKEN_TOTAL_AMOUNT";
-    const featureItem = project.productFeatures.items.find(
-      (item: any) => item.featureID === GLOBAL_TOKEN_TOTAL_AMOUNT
+    const totalTokensPF = JSON.parse(
+      project.productFeatures.items.find(
+        (item: any) => item.featureID === 'GLOBAL_TOKEN_HISTORICAL_DATA'
+      )?.value || '[]'
     );
-    return featureItem ? Number(featureItem.value) : 0;
-  }
 
+    const totalTokens = totalTokensPF.reduce(
+      (sum: number, item: any) => sum + parseInt(item.amount),
+      0
+    );
+
+    return totalTokens;
+  }
 
   function getNewChartData(project: any): any {
     let chartData: any = {};
@@ -109,7 +115,7 @@ export default function BlockchainCard({ project }: BlockchainCardProps) {
   return (
     <div className="items-center justify-center flex sm:flex-row flex-col w-full">
       <p>
-        Esta sera la distribución de los{" "}
+        Esta sera la distribución de los{' '}
         <strong>{getGlobalTokenTotalAmount(project)}</strong> tokens destinados
         a este proyecto
       </p>
