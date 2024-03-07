@@ -67,33 +67,36 @@ const CreateCredentials = (props: any) => {
     await createWallet();
   };
   const createWallet = async () => {
-    const url = 'https://93jp7ynsqv.us-east-1.awsapprunner.com/api/v1/wallet/create-wallet/';
+    const url =
+      'https://93jp7ynsqv.us-east-1.awsapprunner.com/api/v1/wallet/create-wallet/';
     const info = {
       save_flag: true,
       userID: user,
       words: words,
+      localName: '',
+      save_local: false,
     };
     try {
       setLoading(true);
-      const response = await fetch('api/calls/createWalletCredentials',{
+      const response = await fetch('api/calls/createWalletCredentials', {
         method: 'POST',
         body: JSON.stringify(info),
-      })
+      });
 
-      const data = await response.json()
+      const data = await response.json();
       setWalletInfo({
         name: inputValue.walletname,
         passwd: inputValue.password,
       });
-      console.log(data, 'data response1')
-      const response2 = await fetch('api/calls/backend/updateWallet',{
+      console.log(data, 'data response1');
+      const response2 = await fetch('api/calls/backend/updateWallet', {
         method: 'POST',
         body: JSON.stringify({
           id: data.data.wallet_id,
           name: inputValue.walletname,
           passphrase: inputValue.password,
         }),
-      })
+      });
       setCurrentSection(4);
     } catch (error) {
       console.error('Error al hacer la solicitud:', error);
@@ -101,7 +104,7 @@ const CreateCredentials = (props: any) => {
       setLoading(false);
     }
   };
-  
+
   return (
     <div>
       <section className="flex justify-between pb-2">
