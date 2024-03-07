@@ -61,7 +61,7 @@ const validateMinimumAdaValue = async (
 };
 
 const getFeeAmount = async (txcbor: string) => {
-  const url = `https://93jp7ynsqv.us-east-1.awsapprunner.com/api/v1/transactions/tx-from-cbor/?txcbor=${txcbor}`;
+  const url = `https://93jp7ynsqv.us-east-1.awsapprunner.com/api/v1/transactions/tx-fee/?txcbor=${txcbor}`;
 
   try {
     const response = await fetch(url, {
