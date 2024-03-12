@@ -45,19 +45,33 @@ export default function CreateScriptModal(props: CreateScriptModalProps) {
           Crear Contrato
         </Modal.Header>
         <Modal.Body>
-          <input
-            type="text"
-            className={`bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5`}
-            autoComplete="off"
-            placeholder="Nombre del Contrato"
-            required
-          />
+          <div>
+            <label className="block mb-2">
+              Nombre del contrato
+            </label>
+            <input
+              type="text"
+              className={`bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5`}
+              autoComplete="off"
+              placeholder="Nombre del Contrato"
+              required
+            />
+          </div>
+          <div>
+            <label className="block mb-2">
+              Seleccione el tipo de contrato
+            </label>
+            <select className="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:focus:ring-blue-500 dark:focus:border-blue-500">
+              <option disabled value=""></option>
+              <option disabled value=""></option>
+            </select>
+          </div>
           <button
             type="button"
             className="col-span-4 sm:col-span-1 text-white bg-custom-dark hover:bg-custom-dark-hover focus:outline-none focus:ring-4 focus:ring-gray-300 font-medium rounded text-sm px-5 py-2.5 "
             onClick={handleCreateContract}
           >
-            {isLoading ? <LoadingIcon className="w-4 h-4" /> : 'Enviar'}
+            {isLoading ? <LoadingIcon className="w-4 h-4" /> : 'Crear contrato'}
           </button>
         </Modal.Body>
       </Modal>
