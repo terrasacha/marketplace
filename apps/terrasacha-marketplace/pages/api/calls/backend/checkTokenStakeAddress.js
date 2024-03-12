@@ -6,7 +6,7 @@ export default async function handler(req, res) {
                 `https://93jp7ynsqv.us-east-1.awsapprunner.com/api/v1/wallet/account-utxo/?stake=${stake_address}&all=true`;
 
             const response = await fetch(url, {
-                method: 'POST',
+                method: 'GET',
                 headers: {
                     'Content-Type': 'application/json',
                     'x-api-key': process.env.NEXT_PUBLIC_API_KEY_ENDPOINT || '',

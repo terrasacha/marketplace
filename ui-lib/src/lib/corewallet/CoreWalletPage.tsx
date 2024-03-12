@@ -1,10 +1,12 @@
 import React, { useState } from 'react';
-import { Transactions } from '../ui-lib';
+import Scripts from './scripts/Scripts';
 
 export default function CoreWallet(props: any) {
   return (
-    <div className="grid grid-cols-1 ">
-      <p>Core Wallet</p>
+    <div className="grid grid-cols-2 ">
+      <div className="col-span-2">
+        <Scripts />
+      </div>
     </div>
   );
 }
