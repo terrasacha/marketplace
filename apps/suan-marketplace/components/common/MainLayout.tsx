@@ -53,7 +53,26 @@ const MainLayout = ({ children }: PropsWithChildren) => {
             });
             const walletAddress = wallet[0].address;
             const balanceData = await getWalletBalanceByAddress(walletAddress);
-            if (balanceData && balanceData.length > 0) {
+
+            const hasTokenAuthFunction = await checkTokenStakeAddress(
+              wallet[0].stake_address
+            );
+            console.log(hasTokenAuthFunction, 'hasTokenAuthFunction MAIN LAY');
+            if (hasTokenAuthFunction) {
+              const address = balanceData[0].address;
+              setAllowAccess(true);
+              setWalletInfo({
+                name: (wallet[0] as any)?.name,
+                addr: address,
+              });
+              const balance =
+                (parseInt(balanceData[0].balance) / 1000000).toFixed(4) || 0;
+              setBalance(balance);
+              access = true;
+            } else {
+              return router.push('/');
+            }
+            /* if (balanceData && balanceData.length > 0) {
               const hasTokenAuth =
                 balanceData[0]?.assets.some(
                   (asset: any) =>
@@ -62,7 +81,7 @@ const MainLayout = ({ children }: PropsWithChildren) => {
                     asset.asset_name ===
                       process.env.NEXT_PUBLIC_TOKEN_AUTHORIZER_NAME
                 ) || false;
-              if (hasTokenAuth) {
+              if (hasTokenAuthFunction) {
                 const address = balanceData[0].address;
                 setAllowAccess(true);
                 setWalletInfo({
@@ -74,7 +93,7 @@ const MainLayout = ({ children }: PropsWithChildren) => {
                 setBalance(balance);
                 access = true;
               }
-            }
+            } */
           }
         }
 
@@ -104,6 +123,7 @@ const MainLayout = ({ children }: PropsWithChildren) => {
         const hasTokenAuthFunction = await checkTokenStakeAddress(
           rewardAddresses[0]
         );
+        console.log(hasTokenAuthFunction, 'hasTokenAuthFunction');
         const walletExists = await checkIfWalletExist(
           changeAddress,
           rewardAddresses[0],
