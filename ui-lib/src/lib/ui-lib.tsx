@@ -74,6 +74,7 @@ import DetailItems from './dashboard/DetailItems';
 import DashboardInvestor from './dashboard/DashboardInvestor';
 import TableRow from './dashboard/TableRow'
 import DashboardProject from './dashboard/dashboard-project/DashboardProject'
+import CoreWalletPage from './corewallet/CoreWalletPage';
 export {
   LoginForm,
   SignUpForm,
@@ -96,6 +97,7 @@ export {
   RestoreWalletContext,
   PieChartCustom,
   RestoreWalletProvider,
+  CoreWalletPage,
   CardanoWallet,
   CardanoWalletGeneric,
   SelectWalletModal,

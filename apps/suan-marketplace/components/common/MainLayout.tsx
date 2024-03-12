@@ -50,6 +50,7 @@ const MainLayout = ({ children }: PropsWithChildren) => {
               walletName: wallet[0].name,
               walletAddress: wallet[0].address,
               isWalletBySuan: true,
+              isWalletAdmin: wallet[0].isAdmin,
             });
             const walletAddress = wallet[0].address;
             const balanceData = await getWalletBalanceByAddress(walletAddress);
@@ -199,6 +200,7 @@ const MainLayout = ({ children }: PropsWithChildren) => {
       waleltID: walletInfoOnDB.data.id,
       walletName: '',
       walletAddress: walletInfoOnDB.data.address,
+      isWalletAdmin: walletInfoOnDB.data.isAdmin,
     });
     if (!walletInfoOnDB.data) {
       const response = await fetch('/api/calls/backend/manageExternalWallets', {
@@ -215,6 +217,7 @@ const MainLayout = ({ children }: PropsWithChildren) => {
         waleltID: data.data.id,
         walletName: '',
         walletAddress: data.data.address,
+        isWalletAdmin: false,
       });
       return data;
     }

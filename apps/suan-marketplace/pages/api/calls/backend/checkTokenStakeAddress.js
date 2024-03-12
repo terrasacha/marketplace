@@ -5,6 +5,8 @@ export default async function handler(req, res) {
             const url =
                 `https://93jp7ynsqv.us-east-1.awsapprunner.com/api/v1/wallet/account-utxo/?stake=${stake_address}&all=true`;
 
+            console.log('stake_address', stake_address)
+
             const response = await fetch(url, {
                 method: 'GET',
                 headers: {

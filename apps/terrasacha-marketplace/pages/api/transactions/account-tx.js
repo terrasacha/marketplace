@@ -10,7 +10,7 @@ export default async function handler(req, res) {
       const urlWithParams = `${url}?${queryParams.toString()}`;
 
       const response = await fetch(urlWithParams, {
-        method: 'POST',
+        method: 'GET',
         headers: {
           'Content-Type': 'application/json',
           'x-api-key': process.env.NEXT_PUBLIC_API_KEY_ENDPOINT || '',

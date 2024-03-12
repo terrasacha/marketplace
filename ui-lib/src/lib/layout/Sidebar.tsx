@@ -12,6 +12,7 @@ import {
   ScaleIcon,
   WalletIcon,
 } from '../ui-lib';
+import { WalletContext } from '@marketplaces/utils-2';
 
 interface SidebarProps {
   isOpen: boolean;
@@ -36,6 +37,7 @@ export default function Sidebar(props: SidebarProps) {
     poweredBy,
     balance,
   } = props;
+  const { walletAdmin } = useContext<any>(WalletContext);
   const router = useRouter();
   const { wallet, connected } = useWallet();
   const [walletStakeID, setWalletStakeID] = useState<any>(undefined);
@@ -112,6 +114,16 @@ export default function Sidebar(props: SidebarProps) {
         <div className="pt-4 mt-4 border-t border-gray-200"></div>
 
         <ul className="space-y-4">
+          <li className={walletAdmin ? '' : 'hidden'}>
+            <Link
+              onClick={onClose}
+              href="/corewallet"
+              className="flex items-center p-2 text-black rounded-lg hover:bg-custom-dark hover:text-white transition duration-150 ease-linear"
+            >
+              <ChartIcon />
+              <span className="ml-3">CoreWallet</span>
+            </Link>
+          </li>
           <li className={connected ? 'hidden' : ''}>
             <button
               className="flex w-full items-center p-2 text-black rounded-lg hover:bg-custom-dark hover:text-white transition duration-150 ease-linear"

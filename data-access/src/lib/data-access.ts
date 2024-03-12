@@ -768,6 +768,7 @@ export async function getWalletByUser(userId: string): Promise<any> {
                 claimed_token
                 stake_address
                 name
+                isAdmin
               }
             }
           }
@@ -862,6 +863,7 @@ export async function getWalletByStakeAddress(stake_address: string) {
               address
               stake_address
               claimed_token
+              isAdmin
             }
           }
         }`,
