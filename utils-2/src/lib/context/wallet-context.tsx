@@ -14,14 +14,16 @@ export function WalletContextProvider({
   const [walletAddress, setWalletAddress] = useState<any>(null);
   const [walletStakeAddress, setWalletStakeAddress] = useState<any>(null);
   const [walletBySuan, setWalletBySuan] = useState<boolean>(false);
+  const [walletAdmin, setWalletAdmin] = useState<boolean>(false);
   const [walletData, setWalletData] = useState<any>(null);
 
-  const handleWalletData = async ({walletID, walletName, walletAddress, isWalletBySuan = false}: any) => {
+  const handleWalletData = async ({walletID, walletName, walletAddress, isWalletBySuan = false, isWalletAdmin = false}: any) => {
     if (walletAddress) {
       setWalletID(walletID);
       setWalletName(walletName);
       setWalletAddress(walletAddress);
       setWalletBySuan(isWalletBySuan)
+      setWalletAdmin(isWalletAdmin)
       const updatedWalletData = await fetchWalletData(walletAddress);
       setWalletStakeAddress(updatedWalletData.stake_address);
       const projectsData = await getProjects();
@@ -123,6 +125,7 @@ export function WalletContextProvider({
       walletAddress,
       walletStakeAddress,
       walletBySuan,
+      walletAdmin,
       walletData,
       handleWalletData,
       handleClearData,
