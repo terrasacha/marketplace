@@ -52,20 +52,20 @@ const MainLayout = ({ children }: PropsWithChildren) => {
               isWalletBySuan: true,
               isWalletAdmin: wallet[0].isAdmin,
             });
+            console.log(walletData, 'walletData mainlayout');
             const walletAddress = wallet[0].address;
-            const balanceData = await getWalletBalanceByAddress(walletAddress);
             const hasTokenAuthFunction = await checkTokenStakeAddress(
               wallet[0].stake_address
             );
             if (hasTokenAuthFunction) {
-              const address = balanceData[0].address;
+              const address = wallet[0].address;
               setAllowAccess(true);
               setWalletInfo({
                 name: (wallet[0] as any)?.name,
                 addr: address,
               });
               const balance =
-                (parseInt(balanceData[0].balance) / 1000000).toFixed(4) || 0;
+                (parseInt(walletData.balance) / 1000000).toFixed(4) || 0;
               setBalance(balance);
               access = true;
             } else {
@@ -145,21 +145,6 @@ const MainLayout = ({ children }: PropsWithChildren) => {
     } catch {
       return false;
     }
-  };
-  const getWalletBalanceByAddress = async (address: any) => {
-    const balanceFetchResponse = await fetch(
-      '/api/calls/backend/getWalletBalanceByAddress',
-      {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify(address),
-      }
-    );
-
-    const balanceData = await balanceFetchResponse.json();
-    return balanceData;
   };
   const checkIfWalletExist = async (
     address: string,
