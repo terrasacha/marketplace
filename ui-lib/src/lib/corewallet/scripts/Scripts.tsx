@@ -3,30 +3,37 @@ import { Card, PlusIcon } from '../../ui-lib';
 import ScriptsList from './ScriptsList';
 import { useEffect, useState } from 'react';
 import CreateScriptModal from './CreateScriptModal';
+import MintModal from './MintModal';
 
 export default function Scripts(props: any) {
   const [scripts, setScripts] = useState<Array<any>>([]);
-  const [createScriptModal, setCreateScriptModal] = useState(false);
+  const [createScriptModal, setCreateScriptModal] = useState<boolean>(false);
+  const [mintModal, setMintModal] = useState<boolean>(false);
+  const [selectedScript, setSelectedScript] = useState<string | null>(null);
+
+  const getCoreWalletData = async () => {
+    const request = await fetch('/api/contracts/get-scripts', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+    });
+    const responseData = await request.json();
+    console.log(responseData);
+
+    setScripts(responseData.data);
+  };
 
   useEffect(() => {
-    const getCoreWalletData = async () => {
-      const request = await fetch('/api/contracts/get-scripts', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-      });
-      const responseData = await request.json();
-      console.log(responseData);
-
-      setScripts(responseData.data);
-    };
-
     getCoreWalletData();
   }, []);
 
   const handleOpenCreateScriptModal = () => {
     setCreateScriptModal(!createScriptModal);
+  };
+  const handleOpenMintModal = (policyId: string | null = null) => {
+    setSelectedScript(policyId);
+    setMintModal(!mintModal);
   };
 
   return (
@@ -46,12 +53,23 @@ export default function Scripts(props: any) {
         />
 
         <Card.Body>
-          <ScriptsList scripts={scripts} itemsPerPage={5} />
+          <ScriptsList
+            scripts={scripts}
+            itemsPerPage={5}
+            handleOpenMintModal={handleOpenMintModal}
+          />
         </Card.Body>
       </Card>
       <CreateScriptModal
         createScriptModal={createScriptModal}
         handleOpenCreateScriptModal={handleOpenCreateScriptModal}
+        getCoreWalletData={getCoreWalletData}
+      />
+      <MintModal
+        mintModal={mintModal}
+        scripts={scripts}
+        selectedScript={selectedScript}
+        handleOpenMintModal={handleOpenMintModal}
       />
     </>
   );

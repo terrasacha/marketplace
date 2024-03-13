@@ -5,7 +5,7 @@ export default async function handler(req, res) {
 
     const response = await fetch(url,
         {
-            method: 'POST',
+            method: 'GET',
             headers: {
                 'Content-Type': 'application/json',
                 'x-api-key': process.env.NEXT_PUBLIC_API_KEY_ENDPOINT || ''
