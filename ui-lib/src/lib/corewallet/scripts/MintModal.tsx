@@ -43,7 +43,7 @@ export default function MintModal(props: MintModalProps) {
 
   const validateFields = () => {
     if (
-      mintTokens.walletAddress.trim() === '' ||
+      (!mintTokens.sameAddress && mintTokens.walletAddress.trim() === '') ||
       mintTokens.tokenAmount.trim() === ''
     ) {
       toast.warning('Complete los campos oblgiatorios poder continuar ...');
@@ -58,26 +58,38 @@ export default function MintModal(props: MintModalProps) {
     }
     setIsLoading(true);
     const policyId = actualScript.id;
-    const addresses = [
-      {
-        address: mintTokens.walletAddress,
-        lovelace: 0,
-        multiAsset: [
-          {
-            policyid: policyId,
-            tokens: {
-              [actualScript.token_name]: mintTokens.tokenAmount,
-            },
-          },
-        ],
-      },
-    ];
+
     const payload = {
       wallet_id: walletID,
-      addresses: !mintTokens.sameAddress ? addresses : [],
+      addresses: !mintTokens.sameAddress
+        ? [
+            {
+              address: mintTokens.walletAddress,
+              lovelace: 0,
+              multiAsset: [
+                {
+                  policyid: policyId,
+                  tokens: {
+                    [actualScript.token_name]: mintTokens.tokenAmount,
+                  },
+                },
+              ],
+            },
+          ]
+        : [],
+      metadata: [],
+      mint: {
+        asset: {
+          policyid: policyId,
+          tokens: {
+            [actualScript.token_name]: mintTokens.tokenAmount,
+          },
+        },
+        redeemer: 0,
+      },
     };
     console.log(payload);
-    const response = await fetch('/api/contracts/create-contract', {
+    const response = await fetch('/api/transactions/mint-tokens', {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
@@ -93,8 +105,6 @@ export default function MintModal(props: MintModalProps) {
     }
     setIsLoading(false);
   };
-
-  console.log('selectedScript', selectedScript);
 
   return (
     <>
@@ -124,7 +134,10 @@ export default function MintModal(props: MintModalProps) {
           {!mintTokens.sameAddress && (
             <div>
               <label className="block mb-2">
-                Dirección de billetera<span className="text-red-600">*</span>
+                Dirección de billetera
+                {!mintTokens.sameAddress && (
+                  <span className="text-red-600">*</span>
+                )}
               </label>
               <input
                 type="text"
