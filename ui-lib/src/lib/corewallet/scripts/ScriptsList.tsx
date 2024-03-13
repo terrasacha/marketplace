@@ -5,10 +5,11 @@ import ScriptRow from './ScriptRow';
 interface AssesListProps {
   scripts: Array<any>;
   itemsPerPage: number;
+  handleOpenMintModal: (policyId: string) => void;
 }
 
 const ScriptsList = (props: AssesListProps) => {
-  const { scripts, itemsPerPage } = props;
+  const { scripts, itemsPerPage, handleOpenMintModal } = props;
 
   const [currentPage, setCurrentPage] = useState(1);
 
@@ -61,10 +62,12 @@ const ScriptsList = (props: AssesListProps) => {
                 <ScriptRow
                   key={index}
                   index={index}
+                  policyId={script.id}
                   scriptName={script.name}
                   pbk={script.pbk}
                   testnetAddr={script.testnetAddr}
                   tokenName={script.token_name}
+                  handleOpenMintModal={handleOpenMintModal}
                 />
               );
             })}
