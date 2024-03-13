@@ -18,43 +18,44 @@ ChartJS.register(
   Tooltip,
   Legend
 );
-
-export const options = {
-  responsive: true,
-  plugins: {
-    legend: {
-      position: 'top' as const,
-    },
-    title: {
-      display: true,
-      text: 'Chart.js Bar Chart',
-    },
-  },
-};
-
-const labels = ['January', 'February', 'March', 'April', 'May', 'June', 'July'];
-
-// Función para generar datos aleatorios
-const generateRandomData = () => {
-  return labels.map(() => Math.floor(Math.random() * 1000));
-};
-
-export const data = {
-  labels,
-  datasets: [
-    {
-      label: 'Dataset 1',
-      data: generateRandomData(),
-      backgroundColor: 'rgba(255, 99, 132, 0.5)',
-    },
-    {
-      label: 'Dataset 2',
-      data: generateRandomData(),
-      backgroundColor: 'rgba(53, 162, 235, 0.5)',
-    },
-  ],
-};
-
+const colors = ['#666de9', '#cc674e'];
 export default function BarGraphComponent(props: any) {
+  const { infoBarGraph } = props;
+
+  // Función para generar datos aleatorios
+  const generateRandomData = () => {
+    return labels.map(() => Math.floor(Math.random() * 1000));
+  };
+  const prepareDataSets = () => {
+    let datasets: any = [];
+    infoBarGraph.data.map((item: any, index: number) => {
+      datasets.push({
+        label: item.name,
+        data: item.y,
+        backgroundColor: colors[index],
+      });
+    });
+    return datasets;
+  };
+  const datasets = prepareDataSets();
+
+  const labels: any = infoBarGraph.data[0].x.map((item: any) => item);
+  const data = {
+    labels,
+    datasets,
+  };
+
+  const options = {
+    responsive: true,
+    plugins: {
+      legend: {
+        position: 'top' as const,
+      },
+      title: {
+        display: true,
+        text: 'Evolución de Áreas',
+      },
+    },
+  };
   return <Bar options={options} data={data} />;
 }
