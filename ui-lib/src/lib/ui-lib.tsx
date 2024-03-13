@@ -44,6 +44,8 @@ import WalletCreatedSucessfully from './wallet/WalletCreatedSuccessfully';
 import RestoreWalletContext from './store/restore-wallet-context';
 import PieChartCustom from './common/charts/PieChartCustom';
 import LineChartComponent from './graphs/LineChartComponent';
+import BarGraphComponent from './graphs/BarGraphComponent';
+import SankeyGraphComponent from './graphs/SankeyGraphComponent';
 import PieChartComponent from './graphs/PieChartComponent';
 import { RestoreWalletProvider } from './store/restore-wallet-context';
 import { WalletIcon } from './icons/WalletIcon';
@@ -72,8 +74,8 @@ import ItemsDashboard from './dashboard/MainItemsDashboard';
 import TransactionsTable from './dashboard/TransactionsTable';
 import DetailItems from './dashboard/DetailItems';
 import DashboardInvestor from './dashboard/DashboardInvestor';
-import TableRow from './dashboard/TableRow'
-import DashboardProject from './dashboard/dashboard-project/DashboardProject'
+import TableRow from './dashboard/TableRow';
+import DashboardProject from './dashboard/dashboard-project/DashboardProject';
 import CoreWalletPage from './corewallet/CoreWalletPage';
 export {
   LoginForm,
@@ -110,6 +112,8 @@ export {
   Tooltip,
   PageHeader,
   LineChartComponent,
+  BarGraphComponent,
+  SankeyGraphComponent,
   PieChartComponent,
   LoadingOverlay,
   CopyToClipboard,
@@ -151,5 +155,5 @@ export {
   DetailItems,
   DashboardInvestor,
   TableRow,
-  DashboardProject
+  DashboardProject,
 };
