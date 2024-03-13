@@ -673,6 +673,37 @@ export async function getTransactions() {
   }
 }
 
+export async function getRates() {
+  try {
+    const response = await axios.post(
+      graphqlEndpoint,
+      {
+        query: `
+        query MyQuery {
+          listRates {
+            items {
+              id
+              value
+              currency
+            }
+          }
+        }
+        `,
+      },
+      {
+        headers: {
+          'x-api-key': awsAppSyncApiKey, 
+        },
+      }
+    );
+
+    return response.data.data.listRates.items;
+  } catch (error) {
+    console.error('Error fetching transactions:', error);
+    return [];
+  }
+}
+
 export async function getImages(imageURL: string) {
   try {
     const url = `https://kiosuanbcrjsappcad3eb2dd1b14457b491c910d5aa45dd145518-dev.s3.amazonaws.com/public/${imageURL}`;

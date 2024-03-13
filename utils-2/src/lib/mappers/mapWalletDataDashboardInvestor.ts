@@ -1,12 +1,18 @@
 import { getActualPeriod, mapTransactionListInfo} from "../utils-2"
 import { coingeckoPrices } from '@marketplaces/data-access';
 
-const getRates = async() => {
-  const ADArateUSD = await coingeckoPrices("cardano", "USD")
-  const ADArateCOP = await coingeckoPrices("cardano", "COP")
-
-  return { ADArateCOP, ADArateUSD}
+const getRates = async() =>{
+  const response = await fetch('/api/calls/getRates')
+  const data = await response.json()
+  let dataFormatted: any = {}
+  data.map((item : any)=>{
+    let obj = `ADArate${item.currency}`
+    dataFormatted[obj] = item.value.toFixed(4)
+  });
+  return dataFormatted
 }
+
+
 export async function mapWalletDataDashboardInvestor( walletData : any){
 
     const rates = await getRates()
@@ -20,7 +26,6 @@ export async function mapWalletDataDashboardInvestor( walletData : any){
     }
     )
     const data = await dataFromQuery.json()
-    console.log(assetFromSuan,'assetFromSuan')
     assetFromSuan.forEach(async(item : any)=> {
       let match = data.find((item2 : any)=> item2.asset_name === item.asset_name);
       if (match){
@@ -95,7 +100,6 @@ const getTransactionsData = async (stake_address : string, address : string) => 
   };
 
 function createLineChartData(data: any, rates: any) {
-  console.log(data,'createLineChartData')
   const convert1 = (price: number) => { return (price / rates.ADArateCOP) * rates.ADArateUSD} 
     const dataToPlot = data && data.map((item : any) => {
         let periods = JSON.parse(item.periods).map((p: any) => {

@@ -62,7 +62,6 @@ const formatProjectDuration = (data: any) => {
     return `${year}${month}${day}`
 }
 const calculateDeltaPrice = async(actualProfit : number, totalTokens : number, currency : string, rates : any) => {
-    console.log(actualProfit, 'calculateDeltaPrice')
     if(!actualProfit || actualProfit === 0) return 0
     const totalDelta = actualProfit 
     //const ADArateUSD = await coingeckoPrices("cardano", "USD")
@@ -82,12 +81,23 @@ const calculateActualTokenPrice = (actualPrice : number, currency : string, rate
     return (actualPrice / rates.ADArateUSD).toFixed(4)
 }
 
-const getRates = async() => {
+/* const getRates = async() => {
     const ADArateUSD = await coingeckoPrices("cardano", "USD")
     const ADArateCOP = await coingeckoPrices("cardano", "COP")
 
     return { ADArateCOP, ADArateUSD}
-}
+} */
+
+const getRates = async() =>{
+    const response = await fetch('/api/calls/getRates')
+    const data = await response.json()
+    let dataFormatted: any = {}
+    data.map((item : any)=>{
+      let obj = `ADArate${item.currency}`
+      dataFormatted[obj] = item.value.toFixed(4)
+    });
+    return dataFormatted
+  }
 export async function mapDashboardProject( project: any, projectData: any, projectId: string, walletData: any) {
     
     const rates = await getRates()
