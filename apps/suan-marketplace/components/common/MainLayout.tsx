@@ -102,6 +102,7 @@ const MainLayout = ({ children }: PropsWithChildren) => {
         const hasTokenAuthFunction = await checkTokenStakeAddress(
           rewardAddresses[0]
         );
+        console.log(hasTokenAuthFunction, 'hasTokenAuthFunction');
         const walletExists = await checkIfWalletExist(
           changeAddress,
           rewardAddresses[0],
