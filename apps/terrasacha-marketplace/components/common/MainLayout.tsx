@@ -46,7 +46,7 @@ const MainLayout = ({ children }: PropsWithChildren) => {
           if (wallet.length < 0) return router.push('/');
           if (wallet.length > 0) {
             const walletData = await handleWalletData({
-              waleltID: wallet[0].id,
+              walletID: wallet[0].id,
               walletName: wallet[0].name,
               walletAddress: wallet[0].address,
               isWalletBySuan: true,
@@ -160,7 +160,7 @@ const MainLayout = ({ children }: PropsWithChildren) => {
     });
     const walletInfoOnDB = await response.json();
     const walletData = await handleWalletData({
-      waleltID: walletInfoOnDB.data.id,
+      walletID: walletInfoOnDB.data.id,
       walletName: '',
       walletAddress: walletInfoOnDB.data.address,
       isWalletAdmin: walletInfoOnDB.data.isAdmin,
@@ -177,7 +177,7 @@ const MainLayout = ({ children }: PropsWithChildren) => {
       const data = await response.json();
 
       await handleWalletData({
-        waleltID: data.data.id,
+        walletID: data.data.id,
         walletName: '',
         walletAddress: data.data.address,
         isWalletAdmin: false,

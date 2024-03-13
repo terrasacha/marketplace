@@ -30,15 +30,15 @@ const validateMinimumAdaValue = async (
       lovelace: 0,
       multiAsset: [
         {
-          [policyID]: {
+          policyid: policyID,
+          tokens: {
             [tokenName]: tokenAmount,
           },
         },
       ],
-    },
-    datum: {},
-    script: {},
+    }
   };
+  console.log(payload);
 
   const url =
     'https://93jp7ynsqv.us-east-1.awsapprunner.com/api/v1/transactions/min-lovelace/';
