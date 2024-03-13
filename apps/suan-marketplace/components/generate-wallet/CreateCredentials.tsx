@@ -67,14 +67,10 @@ const CreateCredentials = (props: any) => {
     await createWallet();
   };
   const createWallet = async () => {
-    const url =
-      'https://93jp7ynsqv.us-east-1.awsapprunner.com/api/v1/wallet/create-wallet/';
     const info = {
       save_flag: true,
       userID: user,
       words: words,
-      localName: '',
-      save_local: false,
     };
     try {
       setLoading(true);
