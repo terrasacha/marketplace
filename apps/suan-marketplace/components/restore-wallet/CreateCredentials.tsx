@@ -90,7 +90,7 @@ const CreateCredentials = (props: any) => {
       userID: user,
       words: recoveryWords.join(' '),
       localName: '',
-      save_local: false,
+      save_local: true,
     };
     console.log(info, 'info');
     try {

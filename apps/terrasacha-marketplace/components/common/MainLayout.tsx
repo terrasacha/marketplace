@@ -52,29 +52,26 @@ const MainLayout = ({ children }: PropsWithChildren) => {
               isWalletBySuan: true,
               isWalletAdmin: wallet[0].isAdmin,
             });
+            console.log(walletData, 'walletData mainlayout');
             const walletAddress = wallet[0].address;
-            const balanceData = await getWalletBalanceByAddress(walletAddress);
-            if (balanceData && balanceData.length > 0) {
-              const hasTokenAuth =
-                balanceData[0]?.assets.some(
-                  (asset: any) =>
-                    asset.policy_id ===
-                      process.env.NEXT_PUBLIC_TOKEN_AUTHORIZER &&
-                    asset.asset_name ===
-                      process.env.NEXT_PUBLIC_TOKEN_AUTHORIZER_NAME
-                ) || false;
-              if (hasTokenAuth) {
-                const address = balanceData[0].address;
-                setAllowAccess(true);
-                setWalletInfo({
-                  name: (wallet[0] as any)?.name,
-                  addr: address,
-                });
-                const balance =
-                  (parseInt(balanceData[0].balance) / 1000000).toFixed(4) || 0;
-                setBalance(balance);
-                access = true;
-              }
+            const hasTokenAuthFunction = await checkTokenStakeAddress(
+              wallet[0].stake_address
+            );
+            if (hasTokenAuthFunction) {
+              const address = wallet[0].address;
+              setAllowAccess(true);
+              setWalletInfo({
+                name: (wallet[0] as any)?.name,
+                addr: address,
+              });
+              const balance =
+                (parseInt(walletData.balance) / 1000000).toFixed(4) || 0;
+              setBalance(balance);
+              access = true;
+            } else {
+              sessionStorage.removeItem('preferredWalletSuan');
+              disconnect();
+              return router.push('/');
             }
           }
         }
@@ -105,6 +102,7 @@ const MainLayout = ({ children }: PropsWithChildren) => {
         const hasTokenAuthFunction = await checkTokenStakeAddress(
           rewardAddresses[0]
         );
+        console.log(hasTokenAuthFunction, 'hasTokenAuthFunction');
         const walletExists = await checkIfWalletExist(
           changeAddress,
           rewardAddresses[0],
@@ -148,21 +146,6 @@ const MainLayout = ({ children }: PropsWithChildren) => {
     } catch {
       return false;
     }
-  };
-  const getWalletBalanceByAddress = async (address: any) => {
-    const balanceFetchResponse = await fetch(
-      '/api/calls/backend/getWalletBalanceByAddress',
-      {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify(address),
-      }
-    );
-
-    const balanceData = await balanceFetchResponse.json();
-    return balanceData;
   };
   const checkIfWalletExist = async (
     address: string,
