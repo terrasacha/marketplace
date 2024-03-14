@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { ConfirmCode, Title } from '@marketplaces/ui-lib';
-import { confirmSignUpAuth } from '@suan/backend';
+import { confirmSignUpAuth, handleResendCode } from '@suan/backend';
 import { MyPage } from '@suan/components/common/types';
 import Image from 'next/image';
 
@@ -27,6 +27,7 @@ const ConfirmCodePage: MyPage = (props: any) => {
           heightLogo={60}
           appName="Suan"
           confirmSignUpAuth={confirmSignUpAuth}
+          handleResendCode={handleResendCode}
         />
       </div>
     </div>

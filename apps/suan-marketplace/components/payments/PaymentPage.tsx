@@ -52,7 +52,7 @@ export default function PaymentPage({}) {
   const [payingStep, setPayingStep] = useState<string>(PAYING_STEPS.STARTING);
 
   const { projectInfo } = useContext<any>(ProjectInfoContext);
-  const { walletID, walletAddress, walletBySuan, walletData } =
+  const { walletID, walletAddress, walletBySuan, walletData, fetchWalletData } =
     useContext<any>(WalletContext);
   const [newTransactionBuild, setNewTransactionBuild] = useState<any>(null);
   const [signTransactionModal, setSignTransactionModal] = useState(false);
@@ -415,6 +415,7 @@ export default function PaymentPage({}) {
         blockfrostProvider.onTxConfirmed(txHashValue, async () => {
           setPayingStep(PAYING_STEPS.FINISHED);
         });
+        await fetchWalletData();
       } else {
         const { minAdaValue } = createMintTransaction;
 

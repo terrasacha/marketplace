@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { ConfirmCode, Title } from '@marketplaces/ui-lib';
-import { confirmSignUpAuth } from '@terrasacha/backend';
+import { confirmSignUpAuth, handleResendCode } from '@terrasacha/backend';
 import { MyPage } from '@terrasacha/components/common/types';
 import Image from 'next/image';
 
@@ -27,6 +27,7 @@ const ConfirmCodePage: MyPage = (props: any) => {
           heightLogo={250}
           appName="Terrasacha"
           confirmSignUpAuth={confirmSignUpAuth}
+          handleResendCode={handleResendCode}
         />
       </div>
     </div>

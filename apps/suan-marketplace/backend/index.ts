@@ -3,7 +3,7 @@ import axios from "axios";
 import { Category } from "myTypes";
 import { Amplify } from 'aws-amplify';
 import awsconfig from '@suan//src/aws-exports';
-import { signUp, confirmSignUp, type ConfirmSignUpInput, signIn, type SignInInput, signOut, resetPassword, type ResetPasswordInput, confirmResetPassword, type ConfirmResetPasswordInput } from 'aws-amplify/auth';
+import { signUp, confirmSignUp, type ConfirmSignUpInput, signIn, type SignInInput, signOut, resetPassword, type ResetPasswordInput, confirmResetPassword, type ConfirmResetPasswordInput, resendSignUpCode } from 'aws-amplify/auth';
 /* import { integer } from "aws-sdk/clients/cloudfront"; */
 import { getProduct } from "@suan//lib/customQueries";
 /* const AWS = require("aws-sdk");
@@ -101,6 +101,14 @@ export async function forgotPasswordSubmit({
     throw err
   }
 };
+
+export const handleResendCode = async(username:string) => {
+  const {
+    destination,
+    deliveryMedium,
+    attributeName
+  } = await resendSignUpCode({ username });
+}
 
 const instance = axios.create({
   baseURL: `/api/`,
