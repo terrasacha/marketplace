@@ -505,6 +505,51 @@ export async function getProjectData(projectId: string) {
   return response.data.data.getProduct;
 }
 
+export async function getProjectTokenDistribution(projectId: string) {
+  const response = await axios.post(
+    graphqlEndpoint,
+    {
+      query: `query getProjects {
+        getProduct(id: "${projectId}") {
+          id
+          productFeatures {
+        items {
+          id
+          value
+          feature {
+            name
+            isVerifable
+          }
+          featureID
+          createdAt
+          updatedAt
+        }
+        nextToken
+      }
+        }
+      }`,
+    },
+    {
+      headers: {
+        'x-api-key': awsAppSyncApiKey,
+      },
+    }
+  );
+
+  const productFeatures = response.data.data.getProduct.productFeatures.items;
+  if (productFeatures) {
+    const tokenAmountDistribution = JSON.parse(
+      productFeatures.filter((item: any) => {
+        return item.featureID === 'GLOBAL_TOKEN_AMOUNT_DISTRIBUTION';
+      })[0]?.value || '{}'
+    );
+
+    return tokenAmountDistribution;
+  } else {
+    return false;
+  }
+}
+
 export async function getProject(projectId: string) {
   const response = await axios.post(
     graphqlEndpoint,
@@ -692,7 +737,7 @@ export async function getRates() {
       },
       {
         headers: {
-          'x-api-key': awsAppSyncApiKey, 
+          'x-api-key': awsAppSyncApiKey,
         },
       }
     );
@@ -1005,10 +1050,11 @@ export async function claimToken({ id }: any) {
 
 export async function getPeriodTokenData(tokens_name: Array<string>) {
   try {
-    let tokensToQuery = tokens_name.map(token => `{value: {eq: "${token}"}}`).join(", ") || "";
+    let tokensToQuery =
+      tokens_name.map((token) => `{value: {eq: "${token}"}}`).join(', ') || '';
     const response = await axios.post(
       graphqlEndpoint,
-      { 
+      {
         query: `query MyQuery {
           listProductFeatures(
             filter: {
@@ -1049,25 +1095,28 @@ export async function getPeriodTokenData(tokens_name: Array<string>) {
       }
     );
 
-    let data = response.data.data.listProductFeatures.items.map((item : any) =>{
-      let periods = item.product.productFeatures.items.filter((pf : any)=> pf.featureID === "GLOBAL_TOKEN_HISTORICAL_DATA")[0].value
-      let currency = item.product.productFeatures.items.filter((pf : any)=> pf.featureID === "GLOBAL_TOKEN_CURRENCY")[0].value
+    let data = response.data.data.listProductFeatures.items.map((item: any) => {
+      let periods = item.product.productFeatures.items.filter(
+        (pf: any) => pf.featureID === 'GLOBAL_TOKEN_HISTORICAL_DATA'
+      )[0].value;
+      let currency = item.product.productFeatures.items.filter(
+        (pf: any) => pf.featureID === 'GLOBAL_TOKEN_CURRENCY'
+      )[0].value;
       return {
-          asset_name: item.value,
-          periods,
-          currency,
-          productID: item.productID,
-          productName: item.product.name
-      }
-    })
-    console.log(data)
+        asset_name: item.value,
+        periods,
+        currency,
+        productID: item.productID,
+        productName: item.product.name,
+      };
+    });
+    console.log(data);
     return data;
   } catch (error) {
     console.log(error);
     return false;
   }
 }
-
 
 export async function createOrder(objeto: any) {
   try {
@@ -1318,7 +1367,6 @@ export async function getOrdersList(
   }
 }
 
-
 export async function coingeckoPrices(crypto: string, base_currency: string) {
   try {
     const response = await fetch(
@@ -1327,6 +1375,6 @@ export async function coingeckoPrices(crypto: string, base_currency: string) {
     const data = await response.json();
     return data.finalRate;
   } catch (error) {
-    console.error("Error", error);
+    console.error('Error', error);
   }
 }

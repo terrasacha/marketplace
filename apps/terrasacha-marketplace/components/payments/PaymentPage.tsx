@@ -10,6 +10,7 @@ import { BillingCard } from '@terrasacha//components/payments/BillingCard';
 import { BuyTokenCard } from '@terrasacha//components/payments/BuyTokenCard';
 import { useContext, useEffect, useState } from 'react';
 import { TokenDetailSection } from './TokenDetailSection';
+import ProjectInfoContext from '@terrasacha/store/projectinfo-context';
 import { Button, TextInput } from 'flowbite-react';
 import { BlockChainIcon } from '../icons/BlockChainIcon';
 import { useWallet } from '@meshsdk/react';
@@ -24,7 +25,6 @@ import { cardanoscan } from '@terrasacha/backend/mint';
 import { WalletContext, mapBuildTransactionInfo } from '@marketplaces/utils-2';
 import { toast } from 'sonner';
 import AlertMessage from '../common/AlertMessage';
-import ProjectInfoContext from '@terrasacha/store/projectinfo-context';
 
 const PURCHASE_STEPS = {
   BUYING: 'buying',
@@ -79,8 +79,7 @@ export default function PaymentPage({}) {
     );
   }
   const blockfrostProvider = new BlockfrostProvider(blockFrostKeysPreview);
-
-  console.log('projectInfo', projectInfo)
+  console.log('projectInfo', projectInfo);
   const IPFSUrlHash = getIpfsUrlHash(projectInfo.categoryID);
 
   const tokenImageUrl = `https://coffee-dry-barnacle-850.mypinata.cloud/ipfs/${IPFSUrlHash}`;
@@ -170,22 +169,37 @@ export default function PaymentPage({}) {
     // Convert usd price to Ada price from the internal oracle
     const currencyToCryptoRate = await coingeckoPrices(crypto, base_currency);
     const adaPrice = parseFloat(projectInfo.tokenPrice) / currencyToCryptoRate;
+    // Traer script relacionado al proyecto
 
     const payload = {
-      wallet_id: walletID,
-      addresses: [
-        {
-          address:
-            'addr_test1vqkge7txl2vdw26efyv7cytjl8l6n8678kz09agc0r34pdss0xtmp',
-          lovelace: parseInt(tokenAmount) * Math.round(adaPrice * 1000000),
-          multiAsset: [],
-        },
-      ],
-      metadata: [],
+      source_funds: 'inversionista',
+      payload: {
+        addresses: [
+          {
+            address: walletAddress,
+            lovelace: 0,
+            multiAsset: [
+              {
+                policyid:
+                  'd7a571edf7c40d7d8b0072b6db024aa043fc98ad4465454e80ef47f9',
+                tokens: {
+                  sandboxToken: parseInt(tokenAmount),
+                },
+              },
+            ],
+          },
+          {
+            address:
+              'addr_test1qq0uh3hap3sqcj3cwlx2w3yq9vm4wclgp4x0y3wuyvapzdcle0r06rrqp39rsa7v5azgq2eh2a37sr2v7fzacge6zymsn0w2mg',
+            lovelace: parseInt(tokenAmount) * Math.round(adaPrice * 1000000),
+            multiAsset: [],
+          },
+        ],
+      },
     };
     console.log('BuildTx Payload: ', payload);
 
-    const request = await fetch('/api/transactions/build-tx', {
+    const request = await fetch('/api/transactions/distribute-tx', {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
@@ -333,8 +347,13 @@ export default function PaymentPage({}) {
       );
 
       if (createMintTransaction.status) {
-        const { maskedTx, originalMetadata, simpleScriptPolicyID, feeAmount, costLovelace } =
-          createMintTransaction;
+        const {
+          maskedTx,
+          originalMetadata,
+          simpleScriptPolicyID,
+          feeAmount,
+          costLovelace,
+        } = createMintTransaction;
 
         console.log('feeAmount', feeAmount);
         const signedTx = await wallet.signTx(maskedTx, true);

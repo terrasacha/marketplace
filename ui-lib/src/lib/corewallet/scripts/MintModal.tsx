@@ -70,7 +70,7 @@ export default function MintModal(props: MintModalProps) {
                 {
                   policyid: policyId,
                   tokens: {
-                    [actualScript.token_name]: mintTokens.tokenAmount,
+                    [actualScript.token_name]: parseInt(mintTokens.tokenAmount),
                   },
                 },
               ],
@@ -82,7 +82,7 @@ export default function MintModal(props: MintModalProps) {
         asset: {
           policyid: policyId,
           tokens: {
-            [actualScript.token_name]: mintTokens.tokenAmount,
+            [actualScript.token_name]: parseInt(mintTokens.tokenAmount),
           },
         },
         redeemer: 0,

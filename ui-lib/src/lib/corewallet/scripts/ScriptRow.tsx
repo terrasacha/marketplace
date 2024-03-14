@@ -8,6 +8,7 @@ interface ScriptRowProps {
   tokenName: string;
   policyId: string;
   handleOpenMintModal: (policyId: string) => void;
+  handleDistributeTokens: (policyId: string) => void;
   // Agrega cualquier otra propiedad que tenga tu token
 }
 
@@ -20,6 +21,7 @@ export default function ScriptRow(props: ScriptRowProps) {
     tokenName,
     policyId,
     handleOpenMintModal,
+    handleDistributeTokens,
   } = props;
 
   return (
@@ -36,6 +38,12 @@ export default function ScriptRow(props: ScriptRowProps) {
           onClick={() => handleOpenMintModal(policyId)}
         >
           Crear
+        </button>
+        <button
+          className="flex justify-center text-custom-dark bg-white hover:bg-[#F6F6F6] focus:outline-none focus:ring-4 focus:ring-gray-300 font-medium rounded text-sm px-5 py-2.5"
+          onClick={() => handleDistributeTokens(policyId)}
+        >
+          Distribuir Tokens
         </button>
       </td>
     </tr>

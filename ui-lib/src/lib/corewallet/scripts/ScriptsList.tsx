@@ -6,10 +6,11 @@ interface AssesListProps {
   scripts: Array<any>;
   itemsPerPage: number;
   handleOpenMintModal: (policyId: string) => void;
+  handleDistributeTokens: (policyId: string) => void;
 }
 
 const ScriptsList = (props: AssesListProps) => {
-  const { scripts, itemsPerPage, handleOpenMintModal } = props;
+  const { scripts, itemsPerPage, handleOpenMintModal, handleDistributeTokens } = props;
 
   const [currentPage, setCurrentPage] = useState(1);
 
@@ -68,6 +69,7 @@ const ScriptsList = (props: AssesListProps) => {
                   testnetAddr={script.testnetAddr}
                   tokenName={script.token_name}
                   handleOpenMintModal={handleOpenMintModal}
+                  handleDistributeTokens={handleDistributeTokens}
                 />
               );
             })}

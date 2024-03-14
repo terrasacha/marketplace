@@ -252,8 +252,9 @@ export default function WalletSend(props: AccountProps) {
         return {
           address: recipient.walletAddress,
           lovelace: parseFloat(recipient.adaAmount) * 1000000,
-          multiAsset: Object.entries(mappedMultiAssets).map(([key, value]) => ({
-            [key]: value,
+          multiAsset: Object.entries(mappedMultiAssets).map(([policyId, tokensObj]) => ({
+            policyid: policyId,
+            tokens: tokensObj,
           })),
         };
       });
@@ -280,20 +281,20 @@ export default function WalletSend(props: AccountProps) {
       const buildTxResponse = await request.json();
       console.log('BuildTx Response: ', buildTxResponse);
 
-      if(buildTxResponse?.success) {
-
+      if (buildTxResponse?.success) {
         const mappedTransactionData = await mapBuildTransactionInfo({
           tx_type: 'preview',
           walletAddress: walletData.address,
           buildTxResponse: buildTxResponse,
           metadata: messageArray,
         });
-  
+
         setNewTransactionBuild(mappedTransactionData);
         handleOpenSignTransactionModal();
-
       } else {
-        toast.error("Algo ha salido mal, revisa las direcciones de billetera ...")
+        toast.error(
+          'Algo ha salido mal, revisa las direcciones de billetera ...'
+        );
       }
     }
     setIsLoading(false);
