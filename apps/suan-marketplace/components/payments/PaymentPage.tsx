@@ -52,7 +52,7 @@ export default function PaymentPage({}) {
   const [payingStep, setPayingStep] = useState<string>(PAYING_STEPS.STARTING);
 
   const { projectInfo } = useContext<any>(ProjectInfoContext);
-  const { walletID, walletAddress, walletBySuan, walletData } =
+  const { walletID, walletAddress, walletBySuan, walletData, fetchWalletData } =
     useContext<any>(WalletContext);
   const [newTransactionBuild, setNewTransactionBuild] = useState<any>(null);
   const [signTransactionModal, setSignTransactionModal] = useState(false);
@@ -79,7 +79,7 @@ export default function PaymentPage({}) {
     );
   }
   const blockfrostProvider = new BlockfrostProvider(blockFrostKeysPreview);
-  console.log('projectInfo', projectInfo)
+  console.log('projectInfo', projectInfo);
   const IPFSUrlHash = getIpfsUrlHash(projectInfo.categoryID);
 
   const tokenImageUrl = `https://coffee-dry-barnacle-850.mypinata.cloud/ipfs/${IPFSUrlHash}`;
@@ -332,8 +332,13 @@ export default function PaymentPage({}) {
       );
 
       if (createMintTransaction.status) {
-        const { maskedTx, originalMetadata, simpleScriptPolicyID, feeAmount, costLovelace } =
-          createMintTransaction;
+        const {
+          maskedTx,
+          originalMetadata,
+          simpleScriptPolicyID,
+          feeAmount,
+          costLovelace,
+        } = createMintTransaction;
 
         console.log('feeAmount', feeAmount);
         const signedTx = await wallet.signTx(maskedTx, true);
@@ -395,6 +400,7 @@ export default function PaymentPage({}) {
         blockfrostProvider.onTxConfirmed(txHashValue, async () => {
           setPayingStep(PAYING_STEPS.FINISHED);
         });
+        await fetchWalletData();
       } else {
         const { minAdaValue } = createMintTransaction;
 
