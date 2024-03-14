@@ -4,12 +4,15 @@ import Link from 'next/link';
 import Image from 'next/image';
 import { useRouter } from 'next/router';
 import { TailSpin } from 'react-loader-spinner';
+import { toast } from 'sonner';
+
 export interface ConfirmCodeProps {
   logo: string;
   widthLogo: number;
   heightLogo: number;
   appName: string;
   confirmSignUpAuth: any;
+  handleResendCode: any;
 }
 const initialStateErrors = { usernameError: '' };
 const initialStateloginForm = { username: '' };
@@ -18,7 +21,14 @@ const initialState = {
   confirmationCode: '',
 };
 const ConfirmCode = (props: ConfirmCodeProps) => {
-  const { logo, widthLogo, heightLogo, appName, confirmSignUpAuth } = props;
+  const {
+    logo,
+    widthLogo,
+    heightLogo,
+    appName,
+    confirmSignUpAuth,
+    handleResendCode,
+  } = props;
   const router = useRouter();
   const [loginForm, setLoginForm] = useState<any>(initialStateloginForm);
   const [errors, setErrors] = useState<any>(initialStateErrors);
@@ -47,6 +57,20 @@ const ConfirmCode = (props: ConfirmCodeProps) => {
       }));
     } finally {
       setLoading(false);
+    }
+  };
+
+  const resendCode = async () => {
+    if (!confirmationCode.username) {
+      return toast.info(
+        'Ingresa tu nombre de usuario para poder enviar el código.'
+      );
+    }
+    try {
+      await handleResendCode(confirmationCode.username);
+      toast.success('Código enviado.');
+    } catch (error) {
+      toast.error('Error al enviar el código.');
     }
   };
 
@@ -88,6 +112,7 @@ const ConfirmCode = (props: ConfirmCodeProps) => {
           <div className="relative z-0 w-full mb-6 group">
             <input
               type="text"
+              disabled={confirmationCode.username.length < 1}
               value={confirmationCode.confirmationCode}
               name="confirmationCode"
               onChange={handleChange}
@@ -100,6 +125,7 @@ const ConfirmCode = (props: ConfirmCodeProps) => {
             </label>
           </div>
         </form>
+
         <button
           type="button"
           onClick={(e) => submitFromConfirmationCode(e)}
@@ -118,6 +144,12 @@ const ConfirmCode = (props: ConfirmCodeProps) => {
           ) : (
             'Confirmar código'
           )}
+        </button>
+        <button
+          className="w-full text-center text-xs mt-1 cursor-pointer hover:text-blue-500"
+          onClick={() => resendCode()}
+        >
+          Reenviar código
         </button>
       </>
     </div>
