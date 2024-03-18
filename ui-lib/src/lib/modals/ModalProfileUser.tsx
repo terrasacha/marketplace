@@ -6,15 +6,17 @@ import { colorByLetter } from '@marketplaces/utils-2';
 import { CardanoWallet } from '../ui-lib';
 import { WalletOffIcon } from '../icons/WalletOffIcon';
 import { WalletContext } from '@marketplaces/utils-2';
-
+import { useWallet } from '@meshsdk/react';
 interface ModalProfileUserProps {
   closeModal: () => void;
+  openDeleteModal: () => void;
   walletInfo: any;
 }
 const ModalProfileUser = (props: ModalProfileUserProps) => {
-  const { handleClearData } = useContext<any>(WalletContext);
+  const { handleClearData, walletID } = useContext<any>(WalletContext);
+  const { disconnect } = useWallet();
 
-  const { closeModal, walletInfo } = props;
+  const { closeModal, walletInfo, openDeleteModal } = props;
   const { Canvas } = useQRCode();
   const [copied, setCopied] = useState<boolean>(false);
   const router = useRouter();
@@ -49,6 +51,7 @@ const ModalProfileUser = (props: ModalProfileUserProps) => {
       }
     );
   };
+
   return (
     <div
       ref={modalRef}
@@ -134,6 +137,15 @@ const ModalProfileUser = (props: ModalProfileUserProps) => {
           ) : (
             <CardanoWallet />
           )}
+          <button
+            onClick={() => {
+              openDeleteModal();
+              closeModal();
+            }}
+            className="text-xs text-red-500 mt-3 cursor-pointer"
+          >
+            Eliminar wallet
+          </button>
         </div>
       </div>
     </div>

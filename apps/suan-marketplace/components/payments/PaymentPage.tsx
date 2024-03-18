@@ -414,8 +414,8 @@ export default function PaymentPage({}) {
         );
         blockfrostProvider.onTxConfirmed(txHashValue, async () => {
           setPayingStep(PAYING_STEPS.FINISHED);
+          await fetchWalletData();
         });
-        await fetchWalletData();
       } else {
         const { minAdaValue } = createMintTransaction;
 

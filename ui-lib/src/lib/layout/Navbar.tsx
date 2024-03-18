@@ -4,6 +4,7 @@ import { CardanoWallet } from '@marketplaces/ui-lib';
 import ModalProfileUser from '../modals/ModalProfileUser';
 import ButtonProfileNavbar from '../buttons/ButtonProfileNavbar';
 import { TailSpin } from 'react-loader-spinner';
+import ModalDeleteWallet from '../modals/ModalDeleteWallet';
 
 interface NavbarProps {
   walletInfo: any;
@@ -13,6 +14,7 @@ export default function Navbar(props: NavbarProps) {
   const [isSidebarOpen, setIsSidebarOpen] = useState(false);
   const [showprofile, setShowProfile] = useState<any>(null);
   const [showModal, setShowModal] = useState(false);
+  const [showModalDeleteWallet, setShowModalDeleteWallet] = useState(false);
   useEffect(() => {
     const fetchData = async () => {
       try {
@@ -38,6 +40,13 @@ export default function Navbar(props: NavbarProps) {
 
   const closeModal = () => {
     setShowModal((prevState) => !prevState);
+  };
+  const openDeleteModal = () => {
+    setShowModalDeleteWallet(true);
+  };
+
+  const closeDeleteModal = () => {
+    setShowModalDeleteWallet((prevState) => !prevState);
   };
 
   return (
@@ -85,6 +94,13 @@ export default function Navbar(props: NavbarProps) {
                   {showModal && (
                     <ModalProfileUser
                       closeModal={closeModal}
+                      openDeleteModal={openDeleteModal}
+                      walletInfo={walletInfo}
+                    />
+                  )}
+                  {showModalDeleteWallet && (
+                    <ModalDeleteWallet
+                      closeDeleteModal={closeDeleteModal}
                       walletInfo={walletInfo}
                     />
                   )}

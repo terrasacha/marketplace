@@ -896,6 +896,25 @@ export async function createWallet(rewardAddresses: string, userId: string) {
   );
   return response;
 }
+export async function deleteWallet(id: string) {
+  console.log(id, "DELETE WALLET DATA ACCESS")
+  const response = await axios.post(
+    graphqlEndpoint,
+    {
+      query: `mutation deleteWallet {
+        deleteWallet(input: {id: "${id}"}) {
+          id
+        }
+      }`,
+    },
+    {
+      headers: {
+        'x-api-key': awsAppSyncApiKey,
+      },
+    }
+  );
+  return response;
+}
 export async function createExternalWallet(
   address: string,
   stake_address: string,
