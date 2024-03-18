@@ -78,6 +78,7 @@ export default function CreateScriptModal(props: CreateScriptModalProps) {
     const responseData = await response.json();
 
     if (responseData?.success) {
+      toast.success('Se ha creado el contrato exitosamente ...')
       await getCoreWalletData();
       handleOpenCreateScriptModal();
     } else {

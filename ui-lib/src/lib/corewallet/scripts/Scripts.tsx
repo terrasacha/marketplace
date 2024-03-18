@@ -6,6 +6,7 @@ import CreateScriptModal from './CreateScriptModal';
 import MintModal from './MintModal';
 import { toast } from 'sonner';
 import { WalletContext } from '@marketplaces/utils-2';
+import Swal from 'sweetalert2';
 
 export default function Scripts(props: any) {
   const { walletID } = useContext<any>(WalletContext);
@@ -37,6 +38,45 @@ export default function Scripts(props: any) {
   const handleOpenMintModal = (policyId: string | null = null) => {
     setSelectedScript(policyId);
     setMintModal(!mintModal);
+  };
+
+  const handleDeleteScript = (policyId: string | null = null) => {
+    const payload = {
+      policyID: policyId,
+    };
+
+    Swal.fire({
+      title: 'Estas seguro de eliminar el contrato?',
+      text: "No podrás revertir esta acción !",
+      icon: 'warning',
+      showCancelButton: true,
+      confirmButtonColor: '#3085d6',
+      cancelButtonColor: '#d33',
+      confirmButtonText: 'Si, eliminar!',
+      cancelButtonText: 'Cancelar'
+    }).then(async (result) => {
+      if (result.isConfirmed) {
+        const response = await fetch(`/api/calls/backend/deleteScriptById`, {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify(payload),
+        });
+        const deleteData = await response.json();
+        if (deleteData.data) {
+          toast.success('Contrato eliminado exitosamente ...');
+          Swal.fire({
+            title: 'Eliminado !',
+            text: 'El contrato ha sido eliminado exitosamente.',
+            icon: 'success',
+          });
+        } else {
+          toast.error('Ha habido un error intentando eliminar el contrato ...');
+        }
+        await getCoreWalletData();
+      }
+    });
   };
 
   const handleDistributeTokens = async (policyId: string | null = null) => {
@@ -155,6 +195,7 @@ export default function Scripts(props: any) {
             itemsPerPage={5}
             handleOpenMintModal={handleOpenMintModal}
             handleDistributeTokens={handleDistributeTokens}
+            handleDeleteScript={handleDeleteScript}
           />
         </Card.Body>
       </Card>

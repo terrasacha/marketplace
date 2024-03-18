@@ -7,10 +7,12 @@ interface AssesListProps {
   itemsPerPage: number;
   handleOpenMintModal: (policyId: string) => void;
   handleDistributeTokens: (policyId: string) => void;
+  handleDeleteScript: (policyId: string) => void;
 }
 
 const ScriptsList = (props: AssesListProps) => {
-  const { scripts, itemsPerPage, handleOpenMintModal, handleDistributeTokens } = props;
+  const { scripts, itemsPerPage, handleOpenMintModal, handleDistributeTokens, handleDeleteScript} =
+    props;
 
   const [currentPage, setCurrentPage] = useState(1);
 
@@ -34,25 +36,31 @@ const ScriptsList = (props: AssesListProps) => {
     setCurrentPage((prevPage) => prevPage - 1);
   };
 
+  console.log(scripts);
+
   return (
     <div className="relative overflow-x-auto rounded-lg">
       <table className="w-full text-sm text-left rtl:text-righ text-white">
         <thead className="text-xs uppercase bg-custom-dark border-b-8 border-custom-fondo">
           <tr>
+            <th scope="col" className="px-6 py-3"></th>
             <th scope="col" className="px-6 py-3">
               Script
+            </th>
+            <th scope="col" className="px-6 py-3">
+              Nombre de Token
+            </th>
+            <th scope="col" className="px-6 py-3">
+              Id del proyecto
+            </th>
+            <th scope="col" className="px-6 py-3">
+              Policy ID
             </th>
             <th scope="col" className="px-6 py-3">
               PBK
             </th>
             <th scope="col" className="px-6 py-3">
               Address
-            </th>
-            <th scope="col" className="px-6 py-3">
-              Nombre de Token
-            </th>
-            <th scope="col" className="px-6 py-3">
-              Acción
             </th>
           </tr>
         </thead>
@@ -64,12 +72,14 @@ const ScriptsList = (props: AssesListProps) => {
                   key={index}
                   index={index}
                   policyId={script.id}
+                  projectID={script.productID}
                   scriptName={script.name}
                   pbk={script.pbk}
                   testnetAddr={script.testnetAddr}
                   tokenName={script.token_name}
                   handleOpenMintModal={handleOpenMintModal}
                   handleDistributeTokens={handleDistributeTokens}
+                  handleDeleteScript={handleDeleteScript}
                 />
               );
             })}

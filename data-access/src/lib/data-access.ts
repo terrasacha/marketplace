@@ -1019,6 +1019,38 @@ export async function updateWallet({
 
   return response;
 }
+
+export async function deleteScriptById(policyID: string) {
+  try {
+    const response = await axios.post(
+      graphqlEndpoint,
+      {
+        query: `
+          mutation MyMutation($input: DeleteScriptInput!) {
+            deleteScript(input: $input) {
+              id
+            }
+          }
+        `,
+        variables: {
+          input: {
+            id: policyID,
+          },
+        },
+      },
+      {
+        headers: {
+          'x-api-key': awsAppSyncApiKey,
+        },
+      }
+    );
+
+    return response.data;
+  } catch (error) {
+    console.error('Error deleting script request:', error);
+    return false;
+  }
+}
 export async function claimToken({ id }: any) {
   const response = await axios.post(
     graphqlEndpoint,

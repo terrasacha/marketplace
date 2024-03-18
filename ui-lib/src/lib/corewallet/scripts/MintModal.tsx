@@ -52,7 +52,7 @@ export default function MintModal(props: MintModalProps) {
     return true;
   };
 
-  const handleCreateContract = async () => {
+  const handleMintTokens = async () => {
     if (!validateFields()) {
       return;
     }
@@ -106,6 +106,48 @@ export default function MintModal(props: MintModalProps) {
     setIsLoading(false);
   };
 
+  const handleBurnTokens = async () => {
+    if (!mintTokens.tokenAmount) {
+      toast.warning('Complete los campos oblgiatorios poder continuar ...');
+      return;
+    }
+    setIsLoading(true);
+    const policyId = actualScript.id;
+
+    const payload = {
+      wallet_id: walletID,
+      addresses: [],
+      metadata: [],
+      mint: {
+        asset: {
+          policyid: policyId,
+          tokens: {
+            [actualScript.token_name]: -Math.abs(
+              parseInt(mintTokens.tokenAmount)
+            ),
+          },
+        },
+        redeemer: 0,
+      },
+    };
+    console.log(payload);
+    const response = await fetch('/api/transactions/mint-tokens', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify(payload),
+    });
+    const responseData = await response.json();
+
+    if (responseData?.success) {
+      handleOpenMintModal();
+    } else {
+      toast.error('Ha ocurrido un error, intenta nuevamente ...');
+    }
+    setIsLoading(false);
+  };
+
   return (
     <>
       <Modal show={mintModal} size="6xl">
@@ -114,10 +156,10 @@ export default function MintModal(props: MintModalProps) {
             handleOpenMintModal();
           }}
         >
-          Minteo de tokens
+          Quema de tokens
         </Modal.Header>
         <Modal.Body>
-          <div>
+          {/* <div>
             <label className="inline-flex items-center cursor-pointer">
               <input
                 type="checkbox"
@@ -151,7 +193,7 @@ export default function MintModal(props: MintModalProps) {
                 }
               />
             </div>
-          )}
+          )} */}
           <div>
             <label className="block mb-2">
               Cantidad de tokens<span className="text-red-600">*</span>
@@ -172,12 +214,12 @@ export default function MintModal(props: MintModalProps) {
             <button
               type="button"
               className="col-span-4 sm:col-span-1 text-white bg-custom-dark hover:bg-custom-dark-hover focus:outline-none focus:ring-4 focus:ring-gray-300 font-medium rounded text-sm px-5 py-2.5 "
-              onClick={handleCreateContract}
+              onClick={handleBurnTokens}
             >
               {isLoading ? (
                 <LoadingIcon className="w-4 h-4" />
               ) : (
-                'Mintear y enviar tokens'
+                'Quemar tokens'
               )}
             </button>
           </div>
