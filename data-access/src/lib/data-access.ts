@@ -37,6 +37,13 @@ const getProduct = /* GraphQL */ `
             id
             role
             name
+            wallets {
+              items {
+                id
+                address
+                stake_address
+              }
+            }
           }
         }
       }
@@ -513,19 +520,19 @@ export async function getProjectTokenDistribution(projectId: string) {
         getProduct(id: "${projectId}") {
           id
           productFeatures {
-        items {
-          id
-          value
-          feature {
-            name
-            isVerifable
+            items {
+              id
+              value
+              feature {
+                name
+                isVerifable
+              }
+              featureID
+              createdAt
+              updatedAt
+            }
+            nextToken
           }
-          featureID
-          createdAt
-          updatedAt
-        }
-        nextToken
-      }
         }
       }`,
     },
@@ -897,7 +904,7 @@ export async function createWallet(rewardAddresses: string, userId: string) {
   return response;
 }
 export async function deleteWallet(id: string) {
-  console.log(id, "DELETE WALLET DATA ACCESS")
+  console.log(id, 'DELETE WALLET DATA ACCESS');
   const response = await axios.post(
     graphqlEndpoint,
     {
@@ -975,6 +982,57 @@ export async function getWalletByStakeAddress(stake_address: string) {
     return false;
   }
 }
+
+export async function getScriptsList() {
+  try {
+    const response = await axios.post(
+      graphqlEndpoint, // Make sure you have 'graphqlEndpoint' defined
+      {
+        query: `
+        query MyQuery {
+          listScripts {
+            items {
+              id
+              name
+              createdAt
+              cbor
+              base_code
+              MainnetAddr
+              Active
+              pbk
+              productID
+              script_category
+              script_type
+              testnetAddr
+              token_name
+              updatedAt
+            }
+          }
+        }
+        `,
+      },
+      {
+        headers: {
+          'x-api-key': awsAppSyncApiKey, // Make sure you have 'awsAppSyncApiKey' defined
+        },
+      }
+    );
+
+    const data = response.data.data.listScripts.items;
+
+    const sortedData = data.sort((a: any, b: any) => {
+      const dateA = new Date(a.createdAt);
+      const dateB = new Date(b.createdAt);
+      return dateB.getTime() - dateA.getTime(); // Ordenar en orden ascendente (más antiguo al más reciente)
+    });
+
+    return sortedData;
+  } catch (error) {
+    console.error('Error fetching scripts:', error);
+    return [];
+  }
+}
+
 export async function createCoreWallet(id: string, name: string) {
   if (name === '') name = id;
   try {
@@ -1026,6 +1084,39 @@ export async function updateWallet({
           password: hash,
           name: name,
           claimed_token,
+        },
+      },
+    },
+    {
+      headers: {
+        'x-api-key': awsAppSyncApiKey,
+      },
+    }
+  );
+
+  return response;
+}
+
+export async function updateProduct({
+  id,
+  tokenClaimedByOwner,
+  tokenGenesis,
+}: any) {
+  const response = await axios.post(
+    graphqlEndpoint,
+    {
+      query: `
+        mutation UpdateProduct($input: UpdateProductInput!) {
+          updateProduct(input: $input) {
+            id
+          }
+        }
+      `,
+      variables: {
+        input: {
+          id: id,
+          tokenClaimedByOwner: tokenClaimedByOwner,
+          tokenGenesis,
         },
       },
     },

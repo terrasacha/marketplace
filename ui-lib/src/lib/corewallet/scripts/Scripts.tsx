@@ -25,7 +25,7 @@ export default function Scripts(props: any) {
     const responseData = await request.json();
     console.log(responseData);
 
-    setScripts(responseData.data);
+    setScripts(responseData);
   };
 
   useEffect(() => {
@@ -47,13 +47,13 @@ export default function Scripts(props: any) {
 
     Swal.fire({
       title: 'Estas seguro de eliminar el contrato?',
-      text: "No podrás revertir esta acción !",
+      text: 'No podrás revertir esta acción !',
       icon: 'warning',
       showCancelButton: true,
       confirmButtonColor: '#3085d6',
       cancelButtonColor: '#d33',
       confirmButtonText: 'Si, eliminar!',
-      cancelButtonText: 'Cancelar'
+      cancelButtonText: 'Cancelar',
     }).then(async (result) => {
       if (result.isConfirmed) {
         const response = await fetch(`/api/calls/backend/deleteScriptById`, {
@@ -79,13 +79,43 @@ export default function Scripts(props: any) {
     });
   };
 
+  const getProjectTokenDistribution = (projectData: any) => {
+    const productFeatures = projectData.productFeatures.items;
+    if (productFeatures) {
+      const tokenAmountDistribution = JSON.parse(
+        productFeatures.filter((item: any) => {
+          return item.featureID === 'GLOBAL_TOKEN_AMOUNT_DISTRIBUTION';
+        })[0]?.value || '{}'
+      );
+
+      return tokenAmountDistribution;
+    } else {
+      return false;
+    }
+  };
+
+  const checkOwnerWallet = (projectData: any) => {
+    const constructorUser = projectData.userProducts.items.find(
+      (item: any) => item.user.role === 'constructor'
+    );
+
+    if (constructorUser) {
+      const { wallets } = constructorUser.user;
+      if (wallets.items.length > 0) {
+        return wallets.items[0].address;
+      }
+    }
+
+    return false;
+  };
+
   const handleDistributeTokens = async (policyId: string | null = null) => {
     const actualScript = scripts.find((script: any) => script.id === policyId);
 
-    const mapStakeHolders: any = {
+    let mapStakeHolders: any = {
       bioc: 'addr_test1vqx420pm9cx326rh0q8yx6u4h72ae56l9ekzk05m8w9qe3cz5swj5',
-      propietario:
-        'addr_test1vpgydu6xuc3nvyzpdnkq4jpaprs0rp5x5xzk088grlp92cq057hxl',
+      // propietario:
+      //   'addr_test1vpgydu6xuc3nvyzpdnkq4jpaprs0rp5x5xzk088grlp92cq057hxl',
       administrador:
         'addr_test1qzttu3gj6vtz6e6j4p4pnmyw52x5j7kw47kce4hux9fv445khez395ck94n492r2r8kgag5df9avatad3nt0cv2jettqxfwfwv',
       buffer: 'addr_test1vqs34z4ljy3c6u3s97m64zqz7f0ks6vtre2dcpl5um8wz2qgaxq8z',
@@ -97,9 +127,11 @@ export default function Scripts(props: any) {
 
     console.log(actualScript);
 
+    // Saber si el propietario tiene una wallet
+
     // Obtener Product Feature de distribución
     const response1 = await fetch(
-      `/api/calls/backend/getProjectTokenDistribution?projectId=${actualScript.productID}`,
+      `/api/calls/backend/getProduct?projectId=${actualScript.productID}`,
       {
         method: 'GET',
         headers: {
@@ -107,8 +139,14 @@ export default function Scripts(props: any) {
         },
       }
     );
-    const stakeHoldersDistribution = await response1.json();
-    console.log('stakeHoldersDistribution', stakeHoldersDistribution);
+    const projectData = await response1.json();
+    console.log('projectData', projectData);
+    const stakeHoldersDistribution = getProjectTokenDistribution(projectData);
+    const ownerWallet = checkOwnerWallet(projectData);
+    if (ownerWallet) {
+      mapStakeHolders.propietario = ownerWallet;
+    }
+
     const tokenToDistributeSum = stakeHoldersDistribution.reduce(
       (sum: number, item: any) => sum + parseInt(item.CANTIDAD),
       0
@@ -168,6 +206,23 @@ export default function Scripts(props: any) {
 
     if (responseData?.success) {
       toast.success('Tokens enviados ...');
+
+      // Actualizar un campo en tabla dynamo que indique que los tokens del proyecto han sido reclamados por el propietario o no
+      // Actualizar campo token genesis
+
+      const payload = {
+        id: actualScript.productID,
+        tokenClaimedByOwner: ownerWallet ? true : false,
+        tokenGenesis: true,
+      };
+
+      await fetch('/api/calls/backend/updateProduct', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(payload),
+      });
     } else {
       toast.error('Ha ocurrido un error, intenta nuevamente ...');
     }
