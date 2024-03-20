@@ -78,12 +78,42 @@ export default function CreateScriptModal(props: CreateScriptModalProps) {
     const responseData = await response.json();
 
     if (responseData?.success) {
-      toast.success('Se ha creado el contrato exitosamente ...')
-      await getCoreWalletData();
-      handleOpenCreateScriptModal();
+      toast.success('Se ha creado el contrato exitosamente ...');
     } else {
       toast.error('Ha ocurrido un error, intenta nuevamente ...');
+      setIsLoading(false)
+      return
     }
+
+    if (newContract.scriptType === 'mintProjectToken') {
+      const payload = {
+        script_type: 'spend',
+        name: newContract.scriptName + 'Spend',
+        wallet_id: walletID,
+        save_flag: newContract.saveFlag, // Opcional
+        project_id: newContract.projectId, // Opcional
+        parent_policy_id: responseData.data.id,
+      };
+
+      const response2 = await fetch('/api/contracts/create-contract', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(payload),
+      });
+      const createdSpendContract = await response2.json();
+
+      if (createdSpendContract?.success) {
+        toast.success('Se ha creado el contrato Spend exitosamente ...');
+      } else {
+        toast.error('Ha ocurrido un error, intenta nuevamente ...');
+      }
+    }
+
+    await getCoreWalletData();
+    handleOpenCreateScriptModal();
+
     setIsLoading(false);
   };
 
