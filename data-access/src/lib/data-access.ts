@@ -324,10 +324,10 @@ export async function getProjects() {
                 return count + 1;
             }
             // Condicion 2: Tener titulares diligenciados
-            if (pf.featureID === 'B_owners') {
+            /* if (pf.featureID === 'B_owners') {
               let data = JSON.parse(pf.value || '[]');
               if (Object.keys(data).length !== 0) return count + 1;
-            }
+            } */
             // Condicion 3: Validador ha oficializado la información financiera
             if (
               pf.featureID === 'GLOBAL_VALIDATOR_SET_FINANCIAL_CONDITIONS' &&
@@ -357,7 +357,7 @@ export async function getProjects() {
           },
           0
         );
-        return countFeatures === 6;
+        return countFeatures === 5;
       }
     );
 
