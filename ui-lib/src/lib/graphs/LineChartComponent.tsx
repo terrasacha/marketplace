@@ -37,7 +37,7 @@ export default function LineChartComponent(props: any) {
             data: item.data,
             segment: {
               borderDash: (ctx: any) => {
-                if (ctx.p0.raw.period > item.actualPeriod.period || 0)
+                if (ctx.p0.raw.period > item.actualPeriod.period - 1 || 0)
                   return [4, 4];
                 return [0, 0];
               },

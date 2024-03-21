@@ -57,7 +57,7 @@ const formatProjectDuration = (data: any) => {
         month = data.months > 1 ? ` ${data.months} meses` : ` ${data.months} mes`
     }
     if (data.years && data.years > 0) {
-        year = data.years > 1 ? `${data.years} años,` : `${data.years} año,`
+        year = data.years > 1 ? `${data.years} años` : `${data.years} año,`
     }
     return `${year}${month}${day}`
 }
@@ -78,7 +78,7 @@ const calculateActualTokenPrice = (actualPrice : number, currency : string, rate
         //const ADArateCOP = await coingeckoPrices("cardano", "COP")
         return ((actualPrice / rates.ADArateCOP) * rates.ADArateUSD).toFixed(4)
     } 
-    return (actualPrice / rates.ADArateUSD).toFixed(4)
+    return actualPrice.toFixed(2)
 }
 
 /* const getRates = async() => {
