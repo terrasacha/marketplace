@@ -36,6 +36,10 @@ const PurchasePage: MyPage = (props: any) => {
       });
 
       const actualPeriod: any = getActualPeriod(Date.now(), periods);
+      const totalProjectTokens = periods.reduce(
+        (sum: number, item: any) => sum + parseInt(item.amount),
+        0
+      );
       const totalTokensSold = project.transactions.items.reduce(
         (acc: any, item: any) => {
           return acc + item.amountOfTokens;
@@ -52,8 +56,7 @@ const PurchasePage: MyPage = (props: any) => {
           }
         }, 0);
 
-      const tokenUnits: number =
-        totalTokensFromFirstToActualPeriod - parseInt(totalTokensSold);
+      const tokenUnits: number = totalProjectTokens - parseInt(totalTokensSold);
 
       const projectInfo = {
         projectID: project.id,
@@ -73,10 +76,10 @@ const PurchasePage: MyPage = (props: any) => {
 
   return (
     <>
-    <div className="h-auto w-full p-5">
-      <PageHeader></PageHeader>
-      <PaymentPage></PaymentPage>
-    </div>
+      <div className="h-auto w-full p-5">
+        <PageHeader></PageHeader>
+        <PaymentPage></PaymentPage>
+      </div>
       {/* <Modal
         show={openModal === "newPaymentMethodModal"}
         onClose={() => setOpenModal(undefined)}

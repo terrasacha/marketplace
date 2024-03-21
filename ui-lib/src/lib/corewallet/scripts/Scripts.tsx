@@ -5,8 +5,9 @@ import { useContext, useEffect, useState } from 'react';
 import CreateScriptModal from './CreateScriptModal';
 import MintModal from './MintModal';
 import { toast } from 'sonner';
-import { WalletContext } from '@marketplaces/utils-2';
+import { WalletContext, getActualPeriod } from '@marketplaces/utils-2';
 import Swal from 'sweetalert2';
+import { coingeckoPrices } from '@marketplaces/data-access';
 
 export default function Scripts(props: any) {
   const { walletID } = useContext<any>(WalletContext);
@@ -94,6 +95,42 @@ export default function Scripts(props: any) {
     }
   };
 
+  const getProjectTokenData = (projectData: any) => {
+    const productFeatures = projectData.productFeatures.items;
+    if (productFeatures) {
+      const tokenCurrency =
+        productFeatures.find((item: any) => {
+          return item.featureID === 'GLOBAL_TOKEN_CURRENCY';
+        })?.value || '{}';
+
+      const tokenHistoricalData: any[] = JSON.parse(
+        productFeatures.filter((item: any) => {
+          return item.featureID === 'GLOBAL_TOKEN_HISTORICAL_DATA';
+        })[0]?.value || '[]'
+      );
+
+      const periods: any[] = tokenHistoricalData.map((tkhd: any) => {
+        return {
+          period: tkhd.period,
+          date: new Date(tkhd.date),
+          price: tkhd.price,
+          amount: tkhd.amount,
+        };
+      });
+
+      const actualPeriod: any = getActualPeriod(Date.now(), periods);
+
+      return {
+        actualTokenPrice: actualPeriod.price,
+        tokenCurrency: tokenCurrency,
+      };
+    }
+    return {
+      actualTokenPrice: null,
+      tokenCurrency: null,
+    };
+  };
+
   const checkOwnerWallet = (projectData: any) => {
     const constructorUser = projectData.userProducts.items.find(
       (item: any) => item.user.role === 'constructor'
@@ -104,6 +141,25 @@ export default function Scripts(props: any) {
       if (wallets.items.length > 0) {
         return wallets.items[0].address;
       }
+    }
+
+    return false;
+  };
+
+  const getTokenLovelacePrice = async (projectData: any) => {
+    const { actualTokenPrice, tokenCurrency } =
+      getProjectTokenData(projectData);
+    const currencyToCryptoRate = await coingeckoPrices(
+      'cardano',
+      tokenCurrency
+    );
+    if (actualTokenPrice && tokenCurrency && currencyToCryptoRate) {
+      console.log('actualTokenPrice', actualTokenPrice);
+      console.log('tokenCurrency', tokenCurrency);
+      console.log('currencyToCryptoRate', currencyToCryptoRate);
+      const adaTokenPrice = parseFloat(actualTokenPrice) / currencyToCryptoRate;
+      console.log('adaTokenPrice', adaTokenPrice);
+      return Math.trunc(adaTokenPrice * 1000000);
     }
 
     return false;
@@ -125,7 +181,8 @@ export default function Scripts(props: any) {
         'addr_test1qq0uh3hap3sqcj3cwlx2w3yq9vm4wclgp4x0y3wuyvapzdcle0r06rrqp39rsa7v5azgq2eh2a37sr2v7fzacge6zymsn0w2mg',
     };
 
-    const administradorId = '96be4512d3162d6752a86a19ec8ea28d497aceafad8cd6fc3152cad6'
+    const administradorId =
+      '96be4512d3162d6752a86a19ec8ea28d497aceafad8cd6fc3152cad6';
 
     console.log(actualScript);
 
@@ -145,6 +202,13 @@ export default function Scripts(props: any) {
     console.log('projectData', projectData);
     const stakeHoldersDistribution = getProjectTokenDistribution(projectData);
     const ownerWallet = checkOwnerWallet(projectData);
+    const tokenPrice = await getTokenLovelacePrice(projectData);
+
+    if (!tokenPrice) {
+      toast.error('Error calculando el precio del token');
+      return;
+    }
+
     if (ownerWallet) {
       mapStakeHolders.propietario = ownerWallet;
     }
@@ -158,23 +222,42 @@ export default function Scripts(props: any) {
     if (stakeHoldersDistribution) {
       console.log(Object.keys(mapStakeHolders));
       Object.keys(mapStakeHolders).forEach((stakeHolder: string) => {
-        const amountOfTokens = stakeHoldersDistribution.find(
-          (stakeHolderDis: any) =>
-            stakeHolderDis.CONCEPTO.toLowerCase() === stakeHolder
-        )?.CANTIDAD;
+        let amountOfTokens = parseInt(
+          stakeHoldersDistribution.find(
+            (stakeHolderDis: any) =>
+              stakeHolderDis.CONCEPTO.toLowerCase() === stakeHolder
+          )?.CANTIDAD
+        );
+
+        if (stakeHolder === 'administrador' && !ownerWallet) {
+          const ownerAmountOfTokens = parseInt(
+            stakeHoldersDistribution.find(
+              (stakeHolderDis: any) =>
+                stakeHolderDis.CONCEPTO.toLowerCase() === 'propietario'
+            )?.CANTIDAD
+          );
+          amountOfTokens = amountOfTokens + ownerAmountOfTokens;
+        }
+
         if (amountOfTokens) {
-          const address = {
+          const address: any = {
             address: mapStakeHolders[stakeHolder],
             lovelace: 0,
             multiAsset: [
               {
                 policyid: actualScript.id,
                 tokens: {
-                  [actualScript.token_name]: parseInt(amountOfTokens),
+                  [actualScript.token_name]: amountOfTokens,
                 },
               },
             ],
           };
+          if (stakeHolder === 'inversionista') {
+            address.datum = {
+              beneficiary: administradorId,
+              price: tokenPrice,
+            };
+          }
           addresses.push(address);
         }
       });

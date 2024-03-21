@@ -70,6 +70,10 @@ const Product: MyPage = (props: any) => {
   });
 
   const actualPeriod: any = getActualPeriod(Date.now(), periods);
+  const totalProjectTokens = periods.reduce(
+    (sum: number, item: any) => sum + parseInt(item.amount),
+    0
+  );
   const totalTokensSold = project.transactions.items.reduce(
     (acc: any, item: any) => {
       return acc + item.amountOfTokens;
@@ -88,8 +92,7 @@ const Product: MyPage = (props: any) => {
     0
   );
 
-  const tokenUnits: number =
-    totalTokensFromFirstToActualPeriod - parseInt(totalTokensSold);
+  const tokenUnits: number = totalProjectTokens - parseInt(totalTokensSold);
 
   const coordString: string =
     project.productFeatures.items.filter((item: any) => {
@@ -205,11 +208,7 @@ const Product: MyPage = (props: any) => {
                     leaveFrom="opacity-100"
                     leaveTo="opacity-0"
                   >
-                    {(ref) => (
-                      <p className="md:text-sm">
-                        {fullDescription}
-                      </p>
-                    )}
+                    {(ref) => <p className="md:text-sm">{fullDescription}</p>}
                   </Transition>
                   {!expanded && (
                     <div>

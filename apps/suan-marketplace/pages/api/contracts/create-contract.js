@@ -10,6 +10,7 @@ export default async function handler(req, res) {
         tokenName: payload.tokenName,
         save_flag: payload.save_flag,
         project_id: payload.project_id,
+        parent_policy_id: payload.parent_policy_id,
       };
       
       const url = `https://93jp7ynsqv.us-east-1.awsapprunner.com/api/v1/contracts/create-contract/${script_type}`;

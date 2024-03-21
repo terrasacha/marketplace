@@ -57,6 +57,10 @@ export default function CardProject(props: any) {
     };
   });
   const actualPeriod: any = getActualPeriod(Date.now(), periods);
+  const totalProjectTokens = periods.reduce(
+    (sum: number, item: any) => sum + parseInt(item.amount),
+    0
+  );
   const totalTokensSold = project.transactions.items.reduce(
     (acc: any, item: any) => {
       return acc + item.amountOfTokens;
@@ -86,7 +90,7 @@ export default function CardProject(props: any) {
       .replace(/(?:^|\s)\S/g, (char: string) => char.toUpperCase()),
     encodedCategory: encodeURIComponent(project.categoryID),
     tokenTotal: parseInt(actualPeriod?.amount),
-    tokenUnits: totalTokensFromFirstToActualPeriod - parseInt(totalTokensSold),
+    tokenUnits: totalProjectTokens - parseInt(totalTokensSold),
     tokenValue: actualPeriod?.price,
     tokenCurrency: tokenCurrency,
   };
