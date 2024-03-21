@@ -19,27 +19,12 @@ export default function DashboardProject(props: any) {
     if (walletData) {
       mapDashboardProject(project, projectData, projectId, walletData).then(
         (data: any) => {
+          console.log(data, 'setDashboardProjectData');
           setDashboardProjectData(data);
         }
       );
     }
   }, [walletData]);
-  /* useEffect(() => {
-    async function loadWalletStakeID() {
-      try {
-        if (connected) {
-          const addresses = await wallet.getRewardAddresses();
-          if (addresses.length > 0) {
-            const firstAddress = addresses[0];
-          }
-        }
-      } catch (error) {
-        console.error(error);
-      }
-    }
-
-    loadWalletStakeID();
-  }, [connected, wallet]); */
 
   if (!dashboardProjectData) return <></>;
   return (
@@ -119,7 +104,7 @@ export default function DashboardProject(props: any) {
         ))}
       </div>
       <div className="grid grid-cols-2 lg:grid-cols-2 2xl:grid-cols-4 gap-3 mt-4">
-        <div className="bg-custom-dark-hover p-4 rounded-md shadow-lg col-span-2 row-span-4 lg:col-span-2 2xl:col-span-3 lg:row-span-5 flex flex-col ">
+        <div className="bg-custom-dark-hover p-4 rounded-md shadow-lg col-span-2 row-span-6 lg:col-span-2 2xl:col-span-3 lg:row-span-6 flex flex-col ">
           <h2 className="text-xl font-semibold text-white">
             Evolución del precio
           </h2>
@@ -136,9 +121,15 @@ export default function DashboardProject(props: any) {
             image: 'tierra',
           },
           {
-            title: 'Total de Tokens disponibles',
+            title: 'Total de Tokens del proyecto',
             subtitle: 'Toneladas disponibles',
             value: dashboardProjectData.totalAmountOfTokens,
+            image: 'tokens',
+          },
+          {
+            title: 'Total de Tokens para inversionistas',
+            subtitle: 'Toneladas disponibles',
+            value: dashboardProjectData.tokensToInversionists,
             image: 'tokens',
           },
           {
