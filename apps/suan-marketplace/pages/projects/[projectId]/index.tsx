@@ -17,12 +17,14 @@ import FinancialTab from '@suan//components/home-page/ProjectTabs/FinancialTab';
 import EarningsTab from '@suan//components/home-page/ProjectTabs/EarningsTab';
 import ProjectionsTab from '@suan//components/home-page/ProjectTabs/ProjectionsTab';
 import { Card, PageHeader } from '@marketplaces/ui-lib';
+import { useRouter } from 'next/router';
 
 const ProjectDataModal = dynamic(
   () => import('@suan/components/modals/ProjectDataModal')
 );
 
 const Product: MyPage = (props: any) => {
+  const router = useRouter();
   const project = props.project;
   const projectData = props.projectData;
   const imageData = props.image;
@@ -236,6 +238,14 @@ const Product: MyPage = (props: any) => {
                   onClick={() => setOpenModal('projectDataModal')}
                 >
                   Detalles del proyecto
+                </button>
+                <button
+                  className="flex w-full justify-center text-gray-900 hover:text-white border border-gray-800 hover:bg-gray-900 focus:ring-4 focus:outline-none focus:ring-gray-300 font-medium rounded-lg text-sm px-5 py-2.5 text-center mt-5"
+                  onClick={() =>
+                    router.push(`/projects/${project.id}/dashboard`)
+                  }
+                >
+                  Dashboard del proyecto
                 </button>
                 <div className="flex flex-col space-y-2 mt-20">
                   <div className="flex justify-center bg-amber-400 text-sm px-2.5 py-0.5 rounded border border-custom-dark">
