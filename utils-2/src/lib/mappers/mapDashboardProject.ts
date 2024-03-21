@@ -81,13 +81,15 @@ const calculateActualTokenPrice = (actualPrice : number, currency : string, rate
     return actualPrice.toFixed(2)
 }
 
-/* const getRates = async() => {
-    const ADArateUSD = await coingeckoPrices("cardano", "USD")
-    const ADArateCOP = await coingeckoPrices("cardano", "COP")
+const getTokensInversionst = (pfs : Array<any>) => {
+    const pfDistribution = pfs.filter((item : any) => {
+        return item.featureID === 'GLOBAL_TOKEN_AMOUNT_DISTRIBUTION'
+    })[0]?.value
 
-    return { ADArateCOP, ADArateUSD}
-} */
+    const inversionistDistribution = JSON.parse(pfDistribution).find((item : any) => item.CONCEPTO === 'INVERSIONISTA').CANTIDAD
 
+    return inversionistDistribution
+}
 const getRates = async() =>{
     const response = await fetch('/api/calls/getRates')
     const data = await response.json()
@@ -183,7 +185,7 @@ export async function mapDashboardProject( project: any, projectData: any, proje
         },
         0
         );
-
+    const tokensToInversionists = getTokensInversionst(project.productFeatures.items)
     let relevantInfo = {
         name: project.name
         .toLowerCase()
@@ -199,7 +201,7 @@ export async function mapDashboardProject( project: any, projectData: any, proje
         tokenTotal: parseInt(actualPeriod?.amount),
         tokenUnits: parseInt(actualPeriod?.amount) - parseInt(totalTokensSold),
         tokenValue: actualPeriod?.price,
-        tokenPercentageSold: ((parseInt(totalTokensSold) * 100 ) / totalAmountOfTokens).toFixed(1),
+        tokenPercentageSold: ((parseInt(totalTokensSold) * 100 ) / tokensToInversionists).toFixed(1),
         tokenPercentageTokensOwn: (( totalTokens * 100 ) / totalAmountOfTokens).toFixed(1),
         totalAmountOfTokens,
         tokenCurrency: tokenCurrency,
@@ -213,6 +215,7 @@ export async function mapDashboardProject( project: any, projectData: any, proje
         asset: asset[0],
         relevantInfo,
         totalAmountOfTokens,
+        tokensToInversionists,
         totalTokensSold,
         totalTokens,
         tokenDeltaPrice,
