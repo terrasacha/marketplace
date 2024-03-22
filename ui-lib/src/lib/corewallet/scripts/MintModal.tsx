@@ -60,33 +60,37 @@ export default function MintModal(props: MintModalProps) {
     const policyId = actualScript.id;
 
     const payload = {
-      wallet_id: walletID,
-      addresses: !mintTokens.sameAddress
-        ? [
-            {
-              address: mintTokens.walletAddress,
-              lovelace: 0,
-              multiAsset: [
-                {
-                  policyid: policyId,
-                  tokens: {
-                    [actualScript.token_name]: parseInt(mintTokens.tokenAmount),
+      mint_redeemer: 'Mint',
+      payload: {
+        wallet_id: walletID,
+        addresses: !mintTokens.sameAddress
+          ? [
+              {
+                address: mintTokens.walletAddress,
+                lovelace: 0,
+                multiAsset: [
+                  {
+                    policyid: policyId,
+                    tokens: {
+                      [actualScript.token_name]: parseInt(mintTokens.tokenAmount),
+                    },
                   },
-                },
-              ],
+                ],
+              },
+            ]
+          : [],
+        metadata: [],
+        mint: {
+          asset: {
+            policyid: policyId,
+            tokens: {
+              [actualScript.token_name]: parseInt(mintTokens.tokenAmount),
             },
-          ]
-        : [],
-      metadata: [],
-      mint: {
-        asset: {
-          policyid: policyId,
-          tokens: {
-            [actualScript.token_name]: parseInt(mintTokens.tokenAmount),
           },
+          redeemer: 0,
         },
-        redeemer: 0,
-      },
+
+      }
     };
     console.log(payload);
     const response = await fetch('/api/transactions/mint-tokens', {
@@ -115,20 +119,24 @@ export default function MintModal(props: MintModalProps) {
     const policyId = actualScript.id;
 
     const payload = {
-      wallet_id: walletID,
-      addresses: [],
-      metadata: [],
-      mint: {
-        asset: {
-          policyid: policyId,
-          tokens: {
-            [actualScript.token_name]: -Math.abs(
-              parseInt(mintTokens.tokenAmount)
-            ),
+      mint_redeemer: 'Burn',
+      payload: {
+        wallet_id: walletID,
+        addresses: [],
+        metadata: [],
+        mint: {
+          asset: {
+            policyid: policyId,
+            tokens: {
+              [actualScript.token_name]: -Math.abs(
+                parseInt(mintTokens.tokenAmount)
+              ),
+            },
           },
+          redeemer: 0,
         },
-        redeemer: 0,
-      },
+
+      }
     };
     console.log(payload);
     const response = await fetch('/api/transactions/mint-tokens', {
@@ -141,6 +149,7 @@ export default function MintModal(props: MintModalProps) {
     const responseData = await response.json();
 
     if (responseData?.success) {
+      toast.success('Se han quemado los tokens exitosamente ...');
       handleOpenMintModal();
     } else {
       toast.error('Ha ocurrido un error, intenta nuevamente ...');

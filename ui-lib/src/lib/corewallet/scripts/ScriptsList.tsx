@@ -48,6 +48,9 @@ const ScriptsList = (props: AssesListProps) => {
               Script
             </th>
             <th scope="col" className="px-6 py-3">
+              Tipo contrato
+            </th>
+            <th scope="col" className="px-6 py-3">
               Nombre de Token
             </th>
             <th scope="col" className="px-6 py-3">
@@ -75,6 +78,7 @@ const ScriptsList = (props: AssesListProps) => {
                   projectID={script.productID}
                   scriptName={script.name}
                   pbk={script.pbk}
+                  script_type={script.script_type}
                   testnetAddr={script.testnetAddr}
                   tokenName={script.token_name}
                   handleOpenMintModal={handleOpenMintModal}

@@ -92,6 +92,7 @@ export default function CreateScriptModal(props: CreateScriptModalProps) {
         wallet_id: walletID,
         save_flag: newContract.saveFlag, // Opcional
         project_id: newContract.projectId, // Opcional
+        tokenName: newContract.tokenName, // Opcional
         parent_policy_id: responseData.data.id,
       };
 

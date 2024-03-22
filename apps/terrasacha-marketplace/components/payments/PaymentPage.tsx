@@ -172,47 +172,136 @@ export default function PaymentPage({}) {
     // Convert usd price to Ada price from the internal oracle
     const currencyToCryptoRate = await coingeckoPrices(crypto, base_currency);
     const adaPrice = parseFloat(projectInfo.tokenPrice) / currencyToCryptoRate;
-    // Traer script relacionado al proyecto
+    // Traer script relacionado al proyecto para consultar policyID
 
-    const payload = {
-      source_funds: 'inversionista',
-      payload: {
-        addresses: [
-          {
-            address: walletAddress,
-            lovelace: 0,
-            multiAsset: [
-              {
-                policyid:
-                  'd7a571edf7c40d7d8b0072b6db024aa043fc98ad4465454e80ef47f9',
-                tokens: {
-                  sandboxToken: parseInt(tokenAmount),
+    const mintProjectTokenContract = projectInfo.scripts.find(
+      (script: any) => script.script_type === 'mintProjectToken'
+    );
+
+    const spendContractFromMintProjectToken = projectInfo.scripts.find(
+      (script: any) => script.script_type === 'spend'
+    );
+
+    // Obtener cantidad de tokens disponibles en el contrato sent
+
+    const response = await fetch(
+      '/api/calls/backend/getWalletBalanceByAddress',
+      {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(spendContractFromMintProjectToken.testnetAddr),
+      }
+    );
+    const responseData = await response.json();
+
+    console.log('spendData', responseData);
+
+    const spentWalletData = responseData[0];
+
+    if (!spentWalletData) {
+      toast.error('Parece que un error ha ocurrido ...');
+    }
+
+    const availableTokensAmount = spentWalletData.assets.reduce(
+      (sum: number, item: any) => {
+        if (
+          item.asset_name === mintProjectTokenContract.token_name &&
+          item.policy_id === mintProjectTokenContract.id
+        ) {
+          return sum + parseInt(item.quantity);
+        }
+      },
+      0
+    );
+    
+    // const datumBeneficiary = ''
+    // for (let i = 0; i < spentWalletData.utxo_set.length; i++) {
+    //   const utxo = spentWalletData.utxo_set[i];
+      
+    //   if(utxo.asset_list) {
+    //     const availableTokensAmount = utxo.asset_list.reduce(
+    //       (sum: number, item: any) => {
+    //         if (
+    //           item.asset_name === mintProjectTokenContract.token_name &&
+    //           item.policy_id === mintProjectTokenContract.id
+    //         ) {
+    //           return sum + parseInt(item.quantity);
+    //         }
+    //       },
+    //       0
+    //     );
+
+    //   }
+    // }
+    console.log(
+      'spendContractFromMintProjectToken',
+      spendContractFromMintProjectToken
+    );
+    console.log('availableTokensAmount', availableTokensAmount);
+    if (spendContractFromMintProjectToken) {
+      // Evaluar si el valor de los adas que le llegan al beneficiario es mayor o igual del numero de tokens * precio
+      const payload = {
+        claim_redeemer: 'Buy',
+        payload: {
+          wallet_id: walletID,
+          spendPolicyId: spendContractFromMintProjectToken.id,
+          addresses: [
+            {
+              address:
+                'addr_test1qzttu3gj6vtz6e6j4p4pnmyw52x5j7kw47kce4hux9fv445khez395ck94n492r2r8kgag5df9avatad3nt0cv2jettqxfwfwv',
+              lovelace: parseInt(tokenAmount) * 203741, //Math.round(adaPrice * 1000000),
+              multiAsset: [],
+            },
+            {
+              address: spendContractFromMintProjectToken.testnetAddr,
+              lovelace: 0,
+              multiAsset: [
+                {
+                  policyid: mintProjectTokenContract.id,
+                  tokens: {
+                    [mintProjectTokenContract.token_name]:
+                      availableTokensAmount - parseInt(tokenAmount),
+                  },
                 },
+              ],
+              datum: {
+                beneficiary:
+                  '96be4512d3162d6752a86a19ec8ea28d497aceafad8cd6fc3152cad6',
+                price: 203741,
               },
-            ],
-          },
-          {
-            address:
-              'addr_test1qq0uh3hap3sqcj3cwlx2w3yq9vm4wclgp4x0y3wuyvapzdcle0r06rrqp39rsa7v5azgq2eh2a37sr2v7fzacge6zymsn0w2mg',
-            lovelace: parseInt(tokenAmount) * Math.round(adaPrice * 1000000),
-            multiAsset: [],
-          },
-        ],
-      },
-    };
-    console.log('BuildTx Payload: ', payload);
+            },
+            {
+              address: walletAddress,
+              lovelace: 0,
+              multiAsset: [
+                {
+                  policyid: mintProjectTokenContract.id,
+                  tokens: {
+                    [mintProjectTokenContract.token_name]:
+                      parseInt(tokenAmount),
+                  },
+                },
+              ],
+            },
+          ],
+        },
+      };
+      console.log('BuildTx Payload: ', payload);
 
-    const request = await fetch('/api/transactions/distribute-tx', {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-      },
-      body: JSON.stringify(payload),
-    });
-    const buildTxResponse = await request.json();
-    console.log('BuildTx Response: ', buildTxResponse);
+      const request = await fetch('/api/transactions/claim-tx', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(payload),
+      });
+      const buildTxResponse = await request.json();
+      console.log('BuildTx Response: ', buildTxResponse);
 
-    return buildTxResponse;
+      return buildTxResponse;
+    }
   };
 
   const handleCreateTransactionStep = async () => {

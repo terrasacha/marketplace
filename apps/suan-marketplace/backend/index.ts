@@ -528,6 +528,14 @@ export async function getProject(projectId: string) {
 
             }
           }
+          scripts {
+            items {
+              id
+              script_type
+              token_name
+              testnetAddr
+            }
+          }
         }
       }`,
     },

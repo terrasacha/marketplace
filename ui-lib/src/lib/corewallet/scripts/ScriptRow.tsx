@@ -9,12 +9,12 @@ interface ScriptRowProps {
   tokenName: string;
   policyId: string;
   projectID: string;
+  script_type: string;
   handleOpenMintModal: (policyId: string) => void;
   handleDistributeTokens: (policyId: string) => void;
   handleDeleteScript: (policyId: string) => void;
   // Agrega cualquier otra propiedad que tenga tu token
 }
-
 
 export default function ScriptRow(props: ScriptRowProps) {
   const {
@@ -24,6 +24,7 @@ export default function ScriptRow(props: ScriptRowProps) {
     testnetAddr,
     tokenName,
     policyId,
+    script_type,
     projectID,
     handleOpenMintModal,
     handleDistributeTokens,
@@ -116,6 +117,7 @@ export default function ScriptRow(props: ScriptRowProps) {
       <td scope="row" className="px-6 py-4 font-medium whitespace-nowrap">
         {scriptName}
       </td>
+      <td className="px-6 py-4">{script_type}</td>
       <td className="px-6 py-4">{tokenName}</td>
       <td className="px-6 py-4">{projectID}</td>
       <td className="px-6 py-4">{policyId}</td>

@@ -24,7 +24,7 @@ export default function Scripts(props: any) {
       },
     });
     const responseData = await request.json();
-    console.log(responseData);
+    console.log('scripts', responseData);
 
     setScripts(responseData);
   };
@@ -177,9 +177,23 @@ export default function Scripts(props: any) {
       buffer: 'addr_test1vqs34z4ljy3c6u3s97m64zqz7f0ks6vtre2dcpl5um8wz2qgaxq8z',
       comunidad:
         'addr_test1vqvx6mm487nkkpavyf7sqflgavutajq8veer5wmy0nwlgyg27rsqk',
-      inversionista:
-        'addr_test1qq0uh3hap3sqcj3cwlx2w3yq9vm4wclgp4x0y3wuyvapzdcle0r06rrqp39rsa7v5azgq2eh2a37sr2v7fzacge6zymsn0w2mg',
+      // inversionista:
+      //   'addr_test1qq0uh3hap3sqcj3cwlx2w3yq9vm4wclgp4x0y3wuyvapzdcle0r06rrqp39rsa7v5azgq2eh2a37sr2v7fzacge6zymsn0w2mg',
     };
+
+    // Obtener address de inversionista del spend
+
+    const spendFromActualScript = scripts.find(
+      (script: any) =>
+        script.productID === actualScript.productID &&
+        script.script_type === 'spend'
+    );
+
+    if (spendFromActualScript) {
+      mapStakeHolders.inversionista = spendFromActualScript.testnetAddr;
+    }
+
+    console.log('spendFromActualScript', spendFromActualScript);
 
     const administradorId =
       '96be4512d3162d6752a86a19ec8ea28d497aceafad8cd6fc3152cad6';
@@ -266,16 +280,18 @@ export default function Scripts(props: any) {
     }
 
     const payload = {
-      wallet_id: walletID,
-      addresses: addresses,
-      mint: {
-        asset: {
-          policyid: actualScript.id,
-          tokens: {
-            [actualScript.token_name]: tokenToDistributeSum,
+      mint_redeemer: 'Mint',
+      payload: {
+        wallet_id: walletID,
+        addresses: addresses,
+        mint: {
+          asset: {
+            policyid: actualScript.id,
+            tokens: {
+              [actualScript.token_name]: tokenToDistributeSum,
+            },
           },
         },
-        redeemer: 0,
       },
     };
 
@@ -289,28 +305,28 @@ export default function Scripts(props: any) {
     });
     const responseData = await response.json();
 
-    // if (responseData?.success) {
-    //   toast.success('Tokens enviados ...');
+    if (responseData?.success) {
+      toast.success('Tokens enviados ...');
 
-    //   // Actualizar un campo en tabla dynamo que indique que los tokens del proyecto han sido reclamados por el propietario o no
-    //   // Actualizar campo token genesis
+      // Actualizar un campo en tabla dynamo que indique que los tokens del proyecto han sido reclamados por el propietario o no
+      // Actualizar campo token genesis
 
-    //   const payload = {
-    //     id: actualScript.productID,
-    //     tokenClaimedByOwner: ownerWallet ? true : false,
-    //     tokenGenesis: true,
-    //   };
+      const payload = {
+        id: actualScript.productID,
+        tokenClaimedByOwner: ownerWallet ? true : false,
+        tokenGenesis: true,
+      };
 
-    //   await fetch('/api/calls/backend/updateProduct', {
-    //     method: 'POST',
-    //     headers: {
-    //       'Content-Type': 'application/json',
-    //     },
-    //     body: JSON.stringify(payload),
-    //   });
-    // } else {
-    //   toast.error('Ha ocurrido un error, intenta nuevamente ...');
-    // }
+      await fetch('/api/calls/backend/updateProduct', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(payload),
+      });
+    } else {
+      toast.error('Ha ocurrido un error, intenta nuevamente ...');
+    }
   };
 
   return (

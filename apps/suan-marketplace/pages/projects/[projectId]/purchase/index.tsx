@@ -68,6 +68,7 @@ const PurchasePage: MyPage = (props: any) => {
         tokenPrice: actualPeriod?.price,
         availableAmount: tokenUnits,
         categoryID: project.categoryID,
+        scripts: project.scripts.items,
         createdAt: new Date(project.createdAt).toLocaleDateString('es-ES'),
       };
       handleProjectInfo(projectInfo);
