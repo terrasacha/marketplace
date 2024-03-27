@@ -75,13 +75,6 @@ export default function StackBarGraphComponent(props: any) {
     datasets,
   };
 
-  // Agregar 7 valores aleatorios adicionales entre 0 y 1000 a cada conjunto de datos
-  for (let i = 0; i < 3; i++) {
-    for (let j = 0; j < 7; j++) {
-      data.datasets[i].data.push(Math.floor(Math.random() * 1001));
-    }
-  }
-
   return (
     <Card className="h-fit !bg-custom-dark-hover text-white">
       <Card.Header title={`Distribución de tokens`} />
