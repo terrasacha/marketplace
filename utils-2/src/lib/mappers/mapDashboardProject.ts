@@ -80,7 +80,24 @@ const calculateActualTokenPrice = (actualPrice : number, currency : string, rate
     } 
     return actualPrice.toFixed(2)
 }
+const infoDistributionTokens = (data : any, historicalData : any) => {
+    const parseData = JSON.parse(data)
+    const parseHistoricalData = JSON.parse(historicalData)
+    const totalDistribution = parseData.reduce((acc : number, item : any) => acc + parseInt(item.CANTIDAD), 0);
+    const percentages = parseData.map((item : any )=> {
+        const percentages = (item.CANTIDAD / totalDistribution) * 100;
+        return {...item, PORCENTAJE: percentages};
+    });
+    const tokensPerPeriod = percentages.map((percentage: any) =>{
+        let cantPerPeriod =  parseHistoricalData.map((item: any) => {
+            return {period: item.period, amount: Math.floor(item.amount * (percentage.PORCENTAJE / 100))}
+        })
+        return {CONCEPTO: percentage.CONCEPTO ,periods: cantPerPeriod}
+    })
 
+
+    return tokensPerPeriod
+}
 const getTokensInversionst = (pfs : Array<any>) => {
     const pfDistribution = pfs.filter((item : any) => {
         return item.featureID === 'GLOBAL_TOKEN_AMOUNT_DISTRIBUTION'
@@ -103,6 +120,7 @@ const getRates = async() =>{
 export async function mapDashboardProject( project: any, projectData: any, projectId: string, walletData: any) {
     
     const rates = await getRates()
+    const projectTokenDistribution = project.productFeatures.items.filter( ( pf : any) => pf.featureID === 'GLOBAL_TOKEN_AMOUNT_DISTRIBUTION')[0].value
     const projectMunicipio = project.productFeatures.items.filter( (pf : any) => pf.featureID === 'A_municipio')[0].value
     const projectVereda = project.productFeatures.items.filter( (pf : any) => pf.featureID === 'A_vereda')[0].value
     const projectPeriod = project.productFeatures.items.filter( ( pf : any) => pf.featureID === 'GLOBAL_TOKEN_HISTORICAL_DATA')[0].value
@@ -206,7 +224,8 @@ export async function mapDashboardProject( project: any, projectData: any, proje
         totalAmountOfTokens,
         tokenCurrency: tokenCurrency,
     };
-    
+    const stackData = infoDistributionTokens(projectTokenDistribution, projectPeriod)
+    console.log(stackData,'projectTokenDistribution')
     const projectDuration = formatProjectDuration(projectData.projectInfo.token.lifeTimeProject)
     const actualTokenPriceUSD = calculateActualTokenPrice(projectData.projectInfo.token.actualPeriodTokenPrice,relevantInfo.tokenCurrency, rates)
     const tokenDeltaPrice = await calculateDeltaPrice(actualProfit, totalTokens, relevantInfo.tokenCurrency, rates)
@@ -225,7 +244,8 @@ export async function mapDashboardProject( project: any, projectData: any, proje
         projectDuration,
         actualProfit,
         actualProfitPercentage,
-        lineChartData
+        lineChartData,
+        stackData
     }
 
 

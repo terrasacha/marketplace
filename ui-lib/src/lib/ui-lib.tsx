@@ -45,6 +45,7 @@ import RestoreWalletContext from './store/restore-wallet-context';
 import PieChartCustom from './common/charts/PieChartCustom';
 import LineChartComponent from './graphs/LineChartComponent';
 import BarGraphComponent from './graphs/BarGraphComponent';
+import StackBarGraphComponent from './graphs/StackBarGraphComponent';
 import SankeyGraphComponent from './graphs/SankeyGraphComponent';
 import PieChartComponent from './graphs/PieChartComponent';
 import { RestoreWalletProvider } from './store/restore-wallet-context';
@@ -115,6 +116,7 @@ export {
   BarGraphComponent,
   SankeyGraphComponent,
   PieChartComponent,
+  StackBarGraphComponent,
   LoadingOverlay,
   CopyToClipboard,
   ExternalLink,

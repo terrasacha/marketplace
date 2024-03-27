@@ -8,7 +8,7 @@ import { WalletContext } from '@marketplaces/utils-2';
 import { mapDashboardProject } from '@marketplaces/utils-2';
 import ActualUseAndPotentialInfoCard from './ActualUseAndPotentialInfoCard';
 import BlockChainPieChart from './BlockChainPieChart';
-
+import { StackBarGraphComponent } from '../../ui-lib';
 export default function DashboardProject(props: any) {
   const { walletData } = useContext<any>(WalletContext);
   const { project, projectData, projectId } = props;
@@ -170,6 +170,11 @@ export default function DashboardProject(props: any) {
         <div className="lg:col-span-3">
           <BlockChainPieChart project={project} />
         </div>
+      </div>
+      <div className="mt-4">
+        {dashboardProjectData.stackData && (
+          <StackBarGraphComponent stackData={dashboardProjectData.stackData} />
+        )}
       </div>
     </div>
   );

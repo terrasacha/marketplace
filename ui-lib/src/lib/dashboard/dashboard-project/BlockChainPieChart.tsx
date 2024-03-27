@@ -53,6 +53,14 @@ export default function BlockChainPieChart({
     '#FF6600',
     '#8A2BE2',
   ];
+  const backgrounds = [
+    'rgb(255, 99, 132)',
+    'rgb(75, 192, 192)',
+    'rgb(53, 162, 235)',
+    'rgb(255, 205, 86)',
+    'rgb(255, 159, 64)',
+    'rgb(153, 102, 255)',
+  ];
 
   useEffect(() => {
     const globalTokenTotalAmount = getGlobalTokenTotalAmount(project);
@@ -102,26 +110,20 @@ export default function BlockChainPieChart({
         label: 'Tokens repartidos',
         data: newChartData.map((item: any) => item.value),
         backgroundColor: [
-          'rgba(217, 119, 6, 0.9)',
-          'rgba(251, 191, 36, 0.9)',
-          'rgba(245, 158, 11, 0.9)',
-          'rgba(180, 83 ,9, 0.9)',
-          'rgba(146, 64 ,14, 0.9)',
-          'rgba(255, 251, 235, 0.9)',
-          'rgba(254, 243, 199, 0.9)',
-          'rgba(253, 230, 138, 0.9)',
-          'rgba(252, 211, 77, 0.9)',
+          'rgba(255, 99, 132, 0.9)',
+          'rgba(75, 192, 192, 0.9)',
+          'rgba(53, 162, 235, 0.9)',
+          'rgba(255, 205, 86, 0.9)',
+          'rgba(255, 159, 64, 0.9)',
+          'rgba(153, 102, 255, 0.9)',
         ],
         borderColor: [
-          'rgba(217, 119, 6, 1)',
-          'rgba(251, 191, 36, 1)',
-          'rgba(245, 158, 11, 1)',
-          'rgba(180, 83 ,9, 1)',
-          'rgba(146, 64 ,14, 1)',
-          'rgba(255, 251, 235, 1)',
-          'rgba(254, 243, 199, 1)',
-          'rgba(253, 230, 138, 1)',
-          'rgba(252, 211, 77, 1)',
+          'rgba(255, 99, 132, 1)',
+          'rgba(75, 192, 192, 1)',
+          'rgba(53, 162, 235, 1)',
+          'rgba(255, 205, 86, 1)',
+          'rgba(255, 159, 64, 1)',
+          'rgba(153, 102, 255, 1)',
         ],
         borderWidth: 1,
       },
