@@ -15,6 +15,14 @@ export const getProduct = /* GraphQL */ `
           id
         }
       }
+      scripts {
+        items {
+          id
+          script_type
+          token_name
+          testnetAddr
+        }
+      }
       userProducts {
         items {
           user {
@@ -202,7 +210,6 @@ export const getUser = /* GraphQL */ `
     }
   }
 `;
-
 
 export const getUserProjects = /* GraphQL */ `
   query GetUser($id: ID!) {

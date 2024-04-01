@@ -1,4 +1,4 @@
-import { createContext, useMemo, useState } from "react";
+import { createContext, useMemo, useState } from 'react';
 
 const ProjectInfoContext = createContext({});
 
@@ -11,6 +11,7 @@ export interface ProjectInfoInterface {
   tokenCurrency: string;
   tokenPrice: string;
   availableAmount: string;
+  scripts: Array<any>;
   createdAt: string;
   categoryID: string;
 }
@@ -21,25 +22,28 @@ export function ProjectInfoContextProvider({
   children: React.ReactNode;
 }) {
   const [projectInfo, setProjectInfo] = useState<ProjectInfoInterface>({
-    projectID: "",
-    projectDescription: "",
-    projectName: "",
+    projectID: '',
+    projectDescription: '',
+    projectName: '',
     projectFeatures: [],
-    tokenName: "",
-    tokenCurrency: "",
-    tokenPrice: "",
-    availableAmount: "",
-    createdAt: "",
-    categoryID: ""
+    tokenName: '',
+    tokenCurrency: '',
+    tokenPrice: '',
+    availableAmount: '',
+    scripts: [],
+    createdAt: '',
+    categoryID: '',
   });
 
   const handleProjectInfo = async (data: ProjectInfoInterface) => {
-    setProjectInfo(data);
+    setProjectInfo((prevData) => {
+      return {
+        ...prevData,
+        ...data,
+      };
+    });
   };
-  const contextProps = useMemo(
-    () => ({ projectInfo, handleProjectInfo }),
-    [projectInfo]
-  );
+  const contextProps = { projectInfo, handleProjectInfo };
 
   return (
     <ProjectInfoContext.Provider value={contextProps}>

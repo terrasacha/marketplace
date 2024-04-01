@@ -29,6 +29,69 @@ const Product: MyPage = (props: any) => {
   const projectData = props.projectData;
   const imageData = props.image;
 
+  const [availableTokenAmount, setAvailableTokenAmount] = useState<
+    number | null
+  >(null);
+  
+  useEffect(() => {
+    const getAvailableTokens = async (
+      spendContractAddress: string,
+      tokenName: string,
+      tokenContractId: string
+    ) => {
+      const response = await fetch(
+        '/api/calls/backend/getWalletBalanceByAddress',
+        {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify(spendContractAddress),
+        }
+      );
+      const responseData = await response.json();
+
+      console.log('spendData', responseData);
+
+      const spentWalletData = responseData[0];
+
+      if (!spentWalletData) {
+        console.log('Parece que un error ha ocurrido ...');
+      }
+
+      const investorProjectTokensAmount = spentWalletData.assets.reduce(
+        (sum: number, item: any) => {
+          if (
+            item.asset_name === tokenName &&
+            item.policy_id === tokenContractId
+          ) {
+            return sum + parseInt(item.quantity);
+          }
+        },
+        0
+      );
+      setAvailableTokenAmount(investorProjectTokensAmount);
+      return investorProjectTokensAmount;
+    };
+
+    // Obtener del endpoint de luis la cantidad de tokens disponibles para comprar
+    const mintProjectTokenContract = project.scripts.items.find(
+      (script: any) => script.script_type === 'mintProjectToken'
+    );
+
+    const spendContractFromMintProjectToken = project.scripts.items.find(
+      (script: any) => script.script_type === 'spend'
+    );
+
+    if (mintProjectTokenContract && spendContractFromMintProjectToken) {
+      getAvailableTokens(
+        spendContractFromMintProjectToken.testnetAddr,
+        mintProjectTokenContract.token_name,
+        mintProjectTokenContract.id
+      );
+    }
+  }, []);
+
   // useEffect(() => {
   //   async function updatePredialData() {
   //     const cadastralNumbersArray =
@@ -96,6 +159,9 @@ const Product: MyPage = (props: any) => {
 
   const tokenUnits: number = totalProjectTokens - parseInt(totalTokensSold);
 
+  // const tokenUnits: number =
+  //   parseInt(actualPeriod?.amount) - parseInt(totalTokensSold);
+
   const coordString: string =
     project.productFeatures.items.filter((item: any) => {
       return item.featureID === 'C_ubicacion';
@@ -121,7 +187,7 @@ const Product: MyPage = (props: any) => {
     tokenName: tokenName,
     totalTokensFromFirstToActualPeriod: totalTokensFromFirstToActualPeriod,
     tokenTotal: actualPeriod?.amount,
-    tokenUnits: tokenUnits,
+    tokenUnits: availableTokenAmount,
     porcentageBuyed: porcentageBuyed,
     createdAt: createdAt.toLocaleDateString('es-ES'),
     updatedAt: updatedAt.toLocaleDateString('es-ES'),

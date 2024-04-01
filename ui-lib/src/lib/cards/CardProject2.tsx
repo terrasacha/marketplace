@@ -33,10 +33,94 @@ const projectStatusMapper: any = {
 export default function CardProject(props: any) {
   const { project } = props;
 
-  const [productFeatures, setProductFeatures] = useState<ProductFeature[]>([]);
+  const [availableTokenAmount, setAvailableTokenAmount] = useState<
+    number | null
+  >(null);
+
   useEffect(() => {
-    setProductFeatures(project.productFeatures.items);
+    const getAvailableTokens = async (
+      spendContractAddress: string,
+      tokenName: string,
+      tokenContractId: string
+    ) => {
+      const response = await fetch(
+        '/api/calls/backend/getWalletBalanceByAddress',
+        {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify(spendContractAddress),
+        }
+      );
+      const responseData = await response.json();
+
+      console.log('spendData', responseData);
+
+      const spentWalletData = responseData[0];
+
+      if (!spentWalletData) {
+        console.log('Parece que un error ha ocurrido ...');
+      }
+
+      const investorProjectTokensAmount = spentWalletData.assets.reduce(
+        (sum: number, item: any) => {
+          if (
+            item.asset_name === tokenName &&
+            item.policy_id === tokenContractId
+          ) {
+            return sum + parseInt(item.quantity);
+          }
+        },
+        0
+      );
+      setAvailableTokenAmount(investorProjectTokensAmount);
+      return investorProjectTokensAmount;
+    };
+
+    // Obtener del endpoint de luis la cantidad de tokens disponibles para comprar
+    const mintProjectTokenContract = project.scripts.items.find(
+      (script: any) => script.script_type === 'mintProjectToken'
+    );
+
+    const spendContractFromMintProjectToken = project.scripts.items.find(
+      (script: any) => script.script_type === 'spend'
+    );
+
+    if (mintProjectTokenContract && spendContractFromMintProjectToken) {
+      getAvailableTokens(
+        spendContractFromMintProjectToken.testnetAddr,
+        mintProjectTokenContract.token_name,
+        mintProjectTokenContract.id
+      );
+    }
   }, []);
+
+  // const getInvestorTokensDistributed = (projectData: any) => {
+  //   const productFeatures = projectData.productFeatures.items;
+  //   if (productFeatures) {
+  //     const tokenAmountDistribution = JSON.parse(
+  //       productFeatures.filter((item: any) => {
+  //         return item.featureID === 'GLOBAL_TOKEN_AMOUNT_DISTRIBUTION';
+  //       })[0]?.value || '{}'
+  //     );
+
+  //     const ownerAmountOfTokens = parseInt(
+  //       tokenAmountDistribution.find(
+  //         (stakeHolderDis: any) =>
+  //           stakeHolderDis.CONCEPTO.toLowerCase() === 'inversionista'
+  //       )?.CANTIDAD
+  //     );
+
+  //     return ownerAmountOfTokens;
+  //   } else {
+  //     return false;
+  //   }
+  // };
+
+  // const investorTokenDistribution = getInvestorTokensDistributed(project);
+
+  console.log('project', project);
 
   const tokenHistoricalData = JSON.parse(
     project.productFeatures.items.filter((item: any) => {
@@ -57,27 +141,27 @@ export default function CardProject(props: any) {
     };
   });
   const actualPeriod: any = getActualPeriod(Date.now(), periods);
-  const totalProjectTokens = periods.reduce(
-    (sum: number, item: any) => sum + parseInt(item.amount),
-    0
-  );
-  const totalTokensSold = project.transactions.items.reduce(
-    (acc: any, item: any) => {
-      return acc + item.amountOfTokens;
-    },
-    0
-  );
+  // const totalProjectTokens = periods.reduce(
+  //   (sum: number, item: any) => sum + parseInt(item.amount),
+  //   0
+  // );
+  // const totalTokensSold = project.transactions.items.reduce(
+  //   (acc: any, item: any) => {
+  //     return acc + item.amountOfTokens;
+  //   },
+  //   0
+  // );
 
-  const totalTokensFromFirstToActualPeriod: number = tokenHistoricalData.reduce(
-    (acc: any, hd: any) => {
-      if (parseInt(hd.period) <= parseInt(actualPeriod.period)) {
-        return acc + hd.amount;
-      } else {
-        return acc;
-      }
-    },
-    0
-  );
+  // const totalTokensFromFirstToActualPeriod: number = tokenHistoricalData.reduce(
+  //   (acc: any, hd: any) => {
+  //     if (parseInt(hd.period) <= parseInt(actualPeriod.period)) {
+  //       return acc + hd.amount;
+  //     } else {
+  //       return acc;
+  //     }
+  //   },
+  //   0
+  // );
 
   let relevantInfo = {
     name: project.name
@@ -90,7 +174,7 @@ export default function CardProject(props: any) {
       .replace(/(?:^|\s)\S/g, (char: string) => char.toUpperCase()),
     encodedCategory: encodeURIComponent(project.categoryID),
     tokenTotal: parseInt(actualPeriod?.amount),
-    tokenUnits: totalProjectTokens - parseInt(totalTokensSold),
+    tokenUnits: availableTokenAmount,
     tokenValue: actualPeriod?.price,
     tokenCurrency: tokenCurrency,
   };
@@ -151,7 +235,7 @@ export default function CardProject(props: any) {
               <span className="font-semibold">
                 {relevantInfo.tokenUnits
                   ? `${relevantInfo.tokenUnits.toLocaleString('es-CO')} `
-                  : '0'}
+                  : '...'}
               </span>
             </p>
           </div>

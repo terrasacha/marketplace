@@ -256,6 +256,7 @@ export async function getProjects() {
               }
               name
               status
+              tokenGenesis
               updatedAt
               createdAt
               images {
@@ -273,6 +274,14 @@ export async function getProjects() {
                 items {
                   id
                   amountOfTokens
+                }
+              }
+              scripts {
+                items {
+                  id
+                  script_type
+                  token_name
+                  testnetAddr
                 }
               }
               productFeatures {
@@ -356,7 +365,7 @@ export async function getProjects() {
             ) {
               return count + 1;
             }
-            // Condicion 6: Postulante ha aceptado las condiciones
+            // Condicion 6: Postulante ha ingresado
             if (pf.featureID === 'C_ubicacion') {
               return count + 1;
             }
@@ -387,6 +396,17 @@ export async function getProjects() {
         (projectFile: any) => projectFile.isApproved === true
       );
       if (documents.length === approvedDocuments.length) return true;
+    });
+
+    // Condicion 8: Genesis del token requerido
+
+    validProducts = validProducts.filter((product: any) => {
+      const hasTokenGenesis = product.tokenGenesis;
+      if (hasTokenGenesis) {
+        return true;
+      } else {
+        return false;
+      }
     });
 
     return validProducts;
@@ -575,6 +595,14 @@ export async function getProject(projectId: string) {
           timeOnVerification
           projectReadiness
           categoryID
+          scripts {
+            items {
+              id
+              script_type
+              token_name
+              testnetAddr
+            }
+          }
           userProducts {
             items {
               user {

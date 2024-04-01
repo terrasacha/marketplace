@@ -16,7 +16,7 @@ export function TokenDetailSection({
   tokenName: string;
   tokenCurrency: string;
   creationDate: string;
-  availableAmount: string;
+  availableAmount: number | null;
   tokenPrice: string;
   tokenImageUrl: string;
 }) {
@@ -43,7 +43,8 @@ export function TokenDetailSection({
             <div className="flex justify-between">
               <span>Cantidad disponible</span>
               <span className="text-end">
-                {parseFloat(availableAmount).toLocaleString('es-CO')} Tokens
+                {parseFloat(String(availableAmount)).toLocaleString('es-CO')}{' '}
+                Tokens
               </span>
             </div>
             <div className="flex justify-between">

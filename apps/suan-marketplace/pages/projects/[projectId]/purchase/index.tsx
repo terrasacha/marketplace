@@ -1,10 +1,10 @@
-import React, { useEffect, useContext } from 'react';
-import { getImagesCategories, getProject } from '@suan//backend';
+import React, { useEffect, useContext, useState } from 'react';
 import PaymentPage from '@suan//components/payments/PaymentPage';
 import ProjectInfoContext from '@suan//store/projectinfo-context';
 import { MyPage } from '@suan//components/common/types';
 import { getActualPeriod } from '@suan//utils/generic/getActualPeriod';
 import { PageHeader } from '@marketplaces/ui-lib';
+import { getImagesCategories, getProject } from '@marketplaces/data-access';
 
 const PurchasePage: MyPage = (props: any) => {
   const { project, image } = props;
@@ -13,6 +13,7 @@ const PurchasePage: MyPage = (props: any) => {
 
   useEffect(() => {
     if (typeof project === 'object') {
+      console.log( "ACAAAAAA")
       const tokenName: string =
         project.productFeatures.items.filter((item: any) => {
           return item.featureID === 'GLOBAL_TOKEN_NAME';
@@ -47,16 +48,18 @@ const PurchasePage: MyPage = (props: any) => {
         0
       );
 
-      const totalTokensFromFirstToActualPeriod: number =
-        tokenHistoricalData.reduce((acc: any, hd: any) => {
-          if (parseInt(hd.period) <= parseInt(actualPeriod.period)) {
-            return acc + hd.amount;
-          } else {
-            return acc;
-          }
-        }, 0);
+      // const totalTokensFromFirstToActualPeriod: number =
+      //   tokenHistoricalData.reduce((acc: any, hd: any) => {
+      //     if (parseInt(hd.period) <= parseInt(actualPeriod.period)) {
+      //       return acc + hd.amount;
+      //     } else {
+      //       return acc;
+      //     }
+      //   }, 0);
 
-      const tokenUnits: number = totalProjectTokens - parseInt(totalTokensSold);
+      // const tokenUnits: number = totalProjectTokens - parseInt(totalTokensSold);
+
+      console.log('project ACAA', project)
 
       const projectInfo = {
         projectID: project.id,
@@ -66,7 +69,6 @@ const PurchasePage: MyPage = (props: any) => {
         tokenName: tokenName,
         tokenCurrency: tokenCurrency,
         tokenPrice: actualPeriod?.price,
-        availableAmount: tokenUnits,
         categoryID: project.categoryID,
         scripts: project.scripts.items,
         createdAt: new Date(project.createdAt).toLocaleDateString('es-ES'),

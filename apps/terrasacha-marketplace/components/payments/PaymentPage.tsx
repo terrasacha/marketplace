@@ -60,6 +60,9 @@ export default function PaymentPage({}) {
   const [newTransactionBuild, setNewTransactionBuild] = useState<any>(null);
   const [signTransactionModal, setSignTransactionModal] = useState(false);
   const [exchangeRate, setExchangeRate] = useState<number>(0);
+  const [availableTokenAmount, setAvailableTokenAmount] = useState<
+    number | null
+  >(null);
 
   const [alertMessage, setAlertMessage] = useState<{
     type: string;
@@ -101,6 +104,66 @@ export default function PaymentPage({}) {
     }
   }, [alertMessage]);
 
+  const getAvailableTokens = async (
+    spendContractAddress: string,
+    tokenName: string,
+    tokenContractId: string
+  ) => {
+    const response = await fetch(
+      '/api/calls/backend/getWalletBalanceByAddress',
+      {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(spendContractAddress),
+      }
+    );
+    const responseData = await response.json();
+
+    console.log('spendData', responseData);
+
+    const spentWalletData = responseData[0];
+
+    if (!spentWalletData) {
+      toast.error('Parece que un error ha ocurrido ...');
+    }
+
+    const availableTokensAmount = spentWalletData.assets.reduce(
+      (sum: number, item: any) => {
+        if (
+          item.asset_name === tokenName &&
+          item.policy_id === tokenContractId
+        ) {
+          return sum + parseInt(item.quantity);
+        }
+      },
+      0
+    );
+    console.log('availableTokensAmount', availableTokensAmount)
+    setAvailableTokenAmount(availableTokensAmount);
+    return availableTokensAmount;
+  };
+
+  useEffect(() => {
+    // Obtener del endpoint de luis la cantidad de tokens disponibles para comprar
+    const mintProjectTokenContract = projectInfo.scripts.find(
+      (script: any) => script.script_type === 'mintProjectToken'
+    );
+
+    const spendContractFromMintProjectToken = projectInfo.scripts.find(
+      (script: any) => script.script_type === 'spend'
+    );
+
+    if (mintProjectTokenContract && spendContractFromMintProjectToken) {
+      getAvailableTokens(
+        spendContractFromMintProjectToken.testnetAddr,
+        mintProjectTokenContract.token_name,
+        mintProjectTokenContract.id
+      );
+    }
+  }, [projectInfo]);
+
   useEffect(() => {
     async function getCoingeckoPrices() {
       try {
@@ -123,7 +186,11 @@ export default function PaymentPage({}) {
 
   const validateConditions = () => {
     console.log(walletData.balance);
-    if (projectInfo.availableAmount < tokenAmount) {
+    if (!availableTokenAmount) {
+      toast.error('Parece que ha ocurrido un error ...');
+      return false;
+    }
+    if (availableTokenAmount < parseInt(tokenAmount)) {
       setValidationError(
         <>
           <span className="font-medium">Oops!</span> la cantidad de tokens que
@@ -184,42 +251,16 @@ export default function PaymentPage({}) {
 
     // Obtener cantidad de tokens disponibles en el contrato sent
 
-    const response = await fetch(
-      '/api/calls/backend/getWalletBalanceByAddress',
-      {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify(spendContractFromMintProjectToken.testnetAddr),
-      }
+    const availableTokensAmount = await getAvailableTokens(
+      spendContractFromMintProjectToken.testnetAddr,
+      mintProjectTokenContract.token_name,
+      mintProjectTokenContract.id
     );
-    const responseData = await response.json();
 
-    console.log('spendData', responseData);
-
-    const spentWalletData = responseData[0];
-
-    if (!spentWalletData) {
-      toast.error('Parece que un error ha ocurrido ...');
-    }
-
-    const availableTokensAmount = spentWalletData.assets.reduce(
-      (sum: number, item: any) => {
-        if (
-          item.asset_name === mintProjectTokenContract.token_name &&
-          item.policy_id === mintProjectTokenContract.id
-        ) {
-          return sum + parseInt(item.quantity);
-        }
-      },
-      0
-    );
-    
     // const datumBeneficiary = ''
     // for (let i = 0; i < spentWalletData.utxo_set.length; i++) {
     //   const utxo = spentWalletData.utxo_set[i];
-      
+
     //   if(utxo.asset_list) {
     //     const availableTokensAmount = utxo.asset_list.reduce(
     //       (sum: number, item: any) => {
@@ -624,7 +665,7 @@ export default function PaymentPage({}) {
                   tokenName={projectInfo.tokenName}
                   tokenCurrency={projectInfo.tokenCurrency}
                   creationDate={projectInfo.createdAt}
-                  availableAmount={projectInfo.availableAmount}
+                  availableAmount={availableTokenAmount}
                   tokenPrice={projectInfo.tokenPrice}
                   tokenImageUrl={tokenImageUrl}
                 />
