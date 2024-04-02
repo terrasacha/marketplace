@@ -77,9 +77,12 @@ export default function StackBarGraphComponent(props: any) {
 
   return (
     <Card className="h-fit !bg-custom-dark-hover text-white">
-      <Card.Header title={`Distribución de tokens`} />
+      <Card.Header
+        title={`Cashout table`}
+        subtitle={`Al finalizar cada periodo la siguiente cantidad de tokens por podrán ser intercambiados por SUANCO2`}
+      />
       <Card.Body>
-        <Bar options={options} data={data} />;
+        <Bar options={options} data={data} />
       </Card.Body>
     </Card>
   );

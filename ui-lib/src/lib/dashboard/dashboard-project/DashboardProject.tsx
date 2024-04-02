@@ -159,22 +159,23 @@ export default function DashboardProject(props: any) {
           </div>
         ))}
       </div>
-      <div className="grid grid-cols-1 lg:grid-cols-9 2xl:grid-cols-9 gap-6 mt-4">
-        <div className="lg:col-span-6">
-          <ActualUseAndPotentialInfoCard
-            actualUse={projectData.projectUses.actualUse}
-            replaceUse={projectData.projectUses.replaceUse}
-          />
+      <div className="grid grid-cols-1 grid-rows-1 lg:grid-cols-9 2xl:grid-cols-9 2xl:grid-rows-2 lg:grid-rows-2 gap-6 mt-4">
+        <div className="lg:col-span-6 lg:row-span-2">
+          {dashboardProjectData.stackData && (
+            <StackBarGraphComponent
+              stackData={dashboardProjectData.stackData}
+            />
+          )}
         </div>
-
-        <div className="lg:col-span-3">
+        <div className="lg:col-span-3 lg:row-span-2">
           <BlockChainPieChart project={project} />
         </div>
       </div>
       <div className="mt-4">
-        {dashboardProjectData.stackData && (
-          <StackBarGraphComponent stackData={dashboardProjectData.stackData} />
-        )}
+        <ActualUseAndPotentialInfoCard
+          actualUse={projectData.projectUses.actualUse}
+          replaceUse={projectData.projectUses.replaceUse}
+        />
       </div>
     </div>
   );

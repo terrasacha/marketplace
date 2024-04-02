@@ -142,7 +142,7 @@ export default function BlockChainPieChart({
   };
 
   return (
-    <Card className="h-fit !bg-custom-dark-hover text-white">
+    <Card className="h-full !bg-custom-dark-hover text-white">
       <Card.Header title={`Distribución de tokens`} />
       <Card.Body>
         <Pie data={data} options={options} />
