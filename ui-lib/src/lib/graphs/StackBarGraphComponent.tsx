@@ -78,8 +78,8 @@ export default function StackBarGraphComponent(props: any) {
   return (
     <Card className="h-fit !bg-custom-dark-hover text-white">
       <Card.Header
-        title={`Cashout table`}
-        subtitle={`Al finalizar cada periodo la siguiente cantidad de tokens por podrán ser intercambiados por SUANCO2`}
+        title={`Tabla de redención`}
+        subtitle={`Al finalizar cada periodo la siguiente cantidad de tokens podrán ser intercambiados por SUANCO2`}
       />
       <Card.Body>
         <Bar options={options} data={data} />
