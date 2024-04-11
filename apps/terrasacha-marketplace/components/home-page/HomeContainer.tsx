@@ -22,9 +22,7 @@ export default function HomeContainer(props: { projects: any[]; env: any }) {
   //   ...project,
   //   price: getTokenPrice(project),
   // }));
-  useEffect(() => {
-    console.log('ESTE ES EL NOMBRE DE LA BRANCH', process.env.NODE_ENV);
-  }, []);
+
   const defaultSelectedCategories: string[] = [];
   const defaultSelectedYears: string[] = [];
   const defaultSelectedPriceRange: [number, number] = [0, 1000];
