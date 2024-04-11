@@ -23,7 +23,10 @@ export default function HomeContainer(props: { projects: any[]; env: any }) {
   //   price: getTokenPrice(project),
   // }));
   useEffect(() => {
-    console.log('ESTE ES EL NOMBRE DE LA BRANCH', process.env.NODE_ENV);
+    console.log(
+      'ESTE ES EL NOMBRE DE LA BRANCH',
+      process.env.NEXT_PUBLIC_USER_BRANCH
+    );
   }, []);
   const defaultSelectedCategories: string[] = [];
   const defaultSelectedYears: string[] = [];
