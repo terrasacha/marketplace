@@ -1,6 +1,6 @@
 {
   "auth": {
-    "kiosuanwalletnjsapp0c07f185": {
+    "suanmarketplacebcdf233d": {
       "customAuth": false,
       "dependsOn": [],
       "providerPlugin": "awscloudformation",
@@ -9,91 +9,35 @@
     }
   },
   "parameters": {
-    "AMPLIFY_auth_kiosuanwalletnjsapp0c07f185_allowUnauthenticatedIdentities": {
+    "AMPLIFY_auth_suanmarketplacebcdf233d_nativeClientId": {
       "usedBy": [
         {
           "category": "auth",
-          "resourceName": "kiosuanwalletnjsapp0c07f185"
+          "resourceName": "suanmarketplacebcdf233d"
         }
       ]
     },
-    "AMPLIFY_auth_kiosuanwalletnjsapp0c07f185_authRoleArn": {
+    "AMPLIFY_auth_suanmarketplacebcdf233d_userPoolId": {
       "usedBy": [
         {
           "category": "auth",
-          "resourceName": "kiosuanwalletnjsapp0c07f185"
+          "resourceName": "suanmarketplacebcdf233d"
         }
       ]
     },
-    "AMPLIFY_auth_kiosuanwalletnjsapp0c07f185_authRoleName": {
+    "AMPLIFY_auth_suanmarketplacebcdf233d_userPoolName": {
       "usedBy": [
         {
           "category": "auth",
-          "resourceName": "kiosuanwalletnjsapp0c07f185"
+          "resourceName": "suanmarketplacebcdf233d"
         }
       ]
     },
-    "AMPLIFY_auth_kiosuanwalletnjsapp0c07f185_identityPoolId": {
+    "AMPLIFY_auth_suanmarketplacebcdf233d_webClientId": {
       "usedBy": [
         {
           "category": "auth",
-          "resourceName": "kiosuanwalletnjsapp0c07f185"
-        }
-      ]
-    },
-    "AMPLIFY_auth_kiosuanwalletnjsapp0c07f185_identityPoolName": {
-      "usedBy": [
-        {
-          "category": "auth",
-          "resourceName": "kiosuanwalletnjsapp0c07f185"
-        }
-      ]
-    },
-    "AMPLIFY_auth_kiosuanwalletnjsapp0c07f185_nativeClientId": {
-      "usedBy": [
-        {
-          "category": "auth",
-          "resourceName": "kiosuanwalletnjsapp0c07f185"
-        }
-      ]
-    },
-    "AMPLIFY_auth_kiosuanwalletnjsapp0c07f185_unauthRoleArn": {
-      "usedBy": [
-        {
-          "category": "auth",
-          "resourceName": "kiosuanwalletnjsapp0c07f185"
-        }
-      ]
-    },
-    "AMPLIFY_auth_kiosuanwalletnjsapp0c07f185_unauthRoleName": {
-      "usedBy": [
-        {
-          "category": "auth",
-          "resourceName": "kiosuanwalletnjsapp0c07f185"
-        }
-      ]
-    },
-    "AMPLIFY_auth_kiosuanwalletnjsapp0c07f185_userPoolId": {
-      "usedBy": [
-        {
-          "category": "auth",
-          "resourceName": "kiosuanwalletnjsapp0c07f185"
-        }
-      ]
-    },
-    "AMPLIFY_auth_kiosuanwalletnjsapp0c07f185_userPoolName": {
-      "usedBy": [
-        {
-          "category": "auth",
-          "resourceName": "kiosuanwalletnjsapp0c07f185"
-        }
-      ]
-    },
-    "AMPLIFY_auth_kiosuanwalletnjsapp0c07f185_webClientId": {
-      "usedBy": [
-        {
-          "category": "auth",
-          "resourceName": "kiosuanwalletnjsapp0c07f185"
+          "resourceName": "suanmarketplacebcdf233d"
         }
       ]
     }

@@ -3,13 +3,27 @@
 
 const awsmobile = {
     "aws_project_region": "us-east-1",
-    "aws_cognito_identity_pool_id": "us-east-1:c366b219-5782-41e7-8fc0-af0da888e27b",
     "aws_cognito_region": "us-east-1",
-    "aws_user_pools_id": "us-east-1_DFaBfYrB1",
-    "aws_user_pools_web_client_id": "5nhkci304gu0ckt550eo6l0103",
-    "oauth": {},
+    "aws_user_pools_id": "us-east-1_GkPDCjB4C",
+    "aws_user_pools_web_client_id": "38ek9t163kigfcp5mshd5ce03h",
+    "oauth": {
+        "domain": "kiosuanbcrjsapp4e1e05fa-4e1e05fa-prod.auth.us-east-1.amazoncognito.com",
+        "scope": [
+            "aws.cognito.signin.user.admin",
+            "email",
+            "openid",
+            "phone",
+            "profile"
+        ],
+        "redirectSignIn": "https://moocs.n4nadigital.com/",
+        "redirectSignOut": "https://moocs.n4nadigital.com/",
+        "responseType": "code"
+    },
+    "federationTarget": "COGNITO_USER_POOLS",
     "aws_cognito_username_attributes": [],
-    "aws_cognito_social_providers": [],
+    "aws_cognito_social_providers": [
+        "GOOGLE"
+    ],
     "aws_cognito_signup_attributes": [
         "EMAIL"
     ],
