@@ -1,6 +1,6 @@
 
 export default async function handler(req, res) {
-    const url = 'https://93jp7ynsqv.us-east-1.awsapprunner.com/api/v1/wallet/create-wallet/';
+    const url = `${process.env.NEXT_PUBLIC_TRAZABILIDAD_ENDPOINT}/api/v1/wallet/create-wallet/`;
 
     const response = await fetch(url,
         {

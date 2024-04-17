@@ -1,5 +1,5 @@
 const SUBMIT_TX_URL =
-  'https://93jp7ynsqv.us-east-1.awsapprunner.com/api/v1/transactions/sign-submit/';
+  `${process.env.NEXT_PUBLIC_TRAZABILIDAD_ENDPOINT}/api/v1/transactions/sign-submit/`;
 
 async function submitTransaction(submitTx) {
   return await fetch(SUBMIT_TX_URL, {

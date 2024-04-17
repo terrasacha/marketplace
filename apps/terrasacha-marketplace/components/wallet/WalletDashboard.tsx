@@ -32,7 +32,7 @@ const WalletDashboard = () => {
     const changeAddress = await wallet.getChangeAddress();
     try {
       const response = await fetch(
-        'https://93jp7ynsqv.us-east-1.awsapprunner.com/api/v1/wallet/query-wallet/balance/',
+        `${process.env.NEXT_PUBLIC_TRAZABILIDAD_ENDPOINT}/api/v1/wallet/query-wallet/balance/`,
         {
           method: 'POST',
           headers: {

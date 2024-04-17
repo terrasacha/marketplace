@@ -41,7 +41,7 @@ const validateMinimumAdaValue = async (
   console.log(payload);
 
   const url =
-    'https://93jp7ynsqv.us-east-1.awsapprunner.com/api/v1/transactions/min-lovelace/';
+    `${process.env.NEXT_PUBLIC_TRAZABILIDAD_ENDPOINT}/api/v1/transactions/min-lovelace/`;
 
   try {
     const response = await fetch(url, {
@@ -61,7 +61,7 @@ const validateMinimumAdaValue = async (
 };
 
 const getFeeAmount = async (txcbor: string) => {
-  const url = `https://93jp7ynsqv.us-east-1.awsapprunner.com/api/v1/transactions/tx-fee/?txcbor=${txcbor}`;
+  const url = `${process.env.NEXT_PUBLIC_TRAZABILIDAD_ENDPOINT}/api/v1/transactions/tx-fee/?txcbor=${txcbor}`;
 
   try {
     const response = await fetch(url, {

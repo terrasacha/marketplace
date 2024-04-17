@@ -6,7 +6,7 @@ export default async function handler(req, res) {
       const claim_redeemer = payload.claim_redeemer;
       const admin_id = payload.admin_id;
 
-      const url = `https://93jp7ynsqv.us-east-1.awsapprunner.com/api/v1/transactions/claim-tx/${claim_redeemer}?admin_id=${admin_id}`;
+      const url = `${process.env.NEXT_PUBLIC_TRAZABILIDAD_ENDPOINT}/api/v1/transactions/claim-tx/${claim_redeemer}?admin_id=${admin_id}`;
 
       const response = await fetch(url, {
         method: 'POST',

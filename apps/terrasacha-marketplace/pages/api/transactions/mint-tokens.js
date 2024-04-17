@@ -6,7 +6,7 @@ export default async function handler(req, res) {
       const mint_redeemer = payload.mint_redeemer;
 
       const url =
-        `https://93jp7ynsqv.us-east-1.awsapprunner.com/api/v1/transactions/mint-tokens/${mint_redeemer}`;
+        `${process.env.NEXT_PUBLIC_TRAZABILIDAD_ENDPOINT}/api/v1/transactions/mint-tokens/${mint_redeemer}`;
 
       const response = await fetch(url, {
         method: 'POST',

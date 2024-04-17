@@ -13,7 +13,7 @@ export default async function handler(req, res) {
         parent_policy_id: payload.parent_policy_id,
       };
 
-      const url = `https://93jp7ynsqv.us-east-1.awsapprunner.com/api/v1/contracts/create-contract/${script_type}`;
+      const url = `${process.env.NEXT_PUBLIC_TRAZABILIDAD_ENDPOINT}/api/v1/contracts/create-contract/${script_type}`;
 
       const queryParams = new URLSearchParams(payloadFixed);
 

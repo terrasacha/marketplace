@@ -3,7 +3,7 @@ export default async function handler(req, res) {
         try {
             let stake_address = req.body
             const url =
-                `https://93jp7ynsqv.us-east-1.awsapprunner.com/api/v1/wallet/account-utxo/?stake=${stake_address}&all=true`;
+                `${process.env.NEXT_PUBLIC_TRAZABILIDAD_ENDPOINT}/api/v1/wallet/account-utxo/?stake=${stake_address}&all=true`;
 
             console.log('stake_address', stake_address)
 

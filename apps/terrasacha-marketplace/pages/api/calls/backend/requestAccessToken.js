@@ -4,7 +4,7 @@ export default async function handler(req, res) {
             const payload = req.query.destinAddress;
             console.log(payload)
             const url =
-                `https://93jp7ynsqv.us-east-1.awsapprunner.com/api/v1/transactions/send-access-token/?wallet_id=${process.env.NEXT_PUBLIC_WALLET_ID_SEND_TOKEN_ACCESS}&destinAddress=${payload}`;
+                `${process.env.NEXT_PUBLIC_TRAZABILIDAD_ENDPOINT}/api/v1/transactions/send-access-token/?wallet_id=${process.env.NEXT_PUBLIC_WALLET_ID_SEND_TOKEN_ACCESS}&destinAddress=${payload}`;
             const response = await fetch(url, {
                 method: 'GET',
                 headers: {

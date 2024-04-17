@@ -3,7 +3,7 @@ export default async function handler(req, res) {
     const { address } = req.query;
     const wallet_address = address
     console.log(wallet_address)
-    const url = 'https://93jp7ynsqv.us-east-1.awsapprunner.com/api/v1/wallet/query-wallet/balance/'
+    const url = `${process.env.NEXT_PUBLIC_TRAZABILIDAD_ENDPOINT}/api/v1/wallet/query-wallet/balance/`
 
     const response = await fetch(url,
         {

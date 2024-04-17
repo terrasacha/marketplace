@@ -3,7 +3,7 @@ export default async function handler(req, res) {
     try {
       const payload = req.body;
       const url =
-        'https://93jp7ynsqv.us-east-1.awsapprunner.com/api/v1/wallet/query-address/';
+        `${process.env.NEXT_PUBLIC_TRAZABILIDAD_ENDPOINT}/api/v1/wallet/query-address/`;
 
       const response = await fetch(url, {
         method: 'POST',
