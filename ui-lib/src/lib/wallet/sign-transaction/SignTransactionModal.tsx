@@ -11,6 +11,7 @@ interface SignTransactionModalProps {
   handleOpenSignTransactionModal: () => void;
   signTransactionModal: boolean;
   newTransactionBuild: any;
+  signType: string;
 }
 
 const SEARCH_TYPE = {
@@ -24,6 +25,7 @@ export default function SignTransactionModal(props: SignTransactionModalProps) {
     handleOpenSignTransactionModal,
     signTransactionModal,
     newTransactionBuild,
+    signType
   } = props;
 
   return (
@@ -43,6 +45,7 @@ export default function SignTransactionModal(props: SignTransactionModalProps) {
               cbor={newTransactionBuild.cbor}
               metadata={newTransactionBuild.metadata}
               pendingTx={newTransactionBuild}
+              signType={signType}
             />
             <TransactionInfoCard
               title={newTransactionBuild.title}

@@ -4,8 +4,9 @@ export default async function handler(req, res) {
       const payload = req.body; // Utiliza req.body en lugar de req.query para obtener datos del cuerpo de la solicitud
 
       const claim_redeemer = payload.claim_redeemer;
+      const admin_id = payload.admin_id;
 
-      const url = `https://93jp7ynsqv.us-east-1.awsapprunner.com/api/v1/transactions/claim-tx/${claim_redeemer}`;
+      const url = `https://93jp7ynsqv.us-east-1.awsapprunner.com/api/v1/transactions/claim-tx/${claim_redeemer}?admin_id=${admin_id}`;
 
       const response = await fetch(url, {
         method: 'POST',

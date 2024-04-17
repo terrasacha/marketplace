@@ -9,10 +9,17 @@ interface SignTransactionProps {
   cbor: string;
   metadata: Array<string>;
   pendingTx: any;
+  signType: string;
 }
 
 export default function SignTransaction(props: SignTransactionProps) {
-  const { handleOpenSignTransactionModal, cbor, metadata, pendingTx } = props;
+  const {
+    handleOpenSignTransactionModal,
+    cbor,
+    metadata,
+    pendingTx,
+    signType,
+  } = props;
   const { walletID } = useContext<any>(WalletContext);
 
   const [password, setPassword] = useState<any>('');
@@ -21,16 +28,77 @@ export default function SignTransaction(props: SignTransactionProps) {
 
   const router = useRouter();
 
-  const handleSign = async () => {
-    setIsLoading(true);
-
-    const signTxData = {
-      submitTx: {
-        wallet_id: walletID,
-        cbor: cbor,
-        metadata: metadata,
+  const validateWalletPassword = async () => {
+    const response = await fetch('/api/calls/backend/validateWalletPassword', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
       },
-      password: password,
+      body: JSON.stringify({ password, wallet_id: walletID }),
+    });
+    const passwordValidation = await response.json();
+
+    return passwordValidation.isValidUser;
+  };
+
+  const handleSignTransactionDistributeTokens = async (
+    isValidUser: boolean
+  ) => {
+    const confirmSubmitData = {
+      confirm: isValidUser,
+      tx_id: pendingTx.tx_id,
+    };
+    const response = await fetch('/api/transactions/confirm-submit', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify(confirmSubmitData),
+    });
+    const signSubmitResponse = await response.json();
+    console.log('Firmado de transacción: ', signSubmitResponse);
+    if (signSubmitResponse?.txSubmit?.success) {
+      // Actualizar un campo en tabla dynamo que indique que los tokens del proyecto han sido reclamados por el propietario o no
+      // Actualizar campo token genesis
+
+      await fetch('/api/calls/backend/updateProduct', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(pendingTx.postDistributionPayload),
+      });
+
+      const productUpdated = await response.json();
+      console.log('Actualización del producto: ', productUpdated);
+    }
+
+    return signSubmitResponse;
+  };
+
+  const handleSignTransactionBuyTokens = async (isValidUser: boolean) => {
+    const confirmSubmitData = {
+      confirm: isValidUser,
+      tx_id: pendingTx.tx_id,
+    };
+    const response = await fetch('/api/transactions/confirm-submit', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify(confirmSubmitData),
+    });
+    const signSubmitResponse = await response.json();
+    console.log('Firmado de transacción: ', signSubmitResponse);
+
+    return signSubmitResponse;
+  };
+
+  const handleSignTransactionSendTransaction = async () => {
+    const signTxData = {
+      wallet_id: walletID,
+      cbor: cbor,
+      metadata: metadata,
     };
     const response = await fetch('/api/transactions/sign-submit', {
       method: 'POST',
@@ -41,11 +109,34 @@ export default function SignTransaction(props: SignTransactionProps) {
     });
     const signSubmitResponse = await response.json();
     console.log('Firmado de transacción: ', signSubmitResponse);
+    return signSubmitResponse;
+  };
 
-    if (!signSubmitResponse.isValidUser) {
+  const handleSign = async () => {
+    setIsLoading(true);
+
+    const isValidUser = await validateWalletPassword();
+
+    if (!isValidUser) {
       setPasswordError(true);
       setIsLoading(false);
       return;
+    }
+
+    let signSubmitResponse;
+
+    if (signType === 'distributeTokens') {
+      signSubmitResponse = await handleSignTransactionDistributeTokens(
+        isValidUser
+      );
+    }
+
+    if (signType === 'buyTokens') {
+      signSubmitResponse = await handleSignTransactionBuyTokens(isValidUser);
+    }
+
+    if (signType === 'sendTransaction') {
+      signSubmitResponse = await handleSignTransactionSendTransaction();
     }
 
     if (signSubmitResponse?.txSubmit?.success) {

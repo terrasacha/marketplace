@@ -122,6 +122,8 @@ export default function PaymentPage({}) {
     const responseData = await response.json();
 
     console.log('spendData', responseData);
+    console.log('tokenName', tokenName);
+    console.log('tokenContractId', tokenContractId);
 
     const spentWalletData = responseData[0];
 
@@ -140,7 +142,7 @@ export default function PaymentPage({}) {
       },
       0
     );
-    console.log('availableTokensAmount', availableTokensAmount)
+    console.log('availableTokensAmount', availableTokensAmount);
     setAvailableTokenAmount(availableTokensAmount);
     return availableTokensAmount;
   };
@@ -232,15 +234,44 @@ export default function PaymentPage({}) {
     return true;
   };
 
+  const getRates = async () => {
+    const response = await fetch('/api/calls/getRates');
+    const data = await response.json();
+    let dataFormatted: any = {};
+    data.map((item: any) => {
+      let obj = `ADArate${item.currency}`;
+      dataFormatted[obj] = item.value.toFixed(4);
+    });
+    return dataFormatted;
+  };
+
+  const getCoreWallet = async () => {
+    const response = await fetch('/api/calls/getCoreWallet');
+    const data = await response.json();
+    console.log('coreWallet', data);
+    return data;
+  };
+
   const handleBuildTx = async () => {
     let crypto = 'cardano';
     let base_currency = projectInfo.tokenCurrency;
 
     // Convert usd price to Ada price from the internal oracle
-    const currencyToCryptoRate = await coingeckoPrices(crypto, base_currency);
-    const adaPrice = parseFloat(projectInfo.tokenPrice) / currencyToCryptoRate;
-    // Traer script relacionado al proyecto para consultar policyID
 
+    // Obtener conversión a partir de tabla de rates en dynamo
+    // const currencyToCryptoRate = await coingeckoPrices(crypto, base_currency); Metodo antiguo
+
+    const rates = await getRates();
+    const currencyToCryptoRate = parseFloat(
+      rates[`ADArate${base_currency.toUpperCase()}`]
+    );
+    const adaPrice = parseFloat(projectInfo.tokenPrice) / currencyToCryptoRate;
+    console.log('Valor que paga el usuario por unidad de token: ', adaPrice);
+
+    // Obtener corewallet
+    const coreWallet = await getCoreWallet();
+
+    // Traer script relacionado al proyecto para consultar policyID
     const mintProjectTokenContract = projectInfo.scripts.find(
       (script: any) => script.script_type === 'mintProjectToken'
     );
@@ -257,25 +288,6 @@ export default function PaymentPage({}) {
       mintProjectTokenContract.id
     );
 
-    // const datumBeneficiary = ''
-    // for (let i = 0; i < spentWalletData.utxo_set.length; i++) {
-    //   const utxo = spentWalletData.utxo_set[i];
-
-    //   if(utxo.asset_list) {
-    //     const availableTokensAmount = utxo.asset_list.reduce(
-    //       (sum: number, item: any) => {
-    //         if (
-    //           item.asset_name === mintProjectTokenContract.token_name &&
-    //           item.policy_id === mintProjectTokenContract.id
-    //         ) {
-    //           return sum + parseInt(item.quantity);
-    //         }
-    //       },
-    //       0
-    //     );
-
-    //   }
-    // }
     console.log(
       'spendContractFromMintProjectToken',
       spendContractFromMintProjectToken
@@ -285,14 +297,16 @@ export default function PaymentPage({}) {
       // Evaluar si el valor de los adas que le llegan al beneficiario es mayor o igual del numero de tokens * precio
       const payload = {
         claim_redeemer: 'Buy',
+        admin_id: '575a7f01272dd95a9ba2696e9e3d4895fe39b12350f7fa88a301b3ad',
         payload: {
           wallet_id: walletID,
           spendPolicyId: spendContractFromMintProjectToken.id,
           addresses: [
+            //
             {
-              address:
-                'addr_test1qzttu3gj6vtz6e6j4p4pnmyw52x5j7kw47kce4hux9fv445khez395ck94n492r2r8kgag5df9avatad3nt0cv2jettqxfwfwv',
-              lovelace: parseInt(tokenAmount) * 203741, //Math.round(adaPrice * 1000000),
+              // Obtener Wallet Admin de dynamodb (unico isAdmin = true)
+              address: coreWallet.address, // Wallet Admin Address
+              lovelace: parseInt(tokenAmount) * Math.round(adaPrice * 1000000),
               multiAsset: [],
             },
             {
@@ -308,9 +322,9 @@ export default function PaymentPage({}) {
                 },
               ],
               datum: {
-                beneficiary:
-                  '96be4512d3162d6752a86a19ec8ea28d497aceafad8cd6fc3152cad6',
-                price: 203741,
+                // Consultar Wallet ID de dynamodb (unico isAdmin = true)
+                beneficiary: coreWallet.id, // Wallet ID del Administrador
+                //price: 17123288,//Math.round(adaPrice * 1000000),
               },
             },
             {
@@ -329,6 +343,7 @@ export default function PaymentPage({}) {
           ],
         },
       };
+
       console.log('BuildTx Payload: ', payload);
 
       const request = await fetch('/api/transactions/claim-tx', {
@@ -802,6 +817,7 @@ export default function PaymentPage({}) {
         signTransactionModal={signTransactionModal}
         handleOpenSignTransactionModal={handleOpenSignTransactionModal}
         newTransactionBuild={newTransactionBuild}
+        signType="distributeTokens"
       />
     </>
   );

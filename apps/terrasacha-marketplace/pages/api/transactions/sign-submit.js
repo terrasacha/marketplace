@@ -1,5 +1,3 @@
-import { validatePassword } from '@marketplaces/data-access';
-
 const SUBMIT_TX_URL =
   'https://93jp7ynsqv.us-east-1.awsapprunner.com/api/v1/transactions/sign-submit/';
 
@@ -17,23 +15,18 @@ async function submitTransaction(submitTx) {
 export default async function handler(req, res) {
   if (req.method === 'POST') {
     try {
-      const { password, submitTx } = req.body;
+      const { wallet_id, cbor, metadata } = req.body;
 
-      const isValidUser = await validatePassword(password, submitTx.wallet_id);
+      const submitTx = {
+        wallet_id,
+        cbor,
+        metadata,
+      };
 
-      if (isValidUser) {
-        const response = await submitTransaction(submitTx);
-        const signSubmitResponse = await response.json();
+      const response = await submitTransaction(submitTx);
+      const signSubmitResponse = await response.json();
 
-        const data = {
-          isValidUser,
-          txSubmit: signSubmitResponse,
-        };
-
-        res.status(200).json(data);
-      } else {
-        res.status(200).json({ isValidUser });
-      }
+      res.status(200).json({ txSubmit: signSubmitResponse });
     } catch (error) {
       res
         .status(500)

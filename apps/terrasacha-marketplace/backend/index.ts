@@ -550,6 +550,7 @@ export async function getProject(projectId: string) {
               script_type
               token_name
               testnetAddr
+              Active
             }
           }
         }

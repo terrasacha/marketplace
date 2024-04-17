@@ -12,7 +12,7 @@ export default async function handler(req, res) {
         project_id: payload.project_id,
         parent_policy_id: payload.parent_policy_id,
       };
-      
+
       const url = `https://93jp7ynsqv.us-east-1.awsapprunner.com/api/v1/contracts/create-contract/${script_type}`;
 
       const queryParams = new URLSearchParams(payloadFixed);
@@ -31,7 +31,9 @@ export default async function handler(req, res) {
       const data = await response.json();
       res.status(200).json(data);
     } catch (error) {
-      res.status(500).json({ error: 'Error al procesar la solicitud' });
+      res
+        .status(500)
+        .json({ error: `Error al procesar la solicitud: ${error}` });
     }
   } else {
     res.status(405).json({ error: 'Método no permitido' });

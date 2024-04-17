@@ -16,9 +16,11 @@ interface MintTokensProps {
 }
 
 export default function MintModal(props: MintModalProps) {
-  const { walletID } = useContext<any>(WalletContext);
+  const { walletID, walletData } = useContext<any>(WalletContext);
   const { handleOpenMintModal, mintModal, selectedScript, scripts } = props;
   const [isLoading, setIsLoading] = useState<boolean>(false);
+
+  console.log('walletData', walletData);
 
   const [mintTokens, setMintTokens] = useState<MintTokensProps>({
     walletAddress: '',
@@ -72,7 +74,9 @@ export default function MintModal(props: MintModalProps) {
                   {
                     policyid: policyId,
                     tokens: {
-                      [actualScript.token_name]: parseInt(mintTokens.tokenAmount),
+                      [actualScript.token_name]: parseInt(
+                        mintTokens.tokenAmount
+                      ),
                     },
                   },
                 ],
@@ -87,10 +91,8 @@ export default function MintModal(props: MintModalProps) {
               [actualScript.token_name]: parseInt(mintTokens.tokenAmount),
             },
           },
-          redeemer: 0,
         },
-
-      }
+      },
     };
     console.log(payload);
     const response = await fetch('/api/transactions/mint-tokens', {
@@ -115,6 +117,20 @@ export default function MintModal(props: MintModalProps) {
       toast.warning('Complete los campos oblgiatorios poder continuar ...');
       return;
     }
+
+    const walletTokenAmount = walletData.assets.find(
+      (asset: any) =>
+        asset.id === actualScript.id &&
+        asset.asset_name === actualScript.token_name
+    ).quantity;
+
+    if (mintTokens.tokenAmount > walletTokenAmount) {
+      toast.error(
+        'El numero de tokens que deseas quemar es superior al que tienes en la billetera ...'
+      );
+      return;
+    }
+
     setIsLoading(true);
     const policyId = actualScript.id;
 
@@ -133,10 +149,8 @@ export default function MintModal(props: MintModalProps) {
               ),
             },
           },
-          redeemer: 0,
         },
-
-      }
+      },
     };
     console.log(payload);
     const response = await fetch('/api/transactions/mint-tokens', {

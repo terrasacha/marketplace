@@ -81,8 +81,8 @@ export default function CreateScriptModal(props: CreateScriptModalProps) {
       toast.success('Se ha creado el contrato exitosamente ...');
     } else {
       toast.error('Ha ocurrido un error, intenta nuevamente ...');
-      setIsLoading(false)
-      return
+      setIsLoading(false);
+      return;
     }
 
     if (newContract.scriptType === 'mintProjectToken') {
