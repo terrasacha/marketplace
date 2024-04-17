@@ -7,12 +7,20 @@ interface AssesListProps {
   itemsPerPage: number;
   handleOpenMintModal: (policyId: string) => void;
   handleDistributeTokens: (policyId: string) => void;
-  handleDeleteScript: (policyId: string) => void;
+  handleDeleteScript: (
+    policyId: string,
+    newStatus: boolean
+  ) => Promise<boolean>;
 }
 
 const ScriptsList = (props: AssesListProps) => {
-  const { scripts, itemsPerPage, handleOpenMintModal, handleDistributeTokens, handleDeleteScript} =
-    props;
+  const {
+    scripts,
+    itemsPerPage,
+    handleOpenMintModal,
+    handleDistributeTokens,
+    handleDeleteScript,
+  } = props;
 
   const [currentPage, setCurrentPage] = useState(1);
 
@@ -21,9 +29,14 @@ const ScriptsList = (props: AssesListProps) => {
   console.log('indexOfLastItem asset', indexOfLastItem);
   console.log('itemsPerPage asset', itemsPerPage);
   const indexOfFirstItem = indexOfLastItem - itemsPerPage;
-  const currentItems = scripts.slice(indexOfFirstItem, indexOfLastItem);
 
-  const totalItems = scripts.length;
+  const parentScripts = scripts.filter(
+    (script) => script.scriptParentID === 'undefined'
+  );
+
+  const currentItems = parentScripts.slice(indexOfFirstItem, indexOfLastItem);
+
+  const totalItems = parentScripts.length;
   console.log('totalItems asset', totalItems);
   const canShowPrevious = currentPage > 1;
   const canShowNext = indexOfLastItem < totalItems;
@@ -36,7 +49,21 @@ const ScriptsList = (props: AssesListProps) => {
     setCurrentPage((prevPage) => prevPage - 1);
   };
 
-  console.log(scripts);
+  // Group scripts by scriptParentID
+  const groupedScripts: { [key: string]: any[] } = {};
+  scripts.forEach((script) => {
+    if (script.scriptParentID) {
+      if (!groupedScripts[script.scriptParentID]) {
+        groupedScripts[script.scriptParentID] = [];
+      }
+      groupedScripts[script.scriptParentID].push(script);
+    }
+  });
+
+  delete groupedScripts.undefined;
+
+  console.log('scripts', scripts);
+  console.log('groupedScripts', groupedScripts);
 
   return (
     <div className="relative overflow-x-auto rounded-lg">
@@ -81,9 +108,15 @@ const ScriptsList = (props: AssesListProps) => {
                   script_type={script.script_type}
                   testnetAddr={script.testnetAddr}
                   tokenName={script.token_name}
+                  active={script.Active}
                   handleOpenMintModal={handleOpenMintModal}
                   handleDistributeTokens={handleDistributeTokens}
                   handleDeleteScript={handleDeleteScript}
+                  childScripts={
+                    script.scripts.items.length > 0
+                      ? groupedScripts[script.id]
+                      : []
+                  }
                 />
               );
             })}

@@ -1,20 +1,26 @@
 import { useRouter } from 'next/router';
-import { Card, PlusIcon } from '../../ui-lib';
+import { Card, PlusIcon, SignTransactionModal } from '../../ui-lib';
 import ScriptsList from './ScriptsList';
 import { useContext, useEffect, useState } from 'react';
 import CreateScriptModal from './CreateScriptModal';
 import MintModal from './MintModal';
 import { toast } from 'sonner';
-import { WalletContext, getActualPeriod } from '@marketplaces/utils-2';
+import {
+  WalletContext,
+  getActualPeriod,
+  mapBuildTransactionInfo,
+} from '@marketplaces/utils-2';
 import Swal from 'sweetalert2';
 import { coingeckoPrices } from '@marketplaces/data-access';
 
 export default function Scripts(props: any) {
-  const { walletID } = useContext<any>(WalletContext);
+  const { walletID, walletAddress } = useContext<any>(WalletContext);
   const [scripts, setScripts] = useState<Array<any>>([]);
   const [createScriptModal, setCreateScriptModal] = useState<boolean>(false);
   const [mintModal, setMintModal] = useState<boolean>(false);
   const [selectedScript, setSelectedScript] = useState<string | null>(null);
+  const [signTransactionModal, setSignTransactionModal] = useState(false);
+  const [newTransactionBuild, setNewTransactionBuild] = useState<any>(null);
 
   const getCoreWalletData = async () => {
     const request = await fetch('/api/contracts/get-scripts', {
@@ -41,43 +47,44 @@ export default function Scripts(props: any) {
     setMintModal(!mintModal);
   };
 
-  const handleDeleteScript = (policyId: string | null = null) => {
+  const handleOpenSignTransactionModal = () => {
+    setSignTransactionModal(!signTransactionModal);
+    if (!signTransactionModal === false) {
+      toast.error('Tokens no enviados ...');
+    }
+  };
+
+  const handleDeleteScript = async (
+    policyId: string | null = null,
+    newStatus: boolean
+  ): Promise<boolean> => {
+    // Si el contrato que se envia es un contrato padre, eliminar todos sus hijos
+    const actualScript = scripts.find((script: any) => script.id === policyId);
+
     const payload = {
       policyID: policyId,
+      newStatus,
     };
 
-    Swal.fire({
-      title: 'Estas seguro de eliminar el contrato?',
-      text: 'No podrás revertir esta acción !',
-      icon: 'warning',
-      showCancelButton: true,
-      confirmButtonColor: '#3085d6',
-      cancelButtonColor: '#d33',
-      confirmButtonText: 'Si, eliminar!',
-      cancelButtonText: 'Cancelar',
-    }).then(async (result) => {
-      if (result.isConfirmed) {
-        const response = await fetch(`/api/calls/backend/deleteScriptById`, {
-          method: 'POST',
-          headers: {
-            'Content-Type': 'application/json',
-          },
-          body: JSON.stringify(payload),
-        });
-        const deleteData = await response.json();
-        if (deleteData.data) {
-          toast.success('Contrato eliminado exitosamente ...');
-          Swal.fire({
-            title: 'Eliminado !',
-            text: 'El contrato ha sido eliminado exitosamente.',
-            icon: 'success',
-          });
-        } else {
-          toast.error('Ha habido un error intentando eliminar el contrato ...');
-        }
-        await getCoreWalletData();
-      }
+    const response = await fetch(`/api/calls/backend/deleteScriptById`, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify(payload),
     });
+    const deleteData = await response.json();
+
+    for (let index = 0; index < actualScript.scripts.items.length; index++) {
+      const subScript = actualScript.scripts.items[index];
+      await handleDeleteScript(subScript.id, newStatus);
+    }
+
+    if (actualScript.scriptParentID === 'undefined') {
+      await getCoreWalletData();
+    }
+
+    return deleteData.data;
   };
 
   const getProjectTokenDistribution = (projectData: any) => {
@@ -146,13 +153,27 @@ export default function Scripts(props: any) {
     return false;
   };
 
+  const getRates = async () => {
+    const response = await fetch('/api/calls/getRates');
+    const data = await response.json();
+    let dataFormatted: any = {};
+    data.map((item: any) => {
+      let obj = `ADArate${item.currency}`;
+      dataFormatted[obj] = item.value.toFixed(4);
+    });
+    return dataFormatted;
+  };
+
   const getTokenLovelacePrice = async (projectData: any) => {
+    const rates = await getRates();
+
     const { actualTokenPrice, tokenCurrency } =
       getProjectTokenData(projectData);
-    const currencyToCryptoRate = await coingeckoPrices(
-      'cardano',
-      tokenCurrency
+
+    const currencyToCryptoRate = parseFloat(
+      rates[`ADArate${tokenCurrency.toUpperCase()}`]
     );
+
     if (actualTokenPrice && tokenCurrency && currencyToCryptoRate) {
       console.log('actualTokenPrice', actualTokenPrice);
       console.log('tokenCurrency', tokenCurrency);
@@ -165,20 +186,27 @@ export default function Scripts(props: any) {
     return false;
   };
 
+  const getCoreWallet = async () => {
+    const response = await fetch('/api/calls/getCoreWallet');
+    const data = await response.json();
+    console.log('coreWallet', data);
+    return data;
+  };
+
   const handleDistributeTokens = async (policyId: string | null = null) => {
     const actualScript = scripts.find((script: any) => script.id === policyId);
 
+    // Obtener corewallet
+    const coreWallet = await getCoreWallet();
+
     let mapStakeHolders: any = {
       bioc: 'addr_test1vqx420pm9cx326rh0q8yx6u4h72ae56l9ekzk05m8w9qe3cz5swj5',
-      // propietario:
-      //   'addr_test1vpgydu6xuc3nvyzpdnkq4jpaprs0rp5x5xzk088grlp92cq057hxl',
-      administrador:
-        'addr_test1qzttu3gj6vtz6e6j4p4pnmyw52x5j7kw47kce4hux9fv445khez395ck94n492r2r8kgag5df9avatad3nt0cv2jettqxfwfwv',
+      administrador: coreWallet.address, // Addres de billetera unica tipo corewallet
       buffer: 'addr_test1vqs34z4ljy3c6u3s97m64zqz7f0ks6vtre2dcpl5um8wz2qgaxq8z',
       comunidad:
         'addr_test1vqvx6mm487nkkpavyf7sqflgavutajq8veer5wmy0nwlgyg27rsqk',
-      // inversionista:
-      //   'addr_test1qq0uh3hap3sqcj3cwlx2w3yq9vm4wclgp4x0y3wuyvapzdcle0r06rrqp39rsa7v5azgq2eh2a37sr2v7fzacge6zymsn0w2mg',
+      // propietario: ...
+      // inversionista: ...
     };
 
     // Obtener address de inversionista del spend
@@ -194,9 +222,6 @@ export default function Scripts(props: any) {
     }
 
     console.log('spendFromActualScript', spendFromActualScript);
-
-    const administradorId =
-      '96be4512d3162d6752a86a19ec8ea28d497aceafad8cd6fc3152cad6';
 
     console.log(actualScript);
 
@@ -214,6 +239,13 @@ export default function Scripts(props: any) {
     );
     const projectData = await response1.json();
     console.log('projectData', projectData);
+    const hasTokenGenesis = projectData.tokenGenesis;
+
+    if (hasTokenGenesis) {
+      toast.error('El token ya habia sido distribuido anteriormente.');
+      return;
+    }
+
     const stakeHoldersDistribution = getProjectTokenDistribution(projectData);
     const ownerWallet = checkOwnerWallet(projectData);
     const tokenPrice = await getTokenLovelacePrice(projectData);
@@ -268,8 +300,7 @@ export default function Scripts(props: any) {
           };
           if (stakeHolder === 'inversionista') {
             address.datum = {
-              beneficiary: administradorId,
-              price: tokenPrice,
+              beneficiary: coreWallet.id,
             };
           }
           addresses.push(address);
@@ -303,27 +334,27 @@ export default function Scripts(props: any) {
       },
       body: JSON.stringify(payload),
     });
-    const responseData = await response.json();
+    const buildTxResponse = await response.json();
 
-    if (responseData?.success) {
-      toast.success('Tokens enviados ...');
+    if (buildTxResponse?.success) {
+      const mappedTransactionData = await mapBuildTransactionInfo({
+        tx_type: 'preview',
+        walletAddress: walletAddress,
+        buildTxResponse: buildTxResponse,
+        metadata: [],
+      });
 
-      // Actualizar un campo en tabla dynamo que indique que los tokens del proyecto han sido reclamados por el propietario o no
-      // Actualizar campo token genesis
-
-      const payload = {
+      const postDistributionPayload = {
         id: actualScript.productID,
         tokenClaimedByOwner: ownerWallet ? true : false,
         tokenGenesis: true,
       };
 
-      await fetch('/api/calls/backend/updateProduct', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify(payload),
+      setNewTransactionBuild({
+        ...mappedTransactionData,
+        postDistributionPayload,
       });
+      handleOpenSignTransactionModal();
     } else {
       toast.error('Ha ocurrido un error, intenta nuevamente ...');
     }
@@ -365,6 +396,12 @@ export default function Scripts(props: any) {
         scripts={scripts}
         selectedScript={selectedScript}
         handleOpenMintModal={handleOpenMintModal}
+      />
+      <SignTransactionModal
+        signTransactionModal={signTransactionModal}
+        handleOpenSignTransactionModal={handleOpenSignTransactionModal}
+        newTransactionBuild={newTransactionBuild}
+        signType="distributeTokens"
       />
     </>
   );

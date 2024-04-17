@@ -53,8 +53,13 @@ export default function Transactions(props: TransactionsProps) {
     }
   }, [router.query]);
 
+  useEffect(() => {
+    getTransactionsData();
+  }, [router]);
+
   const getTransactionsData = async (page: number = 1) => {
     setIsLoading(true);
+    await fetchWalletData();
     const payload = {
       stake: walletStakeAddress,
       skip: page * txPerPage - txPerPage,
@@ -106,7 +111,10 @@ export default function Transactions(props: TransactionsProps) {
         setPendingTransaction((prevState: any) => ({
           ...prevState,
           tx_status:
-            responseData[0].num_confirmations !== null && responseData[0].num_confirmations > 1 ? 'on-chain' : 'pending',
+            responseData[0].num_confirmations !== null &&
+            responseData[0].num_confirmations > 1
+              ? 'on-chain'
+              : 'pending',
           tx_confirmation_status: 'LOW',
           tx_confirmation_n: responseData[0].num_confirmations || 0,
         }));
@@ -121,11 +129,11 @@ export default function Transactions(props: TransactionsProps) {
     }
   };
 
-  useEffect(() => {
-    if (walletData) {
-      getTransactionsData();
-    }
-  }, [walletData]);
+  // useEffect(() => {
+  //   if (walletData) {
+  //     getTransactionsData();
+  //   }
+  // }, [walletData]);
 
   useEffect(() => {
     if (pendingTransaction) {
@@ -147,13 +155,14 @@ export default function Transactions(props: TransactionsProps) {
 
   const changePage = async (changeValue: number) => {
     setIsLoading(true);
+
     await getTransactionsData(paginationMetadata.currentPage + changeValue);
     setIsLoading(false);
   };
 
   const handleRefresh = async () => {
     setIsLoading(true);
-    await fetchWalletData();
+    //await fetchWalletData();
     await getTransactionsData();
     setIsLoading(false);
   };

@@ -10,6 +10,7 @@ import {
 } from '../ui-lib';
 import { Transactions } from '../ui-lib';
 import { WalletContext } from '@marketplaces/utils-2';
+import { useRouter } from 'next/router';
 // Definir el tipo de 'token'
 interface WalletDashboardProps {
   userWalletData: any;
@@ -20,9 +21,10 @@ interface WalletDashboardProps {
 }
 
 export default function WalletDashboard(props: WalletDashboardProps) {
-  const { walletData } = useContext<any>(WalletContext);
-  console.log(walletData)
+  const { walletData, fetchWalletData } = useContext<any>(WalletContext);
+  console.log(walletData);
   const [showAddress, setShowAddress] = useState<boolean>(true);
+  const router = useRouter();
 
   const handleShowAddress = () => {
     setShowAddress(!showAddress);

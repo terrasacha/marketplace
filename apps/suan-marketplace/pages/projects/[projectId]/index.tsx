@@ -76,11 +76,14 @@ const Product: MyPage = (props: any) => {
 
     // Obtener del endpoint de luis la cantidad de tokens disponibles para comprar
     const mintProjectTokenContract = project.scripts.items.find(
-      (script: any) => script.script_type === 'mintProjectToken'
+      (script: any) => script.script_type === 'mintProjectToken' && script.Active === true
     );
 
+    console.log('project.scripts', project.scripts)
+    console.log('mintProjectTokenContract', mintProjectTokenContract)
+
     const spendContractFromMintProjectToken = project.scripts.items.find(
-      (script: any) => script.script_type === 'spend'
+      (script: any) => script.script_type === 'spend' && script.Active === true
     );
 
     if (mintProjectTokenContract && spendContractFromMintProjectToken) {

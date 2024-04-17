@@ -19,6 +19,7 @@ const getProduct = /* GraphQL */ `
     getProduct(id: $id) {
       id
       name
+      tokenGenesis
       description
       isActive
       order
@@ -276,12 +277,13 @@ export async function getProjects() {
                   amountOfTokens
                 }
               }
-              scripts {
+              scripts (filter: {Active: {eq: true}}){
                 items {
                   id
                   script_type
                   token_name
                   testnetAddr
+                  Active
                 }
               }
               productFeatures {
@@ -784,6 +786,35 @@ export async function getRates() {
   }
 }
 
+export async function getCoreWallet() {
+  try {
+    const response = await axios.post(
+      graphqlEndpoint,
+      {
+        query: `query listWallets {
+          listWallets(filter: {isAdmin: {eq: ${true}}}) {
+            items {
+              id
+              address
+            }
+          }
+        }`,
+      },
+      {
+        headers: {
+          'x-api-key': awsAppSyncApiKey,
+        },
+      }
+    );
+    if (response.data.data.listWallets.items.length > 0) {
+      return response.data.data.listWallets.items[0];
+    }
+  } catch (error) {
+    console.log(error);
+  }
+  return false;
+}
+
 export async function getImages(imageURL: string) {
   try {
     const url = `https://kiosuanbcrjsappcad3eb2dd1b14457b491c910d5aa45dd145518-dev.s3.amazonaws.com/public/${imageURL}`;
@@ -1030,7 +1061,13 @@ export async function getScriptsList() {
               pbk
               productID
               script_category
+              scriptParentID
               script_type
+              scripts {
+                items {
+                  id
+                }
+              }
               testnetAddr
               token_name
               updatedAt
@@ -1158,21 +1195,23 @@ export async function updateProduct({
   return response;
 }
 
-export async function deleteScriptById(policyID: string) {
+export async function deleteScriptById(policyID: string, newStatus: boolean) {
   try {
     const response = await axios.post(
       graphqlEndpoint,
       {
         query: `
-          mutation MyMutation($input: DeleteScriptInput!) {
-            deleteScript(input: $input) {
+          mutation MyMutation($input: UpdateScriptInput!) {
+            updateScript(input: $input) {
               id
+              Active
             }
           }
         `,
         variables: {
           input: {
             id: policyID,
+            Active: newStatus,
           },
         },
       },

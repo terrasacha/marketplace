@@ -404,6 +404,7 @@ export default function WalletSend(props: AccountProps) {
         signTransactionModal={signTransactionModal}
         handleOpenSignTransactionModal={handleOpenSignTransactionModal}
         newTransactionBuild={newTransactionBuild}
+        signType='sendTransaction'
       />
     </>
   );

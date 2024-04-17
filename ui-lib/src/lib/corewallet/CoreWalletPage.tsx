@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import Scripts from './scripts/Scripts';
+import { Card, PlusIcon } from '../ui-lib';
 
 export default function CoreWallet(props: any) {
   return (

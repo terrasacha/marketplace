@@ -1,4 +1,4 @@
-import { useContext, useState } from 'react';
+import { useContext, useEffect, useState } from 'react';
 import {
   UtxoInfoCard,
   CopyToClipboard,
@@ -62,6 +62,10 @@ export default function TransactionInfoCard(props: TransactionInfoCardProps) {
   } = props;
 
   const [collapsed, setCollapsed] = useState(is_collapsed);
+
+  useEffect(() => {
+    setCollapsed(true);
+  }, [tx_id]);
 
   const toggleCollapse = () => {
     setCollapsed(!collapsed);
