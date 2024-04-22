@@ -6,6 +6,9 @@
   padding: 6rem;
   min-height: 100vh;
 }
+.fila_activos tr:nth-child(odd) {
+  background: #3d3c3c  !important;
+}
 .description {
   display: inherit;
   justify-content: inherit;
