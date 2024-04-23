@@ -71,14 +71,17 @@ const calculateDeltaPrice = async(actualProfit : number, totalTokens : number, c
     } 
     return (totalDelta / rates.ADArateUSD).toFixed(4)
 }
-const calculateActualTokenPrice = (actualPrice : number, currency : string, rates : any) =>{
-    if(!actualPrice) return "unknown"
+const calculateActualTokenPrice = (actualPrice : number | string, currency : string, rates : any) =>{
+
+    const price = typeof actualPrice === 'string' ? parseFloat(actualPrice) : actualPrice;
+
+    if(!price) return "unknown"
 
     if(currency === "COP"){
         //const ADArateCOP = await coingeckoPrices("cardano", "COP")
-        return ((actualPrice / rates.ADArateCOP) * rates.ADArateUSD).toFixed(4)
+        return ((price / rates.ADArateCOP) * rates.ADArateUSD).toFixed(4)
     } 
-    return actualPrice.toFixed(2)
+    return price.toFixed(2)
 }
 const infoDistributionTokens = (data : any, historicalData : any) => {
     const parseData = JSON.parse(data)
@@ -118,7 +121,7 @@ const getRates = async() =>{
     return dataFormatted
   }
 export async function mapDashboardProject( project: any, projectData: any, projectId: string, walletData: any) {
-    
+    console.log('project', projectData)
     const rates = await getRates()
     const projectTokenDistribution = project.productFeatures.items.filter( ( pf : any) => pf.featureID === 'GLOBAL_TOKEN_AMOUNT_DISTRIBUTION')[0].value
     const projectMunicipio = project.productFeatures.items.filter( (pf : any) => pf.featureID === 'A_municipio')[0].value
@@ -225,7 +228,6 @@ export async function mapDashboardProject( project: any, projectData: any, proje
         tokenCurrency: tokenCurrency,
     };
     const stackData = infoDistributionTokens(projectTokenDistribution, projectPeriod)
-    console.log(stackData,'projectTokenDistribution')
     const projectDuration = formatProjectDuration(projectData.projectInfo.token.lifeTimeProject)
     const actualTokenPriceUSD = calculateActualTokenPrice(projectData.projectInfo.token.actualPeriodTokenPrice,relevantInfo.tokenCurrency, rates)
     const tokenDeltaPrice = await calculateDeltaPrice(actualProfit, totalTokens, relevantInfo.tokenCurrency, rates)
