@@ -64,12 +64,7 @@ function AssetModal({ assetData, onClose, modalSize }) {
           <tr>
             <td>Asset Name:</td>
             <td>
-              {assetData.fingerprint}
-              <CopyToClipboard
-                iconClassName="h-5 w-5 mr-2"
-                copyValue={assetData.asset_name}
-                tooltipLabel="Copiar !"
-              />
+              {assetData.asset_name}
             </td>
           </tr>
           </tbody>
