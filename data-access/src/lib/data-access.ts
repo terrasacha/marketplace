@@ -597,12 +597,22 @@ export async function getProject(projectId: string) {
           timeOnVerification
           projectReadiness
           categoryID
+          tokens {
+            items {
+              id
+              policyID
+              tokenName
+              supply
+              oraclePrice
+            }
+          }
           scripts {
             items {
               id
               script_type
               token_name
               testnetAddr
+              Active
             }
           }
           userProducts {
@@ -1162,37 +1172,88 @@ export async function updateWallet({
   return response;
 }
 
+export async function createToken({
+  tokenName,
+  supply,
+  productID,
+  policyID,
+  oraclePrice,
+}: any) {
+  try {
+    const response = await axios.post(
+      graphqlEndpoint,
+      {
+        query: `
+          mutation CreateToken($input: CreateTokenInput!) {
+            createToken(input: $input) {
+              id
+              supply
+              productID
+              policyID
+              oraclePrice
+            }
+          }
+        `,
+        variables: {
+          input: {
+            tokenName: tokenName,
+            supply: supply,
+            productID: productID,
+            policyID: policyID,
+            oraclePrice: oraclePrice,
+          },
+        },
+      },
+      {
+        headers: {
+          'x-api-key': awsAppSyncApiKey,
+        },
+      }
+    );
+
+    return response.data;
+  } catch (error) {
+    console.error('Error creating token: ', error);
+    return false;
+  }
+}
+
 export async function updateProduct({
   id,
   tokenClaimedByOwner,
   tokenGenesis,
 }: any) {
-  const response = await axios.post(
-    graphqlEndpoint,
-    {
-      query: `
-        mutation UpdateProduct($input: UpdateProductInput!) {
-          updateProduct(input: $input) {
-            id
+  try {
+    const response = await axios.post(
+      graphqlEndpoint,
+      {
+        query: `
+          mutation UpdateProduct($input: UpdateProductInput!) {
+            updateProduct(input: $input) {
+              id
+            }
           }
-        }
-      `,
-      variables: {
-        input: {
-          id: id,
-          tokenClaimedByOwner: tokenClaimedByOwner,
-          tokenGenesis,
+        `,
+        variables: {
+          input: {
+            id: id,
+            tokenClaimedByOwner: tokenClaimedByOwner,
+            tokenGenesis,
+          },
         },
       },
-    },
-    {
-      headers: {
-        'x-api-key': awsAppSyncApiKey,
-      },
-    }
-  );
+      {
+        headers: {
+          'x-api-key': awsAppSyncApiKey,
+        },
+      }
+    );
 
-  return response;
+    return response.data;
+  } catch (error) {
+    console.error('Error updating product:', error);
+    return false;
+  }
 }
 
 export async function deleteScriptById(policyID: string, newStatus: boolean) {

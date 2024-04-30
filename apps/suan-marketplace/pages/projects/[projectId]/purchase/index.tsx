@@ -13,7 +13,6 @@ const PurchasePage: MyPage = (props: any) => {
 
   useEffect(() => {
     if (typeof project === 'object') {
-      console.log( "ACAAAAAA")
       const tokenName: string =
         project.productFeatures.items.filter((item: any) => {
           return item.featureID === 'GLOBAL_TOKEN_NAME';
@@ -71,6 +70,7 @@ const PurchasePage: MyPage = (props: any) => {
         tokenPrice: actualPeriod?.price,
         categoryID: project.categoryID,
         scripts: project.scripts.items,
+        token: project.tokens.items[0],
         createdAt: new Date(project.createdAt).toLocaleDateString('es-ES'),
       };
       handleProjectInfo(projectInfo);
