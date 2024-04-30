@@ -125,6 +125,7 @@ export default function Scripts(props: any) {
         };
       });
 
+
       const actualPeriod: any = getActualPeriod(Date.now(), periods);
 
       return {
@@ -265,6 +266,8 @@ export default function Scripts(props: any) {
     );
     let addresses: Array<any> = [];
 
+    let marketplaceTokensAmount;
+
     if (stakeHoldersDistribution) {
       console.log(Object.keys(mapStakeHolders));
       Object.keys(mapStakeHolders).forEach((stakeHolder: string) => {
@@ -274,6 +277,10 @@ export default function Scripts(props: any) {
               stakeHolderDis.CONCEPTO.toLowerCase() === stakeHolder
           )?.CANTIDAD
         );
+
+        if (stakeHolder === 'inversionista') {
+          marketplaceTokensAmount = amountOfTokens;
+        }
 
         if (stakeHolder === 'administrador' && !ownerWallet) {
           const ownerAmountOfTokens = parseInt(
@@ -345,9 +352,34 @@ export default function Scripts(props: any) {
       });
 
       const postDistributionPayload = {
-        id: actualScript.productID,
-        tokenClaimedByOwner: ownerWallet ? true : false,
-        tokenGenesis: true,
+        updateProduct: {
+          id: actualScript.productID,
+          tokenClaimedByOwner: ownerWallet ? true : false,
+          tokenGenesis: true,
+        },
+        createToken: {
+          tokenName: actualScript.token_name,
+          supply: marketplaceTokensAmount,
+          productID: actualScript.productID,
+          policyID: actualScript.id,
+          oraclePrice: 0,
+        },
+        createOracleDatum: {
+          action: 'Update',
+          master_wallet_id:
+            '575a7f01272dd95a9ba2696e9e3d4895fe39b12350f7fa88a301b3ad',
+          oracle_wallet_name: 'SuanOracle',
+          payload: {
+            data: [
+              {
+                policy_id: actualScript.id,
+                token: actualScript.token_name,
+                price: tokenPrice,
+              },
+            ],
+            validity: 86400000,
+          },
+        },
       };
 
       setNewTransactionBuild({

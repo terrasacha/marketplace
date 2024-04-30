@@ -11,6 +11,7 @@ export default async function handler(req, res) {
         save_flag: payload.save_flag,
         project_id: payload.project_id,
         parent_policy_id: payload.parent_policy_id,
+        oracle_wallet_name: payload.oracle_wallet_name,
       };
 
       const url = `${process.env.NEXT_PUBLIC_TRAZABILIDAD_ENDPOINT}/api/v1/contracts/create-contract/${script_type}`;

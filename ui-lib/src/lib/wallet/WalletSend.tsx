@@ -1,4 +1,4 @@
-import React, { useContext, useState } from 'react';
+import React, { useContext, useEffect, useState } from 'react';
 import {
   Card,
   LoadingIcon,
@@ -103,7 +103,44 @@ export default function WalletSend(props: AccountProps) {
     }));
   };
 
-  const handleAddRecipientSelectedAssets = (index: number, data: any) => {
+  const handleAddRecipientSelectedAssets = async (index: number, data: any) => {
+    const payloadMultiAsset = data.map((asset: any) => {
+      return {
+        policyid: asset.policy_id,
+        tokens: {
+          [asset.assetName]: parseInt(asset.selectedSupply),
+        },
+      };
+    });
+
+    const destinyAddress = newTransactionGroup.recipients[index].walletAddress;
+    const lovelaceValue = Math.floor(
+      parseInt(newTransactionGroup.recipients[index].adaAmount) * 1000000
+    );
+
+    if (destinyAddress) {
+      // Obtener min ada value
+      const payload = {
+        address: destinyAddress,
+        lovelace: lovelaceValue ? lovelaceValue : 0,
+        multiAsset: payloadMultiAsset,
+      };
+
+      const request = await fetch('/api/transactions/min-lovelace', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(payload),
+      });
+      const minLovelaceValue = await request.json();
+
+      if (minLovelaceValue) {
+        handleInputChange(index, 'adaAmount', String(minLovelaceValue / 1000000));
+      }
+    }
+
+    console.log('Aca debo actualizar min ada', data);
     setNewTransactionGroup((prevState) => {
       const updatedRecipients = [...prevState.recipients];
       updatedRecipients[index] = {
@@ -252,10 +289,12 @@ export default function WalletSend(props: AccountProps) {
         return {
           address: recipient.walletAddress,
           lovelace: parseFloat(recipient.adaAmount) * 1000000,
-          multiAsset: Object.entries(mappedMultiAssets).map(([policyId, tokensObj]) => ({
-            policyid: policyId,
-            tokens: tokensObj,
-          })),
+          multiAsset: Object.entries(mappedMultiAssets).map(
+            ([policyId, tokensObj]) => ({
+              policyid: policyId,
+              tokens: tokensObj,
+            })
+          ),
         };
       });
 
@@ -404,7 +443,7 @@ export default function WalletSend(props: AccountProps) {
         signTransactionModal={signTransactionModal}
         handleOpenSignTransactionModal={handleOpenSignTransactionModal}
         newTransactionBuild={newTransactionBuild}
-        signType='sendTransaction'
+        signType="sendTransaction"
       />
     </>
   );

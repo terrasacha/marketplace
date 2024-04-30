@@ -60,17 +60,51 @@ export default function SignTransaction(props: SignTransactionProps) {
     if (signSubmitResponse?.txSubmit?.success) {
       // Actualizar un campo en tabla dynamo que indique que los tokens del proyecto han sido reclamados por el propietario o no
       // Actualizar campo token genesis
+      try {
+        const [updateProductResponse, createTokenResponse] =
+          await Promise.all([
+            fetch('/api/calls/backend/updateProduct', {
+              method: 'POST',
+              headers: {
+                'Content-Type': 'application/json',
+              },
+              body: JSON.stringify(
+                pendingTx.postDistributionPayload.updateProduct
+              ),
+            }),
+            fetch('/api/calls/backend/createToken', {
+              method: 'POST',
+              headers: {
+                'Content-Type': 'application/json',
+              },
+              body: JSON.stringify(
+                pendingTx.postDistributionPayload.createToken
+              ),
+            }),
+            // fetch('/api/transactions/oracle-datum', {
+            //   method: 'POST',
+            //   headers: {
+            //     'Content-Type': 'application/json',
+            //   },
+            //   body: JSON.stringify(
+            //     pendingTx.postDistributionPayload.createOracleDatum
+            //   ),
+            // }),
+          ]);
 
-      await fetch('/api/calls/backend/updateProduct', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify(pendingTx.postDistributionPayload),
-      });
+        const productUpdatedResponse = await updateProductResponse.json();
+        const createTokenResponseData = await createTokenResponse.json();
+        // const createOracleDatumResponseData = await createOracleDatumResponse.json();
 
-      const productUpdated = await response.json();
-      console.log('Actualización del producto: ', productUpdated);
+        console.log('Actualización del producto:', productUpdatedResponse);
+        console.log('Creación del token:', createTokenResponseData);
+        // console.log(
+        //   'Creación precio en oraculo:',
+        //   createOracleDatumResponseData
+        // );
+      } catch (error) {
+        console.error('Error:', error);
+      }
     }
 
     return signSubmitResponse;

@@ -147,11 +147,11 @@ export default function PaymentPage({}) {
   useEffect(() => {
     // Obtener del endpoint de luis la cantidad de tokens disponibles para comprar
     const mintProjectTokenContract = projectInfo.scripts.find(
-      (script: any) => script.script_type === 'mintProjectToken'
+      (script: any) => script.script_type === 'mintProjectToken' && script.Active === true
     );
 
     const spendContractFromMintProjectToken = projectInfo.scripts.find(
-      (script: any) => script.script_type === 'spend'
+      (script: any) => script.script_type === 'spend' && script.Active === true
     );
 
     if (mintProjectTokenContract && spendContractFromMintProjectToken) {
@@ -250,31 +250,32 @@ export default function PaymentPage({}) {
   };
 
   const handleBuildTx = async () => {
-    let crypto = 'cardano';
-    let base_currency = projectInfo.tokenCurrency;
+    // let crypto = 'cardano';
+    // let base_currency = projectInfo.tokenCurrency;
 
     // Convert usd price to Ada price from the internal oracle
 
     // Obtener conversión a partir de tabla de rates en dynamo
     // const currencyToCryptoRate = await coingeckoPrices(crypto, base_currency); Metodo antiguo
 
-    const rates = await getRates();
-    const currencyToCryptoRate = parseFloat(
-      rates[`ADArate${base_currency.toUpperCase()}`]
-    );
-    const adaPrice = parseFloat(projectInfo.tokenPrice) / currencyToCryptoRate;
-    console.log('Valor que paga el usuario por unidad de token: ', adaPrice);
+    // const rates = await getRates();
+    // const currencyToCryptoRate = parseFloat(
+    //   rates[`ADArate${base_currency.toUpperCase()}`]
+    // );
+    // const adaPrice = parseFloat(projectInfo.tokenPrice) / currencyToCryptoRate;
+    // console.log('Valor que paga el usuario por unidad de token: ', adaPrice);
+    // console.log('currencyToCryptoRate: ', currencyToCryptoRate);
 
     // Obtener corewallet
     const coreWallet = await getCoreWallet();
 
     // Traer script relacionado al proyecto para consultar policyID
     const mintProjectTokenContract = projectInfo.scripts.find(
-      (script: any) => script.script_type === 'mintProjectToken'
+      (script: any) => script.script_type === 'mintProjectToken' && script.Active === true
     );
 
     const spendContractFromMintProjectToken = projectInfo.scripts.find(
-      (script: any) => script.script_type === 'spend'
+      (script: any) => script.script_type === 'spend' && script.Active === true
     );
 
     // Obtener cantidad de tokens disponibles en el contrato sent
@@ -303,7 +304,8 @@ export default function PaymentPage({}) {
             {
               // Obtener Wallet Admin de dynamodb (unico isAdmin = true)
               address: coreWallet.address, // Wallet Admin Address
-              lovelace: parseInt(tokenAmount) * Math.round(adaPrice * 1000000),
+              lovelace:
+                parseInt(tokenAmount) * parseInt(projectInfo.token.oraclePrice),// ,
               multiAsset: [],
             },
             {
