@@ -1,142 +1,25 @@
 import { useState } from 'react';
-import { Modal, Button } from 'flowbite-react';
-import { AssetRow, CopyToClipboard } from '../../ui-lib'; // Importa AssetRow desde la ubicación correcta
-import {
-  JsonView,
-  allExpanded,
-  darkStyles,
-  defaultStyles,
-} from 'react-json-view-lite';
+import { AssetModal, AssetRow } from '../../ui-lib'; // Importa AssetRow desde la ubicación correcta
 
-function AssetModal({ assetData, onClose, modalSize }) {
-  return (
-<Modal show={true} onClose={onClose} size={modalSize} className='justify-center'>
-  <Modal.Header className=''>{assetData.asset_name}</Modal.Header>
-  <Modal.Body>
-    <div className="flex bg-custom-dark text-white rounded-lg justify-evenly	p-6 ">
-      {/* Primera columna (30% de ancho) */}
-      <div className="w-30 p-3 pt-10">
-        <img src="https://kiosuanbcrjsappcad3eb2dd1b14457b491c910d5aa45dd145518-dev.s3.amazonaws.com/public/category-projects-images/Mixto_token.png" alt="Asset Image" className="w-80 h-auto" />
-        <h1 className='text-white text-center my-4 text-2xl'>{assetData.asset_name}</h1>
-      </div>
-      {/* Segunda columna (70% de ancho) */}
-      <div className="w-70 p-3 overflow-y-scroll">
-        <table className="w-full">
-          <tbody className='activos fila_activos'>
-            <tr className='bg-gray-600'>
-              <td>Decimals: </td>
-              <td className='mr-3'>
-                {assetData.decimals}
-              </td>
-              <td>Quantity: </td>
-              <td>
-                {assetData.quantity}
-              </td>
-            </tr>
-          </tbody>
-      </table>
-        <hr className="my-2"/>
-        <h3 className='font-extrabold		'>Blockchain Data</h3>
-      <table className="w-full">
-        <tbody className='fila_activos'>
-          <tr>
-            <td>Policy ID:</td>
-            <td>
-              {assetData.policy_id}
-              <CopyToClipboard
-                iconClassName="h-5 w-5 mr-2"
-                copyValue={assetData.policy_id}
-                tooltipLabel="Copiar !"
-              />
-            </td>
-          </tr>
-          <tr className='bg-gray-600'>
-            <td>Fingerprint:</td>
-            <td>
-              {assetData.fingerprint}
-              <CopyToClipboard
-                iconClassName="h-5 w-5 mr-2"
-                copyValue={assetData.fingerprint}
-                tooltipLabel="Copiar !"
-              />
-            </td>
-          </tr>
-          <tr>
-            <td>Asset Name:</td>
-            <td>
-              {assetData.asset_name}
-            </td>
-          </tr>
-          </tbody>
-          </table>
-          <hr className="my-2"/>
-        {/* Información adicional: Metadata */}
-        <div className="">
-          <h2 className="font-extrabold		">Metadata</h2>
-
-          <table className="w-full">
-        <tbody className='fila_activos'>
-          <tr className='bg-gray-600'>
-            <td>Area:</td>
-            <td>
-              10              
-            </td>
-          </tr>
-          <tr>
-            <td>Category:</td>
-            <td>
-              PROYECTO_PLANTACIONES
-            </td>
-          </tr>
-          <tr className='bg-gray-600'>
-            <td>Create at:</td>
-            <td>
-              12/05/2022
-            </td>
-          </tr>
-          </tbody>
-          </table>
-        </div>
-        <hr className="my-2"/>
-        {/* Información adicional: Raw JSON */}
-        <div className="px-3">
-          <h2 className="font-extrabold	">Raw JSON</h2>
-          <JsonView
-                  data={assetData}
-                  shouldExpandNode={allExpanded}
-                  style={defaultStyles}
-                />
-        </div>
-      </div>
-    </div>
-  </Modal.Body>
-  <Modal.Footer>
-    <Button onClick={onClose}>Cerrar</Button>
-  </Modal.Footer>
-</Modal>
-
-
-  );
+interface AssesListProps {
+  assetsData: Array<any>;
+  itemsPerPage: number;
 }
 
-export default function AssetsList(props) {
+export default function AssetsList(props: AssesListProps) {
   const { assetsData, itemsPerPage } = props;
   const [currentPage, setCurrentPage] = useState(1);
-  const [openModal, setOpenModal] = useState(false);
-  const [selectedAsset, setSelectedAsset] = useState(null);
-  const [modalSize, setModalSize] = useState<string>('4xl');
 
-  const openAssetModal = (asset) => {
+  // Modal
+  const [openModal, setOpenModal] = useState<boolean>(false);
+  const [selectedAsset, setSelectedAsset] = useState<any>(null);
+
+  const handleOpenAssetModal = (asset: any = null) => {
     setSelectedAsset(asset);
-    setOpenModal(true);
+    setOpenModal(!openModal);
   };
 
-  const closeModal = () => {
-    setSelectedAsset(null);
-    setOpenModal(false);
-  };
-
-
+  // Pagination
   const indexOfLastItem = currentPage * itemsPerPage;
   const indexOfFirstItem = indexOfLastItem - itemsPerPage;
   const currentItems = assetsData.slice(indexOfFirstItem, indexOfLastItem);
@@ -153,24 +36,22 @@ export default function AssetsList(props) {
   };
 
   return (
-    <div>
+    <>
       {/* Tus activos serán listados acá */}
       <div className="space-y-2">
         {currentItems.map((asset, index) => (
-          <div key={index} onClick={() => openAssetModal(asset)}>
-          <AssetRow
-            key={index}
-            index={index}
-            asset_name={asset.asset_name}
-            quantity={asset.quantity}
-            price={asset.price}
-             // Agrega onClick para abrir la modal
-          /></div>
+          <div key={index} onClick={() => handleOpenAssetModal(asset)}>
+            <AssetRow
+              key={index}
+              index={index}
+              asset_name={asset.asset_name}
+              quantity={asset.quantity}
+              price={asset.price}
+              // Agrega onClick para abrir la modal
+            />
+          </div>
         ))}
       </div>
-      {openModal && selectedAsset && (
-        <AssetModal assetData={selectedAsset} onClose={closeModal} modalSize={modalSize} />
-      )}
       <div className="flex flex-col items-center mt-5">
         <span className="text-sm text-gray-700 dark:text-gray-400">
           Mostrando de{' '}
@@ -238,6 +119,13 @@ export default function AssetsList(props) {
           </button>
         </div>
       </div>
-    </div>
+      {openModal && selectedAsset && (
+        <AssetModal
+          assetData={selectedAsset}
+          handleOpenAssetModal={handleOpenAssetModal}
+          openModal={openModal}
+        />
+      )}
+    </>
   );
 }

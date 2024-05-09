@@ -1,4 +1,6 @@
 import { useRouter } from 'next/router';
+import { getIpfsUrlHash } from '@suan/utils/generic/ipfs';
+import { splitLongValues, txHashLink } from '@suan/utils/generic/conversions';
 import { Card, PlusIcon, SignTransactionModal } from '../../ui-lib';
 import ScriptsList from './ScriptsList';
 import { useContext, useEffect, useState } from 'react';
@@ -102,6 +104,34 @@ export default function Scripts(props: any) {
     }
   };
 
+  const getProjectLocation = (projectData: any) => {
+    const productFeatures = projectData.productFeatures.items;
+    if (productFeatures) {
+      const projectLocation =
+        productFeatures.find((item: any) => {
+          return item.featureID === 'C_ubicacion';
+        })?.value || '';
+
+      return projectLocation;
+    } else {
+      return false;
+    }
+  };
+
+  const getProjectArea = (projectData: any) => {
+    const productFeatures = projectData.productFeatures.items;
+    if (productFeatures) {
+      const projectArea =
+        productFeatures.find((item: any) => {
+          return item.featureID === 'D_area';
+        })?.value || '';
+
+      return projectArea;
+    } else {
+      return false;
+    }
+  };
+
   const getProjectTokenData = (projectData: any) => {
     const productFeatures = projectData.productFeatures.items;
     if (productFeatures) {
@@ -124,7 +154,6 @@ export default function Scripts(props: any) {
           amount: tkhd.amount,
         };
       });
-
 
       const actualPeriod: any = getActualPeriod(Date.now(), periods);
 
@@ -317,6 +346,42 @@ export default function Scripts(props: any) {
       console.log(addresses);
     }
 
+    // Get category image from IPFS
+
+    const IPFSUrlHash = getIpfsUrlHash(projectData.categoryID);
+    const tokenImageUrl = `ipfs://${IPFSUrlHash}`;
+
+    // Get Area & location (Hace falta trabajar sobre el seteo de estos datos en Plataforma)
+    // Area debe calcularse nuevamente al agregar o quitar predio
+    // Ubicación debe calcularse con base al centroide generado por los predios al agregar o quitar predio
+    const projectArea = getProjectArea(projectData)
+    const projectLocation = getProjectLocation(projectData)
+
+    const metadata = {
+      area: projectArea, // Tarea: almacenar dato de area
+      category: projectData.categoryID,
+      createdAt: projectData.createdAt,
+      description: projectData.description,
+      files: [
+        {
+          src: tokenImageUrl,
+          mediaType: 'image/png',
+        },
+      ],
+      image: tokenImageUrl,
+      location: projectLocation, // Tarea: almacenar coordenadas de centroide
+      mediaType: 'image/png',
+      project_id: projectData.id,
+      project_name: projectData.name,
+      token_name: actualScript.token_name,
+    };
+
+    console.log('metadata', metadata);
+    const truncated_metadata = splitLongValues(metadata);
+    console.log('truncated_metadata', truncated_metadata);
+
+    debugger;
+
     const payload = {
       mint_redeemer: 'Mint',
       payload: {
@@ -329,6 +394,9 @@ export default function Scripts(props: any) {
               [actualScript.token_name]: tokenToDistributeSum,
             },
           },
+        },
+        metadata: {
+          [actualScript.token_name]: truncated_metadata,
         },
       },
     };

@@ -20,6 +20,7 @@ import AssetsFilter from './wallet/select-assets/AssetsFilter';
 import AssetCard from './wallet/select-assets/AssetCard';
 import AssetRow from './wallet/assets/AssetRow';
 import AssetsList from './wallet/assets/AssetsList';
+import AssetModal from './wallet/assets/AssetModal';
 import WalletDashboard from './wallet/WalletDashboard';
 import WalletTransactions from './wallet/WalletTransactions';
 import WalletAssets from './wallet/WalletAssets';
@@ -71,6 +72,7 @@ import { CubeSendIcon } from './icons/CubeSendIcon';
 import { TransferInIcon } from './icons/TransferInIcon';
 import { SearchIcon } from './icons/SearchIcon';
 import { RefreshIcon } from './icons/RefreshIcon';
+import { XIcon } from './icons/XIcon';
 import ItemsDashboard from './dashboard/MainItemsDashboard';
 import TransactionsTable from './dashboard/TransactionsTable';
 import DetailItems from './dashboard/DetailItems';
@@ -130,6 +132,7 @@ export {
   AssetCard,
   AssetRow,
   AssetsList,
+  AssetModal,
   WalletIcon,
   CopyIcon,
   CopyCheckIcon,
@@ -152,6 +155,7 @@ export {
   TransferInIcon,
   SearchIcon,
   RefreshIcon,
+  XIcon,
   ItemsDashboard,
   TransactionsTable,
   DetailItems,
