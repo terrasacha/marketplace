@@ -1218,6 +1218,89 @@ export async function createToken({
   }
 }
 
+export async function updatePayment({ id, ref, statusCode }: any) {
+  try {
+    const response = await axios.post(
+      graphqlEndpoint,
+      {
+        query: `
+          mutation UpdatePayment($input: UpdatePaymentInput!) {
+            updatePayment(input: $input) {
+              id
+            }
+          }
+        `,
+        variables: {
+          input: {
+            id: id,
+            ref: ref,
+            statusCode: statusCode,
+          },
+        },
+      },
+      {
+        headers: {
+          'x-api-key': awsAppSyncApiKey,
+        },
+      }
+    );
+
+    return response.data;
+  } catch (error) {
+    console.error('Error updating product:', error);
+    return false;
+  }
+}
+
+export async function createPayment({
+  id,
+  orderType,
+  tokenAmount,
+  tokenName,
+  currency,
+  finalValue,
+  productID,
+  userID,
+}: any) {
+  try {
+    const response = await axios.post(
+      graphqlEndpoint,
+      {
+        query: `
+          mutation CreatePayment($input: CreatePaymentInput!) {
+            createPayment(input: $input) {
+              id
+            }
+          }
+        `,
+        variables: {
+          input: {
+            id: id,
+            orderType: orderType,
+            statusCode: null,
+            finalValue: finalValue,
+            tokenAmount: tokenAmount,
+            tokenName: tokenName,
+            currency: currency,
+            productID: productID,
+            userID: userID,
+          },
+        },
+      },
+      {
+        headers: {
+          'x-api-key': awsAppSyncApiKey,
+        },
+      }
+    );
+
+    return response.data;
+  } catch (error) {
+    console.error('Error updating product:', error);
+    return false;
+  }
+}
+
 export async function updateProduct({
   id,
   tokenClaimedByOwner,

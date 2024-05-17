@@ -13,10 +13,6 @@ const PurchasePage: MyPage = (props: any) => {
 
   useEffect(() => {
     if (typeof project === 'object') {
-      const tokenName: string =
-        project.productFeatures.items.filter((item: any) => {
-          return item.featureID === 'GLOBAL_TOKEN_NAME';
-        })[0]?.value || 'n/a';
       const tokenCurrency: string =
         project.productFeatures.items.filter((item: any) => {
           return item.featureID === 'GLOBAL_TOKEN_CURRENCY';
@@ -65,7 +61,6 @@ const PurchasePage: MyPage = (props: any) => {
         projectName: project.name,
         projectDescription: project.description,
         projectFeatures: project.productFeatures.items,
-        tokenName: tokenName,
         tokenCurrency: tokenCurrency,
         tokenPrice: actualPeriod?.price,
         categoryID: project.categoryID,

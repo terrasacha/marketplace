@@ -7,7 +7,7 @@ export interface ProjectInfoInterface {
   projectDescription: string;
   projectName: string;
   projectFeatures: string[];
-  tokenName: string;
+  token: any;
   tokenCurrency: string;
   tokenPrice: string;
   availableAmount: string;
@@ -25,7 +25,7 @@ export function ProjectInfoContextProvider({
     projectDescription: "",
     projectName: "",
     projectFeatures: [],
-    tokenName: "",
+    token: {},
     tokenCurrency: "",
     tokenPrice: "",
     availableAmount: "",

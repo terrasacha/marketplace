@@ -358,7 +358,7 @@ export default function Scripts(props: any) {
     const projectLocation = getProjectLocation(projectData)
 
     const metadata = {
-      area: projectArea, // Tarea: almacenar dato de area
+      area: '100', // Tarea: almacenar dato de area
       category: projectData.categoryID,
       createdAt: projectData.createdAt,
       description: projectData.description,
@@ -369,7 +369,7 @@ export default function Scripts(props: any) {
         },
       ],
       image: tokenImageUrl,
-      location: projectLocation, // Tarea: almacenar coordenadas de centroide
+      location: '0 0 0 0', // Tarea: almacenar coordenadas de centroide
       mediaType: 'image/png',
       project_id: projectData.id,
       project_name: projectData.name,
@@ -379,8 +379,6 @@ export default function Scripts(props: any) {
     console.log('metadata', metadata);
     const truncated_metadata = splitLongValues(metadata);
     console.log('truncated_metadata', truncated_metadata);
-
-    debugger;
 
     const payload = {
       mint_redeemer: 'Mint',
@@ -416,7 +414,7 @@ export default function Scripts(props: any) {
         tx_type: 'preview',
         walletAddress: walletAddress,
         buildTxResponse: buildTxResponse,
-        metadata: [],
+        metadata: truncated_metadata,
       });
 
       const postDistributionPayload = {

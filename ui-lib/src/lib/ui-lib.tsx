@@ -49,6 +49,7 @@ import BarGraphComponent from './graphs/BarGraphComponent';
 import StackBarGraphComponent from './graphs/StackBarGraphComponent';
 import SankeyGraphComponent from './graphs/SankeyGraphComponent';
 import PieChartComponent from './graphs/PieChartComponent';
+import EpaycoCheckout from './epayco/EpaycoCheckout';
 import { RestoreWalletProvider } from './store/restore-wallet-context';
 import { WalletIcon } from './icons/WalletIcon';
 import { CopyIcon } from './icons/CopyIcon';
@@ -60,6 +61,7 @@ import { ExternalLinkIcon } from './icons/ExternalLinkIcon';
 import { EyeIcon } from './icons/EyeIcon';
 import { EyeOffIcon } from './icons/EyeOffIcon';
 import { TrashIcon } from './icons/TrashIcon';
+import { CheckIcon } from './icons/CheckIcon';
 import { PlusIcon } from './icons/PlusIcon';
 import { PencilIcon } from './icons/PencilIcon';
 import { ScaleIcon } from './icons/ScaleIcon';
@@ -101,6 +103,7 @@ export {
   WalletCreatedSucessfully,
   RestoreWalletContext,
   PieChartCustom,
+  EpaycoCheckout,
   RestoreWalletProvider,
   CoreWalletPage,
   CardanoWallet,
@@ -143,6 +146,7 @@ export {
   EyeIcon,
   EyeOffIcon,
   TrashIcon,
+  CheckIcon,
   PlusIcon,
   PencilIcon,
   ScaleIcon,

@@ -14,6 +14,10 @@
   }
 }
 
+.epayco-button-render{
+  display: none !important;
+}
+
 .progress-ring__circle {
   stroke-dasharray: 400, 400;
   transition: stroke-dashoffset 0.35s;

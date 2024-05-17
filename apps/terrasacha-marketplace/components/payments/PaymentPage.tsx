@@ -2,12 +2,11 @@
 
 import {
   Card,
+  EpaycoCheckout,
   LoadingIcon,
   SignTransactionModal,
   TransactionInfoCard,
 } from '@marketplaces/ui-lib';
-import { BillingCard } from '@terrasacha//components/payments/BillingCard';
-import { BuyTokenCard } from '@terrasacha//components/payments/BuyTokenCard';
 import { useContext, useEffect, useState } from 'react';
 import { TokenDetailSection } from './TokenDetailSection';
 import ProjectInfoContext from '@terrasacha/store/projectinfo-context';
@@ -27,7 +26,8 @@ import Link from 'next/link';
 import { cardanoscan } from '@terrasacha/backend/mint';
 import { WalletContext, mapBuildTransactionInfo } from '@marketplaces/utils-2';
 import { toast } from 'sonner';
-import AlertMessage from '../common/AlertMessage';
+import Swal from 'sweetalert2';
+import { getCurrentUser } from 'aws-amplify/auth';
 
 const PURCHASE_STEPS = {
   BUYING: 'buying',
@@ -64,6 +64,11 @@ export default function PaymentPage({}) {
     number | null
   >(null);
 
+  const [showCheckout, setShowCheckout] = useState(false);
+  const [invoiceID, setInvoiceID] = useState<string>(
+    String(Math.floor(Math.random() * (3999999 - 1)) + 1)
+  );
+
   const [alertMessage, setAlertMessage] = useState<{
     type: string;
     title: string;
@@ -90,6 +95,56 @@ export default function PaymentPage({}) {
 
   const tokenImageUrl = `https://coffee-dry-barnacle-850.mypinata.cloud/ipfs/${IPFSUrlHash}`;
   console.log('tokenImageUrl', tokenImageUrl);
+
+  const handlePayment = () => {
+    console.log(projectInfo);
+    Swal.fire({
+      title: 'Estas seguro de realizar la compra?',
+      text: 'Seras enviado a la pasarela de pagos sin marcha atras',
+      icon: 'warning',
+      showCancelButton: true,
+      confirmButtonColor: '#3085d6',
+      cancelButtonColor: '#d33',
+      confirmButtonText: 'Si, quiero comprar!',
+      cancelButtonText: 'Cancelar',
+    }).then(async (result) => {
+      if (result.isConfirmed) {
+        // Crear orden de compra en base de datos
+        // Calcular precio
+
+        const { userId } = await getCurrentUser();
+
+        let payload: any = {
+          id: invoiceID,
+          orderType: 'epayco',
+          finalValue:
+            parseFloat(projectInfo.tokenPrice) * parseInt(tokenAmount),
+          tokenAmount: tokenAmount,
+          tokenName: projectInfo.token.tokenName,
+          currency: projectInfo.tokenCurrency,
+          productID: projectInfo.projectID,
+          userID: null,
+        };
+
+        if (userId) {
+          payload.userID = userId;
+        }
+
+        const response = await fetch('/api/calls/backend/createPayment', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify(payload),
+        });
+        const buildTxResponse = await response.json();
+
+        console.log('buildTxResponse - Creación de pago', buildTxResponse);
+
+        setShowCheckout(true);
+      }
+    });
+  };
 
   useEffect(() => {
     if (alertMessage.visible) {
@@ -150,7 +205,8 @@ export default function PaymentPage({}) {
   useEffect(() => {
     // Obtener del endpoint de luis la cantidad de tokens disponibles para comprar
     const mintProjectTokenContract = projectInfo.scripts.find(
-      (script: any) => script.script_type === 'mintProjectToken' && script.Active === true
+      (script: any) =>
+        script.script_type === 'mintProjectToken' && script.Active === true
     );
 
     const spendContractFromMintProjectToken = projectInfo.scripts.find(
@@ -274,7 +330,8 @@ export default function PaymentPage({}) {
 
     // Traer script relacionado al proyecto para consultar policyID
     const mintProjectTokenContract = projectInfo.scripts.find(
-      (script: any) => script.script_type === 'mintProjectToken' && script.Active === true
+      (script: any) =>
+        script.script_type === 'mintProjectToken' && script.Active === true
     );
 
     const spendContractFromMintProjectToken = projectInfo.scripts.find(
@@ -308,7 +365,7 @@ export default function PaymentPage({}) {
               // Obtener Wallet Admin de dynamodb (unico isAdmin = true)
               address: coreWallet.address, // Wallet Admin Address
               lovelace:
-                parseInt(tokenAmount) * parseInt(projectInfo.token.oraclePrice),// ,
+                parseInt(tokenAmount) * parseInt(projectInfo.token.oraclePrice), // ,
               multiAsset: [],
             },
             {
@@ -532,7 +589,7 @@ export default function PaymentPage({}) {
           fees: parseInt(feeAmount) / 1000000, //Comision,
           //metadataUrl: JSON.stringify(metadata),
           network: networkId,
-          tokenName: projectInfo.tokenName,
+          tokenName: projectInfo.token.tokenName,
           txCborhex: signedTx,
           txHash: txHashValue,
           txIn: utxos[0].input.txHash,
@@ -679,7 +736,7 @@ export default function PaymentPage({}) {
               <div className="space-y-4">
                 <TokenDetailSection
                   projectName={projectInfo.projectName}
-                  tokenName={projectInfo.tokenName}
+                  tokenName={projectInfo.token.tokenName}
                   tokenCurrency={projectInfo.tokenCurrency}
                   creationDate={projectInfo.createdAt}
                   availableAmount={availableTokenAmount}
@@ -709,6 +766,21 @@ export default function PaymentPage({}) {
                 >
                   Continuar
                 </button>
+                <button
+                  className="flex justify-center w-full text-amber-400 bg-custom-dark hover:bg-custom-dark-hover focus:outline-none focus:ring-4 focus:ring-gray-300 font-medium rounded px-5 py-2.5"
+                  onClick={() => handlePayment()}
+                >
+                  Pagar FIAT
+                </button>
+                {showCheckout && (
+                  <EpaycoCheckout
+                    amount={projectInfo.tokenPrice}
+                    currency={projectInfo.tokenCurrency}
+                    tokenQuantity={tokenAmount}
+                    tokenName={projectInfo.token.tokenName}
+                    invoiceID={invoiceID}
+                  ></EpaycoCheckout>
+                )}
               </div>
             )}
             {/* Pago Billetera Exterior */}
@@ -739,7 +811,7 @@ export default function PaymentPage({}) {
                             Tokens por recibir:{' '}
                           </span>
                           <span>
-                            {tokenAmount} ({projectInfo.tokenName})
+                            {tokenAmount} ({projectInfo.token.tokenName})
                           </span>
                         </div>
                       </div>
@@ -767,7 +839,7 @@ export default function PaymentPage({}) {
                       <div>
                         <span className="font-bold">Tokens Recibidos: </span>
                         <span>
-                          {tokenAmount} ({projectInfo.tokenName})
+                          {tokenAmount} ({projectInfo.token.tokenName})
                         </span>
                       </div>
                     </div>
@@ -824,4 +896,3 @@ export default function PaymentPage({}) {
     </>
   );
 }
-
