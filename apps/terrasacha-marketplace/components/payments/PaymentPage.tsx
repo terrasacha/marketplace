@@ -119,7 +119,7 @@ export default function PaymentPage({}) {
           orderType: 'epayco',
           finalValue:
             parseFloat(projectInfo.tokenPrice) * parseInt(tokenAmount),
-          tokenAmount: tokenAmount,
+          tokenAmount: parseInt(tokenAmount),
           tokenName: projectInfo.token.tokenName,
           currency: projectInfo.tokenCurrency,
           productID: projectInfo.projectID,

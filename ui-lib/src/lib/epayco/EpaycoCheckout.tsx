@@ -14,7 +14,7 @@ const EpaycoCheckout = (props: CheckoutData) => {
   const finalAmount = String(parseFloat(amount) * parseInt(tokenQuantity));
 
   // Creamos una referencia para el elemento que queremos simular el clic
-  const pagoRef = useRef(null);
+  const pagoRef = useRef<any>(null);
 
   useEffect(() => {
     let btnpay = document.getElementsByClassName('epayco-button-render');
