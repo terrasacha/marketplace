@@ -127,19 +127,18 @@ export async function getServerSideProps(context: any) {
   }
 
   const response2 = await fetch(
-    `${process.env.NEXT_PUBLIC_EPAYCO_ENDPOINT}/payment/transaction`,
-    {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-        Authorization: `Bearer ${bearer_token}` || '',
-      },
-      body: JSON.stringify({
-        referencePayco: ref_payco,
-      }),
-    }
+    `https://secure.epayco.co/validation/v1/reference/${ref_payco}`
   );
   const data2 = await response2.json();
+
+  if (!data2.success) {
+    return {
+      redirect: {
+        destination: '/',
+        permanent: false,
+      },
+    };
+  }
 
   if (!data2.success) {
     return {
