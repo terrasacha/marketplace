@@ -117,14 +117,15 @@ export async function getServerSideProps(context: any) {
   const data = await response.json();
   const bearer_token = data.token;
 
-  if (!bearer_token) {
-    return {
-      redirect: {
-        destination: '/',
-        permanent: false,
-      },
-    };
-  }
+  // if (!bearer_token) {
+  //   console.log('Me saco por aca1!')
+  //   return {
+  //     redirect: {
+  //       destination: '/',
+  //       permanent: false,
+  //     },
+  //   };
+  // }
 
   const response2 = await fetch(
     `${process.env.NEXT_PUBLIC_EPAYCO_ENDPOINT}/payment/transaction`,
@@ -141,14 +142,15 @@ export async function getServerSideProps(context: any) {
   );
   const data2 = await response2.json();
 
-  if (!data2.success) {
-    return {
-      redirect: {
-        destination: '/',
-        permanent: false,
-      },
-    };
-  }
+  // if (!data2.success) {
+  //   console.log('Me saco por aca2!')
+  //   return {
+  //     redirect: {
+  //       destination: '/',
+  //       permanent: false,
+  //     },
+  //   };
+  // }
 
   const info = data2.data.transaction;
   let infoPay;

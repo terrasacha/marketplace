@@ -22,6 +22,7 @@ import AssetRow from './wallet/assets/AssetRow';
 import AssetsList from './wallet/assets/AssetsList';
 import AssetModal from './wallet/assets/AssetModal';
 import WalletDashboard from './wallet/WalletDashboard';
+import ClaimTokens from './wallet/ClaimTokens';
 import WalletTransactions from './wallet/WalletTransactions';
 import WalletAssets from './wallet/WalletAssets';
 import WalletSend from './wallet/WalletSend';
@@ -91,6 +92,7 @@ export {
   Sidebar,
   WalletAssets,
   WalletDashboard,
+  ClaimTokens,
   WalletTransactions,
   WalletSend,
   TradeCard,

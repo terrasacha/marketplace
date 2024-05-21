@@ -55,7 +55,7 @@ export default function PaymentPage({}) {
   const [payingStep, setPayingStep] = useState<string>(PAYING_STEPS.STARTING);
 
   const { projectInfo } = useContext<any>(ProjectInfoContext);
-  const { walletID, walletAddress, walletBySuan, walletData, fetchWalletData } =
+  const { walletID, walletAddress, walletStakeAddress, walletBySuan, walletData, fetchWalletData } =
     useContext<any>(WalletContext);
   const [newTransactionBuild, setNewTransactionBuild] = useState<any>(null);
   const [signTransactionModal, setSignTransactionModal] = useState(false);
@@ -113,6 +113,11 @@ export default function PaymentPage({}) {
         // Calcular precio
 
         const { userId } = await getCurrentUser();
+        
+        const rates = await getRates();
+        const currencyToCryptoRate = parseFloat(
+          rates[`ADArate${projectInfo.tokenCurrency.toUpperCase()}`]
+        );
 
         let payload: any = {
           id: invoiceID,
@@ -124,6 +129,9 @@ export default function PaymentPage({}) {
           currency: projectInfo.tokenCurrency,
           productID: projectInfo.projectID,
           userID: null,
+          walletAddress: walletAddress,
+          walletStakeAddress: walletStakeAddress,
+          exchangeRate: currencyToCryptoRate
         };
 
         if (userId) {

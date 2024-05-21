@@ -579,6 +579,41 @@ export async function getProjectTokenDistribution(projectId: string) {
   }
 }
 
+export async function getPendingTokensForClaiming(userId: string) {
+  const response = await axios.post(
+    graphqlEndpoint,
+    {
+      query: `query getPayment {
+        listPayments(filter: {userID: {eq: "${userId}"}, statusCode: {eq: "1"}, claimedByUser: {eq: false}}) {
+          items {
+            id
+            userID
+            claimedByUser
+            tokenName
+            tokenAmount
+            statusCode
+          }
+        }
+      }`,
+    },
+    {
+      headers: {
+        'x-api-key': awsAppSyncApiKey,
+      },
+    }
+  );
+
+  const data = response.data.data.listPayments.items;
+
+  if (data) {
+    const pendingTokensForClaiming = data.filter(
+      (payment: any) => payment.statusCode === '1' && payment.claimedByUser === false
+    );
+    return pendingTokensForClaiming;
+  }
+  return false;
+}
+
 export async function getProject(projectId: string) {
   const response = await axios.post(
     graphqlEndpoint,
@@ -1261,6 +1296,9 @@ export async function createPayment({
   finalValue,
   productID,
   userID,
+  walletAddress,
+  walletStakeAddress,
+  exchangeRate
 }: any) {
   try {
     const response = await axios.post(
@@ -1284,6 +1322,10 @@ export async function createPayment({
             currency: currency,
             productID: productID,
             userID: userID,
+            walletAddress,
+            walletStakeAddress,
+            claimedByUser: false,
+            exchangeRate: exchangeRate,
           },
         },
       },
