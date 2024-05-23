@@ -91,7 +91,7 @@ PayResponsePage.Layout = 'Main';
 export async function getServerSideProps(context: any) {
   const { req, query } = context;
   const { ref_payco = '' } = query;
-
+  console.log(ref_payco);
   const response = await fetch(
     `https://secure.epayco.co/validation/v1/reference/${ref_payco}`
   );
@@ -106,18 +106,17 @@ export async function getServerSideProps(context: any) {
     };
   }
 
-  const info = data.data.transaction;
+  const info = data.data;
   let infoPay;
 
   infoPay = {
-    date: info.date,
-    response: info.response,
-    reference: info.invoice,
-    reason: info.responseReasonText,
-    receiptOfPayment: info.transactionId,
-    bank: info.bank,
-    auth: info.autorizacion,
-    total: info.amount.toString() + ' ' + info.currency,
+    date: info.x_transaction_date,
+    response: info.x_respuesta,
+    reference: info.x_id_invoice,
+    reason: info.x_response_reason_text,
+    receiptOfPayment: info.x_transaction_id,
+    bank: info.x_bank_name,
+    total: info.x_amount.toString() + ' ' + info.x_currency_code,
   };
 
   return {
