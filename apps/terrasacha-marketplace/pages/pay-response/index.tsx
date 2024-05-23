@@ -92,46 +92,12 @@ export async function getServerSideProps(context: any) {
   const { req, query } = context;
   const { ref_payco = '' } = query;
 
-  // const response = await fetch(
-  //   'https://secure.epayco.co/validation/v1/reference/' + ref_payco
-  // );
-
-  const username = 'neider.smith1@gmail.com';
-  const password = 'passwordSegura123.';
-
-  const encodedCredentials = Buffer.from(`${username}:${password}`).toString(
-    'base64'
-  );
-
   const response = await fetch(
-    `${process.env.NEXT_PUBLIC_EPAYCO_ENDPOINT}/login/mail`,
-    {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-        public_key: process.env.NEXT_PUBLIC_EPAYCO_PUBLIC_KEY || '',
-        Authorization: `Basic ${encodedCredentials}` || '',
-      },
-    }
-  );
-  const data = await response.json();
-  const bearer_token = data.token;
-
-  if (!bearer_token) {
-    return {
-      redirect: {
-        destination: '/',
-        permanent: false,
-      },
-    };
-  }
-
-  const response2 = await fetch(
     `https://secure.epayco.co/validation/v1/reference/${ref_payco}`
   );
-  const data2 = await response2.json();
+  const data = await response.json();
 
-  if (!data2.success) {
+  if (!data.success) {
     return {
       redirect: {
         destination: '/',
@@ -140,16 +106,7 @@ export async function getServerSideProps(context: any) {
     };
   }
 
-  if (!data2.success) {
-    return {
-      redirect: {
-        destination: '/',
-        permanent: false,
-      },
-    };
-  }
-
-  const info = data2.data.transaction;
+  const info = data.data.transaction;
   let infoPay;
 
   infoPay = {

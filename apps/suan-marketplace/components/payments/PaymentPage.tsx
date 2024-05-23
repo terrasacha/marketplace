@@ -52,8 +52,14 @@ export default function PaymentPage({}) {
   const [payingStep, setPayingStep] = useState<string>(PAYING_STEPS.STARTING);
 
   const { projectInfo } = useContext<any>(ProjectInfoContext);
-  const { walletID, walletAddress, walletStakeAddress, walletBySuan, walletData, fetchWalletData } =
-    useContext<any>(WalletContext);
+  const {
+    walletID,
+    walletAddress,
+    walletStakeAddress,
+    walletBySuan,
+    walletData,
+    fetchWalletData,
+  } = useContext<any>(WalletContext);
   const [newTransactionBuild, setNewTransactionBuild] = useState<any>(null);
   const [signTransactionModal, setSignTransactionModal] = useState(false);
   const [exchangeRate, setExchangeRate] = useState<number>(0);
@@ -110,7 +116,7 @@ export default function PaymentPage({}) {
         // Calcular precio
 
         const { userId } = await getCurrentUser();
-        
+
         const rates = await getRates();
         const currencyToCryptoRate = parseFloat(
           rates[`ADArate${projectInfo.tokenCurrency.toUpperCase()}`]
@@ -128,13 +134,13 @@ export default function PaymentPage({}) {
           userID: null,
           walletAddress: walletAddress,
           walletStakeAddress: walletStakeAddress,
-          exchangeRate: currencyToCryptoRate
+          exchangeRate: currencyToCryptoRate,
         };
 
         if (userId) {
           payload.userID = userId;
         }
-        
+
         const response = await fetch('/api/calls/backend/createPayment', {
           method: 'POST',
           headers: {
@@ -765,18 +771,20 @@ export default function PaymentPage({}) {
                     required
                   />
                 </div>
-                <button
-                  className="flex justify-center w-full text-amber-400 bg-custom-dark hover:bg-custom-dark-hover focus:outline-none focus:ring-4 focus:ring-gray-300 font-medium rounded px-5 py-2.5"
-                  onClick={handleCreateTransactionStep}
-                >
-                  Continuar
-                </button>
-                <button
-                  className="flex justify-center w-full text-amber-400 bg-custom-dark hover:bg-custom-dark-hover focus:outline-none focus:ring-4 focus:ring-gray-300 font-medium rounded px-5 py-2.5"
-                  onClick={() => handlePayment()}
-                >
-                  Pagar FIAT
-                </button>
+                <div className="flex space-x-2">
+                  <button
+                    className="flex justify-center w-full text-amber-400 bg-custom-dark hover:bg-custom-dark-hover focus:outline-none focus:ring-4 focus:ring-gray-300 font-medium rounded px-5 py-2.5"
+                    onClick={handleCreateTransactionStep}
+                  >
+                    Pago Crypto
+                  </button>
+                  <button
+                    className="flex justify-center w-full text-amber-400 bg-custom-dark hover:bg-custom-dark-hover focus:outline-none focus:ring-4 focus:ring-gray-300 font-medium rounded px-5 py-2.5"
+                    onClick={() => handlePayment()}
+                  >
+                    Pago FIAT
+                  </button>
+                </div>
                 {showCheckout && (
                   <EpaycoCheckout
                     amount={projectInfo.tokenPrice}
