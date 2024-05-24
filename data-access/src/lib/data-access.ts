@@ -607,7 +607,8 @@ export async function getPendingTokensForClaiming(userId: string) {
 
   if (data) {
     const pendingTokensForClaiming = data.filter(
-      (payment: any) => payment.statusCode === '1' && payment.claimedByUser === false
+      (payment: any) =>
+        payment.statusCode === '1' && payment.claimedByUser === false
     );
     return pendingTokensForClaiming;
   }
@@ -908,6 +909,67 @@ export async function getUser(userId: string) {
   );
 
   return response.data.data.getUser;
+}
+
+export async function isValidUser(userId: string) {
+  const response = await axios.post(
+    graphqlEndpoint,
+    {
+      query: `query MyQuery {
+        getUser(id: "${userId}") {
+          name
+          isValidated
+          validationID
+        }
+      }`,
+    },
+    {
+      headers: {
+        'x-api-key': awsAppSyncApiKey,
+      },
+    }
+  );
+
+  const user = response.data.data.getUser;
+
+  if (user) {
+    return {
+      isValidated: user.isValidated,
+      validationID: user.validationID,
+    };
+  }
+
+  return false;
+}
+
+
+export async function validateUser(userId: string) {
+  const response = await axios.post(
+    graphqlEndpoint,
+    {
+      query: `
+        mutation UpdateUser($input: UpdateUserInput!) {
+          updateUser(input: $input) {
+            id
+            isValidated
+          }
+        }
+      `,
+      variables: {
+        input: {
+          id: userId,
+          isValidated: true,
+        },
+      },
+    },
+    {
+      headers: {
+        'x-api-key': awsAppSyncApiKey,
+      },
+    }
+  );
+
+  return response;
 }
 
 export async function verifyWallet(stakeAddress: string) {
@@ -1298,7 +1360,7 @@ export async function createPayment({
   userID,
   walletAddress,
   walletStakeAddress,
-  exchangeRate
+  exchangeRate,
 }: any) {
   try {
     const response = await axios.post(

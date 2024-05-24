@@ -55,8 +55,14 @@ export default function PaymentPage({}) {
   const [payingStep, setPayingStep] = useState<string>(PAYING_STEPS.STARTING);
 
   const { projectInfo } = useContext<any>(ProjectInfoContext);
-  const { walletID, walletAddress, walletStakeAddress, walletBySuan, walletData, fetchWalletData } =
-    useContext<any>(WalletContext);
+  const {
+    walletID,
+    walletAddress,
+    walletStakeAddress,
+    walletBySuan,
+    walletData,
+    fetchWalletData,
+  } = useContext<any>(WalletContext);
   const [newTransactionBuild, setNewTransactionBuild] = useState<any>(null);
   const [signTransactionModal, setSignTransactionModal] = useState(false);
   const [exchangeRate, setExchangeRate] = useState<number>(0);
@@ -96,62 +102,18 @@ export default function PaymentPage({}) {
   const tokenImageUrl = `https://coffee-dry-barnacle-850.mypinata.cloud/ipfs/${IPFSUrlHash}`;
   console.log('tokenImageUrl', tokenImageUrl);
 
-  const handlePayment = () => {
-    console.log(projectInfo);
-    Swal.fire({
-      title: 'Estas seguro de realizar la compra?',
-      text: 'Seras enviado a la pasarela de pagos sin marcha atras',
-      icon: 'warning',
-      showCancelButton: true,
-      confirmButtonColor: '#3085d6',
-      cancelButtonColor: '#d33',
-      confirmButtonText: 'Si, quiero comprar!',
-      cancelButtonText: 'Cancelar',
-    }).then(async (result) => {
-      if (result.isConfirmed) {
-        // Crear orden de compra en base de datos
-        // Calcular precio
+  const validateTokenAmount = () => {
+    if (parseInt(tokenAmount) <= 0 || isNaN(parseInt(tokenAmount))) {
+      toast.error('Ingresa una cantidad valida ...');
+      return false;
+    }
 
-        const { userId } = await getCurrentUser();
-        
-        const rates = await getRates();
-        const currencyToCryptoRate = parseFloat(
-          rates[`ADArate${projectInfo.tokenCurrency.toUpperCase()}`]
-        );
+    if (!Number.isInteger(parseFloat(tokenAmount))) {
+      toast.error('Ingresa una cantidad entera de tokens ...');
+      return false;
+    }
 
-        let payload: any = {
-          id: invoiceID,
-          orderType: 'epayco',
-          finalValue:
-            parseFloat(projectInfo.tokenPrice) * parseInt(tokenAmount),
-          tokenAmount: parseInt(tokenAmount),
-          tokenName: projectInfo.token.tokenName,
-          currency: projectInfo.tokenCurrency,
-          productID: projectInfo.projectID,
-          userID: null,
-          walletAddress: walletAddress,
-          walletStakeAddress: walletStakeAddress,
-          exchangeRate: currencyToCryptoRate
-        };
-
-        if (userId) {
-          payload.userID = userId;
-        }
-
-        const response = await fetch('/api/calls/backend/createPayment', {
-          method: 'POST',
-          headers: {
-            'Content-Type': 'application/json',
-          },
-          body: JSON.stringify(payload),
-        });
-        const buildTxResponse = await response.json();
-
-        console.log('buildTxResponse - Creación de pago', buildTxResponse);
-
-        setShowCheckout(true);
-      }
-    });
+    return true;
   };
 
   useEffect(() => {
@@ -252,6 +214,10 @@ export default function PaymentPage({}) {
 
   const validateConditions = () => {
     console.log(walletData.balance);
+    if (!validateTokenAmount()) {
+      return false;
+    }
+
     if (!availableTokenAmount) {
       toast.error('Parece que ha ocurrido un error ...');
       return false;
@@ -316,6 +282,123 @@ export default function PaymentPage({}) {
     return data;
   };
 
+  const validateValidUser = async (userId: string) => {
+    const response = await fetch(`/api/validations/validUser?userId=${userId}`);
+    const userValidation = await response.json();
+
+    if (userValidation) {
+      if (userValidation.isValidated) {
+        return true;
+      }
+      console.log('Usuario sin validar')
+      if(userValidation.validationID) {
+
+        Swal.fire({
+          title: 'Validación pendiente',
+          text: 'Parece que tienes una validación pendiente, debes completarla antes de poder realizar una compra.',
+          icon: 'warning',
+          showCancelButton: true,
+          confirmButtonColor: '#3085d6',
+          cancelButtonColor: '#d33',
+          confirmButtonText: 'Si, quiero verificarme!',
+          cancelButtonText: 'Cancelar',
+        }).then(async (result) => {
+          if (result.isConfirmed) {
+            console.log('Continuar con validación')
+          }
+        });
+
+      }
+      
+    }
+
+    Swal.fire({
+      title: 'Validación pendiente',
+      text: 'Debes completar una verificación de identidad antes de poder realizar una compra.',
+      icon: 'warning',
+      showCancelButton: true,
+      confirmButtonColor: '#3085d6',
+      cancelButtonColor: '#d33',
+      confirmButtonText: 'Si, quiero verificarme!',
+      cancelButtonText: 'Cancelar',
+    }).then(async (result) => {
+      if (result.isConfirmed) {
+        console.log('Validar por primera vez')
+        const url = `https://identity.truora.com/preview/IPFe5575f69c6c12802870e66a8e5f6a94c?trigger_user=neider.smith1%40gmail.com&account_id=${userId}`;
+        window.open(url, '_blank');
+      }
+    });
+
+    return false;
+  };
+
+  const handlePayment = async () => {
+    const { userId } = await getCurrentUser();
+
+    const validateUser = await validateValidUser(userId)
+
+    if (!validateUser) {
+      return;
+    }
+
+    if (!validateTokenAmount()) {
+      return;
+    }
+
+    Swal.fire({
+      title: 'Estas seguro de realizar la compra?',
+      text: 'Seras enviado a la pasarela de pagos sin marcha atras',
+      icon: 'warning',
+      showCancelButton: true,
+      confirmButtonColor: '#3085d6',
+      cancelButtonColor: '#d33',
+      confirmButtonText: 'Si, quiero comprar!',
+      cancelButtonText: 'Cancelar',
+    }).then(async (result) => {
+      if (result.isConfirmed) {
+        // Crear orden de compra en base de datos
+        // Calcular precio
+
+        const rates = await getRates();
+        const currencyToCryptoRate = parseFloat(
+          rates[`ADArate${projectInfo.tokenCurrency.toUpperCase()}`]
+        );
+
+        let payload: any = {
+          id: invoiceID,
+          orderType: 'epayco',
+          finalValue:
+            parseFloat(projectInfo.tokenPrice) * parseInt(tokenAmount),
+          tokenAmount: tokenAmount,
+          tokenName: projectInfo.token.tokenName,
+          currency: projectInfo.tokenCurrency,
+          productID: projectInfo.projectID,
+          userID: null,
+          walletAddress: walletAddress,
+          walletStakeAddress: walletStakeAddress,
+          exchangeRate: currencyToCryptoRate,
+        };
+
+        if (userId) {
+          payload.userID = userId;
+        }
+
+        const response = await fetch('/api/calls/backend/createPayment', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify(payload),
+        });
+        const buildTxResponse = await response.json();
+
+        console.log('buildTxResponse - Creación de pago', buildTxResponse);
+
+        setShowCheckout(true);
+      }
+    });
+  };
+
   const handleBuildTx = async () => {
     // let crypto = 'cardano';
     // let base_currency = projectInfo.tokenCurrency;
@@ -332,6 +415,10 @@ export default function PaymentPage({}) {
     // const adaPrice = parseFloat(projectInfo.tokenPrice) / currencyToCryptoRate;
     // console.log('Valor que paga el usuario por unidad de token: ', adaPrice);
     // console.log('currencyToCryptoRate: ', currencyToCryptoRate);
+
+    if (!validateTokenAmount()) {
+      return;
+    }
 
     // Obtener corewallet
     const coreWallet = await getCoreWallet();
@@ -768,18 +855,20 @@ export default function PaymentPage({}) {
                     required
                   />
                 </div>
-                <button
-                  className="flex justify-center w-full text-amber-400 bg-custom-dark hover:bg-custom-dark-hover focus:outline-none focus:ring-4 focus:ring-gray-300 font-medium rounded px-5 py-2.5"
-                  onClick={handleCreateTransactionStep}
-                >
-                  Continuar
-                </button>
-                <button
-                  className="flex justify-center w-full text-amber-400 bg-custom-dark hover:bg-custom-dark-hover focus:outline-none focus:ring-4 focus:ring-gray-300 font-medium rounded px-5 py-2.5"
-                  onClick={() => handlePayment()}
-                >
-                  Pagar FIAT
-                </button>
+                <div className="flex space-x-2">
+                  <button
+                    className="flex justify-center w-full text-amber-400 bg-custom-dark hover:bg-custom-dark-hover focus:outline-none focus:ring-4 focus:ring-gray-300 font-medium rounded px-5 py-2.5"
+                    onClick={handleCreateTransactionStep}
+                  >
+                    Pago Crypto
+                  </button>
+                  <button
+                    className="flex justify-center w-full text-amber-400 bg-custom-dark hover:bg-custom-dark-hover focus:outline-none focus:ring-4 focus:ring-gray-300 font-medium rounded px-5 py-2.5"
+                    onClick={() => handlePayment()}
+                  >
+                    Pago FIAT
+                  </button>
+                </div>
                 {showCheckout && (
                   <EpaycoCheckout
                     amount={projectInfo.tokenPrice}
