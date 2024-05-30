@@ -338,7 +338,7 @@ export default function PaymentPage({}) {
   };
 
   const handlePayment = async () => {
-    let userId = null;
+    let userId: any = null;
     try {
       const { userId } = await getCurrentUser();
 
