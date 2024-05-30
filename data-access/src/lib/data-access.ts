@@ -918,8 +918,8 @@ export async function isValidUser(userId: string) {
       query: `query MyQuery {
         getUser(id: "${userId}") {
           name
-          isValidated
-          validationID
+          isValidatedStep1
+          isValidatedStep2
         }
       }`,
     },
@@ -934,42 +934,40 @@ export async function isValidUser(userId: string) {
 
   if (user) {
     return {
-      isValidated: user.isValidated,
-      validationID: user.validationID,
+      isValidatedStep1: user.isValidatedStep1,
+      isValidatedStep2: user.isValidatedStep2,
     };
   }
 
   return false;
 }
 
-
-export async function validateUser(userId: string) {
-  const response = await axios.post(
-    graphqlEndpoint,
-    {
-      query: `
-        mutation UpdateUser($input: UpdateUserInput!) {
-          updateUser(input: $input) {
-            id
-            isValidated
-          }
-        }
-      `,
-      variables: {
-        input: {
-          id: userId,
-          isValidated: true,
-        },
-      },
-    },
-    {
-      headers: {
-        'x-api-key': awsAppSyncApiKey,
-      },
+export async function validateUser(userId: string, step: string) {
+  const mutation = `mutation UpdateUser($input: UpdateUserInput!) {
+    updateUser(input: $input) {
+      id
+      isValidated
     }
-  );
+  }`;
 
-  return response;
+  const variables: any = { input: { id: userId } };
+
+  if (step === '1') {
+    variables.input.isValidatedStep1 = true;
+  } else if (step === '2') {
+    variables.input.isValidatedStep2 = true;
+  }
+
+  try {
+    const response = await axios.post(graphqlEndpoint, {
+      query: mutation,
+      variables,
+      headers: { 'x-api-key': awsAppSyncApiKey },
+    });
+    return response;
+  } catch {
+    return false;
+  }
 }
 
 export async function verifyWallet(stakeAddress: string) {
@@ -998,6 +996,7 @@ export async function verifyWallet(stakeAddress: string) {
     }
   } catch (error) {
     console.log(error);
+    return false;
   }
 }
 
@@ -1705,6 +1704,71 @@ export async function createUser(userPayload: any) {
   );
   return response.data.data.createUser;
 }
+
+export async function validateExternalWalletUser(userPayload: any) {
+  const { username, role, email, walletId } = userPayload;
+
+  // Crear usuario
+  const responseCreateUser = await axios.post(
+    graphqlEndpoint,
+    {
+      query: `mutation MyMutation {
+        createUser(input: {
+          name: "${username}"
+          isProfileUpdated: true
+          isValidatedStep1: true
+          role: "${role}"
+          email: "${email}"
+        })
+        {
+          id
+        }
+      }`,
+    },
+    {
+      headers: {
+        'x-api-key': awsAppSyncApiKey,
+      },
+    }
+  );
+  const newUser = responseCreateUser.data.data.createUser;
+
+  if (!newUser) {
+    return false;
+  }
+
+  // Actualizar tabla wallet
+  const responseUpdateWallet = await axios.post(
+    graphqlEndpoint,
+    {
+      query: `
+        mutation UpdateWallet($input: UpdateWalletInput!) {
+          updateWallet(input: $input) {
+            id
+          }
+        }
+      `,
+      variables: {
+        input: {
+          id: walletId,
+          userID: newUser.id,
+        },
+      },
+    },
+    {
+      headers: {
+        'x-api-key': awsAppSyncApiKey,
+      },
+    }
+  );
+
+  if (!responseUpdateWallet) {
+    return false;
+  }
+
+  return true;
+}
+
 export async function checkIfWalletIsAdmin(walletStakeID: any) {
   try {
     const response = await axios.post(

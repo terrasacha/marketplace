@@ -4,6 +4,7 @@ import {
   Card,
   EpaycoCheckout,
   LoadingIcon,
+  PendingVerificationMessage,
   SignTransactionModal,
   TransactionInfoCard,
 } from '@marketplaces/ui-lib';
@@ -212,7 +213,36 @@ export default function PaymentPage({}) {
     setTokenAmount(value);
   };
 
-  const validateConditions = () => {
+  const validateConditions = async () => {
+    // Validar que usuario es verificado
+
+    try {
+      const { userId } = await getCurrentUser();
+
+      const validateUser = await validateValidUser(userId);
+
+      if (!validateUser) {
+        return false;
+      }
+    } catch (error) {
+      Swal.fire({
+        title: 'Validación de correo pendiente',
+        text: 'Debes completar una verificación de identidad antes de poder realizar una compra.',
+        icon: 'warning',
+        showCancelButton: true,
+        confirmButtonColor: '#3085d6',
+        cancelButtonColor: '#d33',
+        confirmButtonText: 'Si, quiero verificarme!',
+        cancelButtonText: 'Cancelar',
+      }).then(async (result) => {
+        if (result.isConfirmed) {
+          const url = `https://identity.truora.com/preview/IPFe5575f69c6c12802870e66a8e5f6a94c?trigger_user=neider.smith1%40gmail.com&account_id=${walletID}`;
+          window.open(url);
+        }
+      });
+      return false;
+    }
+    // Otras validaciones
     console.log(walletData.balance);
     if (!validateTokenAmount()) {
       return false;
@@ -287,15 +317,10 @@ export default function PaymentPage({}) {
     const userValidation = await response.json();
 
     if (userValidation) {
-      if (userValidation.isValidated) {
-        return true;
-      }
-      console.log('Usuario sin validar')
-      if(userValidation.validationID) {
-
+      if (!userValidation.isValidatedStep2) {
         Swal.fire({
           title: 'Validación pendiente',
-          text: 'Parece que tienes una validación pendiente, debes completarla antes de poder realizar una compra.',
+          text: 'Debes completar la verificación Pro de identidad antes de poder realizar una compra.',
           icon: 'warning',
           showCancelButton: true,
           confirmButtonColor: '#3085d6',
@@ -304,41 +329,44 @@ export default function PaymentPage({}) {
           cancelButtonText: 'Cancelar',
         }).then(async (result) => {
           if (result.isConfirmed) {
-            console.log('Continuar con validación')
+            const url = `https://identity.truora.com/preview/IPF428f73bc6dc1448d38eedac992d43f17?trigger_user=neider.smith1%40gmail.com&account_id=${userId}`;
+            window.open(url);
           }
         });
-
       }
-      
+      return true;
     }
-
-    Swal.fire({
-      title: 'Validación pendiente',
-      text: 'Debes completar una verificación de identidad antes de poder realizar una compra.',
-      icon: 'warning',
-      showCancelButton: true,
-      confirmButtonColor: '#3085d6',
-      cancelButtonColor: '#d33',
-      confirmButtonText: 'Si, quiero verificarme!',
-      cancelButtonText: 'Cancelar',
-    }).then(async (result) => {
-      if (result.isConfirmed) {
-        console.log('Validar por primera vez')
-        const url = `https://identity.truora.com/preview/IPFe5575f69c6c12802870e66a8e5f6a94c?trigger_user=neider.smith1%40gmail.com&account_id=${userId}`;
-        window.open(url, '_blank');
-      }
-    });
 
     return false;
   };
 
   const handlePayment = async () => {
-    const { userId } = await getCurrentUser();
+    let userId = null;
+    try {
+      const { userId } = await getCurrentUser();
 
-    const validateUser = await validateValidUser(userId)
+      const validateUser = await validateValidUser(userId);
 
-    if (!validateUser) {
-      return;
+      if (!validateUser) {
+        return false;
+      }
+    } catch (error) {
+      Swal.fire({
+        title: 'Validación de correo pendiente',
+        text: 'Debes completar una verificación de identidad antes de poder realizar una compra.',
+        icon: 'warning',
+        showCancelButton: true,
+        confirmButtonColor: '#3085d6',
+        cancelButtonColor: '#d33',
+        confirmButtonText: 'Si, quiero verificarme!',
+        cancelButtonText: 'Cancelar',
+      }).then(async (result) => {
+        if (result.isConfirmed) {
+          const url = `https://identity.truora.com/preview/IPFe5575f69c6c12802870e66a8e5f6a94c?trigger_user=neider.smith1%40gmail.com&account_id=${walletID}`;
+          window.open(url);
+        }
+      });
+      return false;
     }
 
     if (!validateTokenAmount()) {
@@ -516,7 +544,8 @@ export default function PaymentPage({}) {
 
   const handleCreateTransactionStep = async () => {
     // Hacer validaciones posibles
-    if (!validateConditions()) {
+    const conditionValidation = await validateConditions();
+    if (!conditionValidation) {
       return;
     }
 
@@ -777,6 +806,7 @@ export default function PaymentPage({}) {
 
   return (
     <>
+      <PendingVerificationMessage />
       <div className="grid grid-cols-1 xl:grid-cols-2 gap-4">
         {/* STEPPER */}
         <div className="flex flex-col sm:flex-row rounded-lg space-x-0 sm:space-x-4 space-y-4 sm:space-y-0 col-span-2">

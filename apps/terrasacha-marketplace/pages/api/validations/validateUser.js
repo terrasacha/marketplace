@@ -4,12 +4,13 @@ export default async function handler(req, res) {
   try {
     if (req.method === 'POST') {
       const userId = req.query.userId
+      const step = req.query.step
 
       if(!userId){
         res.status(405).json({ error: 'Id de usuario no hasido enviado' });
       }
 
-      const userValidation = await validateUser(userId);
+      const userValidation = await validateUser(userId, step);
 
       res.status(200).json(userValidation);
     } else {

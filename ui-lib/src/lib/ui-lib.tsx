@@ -39,6 +39,7 @@ import PageHeader from './common/PageHeader';
 import LoadingOverlay from './common/LoadingOverlay';
 import CopyToClipboard from './common/CopyToClipboard';
 import ExternalLink from './common/ExternalLink';
+import PendingVerificationMessage from './common/PendingVerificationMessage';
 import Navbar from './layout/Navbar';
 //import CardProject from './cards/CardProject';
 import CardProject from './cards/CardProject2';
@@ -101,6 +102,7 @@ export {
   Recipient,
   Transactions,
   Assets,
+  PendingVerificationMessage,
   WelcomeCard,
   WalletCreatedSucessfully,
   RestoreWalletContext,
