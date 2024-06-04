@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import dynamic from 'next/dynamic';
-import { SignUpForm, Title } from '@marketplaces/ui-lib';
+import SignUpForm from '@marketplaces/ui-lib/src/lib/auth/SignUpForm';
+import Title from '@marketplaces/ui-lib/src/lib/auth/Title';
 import { signUpAuth } from '@suan/backend';
 import { MyPage } from '@suan/components/common/types';
 import Image from 'next/image';

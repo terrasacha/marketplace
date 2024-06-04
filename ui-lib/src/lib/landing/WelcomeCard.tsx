@@ -1,6 +1,5 @@
 // components/LoginForm.tsx
 import React, { useState, useEffect } from 'react';
-import { Button } from 'flowbite-react';
 import Link from 'next/link';
 import { getCurrentUser } from 'aws-amplify/auth';
 import Image from 'next/image';
@@ -10,7 +9,7 @@ interface WelcomeCardProps {
   poweredby: boolean;
   appName: string;
   checkingWallet: any;
-  handleSetCheckingWallet: any
+  handleSetCheckingWallet: any;
 }
 const WelcomeCard = (props: WelcomeCardProps) => {
   const { poweredby, appName, checkingWallet, handleSetCheckingWallet } = props;
@@ -23,10 +22,10 @@ const WelcomeCard = (props: WelcomeCardProps) => {
     });
   }, []);
   useEffect(() => {
-    if(checkingWallet === 'unauthorized'){
+    if (checkingWallet === 'unauthorized') {
       setTimeout(() => {
-        disconnect()
-        handleSetCheckingWallet('uncheck')
+        disconnect();
+        handleSetCheckingWallet('uncheck');
       }, 1500);
     }
   }, [checkingWallet]);
@@ -83,16 +82,17 @@ const WelcomeCard = (props: WelcomeCardProps) => {
         </button>
       </Link>
       {isAuthenticated && (
-        <Link
-          href='/restore-wallet'
-        >
+        <Link href="/restore-wallet">
           <button className="flex h-10 w-full items-center justify-center p-0.5 font-normal focus:z-10 focus:outline-none text-gray-900 border border-gray-300 enabled:hover:bg-gray-100 focus:ring-cyan-300 :bg-gray-600 dark:text-white dark:border-gray-600 dark:enabled:hover:bg-gray-700 dark:enabled:hover:border-gray-700 dark:focus:ring-gray-700 rounded-lg focus:ring-2 mt-2">
             Recuperar billetera
           </button>
         </Link>
       )}
       {!isAuthenticated && (
-        <CardanoWalletGeneric text="Acceder con billetera externa" checkingWallet={checkingWallet} />
+        <CardanoWalletGeneric
+          text="Acceder con billetera externa"
+          checkingWallet={checkingWallet}
+        />
       )}
       {poweredby && (
         <div className="flex items-center justify-center mt-4 text-xs">

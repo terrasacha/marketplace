@@ -2,8 +2,7 @@ import { useState, useContext } from 'react';
 import { toast } from 'sonner';
 import { useWallet } from '@meshsdk/react';
 import { signOut } from 'aws-amplify/auth';
-import { WalletContext } from '@marketplaces/utils-2';
-import { TailSpin } from 'react-loader-spinner';
+import WalletContext from '@marketplaces/utils-2/src/lib/context/wallet-context';
 import { useRouter } from 'next/router';
 interface ModalProfileUserProps {
   closeDeleteModal: () => void;

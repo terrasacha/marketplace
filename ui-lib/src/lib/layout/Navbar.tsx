@@ -1,10 +1,10 @@
 import { useEffect, useState } from 'react';
 import { getCurrentUser } from 'aws-amplify/auth';
-import { CardanoWallet } from '@marketplaces/ui-lib';
-import ModalProfileUser from '../modals/ModalProfileUser';
 import ButtonProfileNavbar from '../buttons/ButtonProfileNavbar';
 import { TailSpin } from 'react-loader-spinner';
-import ModalDeleteWallet from '../modals/ModalDeleteWallet';
+import dynamic from 'next/dynamic';
+const ModalDeleteWallet = dynamic(() => import('../modals/ModalDeleteWallet'));
+const ModalProfileUser = dynamic(() => import('../modals/ModalProfileUser'));
 
 interface NavbarProps {
   walletInfo: any;

@@ -14,7 +14,7 @@ const NavbarLanding = (props: NavbarProps) => {
       {user ? (
         <Button
           onClick={() => {
-            signOut().then(() => router.reload())
+            signOut().then(() => router.reload());
           }}
         >
           Cerrar sesión
