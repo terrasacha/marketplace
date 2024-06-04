@@ -3,8 +3,7 @@ import GenerateWordsStep from './GenerateWordsStep';
 import { NewWalletProvider } from '@suan/store/generate-new-wallet-context';
 import PasteWordsStep from './PasteWordsStep';
 import CreateCredentials from './CreateCredentials';
-import {WalletCreatedSucessfully} from '@marketplaces/ui-lib'
-
+import WalletCreatedSucessfully from '@marketplaces/ui-lib/src/lib/wallet/WalletCreatedSuccessfully';
 const NewWallet = (props: any) => {
   const [currentSection, setCurrentSection] = useState(1) as any[];
   return (

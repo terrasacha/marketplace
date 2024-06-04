@@ -6,16 +6,22 @@ import {
   getPolygonByCadastralNumber,
   getProject,
   getProjectData,
-} from '@suan//backend';
+} from '@suan/backend';
 import { Transition } from '@headlessui/react';
-import { MyPage } from '@suan//components/common/types';
-import { getActualPeriod } from '@suan//utils/generic/getActualPeriod';
-import { mapProjectData } from '@suan//lib/mappers';
+import { MyPage } from '@suan/components/common/types';
+import { getActualPeriod } from '@suan/utils/generic/getActualPeriod';
+import { mapProjectData } from '@suan/lib/mappers';
 import dynamic from 'next/dynamic';
-import TabsComponents from '@suan//components/home-page/TabsProject';
-import FinancialTab from '@suan//components/home-page/ProjectTabs/FinancialTab';
-import EarningsTab from '@suan//components/home-page/ProjectTabs/EarningsTab';
-import ProjectionsTab from '@suan//components/home-page/ProjectTabs/ProjectionsTab';
+import TabsComponents from '@suan/components/home-page/TabsProject';
+const FinancialTab = dynamic(
+  () => import('@suan/components/home-page/ProjectTabs/FinancialTab')
+);
+const EarningsTab = dynamic(
+  () => import('@suan/components/home-page/ProjectTabs/EarningsTab')
+);
+const ProjectionsTab = dynamic(
+  () => import('@suan/components/home-page/ProjectTabs/ProjectionsTab')
+);
 import { Card, PageHeader } from '@marketplaces/ui-lib';
 import { useRouter } from 'next/router';
 
@@ -32,7 +38,7 @@ const Product: MyPage = (props: any) => {
   const [availableTokenAmount, setAvailableTokenAmount] = useState<
     number | null
   >(null);
-  
+
   useEffect(() => {
     const getAvailableTokens = async (
       spendContractAddress: string,
@@ -76,11 +82,12 @@ const Product: MyPage = (props: any) => {
 
     // Obtener del endpoint de luis la cantidad de tokens disponibles para comprar
     const mintProjectTokenContract = project.scripts.items.find(
-      (script: any) => script.script_type === 'mintProjectToken' && script.Active === true
+      (script: any) =>
+        script.script_type === 'mintProjectToken' && script.Active === true
     );
 
-    console.log('project.scripts', project.scripts)
-    console.log('mintProjectTokenContract', mintProjectTokenContract)
+    console.log('project.scripts', project.scripts);
+    console.log('mintProjectTokenContract', mintProjectTokenContract);
 
     const spendContractFromMintProjectToken = project.scripts.items.find(
       (script: any) => script.script_type === 'spend' && script.Active === true

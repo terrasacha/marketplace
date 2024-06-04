@@ -1,7 +1,9 @@
 import dynamic from 'next/dynamic';
 import { signInAuth } from '@suan/backend';
 import Image from 'next/image';
-import { LoginForm, Title } from '@marketplaces/ui-lib';
+import LoginForm from '@marketplaces/ui-lib/src/lib/auth/LoginForm';
+import Title from '@marketplaces/ui-lib/src/lib/auth/Title';
+
 const Login = (props: any) => {
   return (
     <div className="w-full h-screen flex justify-center items-center bg-slate-200">

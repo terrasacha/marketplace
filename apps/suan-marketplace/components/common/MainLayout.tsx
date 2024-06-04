@@ -4,11 +4,12 @@ import React, {
   useEffect,
   useState,
 } from 'react';
-import { Sidebar, Navbar } from '@marketplaces/ui-lib';
+import Sidebar from '@marketplaces/ui-lib/src/lib/layout/Sidebar';
+import Navbar from '@marketplaces/ui-lib/src/lib/layout/Navbar';
 import { useWallet, useAddress, useLovelace } from '@meshsdk/react';
 import { useRouter } from 'next/router';
 import { getCurrentUser } from 'aws-amplify/auth';
-import { WalletContext } from '@marketplaces/utils-2';
+import WalletContext from '@marketplaces/utils-2/src/lib/context/wallet-context';
 
 const initialStatewalletInfo = {
   name: '',

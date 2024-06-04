@@ -2,10 +2,10 @@ import React, { useState, useRef, useEffect, useContext } from 'react';
 import { useQRCode } from 'next-qrcode';
 import { signOut } from 'aws-amplify/auth';
 import { useRouter } from 'next/router';
-import { colorByLetter } from '@marketplaces/utils-2';
-import { CardanoWallet } from '../ui-lib';
+import colorByLetter from '@marketplaces/utils-2/src/lib/dicc';
+import CardanoWallet from '../cardano-wallet/CardanoWallet';
 import { WalletOffIcon } from '../icons/WalletOffIcon';
-import { WalletContext } from '@marketplaces/utils-2';
+import WalletContext from '@marketplaces/utils-2/src/lib/context/wallet-context';
 import { useWallet } from '@meshsdk/react';
 interface ModalProfileUserProps {
   closeModal: () => void;
