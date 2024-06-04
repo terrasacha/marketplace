@@ -7,10 +7,22 @@ interface AssesListProps {
   itemsPerPage: number;
   handleOpenMintModal: (policyId: string) => void;
   handleDistributeTokens: (policyId: string) => void;
-  handleDeleteScript: (
+  handleDeleteScript: (policyId: string) => Promise<boolean>;
+  handleUpdateScript: (
     policyId: string,
     newStatus: boolean
   ) => Promise<boolean>;
+}
+
+function removeElementsWithMatchingId(data: any) {
+  for (const key in data) {
+    if (data.hasOwnProperty(key)) {
+      data[key] = data[key].filter(
+        (item: any) => item.id !== item.scriptParentID
+      );
+    }
+  }
+  return data;
 }
 
 const ScriptsList = (props: AssesListProps) => {
@@ -20,6 +32,7 @@ const ScriptsList = (props: AssesListProps) => {
     handleOpenMintModal,
     handleDistributeTokens,
     handleDeleteScript,
+    handleUpdateScript,
   } = props;
 
   const [currentPage, setCurrentPage] = useState(1);
@@ -31,7 +44,7 @@ const ScriptsList = (props: AssesListProps) => {
   const indexOfFirstItem = indexOfLastItem - itemsPerPage;
 
   const parentScripts = scripts.filter(
-    (script) => script.scriptParentID === 'undefined'
+    (script) => script.scriptParentID === script.id
   );
 
   const currentItems = parentScripts.slice(indexOfFirstItem, indexOfLastItem);
@@ -50,7 +63,7 @@ const ScriptsList = (props: AssesListProps) => {
   };
 
   // Group scripts by scriptParentID
-  const groupedScripts: { [key: string]: any[] } = {};
+  let groupedScripts: { [key: string]: any[] } = {};
   scripts.forEach((script) => {
     if (script.scriptParentID) {
       if (!groupedScripts[script.scriptParentID]) {
@@ -60,7 +73,7 @@ const ScriptsList = (props: AssesListProps) => {
     }
   });
 
-  delete groupedScripts.undefined;
+  groupedScripts = removeElementsWithMatchingId(groupedScripts);
 
   console.log('scripts', scripts);
   console.log('groupedScripts', groupedScripts);
@@ -71,6 +84,9 @@ const ScriptsList = (props: AssesListProps) => {
         <thead className="text-xs uppercase bg-custom-dark border-b-8 border-custom-fondo">
           <tr>
             <th scope="col" className="px-6 py-3"></th>
+            <th scope="col" className="px-6 py-3">
+              Fecha de creación
+            </th>
             <th scope="col" className="px-6 py-3">
               Script
             </th>
@@ -106,12 +122,15 @@ const ScriptsList = (props: AssesListProps) => {
                   scriptName={script.name}
                   pbk={script.pbk}
                   script_type={script.script_type}
+                  createdAt={script.createdAt}
                   testnetAddr={script.testnetAddr}
                   tokenName={script.token_name}
                   active={script.Active}
+                  tokenGenesis={script.product?.tokenGenesis}
                   handleOpenMintModal={handleOpenMintModal}
                   handleDistributeTokens={handleDistributeTokens}
                   handleDeleteScript={handleDeleteScript}
+                  handleUpdateScript={handleUpdateScript}
                   childScripts={
                     script.scripts.items.length > 0
                       ? groupedScripts[script.id]

@@ -54,6 +54,7 @@ export default function PaymentPage({}) {
     PURCHASE_STEPS.BUYING
   );
   const [payingStep, setPayingStep] = useState<string>(PAYING_STEPS.STARTING);
+  const [actualScriptId, setActualScriptId] = useState<string | null>(null);
 
   const { projectInfo } = useContext<any>(ProjectInfoContext);
   const {
@@ -174,22 +175,29 @@ export default function PaymentPage({}) {
   };
 
   useEffect(() => {
-    // Obtener del endpoint de luis la cantidad de tokens disponibles para comprar
-    const mintProjectTokenContract = projectInfo.scripts.find(
-      (script: any) =>
-        script.script_type === 'mintProjectToken' && script.Active === true
-    );
-
-    const spendContractFromMintProjectToken = projectInfo.scripts.find(
-      (script: any) => script.script_type === 'spend' && script.Active === true
-    );
-
-    if (mintProjectTokenContract && spendContractFromMintProjectToken) {
-      getAvailableTokens(
-        spendContractFromMintProjectToken.testnetAddr,
-        mintProjectTokenContract.token_name,
-        mintProjectTokenContract.id
+    if (projectInfo.scripts.length > 0) {
+      // Obtener del endpoint de luis la cantidad de tokens disponibles para comprar
+      const mintProjectTokenContract = projectInfo.scripts.find(
+        (script: any) =>
+          script.script_type === 'mintProjectToken' && script.Active === true
       );
+
+      console.log('mintProjectTokenContract', mintProjectTokenContract);
+
+      const spendContractFromMintProjectToken = projectInfo.scripts.find(
+        (script: any) =>
+          script.script_type === 'spendProject' && script.Active === true
+      );
+
+      setActualScriptId(spendContractFromMintProjectToken.id);
+
+      if (mintProjectTokenContract && spendContractFromMintProjectToken) {
+        getAvailableTokens(
+          spendContractFromMintProjectToken.testnetAddr,
+          mintProjectTokenContract.token_name,
+          mintProjectTokenContract.id
+        );
+      }
     }
   }, [projectInfo]);
 
@@ -219,7 +227,7 @@ export default function PaymentPage({}) {
     try {
       const { userId } = await getCurrentUser();
 
-      const validateUser = await validateValidUser(userId);
+      const validateUser = await validateValidUser(userId, 'crypto');
 
       if (!validateUser) {
         return false;
@@ -312,27 +320,50 @@ export default function PaymentPage({}) {
     return data;
   };
 
-  const validateValidUser = async (userId: string) => {
+  const validateValidUser = async (userId: string, paymentType: string) => {
     const response = await fetch(`/api/validations/validUser?userId=${userId}`);
     const userValidation = await response.json();
 
     if (userValidation) {
-      if (!userValidation.isValidatedStep2) {
-        Swal.fire({
-          title: 'Validación pendiente',
-          text: 'Debes completar la verificación Pro de identidad antes de poder realizar una compra.',
-          icon: 'warning',
-          showCancelButton: true,
-          confirmButtonColor: '#3085d6',
-          cancelButtonColor: '#d33',
-          confirmButtonText: 'Si, quiero verificarme!',
-          cancelButtonText: 'Cancelar',
-        }).then(async (result) => {
-          if (result.isConfirmed) {
-            const url = `https://identity.truora.com/preview/IPF428f73bc6dc1448d38eedac992d43f17?trigger_user=neider.smith1%40gmail.com&account_id=${userId}`;
-            window.open(url);
-          }
-        });
+      // if (paymentType === 'crypto') {
+      //   if (!userValidation.isValidatedStep1) {
+      //     Swal.fire({
+      //       title: 'Validación pendiente',
+      //       text: 'Debes completar la verificación Basica de identidad antes de poder realizar una compra.',
+      //       icon: 'warning',
+      //       showCancelButton: true,
+      //       confirmButtonColor: '#3085d6',
+      //       cancelButtonColor: '#d33',
+      //       confirmButtonText: 'Si, quiero verificarme!',
+      //       cancelButtonText: 'Cancelar',
+      //     }).then(async (result) => {
+      //       if (result.isConfirmed) {
+      //         const url = `https://identity.truora.com/preview/IPFe5575f69c6c12802870e66a8e5f6a94c?trigger_user=neider.smith1%40gmail.com&account_id=${userId}`;
+      //         window.open(url);
+      //       }
+      //     });
+      //     return false;
+      //   }
+      // }
+      if (paymentType === 'fiat') {
+        if (!userValidation.isValidatedStep2) {
+          Swal.fire({
+            title: 'Validación pendiente',
+            text: 'Debes completar la verificación Pro de identidad antes de poder realizar una compra.',
+            icon: 'warning',
+            showCancelButton: true,
+            confirmButtonColor: '#3085d6',
+            cancelButtonColor: '#d33',
+            confirmButtonText: 'Si, quiero verificarme!',
+            cancelButtonText: 'Cancelar',
+          }).then(async (result) => {
+            if (result.isConfirmed) {
+              const url = `https://identity.truora.com/preview/IPF428f73bc6dc1448d38eedac992d43f17?trigger_user=neider.smith1%40gmail.com&account_id=${userId}`;
+              window.open(url);
+            }
+          });
+          return false;
+        }
       }
       return true;
     }
@@ -341,11 +372,11 @@ export default function PaymentPage({}) {
   };
 
   const handlePayment = async () => {
-    let userId = null;
+    let userId: any = null;
     try {
       const { userId } = await getCurrentUser();
 
-      const validateUser = await validateValidUser(userId);
+      const validateUser = await validateValidUser(userId, 'fiat');
 
       if (!validateUser) {
         return false;
@@ -458,7 +489,8 @@ export default function PaymentPage({}) {
     );
 
     const spendContractFromMintProjectToken = projectInfo.scripts.find(
-      (script: any) => script.script_type === 'spend' && script.Active === true
+      (script: any) =>
+        script.script_type === 'spendProject' && script.Active === true
     );
 
     // Obtener cantidad de tokens disponibles en el contrato sent
@@ -579,7 +611,10 @@ export default function PaymentPage({}) {
           metadata: [],
         });
 
-        setNewTransactionBuild(mappedTransactionData);
+        setNewTransactionBuild({
+          ...mappedTransactionData,
+          scriptId: actualScriptId,
+        });
         handleOpenSignTransactionModal();
       } else {
         toast.error(
@@ -1018,7 +1053,7 @@ export default function PaymentPage({}) {
         signTransactionModal={signTransactionModal}
         handleOpenSignTransactionModal={handleOpenSignTransactionModal}
         newTransactionBuild={newTransactionBuild}
-        signType="distributeTokens"
+        signType="buyTokens"
       />
     </>
   );

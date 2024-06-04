@@ -1,5 +1,4 @@
-const SUBMIT_TX_URL =
-  `${process.env.NEXT_PUBLIC_TRAZABILIDAD_ENDPOINT}/api/v1/transactions/sign-submit/`;
+const SUBMIT_TX_URL = `${process.env.NEXT_PUBLIC_TRAZABILIDAD_ENDPOINT}/api/v1/transactions/sign-submit/`;
 
 async function submitTransaction(submitTx) {
   return await fetch(SUBMIT_TX_URL, {
@@ -15,12 +14,15 @@ async function submitTransaction(submitTx) {
 export default async function handler(req, res) {
   if (req.method === 'POST') {
     try {
-      const { wallet_id, cbor, metadata } = req.body;
+      const { wallet_id, cbor, scriptIds, redeemers_cbor, metadata_cbor } =
+        req.body;
 
       const submitTx = {
         wallet_id,
+        scriptIds,
         cbor,
-        metadata,
+        redeemers_cbor,
+        metadata_cbor,
       };
 
       const response = await submitTransaction(submitTx);

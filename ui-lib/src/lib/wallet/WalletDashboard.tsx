@@ -98,9 +98,9 @@ export default function WalletDashboard(props: WalletDashboardProps) {
               </div>
             </Card.Body>
           </Card>
-          {/* <div className="h-fit">
+          <div className="h-fit">
             <Transactions txPerPage={5} />
-          </div> */}
+          </div>
         </div>
         <div className="flex-col col-span-2 space-y-5 mt-5 2xl:mt-0">
           <Assets

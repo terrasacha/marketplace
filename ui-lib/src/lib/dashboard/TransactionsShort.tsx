@@ -98,7 +98,7 @@ export default function TransactionShort(props: TransactionsProps) {
   const checkTxConfirmations = async () => {
     if (pendingTransaction) {
       const pendingTransactionItemRequest = await fetch(
-        '/api/transactions/tx-status',
+        '/api/helpers/tx-status',
         {
           method: 'POST',
           headers: {

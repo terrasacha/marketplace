@@ -96,7 +96,7 @@ export default function Transactions(props: TransactionsProps) {
 
     if (pendingTransaction) {
       const pendingTransactionItemRequest = await fetch(
-        '/api/transactions/tx-status',
+        '/api/helpers/tx-status',
         {
           method: 'POST',
           headers: {

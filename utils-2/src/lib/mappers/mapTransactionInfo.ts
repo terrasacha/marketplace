@@ -30,6 +30,8 @@ interface MappedTransactionInfoProps {
   inputUTxOs: Array<any>;
   outputUTxOs: Array<any>;
   cbor?: string | null;
+  redeemer_cbor?: string | null;
+  metadata_cbor?: string | null;
   metadata: Array<string>;
 }
 
@@ -106,6 +108,8 @@ export async function mapBuildTransactionInfo({
   console.log('TransactionRawInfoData', buildTxResponse);
 
   const cbor = buildTxResponse.cbor;
+  const redeemer_cbor = buildTxResponse.redeemer_cbor;
+  const metadata_cbor = buildTxResponse.metadata_cbor;
   const tx_id = buildTxResponse.build_tx.tx_id;
   const tx_fee = lovelaceToAda(buildTxResponse.build_tx.fee);
   const tx_size = buildTxResponse.tx_size;
@@ -257,6 +261,8 @@ export async function mapBuildTransactionInfo({
     inputUTxOs: input_utxo,
     outputUTxOs: output_utxo,
     cbor: cbor,
+    redeemer_cbor: redeemer_cbor,
+    metadata_cbor: metadata_cbor,
     metadata: metadata,
   };
 

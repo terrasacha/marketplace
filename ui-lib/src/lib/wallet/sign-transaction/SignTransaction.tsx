@@ -6,20 +6,12 @@ import { toast } from 'sonner';
 
 interface SignTransactionProps {
   handleOpenSignTransactionModal: () => void;
-  cbor: string;
-  metadata: Array<string>;
   pendingTx: any;
   signType: string;
 }
 
 export default function SignTransaction(props: SignTransactionProps) {
-  const {
-    handleOpenSignTransactionModal,
-    cbor,
-    metadata,
-    pendingTx,
-    signType,
-  } = props;
+  const { handleOpenSignTransactionModal, pendingTx, signType } = props;
   const { walletID } = useContext<any>(WalletContext);
 
   const [password, setPassword] = useState<any>('');
@@ -41,14 +33,15 @@ export default function SignTransaction(props: SignTransactionProps) {
     return passwordValidation.isValidUser;
   };
 
-  const handleSignTransactionDistributeTokens = async (
-    isValidUser: boolean
-  ) => {
+  const handleSignTransactionDistributeTokens = async () => {
     const confirmSubmitData = {
-      confirm: isValidUser,
-      tx_id: pendingTx.tx_id,
+      wallet_id: walletID,
+      cbor: pendingTx.cbor,
+      scriptIds: [pendingTx.scriptId],
+      metadata_cbor: pendingTx.metadata_cbor,
+      redeemers_cbor: [pendingTx.redeemer_cbor],
     };
-    const response = await fetch('/api/transactions/confirm-submit', {
+    const response = await fetch('/api/transactions/sign-submit', {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
@@ -61,36 +54,33 @@ export default function SignTransaction(props: SignTransactionProps) {
       // Actualizar un campo en tabla dynamo que indique que los tokens del proyecto han sido reclamados por el propietario o no
       // Actualizar campo token genesis
       try {
-        const [updateProductResponse, createTokenResponse] =
-          await Promise.all([
-            fetch('/api/calls/backend/updateProduct', {
-              method: 'POST',
-              headers: {
-                'Content-Type': 'application/json',
-              },
-              body: JSON.stringify(
-                pendingTx.postDistributionPayload.updateProduct
-              ),
-            }),
-            fetch('/api/calls/backend/createToken', {
-              method: 'POST',
-              headers: {
-                'Content-Type': 'application/json',
-              },
-              body: JSON.stringify(
-                pendingTx.postDistributionPayload.createToken
-              ),
-            }),
-            // fetch('/api/transactions/oracle-datum', {
-            //   method: 'POST',
-            //   headers: {
-            //     'Content-Type': 'application/json',
-            //   },
-            //   body: JSON.stringify(
-            //     pendingTx.postDistributionPayload.createOracleDatum
-            //   ),
-            // }),
-          ]);
+        const [updateProductResponse, createTokenResponse] = await Promise.all([
+          fetch('/api/calls/backend/updateProduct', {
+            method: 'POST',
+            headers: {
+              'Content-Type': 'application/json',
+            },
+            body: JSON.stringify(
+              pendingTx.postDistributionPayload.updateProduct
+            ),
+          }),
+          fetch('/api/calls/backend/createToken', {
+            method: 'POST',
+            headers: {
+              'Content-Type': 'application/json',
+            },
+            body: JSON.stringify(pendingTx.postDistributionPayload.createToken),
+          }),
+          // fetch('/api/transactions/oracle-datum', {
+          //   method: 'POST',
+          //   headers: {
+          //     'Content-Type': 'application/json',
+          //   },
+          //   body: JSON.stringify(
+          //     pendingTx.postDistributionPayload.createOracleDatum
+          //   ),
+          // }),
+        ]);
 
         const productUpdatedResponse = await updateProductResponse.json();
         const createTokenResponseData = await createTokenResponse.json();
@@ -110,12 +100,15 @@ export default function SignTransaction(props: SignTransactionProps) {
     return signSubmitResponse;
   };
 
-  const handleSignTransactionBuyTokens = async (isValidUser: boolean) => {
+  const handleSignTransactionBuyTokens = async () => {
     const confirmSubmitData = {
-      confirm: isValidUser,
-      tx_id: pendingTx.tx_id,
+      wallet_id: walletID,
+      cbor: pendingTx.cbor,
+      scriptIds: [pendingTx.scriptId],
+      metadata_cbor: pendingTx.metadata_cbor,
+      redeemers_cbor: [pendingTx.redeemer_cbor],
     };
-    const response = await fetch('/api/transactions/confirm-submit', {
+    const response = await fetch('/api/transactions/sign-submit', {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
@@ -124,6 +117,8 @@ export default function SignTransaction(props: SignTransactionProps) {
     });
     const signSubmitResponse = await response.json();
     console.log('Firmado de transacción: ', signSubmitResponse);
+    // if (signSubmitResponse?.txSubmit?.success) {
+    // }
 
     return signSubmitResponse;
   };
@@ -160,13 +155,11 @@ export default function SignTransaction(props: SignTransactionProps) {
     let signSubmitResponse;
 
     if (signType === 'distributeTokens') {
-      signSubmitResponse = await handleSignTransactionDistributeTokens(
-        isValidUser
-      );
+      signSubmitResponse = await handleSignTransactionDistributeTokens();
     }
 
     if (signType === 'buyTokens') {
-      signSubmitResponse = await handleSignTransactionBuyTokens(isValidUser);
+      signSubmitResponse = await handleSignTransactionBuyTokens();
     }
 
     if (signType === 'sendTransaction') {

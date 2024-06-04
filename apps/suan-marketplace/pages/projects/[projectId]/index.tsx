@@ -83,7 +83,7 @@ const Product: MyPage = (props: any) => {
     console.log('mintProjectTokenContract', mintProjectTokenContract)
 
     const spendContractFromMintProjectToken = project.scripts.items.find(
-      (script: any) => script.script_type === 'spend' && script.Active === true
+      (script: any) => script.script_type === 'spendProject' && script.Active === true
     );
 
     if (mintProjectTokenContract && spendContractFromMintProjectToken) {
