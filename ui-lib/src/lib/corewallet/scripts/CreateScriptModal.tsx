@@ -2,11 +2,13 @@ import { useContext, useEffect, useState } from 'react';
 import { LoadingIcon, Modal } from '../../ui-lib';
 import { WalletContext } from '@marketplaces/utils-2';
 import { toast } from 'sonner';
+import Swal from 'sweetalert2';
 
 interface CreateScriptModalProps {
   handleOpenCreateScriptModal: () => void;
   getCoreWalletData: () => void;
   createScriptModal: boolean;
+  scripts: any;
 }
 interface NewContractProps {
   scriptName: string;
@@ -18,8 +20,12 @@ interface NewContractProps {
 
 export default function CreateScriptModal(props: CreateScriptModalProps) {
   const { walletID } = useContext<any>(WalletContext);
-  const { handleOpenCreateScriptModal, getCoreWalletData, createScriptModal } =
-    props;
+  const {
+    handleOpenCreateScriptModal,
+    getCoreWalletData,
+    createScriptModal,
+    scripts,
+  } = props;
   const [isLoading, setIsLoading] = useState<boolean>(false);
 
   const [newContract, setNewContract] = useState<NewContractProps>({
@@ -29,6 +35,16 @@ export default function CreateScriptModal(props: CreateScriptModalProps) {
     saveFlag: true,
     projectId: '',
   });
+
+  const resetFields = () => {
+    setNewContract({
+      scriptName: '',
+      scriptType: '',
+      tokenName: '',
+      saveFlag: true,
+      projectId: '',
+    });
+  };
 
   const handleSetNewContract = (key: string, value: string | boolean) => {
     let parsedValue = value;
@@ -51,14 +67,38 @@ export default function CreateScriptModal(props: CreateScriptModalProps) {
       toast.warning('Complete los campos oblgiatorios poder continuar ...');
       return false;
     }
+
+    if (newContract.tokenName.trim().length > 50) {
+      toast.warning('El nombre del token no puede tener más de 50 caracteres.');
+      return false;
+    }
+
     return true;
   };
 
+  const hasProductID = (productID: string) => {
+    for (const script of scripts) {
+      if (script.productID === productID) {
+        toast.warning('El ID del proyecto ya se encuentra vinculado a un contrato');
+        return true;
+      }
+    }
+    return false;
+  };
+
   const handleCreateContract = async () => {
+
     if (!validateFields()) {
       return;
     }
+
+    // Validar que no existe otro contrato para el mismo proyecto
+    if (newContract.scriptType === 'mintProjectToken' && hasProductID(newContract.projectId)) {
+      return;
+    }
+    
     setIsLoading(true);
+
     const payload = {
       script_type: newContract.scriptType,
       name: newContract.scriptName,
@@ -81,6 +121,11 @@ export default function CreateScriptModal(props: CreateScriptModalProps) {
     if (responseData?.success) {
       toast.success('Se ha creado el contrato exitosamente ...');
     } else {
+      Swal.fire({
+        icon: 'error',
+        title: 'Oops...',
+        text: `Something went wrong!, ${responseData.msg}`,
+      });
       toast.error('Ha ocurrido un error, intenta nuevamente ...');
       setIsLoading(false);
       return;
@@ -88,8 +133,8 @@ export default function CreateScriptModal(props: CreateScriptModalProps) {
 
     if (newContract.scriptType === 'mintProjectToken') {
       const payload = {
-        script_type: 'spend',
-        name: newContract.scriptName + 'Spend',
+        script_type: 'spendProject',
+        name: newContract.scriptName + 'SpendProject',
         wallet_id: walletID,
         save_flag: newContract.saveFlag, // Opcional
         project_id: newContract.projectId, // Opcional
@@ -109,7 +154,13 @@ export default function CreateScriptModal(props: CreateScriptModalProps) {
 
       if (createdSpendContract?.success) {
         toast.success('Se ha creado el contrato Spend exitosamente ...');
+        resetFields();
       } else {
+        Swal.fire({
+          icon: 'error',
+          title: 'Oops...',
+          text: `Something went wrong!, ${createdSpendContract.msg}`,
+        });
         toast.error('Ha ocurrido un error, intenta nuevamente ...');
       }
     }
@@ -162,46 +213,51 @@ export default function CreateScriptModal(props: CreateScriptModalProps) {
               <option disabled value="">
                 Selecciona una opción ...
               </option>
-              <option value="native">native</option>
-              <option value="mintSuanCO2">mintSuanCO2</option>
+              {/* <option value="native">native</option> */}
+              <option value="spendSwap">spendSwap</option>
+              {/* <option value="spendProject">spendProject</option>
+              <option value="mintSuanCO2">mintSuanCO2</option> */}
               <option value="mintProjectToken">mintProjectToken</option>
-              <option value="spend">spend</option>
-              <option value="any">any</option>
+              {/* <option value="any">any</option> */}
             </select>
           </div>
-          <div>
-            <label className="block mb-2">
-              Nombre del token
-              {newContract.scriptType.startsWith('mint') && (
-                <span className="text-red-600">*</span>
-              )}
-            </label>
-            <input
-              type="text"
-              className={`bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5`}
-              autoComplete="off"
-              placeholder="Nombre del token"
-              required
-              value={newContract.tokenName}
-              onInput={(e) =>
-                handleSetNewContract('tokenName', e.currentTarget.value)
-              }
-            />
-          </div>
-          <div>
-            <label className="block mb-2">ID de proyecto</label>
-            <input
-              type="text"
-              className={`bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5`}
-              autoComplete="off"
-              placeholder="Id de proyecto"
-              required
-              value={newContract.projectId}
-              onInput={(e) =>
-                handleSetNewContract('projectId', e.currentTarget.value)
-              }
-            />
-          </div>
+          {newContract.scriptType === 'mintProjectToken' && (
+            <>
+              <div>
+                <label className="block mb-2">
+                  Nombre del token
+                  {newContract.scriptType.startsWith('mint') && (
+                    <span className="text-red-600">*</span>
+                  )}
+                </label>
+                <input
+                  type="text"
+                  className={`bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5`}
+                  autoComplete="off"
+                  placeholder="Nombre del token"
+                  required
+                  value={newContract.tokenName}
+                  onInput={(e) =>
+                    handleSetNewContract('tokenName', e.currentTarget.value)
+                  }
+                />
+              </div>
+              <div>
+                <label className="block mb-2">ID de proyecto</label>
+                <input
+                  type="text"
+                  className={`bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5`}
+                  autoComplete="off"
+                  placeholder="Id de proyecto"
+                  required
+                  value={newContract.projectId}
+                  onInput={(e) =>
+                    handleSetNewContract('projectId', e.currentTarget.value)
+                  }
+                />
+              </div>
+            </>
+          )}
           <div>
             <label className="inline-flex items-center cursor-pointer">
               <input

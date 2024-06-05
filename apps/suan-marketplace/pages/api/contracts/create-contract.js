@@ -4,15 +4,23 @@ export default async function handler(req, res) {
       const payload = req.body; // Utiliza req.body en lugar de req.query para obtener datos del cuerpo de la solicitud
       const script_type = payload.script_type;
 
-      const payloadFixed = {
+      let payloadFixed = {
         name: payload.name,
         wallet_id: payload.wallet_id,
         tokenName: payload.tokenName,
         save_flag: payload.save_flag,
-        project_id: payload.project_id,
-        parent_policy_id: payload.parent_policy_id,
         oracle_wallet_name: payload.oracle_wallet_name,
       };
+
+      if (
+        script_type === 'spendProject' ||
+        script_type === 'mintProjectToken'
+      ) {
+        payloadFixed.project_id = payload.project_id;
+      }
+      if (script_type === 'spendProject') {
+        payloadFixed.parent_policy_id = payload.parent_policy_id;
+      }
 
       const url = `${process.env.NEXT_PUBLIC_TRAZABILIDAD_ENDPOINT}/api/v1/contracts/create-contract/${script_type}`;
 

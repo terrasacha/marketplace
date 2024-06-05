@@ -17,6 +17,7 @@ export default function PendingVerificationMessage() {
           `/api/validations/validUser?userId=${userId}`
         );
         let userValidation = await response.json();
+        console.log('uservalid', userValidation);
 
         // Si tiene cuenta ya cumplio la verificacion basica
         if (userId) {

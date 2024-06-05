@@ -3,6 +3,7 @@ import { useEffect, useRef, useState } from 'react';
 import { toast } from 'sonner';
 import Swal from 'sweetalert2';
 import { ChevronDownIcon, ChevronRightIcon } from '../../ui-lib';
+import { convertAWSDatetimeToDate } from '@suan/lib/util';
 
 interface ScriptRowProps {
   index: number;
@@ -13,10 +14,13 @@ interface ScriptRowProps {
   policyId: string;
   projectID: string;
   active: boolean;
+  tokenGenesis: boolean;
   script_type: string;
+  createdAt: string;
   handleOpenMintModal: (policyId: string) => void;
   handleDistributeTokens: (policyId: string) => void;
-  handleDeleteScript: (
+  handleDeleteScript: (policyId: string) => Promise<boolean>;
+  handleUpdateScript: (
     policyId: string,
     newStatus: boolean
   ) => Promise<boolean>;
@@ -34,11 +38,14 @@ export default function ScriptRow(props: ScriptRowProps) {
     tokenName,
     policyId,
     script_type,
+    createdAt,
     projectID,
     active,
+    tokenGenesis,
     handleOpenMintModal,
     handleDistributeTokens,
     handleDeleteScript,
+    handleUpdateScript,
     isChild = false,
     childScripts = [],
   } = props;
@@ -48,6 +55,34 @@ export default function ScriptRow(props: ScriptRowProps) {
   const dropdownRef = useRef<any>(null);
 
   const deleteScript = async (policyID: string) => {
+    Swal.fire({
+      title: 'Estas seguro de eliminar este contrato?',
+      text: 'No podrás revertir esta acción !',
+      icon: 'warning',
+      showCancelButton: true,
+      confirmButtonColor: '#3085d6',
+      cancelButtonColor: '#d33',
+      confirmButtonText: 'Si, eliminar!',
+      cancelButtonText: 'Cancelar',
+    }).then(async (result) => {
+      if (result.isConfirmed) {
+        const contractDeleted = await handleDeleteScript(policyID);
+
+        if (contractDeleted) {
+          toast.success('Contrato eliminado exitosamente ...');
+          Swal.fire({
+            title: 'Contrato eliminado !',
+            text: 'El contrato ha sido eliminado exitosamente.',
+            icon: 'success',
+          });
+        } else {
+          toast.error('Ha habido un error intentando eliminar el contrato ...');
+        }
+      }
+    });
+  };
+
+  const updateScript = async (policyID: string) => {
     Swal.fire({
       title: 'Estas seguro de actualizar el estado de este contrato?',
       text: 'No podrás revertir esta acción !',
@@ -59,17 +94,19 @@ export default function ScriptRow(props: ScriptRowProps) {
       cancelButtonText: 'Cancelar',
     }).then(async (result) => {
       if (result.isConfirmed) {
-        const contractDeleted = await handleDeleteScript(policyID, !active);
+        const contractDeleted = await handleUpdateScript(policyID, !active);
 
         if (contractDeleted) {
-          toast.success('Contrato eliminado exitosamente ...');
+          toast.success('Contrato actualizado exitosamente ...');
           Swal.fire({
             title: 'Estado actualizado !',
             text: 'El estado del contrato ha sido actualizado exitosamente.',
             icon: 'success',
           });
         } else {
-          toast.error('Ha habido un error intentando eliminar el contrato ...');
+          toast.error(
+            'Ha habido un error intentando actualizar el contrato ...'
+          );
         }
       }
     });
@@ -90,7 +127,11 @@ export default function ScriptRow(props: ScriptRowProps) {
 
   return (
     <>
-      <tr className={`${!active ? 'bg-gray-400' : 'bg-custom-dark'} border-b-8 border-custom-fondo`}>
+      <tr
+        className={`${
+          !active ? 'bg-gray-400' : 'bg-custom-dark'
+        } border-b-8 border-custom-fondo`}
+      >
         <td className="px-6 py-4">
           <div className="flex space-x-2">
             {childScripts.length > 0 && (
@@ -137,7 +178,7 @@ export default function ScriptRow(props: ScriptRowProps) {
                   className="py-2 text-sm text-gray-700 dark:text-gray-200"
                   aria-labelledby="dropdownDefaultButton"
                 >
-                  {script_type !== 'spend' && active && (
+                  {script_type === 'mintProjectToken' && active && (
                     <>
                       <li>
                         <button
@@ -165,13 +206,27 @@ export default function ScriptRow(props: ScriptRowProps) {
                   )}
                   <li>
                     <button
-                      className={`flex w-full px-4 py-2 ${active ? 'bg-red-600' : 'bg-green-600'} text-white`}
+                      className={`flex w-full px-4 py-2 ${
+                        active ? 'bg-red-600' : 'bg-green-600'
+                      } text-white`}
+                      onClick={() => {
+                        setIsActionsActive(false);
+                        updateScript(policyId);
+                      }}
+                    >
+                      {active ? 'Desactivar' : 'Activar'}
+                    </button>
+                  </li>
+                  <li>
+                    <button
+                      className={`flex w-full px-4 py-2 bg-red-600 text-white disabled:opacity-50`}
+                      disabled={tokenGenesis ? true : false}
                       onClick={() => {
                         setIsActionsActive(false);
                         deleteScript(policyId);
                       }}
                     >
-                      {active ? 'Desactivar' : 'Activar'}
+                      Eliminar
                     </button>
                   </li>
                 </ul>
@@ -179,6 +234,7 @@ export default function ScriptRow(props: ScriptRowProps) {
             </div>
           </div>
         </td>
+        <td className="px-6 py-4">{convertAWSDatetimeToDate(createdAt)}</td>
         <td scope="row" className="px-6 py-4 font-medium whitespace-nowrap">
           {scriptName}
         </td>
@@ -199,12 +255,14 @@ export default function ScriptRow(props: ScriptRowProps) {
             scriptName={childScript.name}
             pbk={childScript.pbk}
             script_type={childScript.script_type}
+            createdAt={childScript.createdAt}
             testnetAddr={childScript.testnetAddr}
             tokenName={childScript.token_name}
             active={childScript.Active}
             handleOpenMintModal={handleOpenMintModal}
             handleDistributeTokens={handleDistributeTokens}
             handleDeleteScript={handleDeleteScript}
+            handleUpdateScript={handleUpdateScript}
             isChild={true}
           />
         ))}

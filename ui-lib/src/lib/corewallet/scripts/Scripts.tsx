@@ -57,15 +57,13 @@ export default function Scripts(props: any) {
   };
 
   const handleDeleteScript = async (
-    policyId: string | null = null,
-    newStatus: boolean
+    policyId: string | null = null
   ): Promise<boolean> => {
     // Si el contrato que se envia es un contrato padre, eliminar todos sus hijos
     const actualScript = scripts.find((script: any) => script.id === policyId);
 
     const payload = {
       policyID: policyId,
-      newStatus,
     };
 
     const response = await fetch(`/api/calls/backend/deleteScriptById`, {
@@ -79,14 +77,51 @@ export default function Scripts(props: any) {
 
     for (let index = 0; index < actualScript.scripts.items.length; index++) {
       const subScript = actualScript.scripts.items[index];
-      await handleDeleteScript(subScript.id, newStatus);
+
+      if (subScript.id !== policyId) {
+        await handleDeleteScript(subScript.id);
+      }
     }
 
-    if (actualScript.scriptParentID === 'undefined') {
+    if (actualScript.scriptParentID === actualScript.id) {
       await getCoreWalletData();
     }
 
     return deleteData.data;
+  };
+  const handleUpdateScript = async (
+    policyId: string | null = null,
+    newStatus: boolean
+  ): Promise<boolean> => {
+    // Si el contrato que se envia es un contrato padre, eliminar todos sus hijos
+    const actualScript = scripts.find((script: any) => script.id === policyId);
+
+    const payload = {
+      policyID: policyId,
+      newStatus,
+    };
+
+    const response = await fetch(`/api/calls/backend/updateScriptStatusById`, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify(payload),
+    });
+    const updateData = await response.json();
+
+    for (let index = 0; index < actualScript.scripts.items.length; index++) {
+      const subScript = actualScript.scripts.items[index];
+      if (subScript.id !== policyId) {
+        await handleUpdateScript(subScript.id, newStatus);
+      }
+    }
+
+    if (actualScript.scriptParentID === actualScript.id) {
+      await getCoreWalletData();
+    }
+
+    return updateData.data;
   };
 
   const getProjectTokenDistribution = (projectData: any) => {
@@ -244,7 +279,7 @@ export default function Scripts(props: any) {
     const spendFromActualScript = scripts.find(
       (script: any) =>
         script.productID === actualScript.productID &&
-        script.script_type === 'spend'
+        script.script_type === 'spendProject'
     );
 
     if (spendFromActualScript) {
@@ -354,8 +389,8 @@ export default function Scripts(props: any) {
     // Get Area & location (Hace falta trabajar sobre el seteo de estos datos en Plataforma)
     // Area debe calcularse nuevamente al agregar o quitar predio
     // Ubicación debe calcularse con base al centroide generado por los predios al agregar o quitar predio
-    const projectArea = getProjectArea(projectData)
-    const projectLocation = getProjectLocation(projectData)
+    const projectArea = getProjectArea(projectData);
+    const projectLocation = getProjectLocation(projectData);
 
     const metadata = {
       area: '100', // Tarea: almacenar dato de area
@@ -394,7 +429,7 @@ export default function Scripts(props: any) {
           },
         },
         metadata: {
-          [actualScript.token_name]: truncated_metadata,
+          '721': truncated_metadata,
         },
       },
     };
@@ -418,6 +453,7 @@ export default function Scripts(props: any) {
       });
 
       const postDistributionPayload = {
+        scriptId: actualScript.id,
         updateProduct: {
           id: actualScript.productID,
           tokenClaimedByOwner: ownerWallet ? true : false,
@@ -450,6 +486,7 @@ export default function Scripts(props: any) {
 
       setNewTransactionBuild({
         ...mappedTransactionData,
+        scriptId: actualScript.id,
         postDistributionPayload,
       });
       handleOpenSignTransactionModal();
@@ -481,10 +518,12 @@ export default function Scripts(props: any) {
             handleOpenMintModal={handleOpenMintModal}
             handleDistributeTokens={handleDistributeTokens}
             handleDeleteScript={handleDeleteScript}
+            handleUpdateScript={handleUpdateScript}
           />
         </Card.Body>
       </Card>
       <CreateScriptModal
+        scripts={scripts}
         createScriptModal={createScriptModal}
         handleOpenCreateScriptModal={handleOpenCreateScriptModal}
         getCoreWalletData={getCoreWalletData}

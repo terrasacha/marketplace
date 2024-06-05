@@ -126,7 +126,7 @@ export default function WalletSend(props: AccountProps) {
         multiAsset: payloadMultiAsset,
       };
 
-      const request = await fetch('/api/transactions/min-lovelace', {
+      const request = await fetch('/api/helpers/min-lovelace', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',

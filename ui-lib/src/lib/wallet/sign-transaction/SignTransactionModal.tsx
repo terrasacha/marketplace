@@ -42,8 +42,6 @@ export default function SignTransactionModal(props: SignTransactionModalProps) {
           <Modal.Body>
             <SignTransaction
               handleOpenSignTransactionModal={handleOpenSignTransactionModal}
-              cbor={newTransactionBuild.cbor}
-              metadata={newTransactionBuild.metadata}
               pendingTx={newTransactionBuild}
               signType={signType}
             />

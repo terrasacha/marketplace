@@ -1166,6 +1166,9 @@ export async function getScriptsList() {
               Active
               pbk
               productID
+              product {
+                tokenGenesis
+              }
               script_category
               scriptParentID
               script_type
@@ -1442,7 +1445,7 @@ export async function updateProduct({
   }
 }
 
-export async function deleteScriptById(policyID: string, newStatus: boolean) {
+export async function updateScriptById(policyID: string, newStatus: boolean) {
   try {
     const response = await axios.post(
       graphqlEndpoint,
@@ -1459,6 +1462,38 @@ export async function deleteScriptById(policyID: string, newStatus: boolean) {
           input: {
             id: policyID,
             Active: newStatus,
+          },
+        },
+      },
+      {
+        headers: {
+          'x-api-key': awsAppSyncApiKey,
+        },
+      }
+    );
+
+    return response.data;
+  } catch (error) {
+    console.error('Error updating script request:', error);
+    return false;
+  }
+}
+
+export async function deleteScriptById(policyID: string) {
+  try {
+    const response = await axios.post(
+      graphqlEndpoint,
+      {
+        query: `
+          mutation MyMutation($input: DeleteScriptInput!) {
+            deleteScript(input: $input) {
+              id
+            }
+          }
+        `,
+        variables: {
+          input: {
+            id: policyID,
           },
         },
       },

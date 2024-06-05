@@ -91,7 +91,7 @@ const RedirectToHome = (props: RedirectToHomeProps) => {
       let payload = walletData.address
       try {
         setLoading(true);
-        const response = await fetch(`api/calls/backend/requestAccessToken?destinAddress=${payload}`,{
+        const response = await fetch(`api/helpers/requestAccessToken?destinAddress=${payload}`,{
           method: 'GET',
         })
         
