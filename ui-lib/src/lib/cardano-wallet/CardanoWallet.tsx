@@ -2,7 +2,7 @@ import { useState, useContext } from 'react';
 import { useWallet } from '@meshsdk/react';
 import { WalletContext } from '@marketplaces/utils-2';
 
-import { WalletIcon } from '../icons/WalletIcon';
+import WalletIcon  from '../icons/WalletIcon';
 import { WalletOffIcon } from '../icons/WalletOffIcon';
 import { useRouter } from 'next/router';
 import dynamic from 'next/dynamic';
