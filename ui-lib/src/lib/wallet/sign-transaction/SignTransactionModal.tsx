@@ -1,11 +1,7 @@
 import { useEffect, useState } from 'react';
-import {
-  CopyIcon,
-  LockIcon,
-  Modal,
-  SignTransaction,
-  TransactionInfoCard,
-} from '../../ui-lib';
+import Modal from '../../common/Modal';
+import SignTransaction from './SignTransaction';
+import TransactionInfoCard from './TransactionInfoCard';
 
 interface SignTransactionModalProps {
   handleOpenSignTransactionModal: () => void;

@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
-import { RestoreWalletProvider } from '@marketplaces/ui-lib';
+import { RestoreWalletProvider } from '@marketplaces/ui-lib/src/lib/store/restore-wallet-context';
 import CreateCredentials from './CreateCredentials';
-import { WalletCreatedSucessfully } from '@marketplaces/ui-lib';
+import WalletCreatedSucessfully from '@marketplaces/ui-lib/src/lib/wallet/WalletCreatedSuccessfully';
 import RetrieveWords from './RetrieveWords';
 
 const RestoreWallet = (props: any) => {

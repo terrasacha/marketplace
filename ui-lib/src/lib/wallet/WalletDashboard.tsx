@@ -1,15 +1,15 @@
 import React, { useContext, useEffect, useState } from 'react';
 import {
-  Assets,
-  Card,
-  ClaimTokens,
-  CopyToClipboard,
-  ExternalLink,
-  EyeIcon,
   EyeOffIcon,
-  Tooltip,
-} from '../ui-lib';
-import { Transactions } from '../ui-lib';
+} from '../icons/EyeOffIcon';
+import { EyeIcon } from '../icons/EyeIcon';
+import Assets from '../wallet/assets/Assets'
+import ClaimTokens from '../wallet/ClaimTokens'
+import Card from '../common/Card'
+import CopyToClipboard from '../common/CopyToClipboard'
+import ExternalLink from '../common/ExternalLink'
+import Tooltip from '../common/Tooltip'
+import Transactions from '../wallet/Transactions';
 import { WalletContext } from '@marketplaces/utils-2';
 import { useRouter } from 'next/router';
 import { getCurrentUser } from 'aws-amplify/auth';

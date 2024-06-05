@@ -22,7 +22,8 @@ const EarningsTab = dynamic(
 const ProjectionsTab = dynamic(
   () => import('@suan/components/home-page/ProjectTabs/ProjectionsTab')
 );
-import { Card, PageHeader } from '@marketplaces/ui-lib';
+import Card from '@marketplaces/ui-lib/src/lib/common/Card';
+import PageHeader  from '@marketplaces/ui-lib/src/lib/common/PageHeader';
 import { useRouter } from 'next/router';
 
 const ProjectDataModal = dynamic(

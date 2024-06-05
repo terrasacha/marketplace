@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { Transactions } from '../ui-lib';
+import Transactions from '../wallet/Transactions';
 
 export default function WalletTransactions(props: any) {
   return (

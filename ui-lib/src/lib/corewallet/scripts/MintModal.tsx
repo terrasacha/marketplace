@@ -1,5 +1,6 @@
 import { useContext, useEffect, useState } from 'react';
-import { LoadingIcon, Modal } from '../../ui-lib';
+import { LoadingIcon } from '../../icons/LoadingIcon';
+import Modal from '../../common/Modal';
 import { WalletContext } from '@marketplaces/utils-2';
 import { toast } from 'sonner';
 

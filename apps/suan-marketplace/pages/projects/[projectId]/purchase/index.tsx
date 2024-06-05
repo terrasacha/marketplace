@@ -3,7 +3,7 @@ import PaymentPage from '@suan//components/payments/PaymentPage';
 import ProjectInfoContext from '@suan//store/projectinfo-context';
 import { MyPage } from '@suan//components/common/types';
 import { getActualPeriod } from '@suan//utils/generic/getActualPeriod';
-import { PageHeader } from '@marketplaces/ui-lib';
+import PageHeader from '@marketplaces/ui-lib/src/lib/common/PageHeader';
 import { getImagesCategories, getProject } from '@marketplaces/data-access';
 
 const PurchasePage: MyPage = (props: any) => {

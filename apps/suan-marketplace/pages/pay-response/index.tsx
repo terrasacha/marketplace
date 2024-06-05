@@ -1,6 +1,7 @@
 import Link from 'next/link';
 import { MyPage } from '@suan/components/common/types';
-import { CheckIcon, XIcon } from '@marketplaces/ui-lib';
+import { CheckIcon } from '@marketplaces/ui-lib/src/lib/icons/CheckIcon';
+import { XIcon } from '@marketplaces/ui-lib/src/lib/icons/XIcon';
 
 // const responses = {
 //   1: 'transacción aceptada',

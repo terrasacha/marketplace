@@ -4,7 +4,7 @@ import Link from 'next/link';
 import { getCurrentUser } from 'aws-amplify/auth';
 import Image from 'next/image';
 import { useWallet } from '@meshsdk/react';
-import { CardanoWalletGeneric } from '../ui-lib';
+import CardanoWalletGeneric from '../cardano-wallet/CardanoWalletGenericButton';
 interface WelcomeCardProps {
   poweredby: boolean;
   appName: string;

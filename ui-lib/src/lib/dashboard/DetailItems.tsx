@@ -1,7 +1,7 @@
 import React from 'react';
 import { useRouter } from 'next/router';
 import ItemRow from './ItemRow';
-const DetailItems = (props: any) => {
+export const DetailItems = (props: any) => {
   const { foundElement } = props;
   const router = useRouter();
 

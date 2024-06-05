@@ -1,5 +1,6 @@
 import { useContext, useState } from 'react';
-import { Card, LoadingIcon, LockIcon } from '../../ui-lib';
+import { LoadingIcon } from '../../icons/LoadingIcon';
+import { LockIcon } from '../../icons/LockIcon';
 import { WalletContext } from '@marketplaces/utils-2';
 import { useRouter } from 'next/router';
 import { toast } from 'sonner';

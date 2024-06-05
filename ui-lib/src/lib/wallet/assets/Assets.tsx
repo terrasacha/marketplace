@@ -1,13 +1,7 @@
 import { useEffect, useState } from 'react';
-import {
-  AssetsList,
-  Card,
-  CopyIcon,
-  ExternalLinkIcon,
-  EyeIcon,
-  PieChartCustom,
-} from '../../ui-lib';
-
+import Card from '../../common/Card';
+import PieChartCustom from '../../common/charts/PieChartCustom';
+import AssetsList from '../../wallet/assets/AssetsList';
 interface AssetsProps {
   assetsData: Array<any>;
   chartActive: boolean;

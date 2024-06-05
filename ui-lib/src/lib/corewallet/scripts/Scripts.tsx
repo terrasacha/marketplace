@@ -1,7 +1,9 @@
 import { useRouter } from 'next/router';
 import { getIpfsUrlHash } from '@suan/utils/generic/ipfs';
 import { splitLongValues, txHashLink } from '@suan/utils/generic/conversions';
-import { Card, PlusIcon, SignTransactionModal } from '../../ui-lib';
+import Card from '../../common/Card';
+import { PlusIcon } from '../../icons/PlusIcon'
+import SignTransactionModal from '../../wallet/sign-transaction/SignTransactionModal';
 import ScriptsList from './ScriptsList';
 import { useContext, useEffect, useState } from 'react';
 import CreateScriptModal from './CreateScriptModal';

@@ -2,7 +2,8 @@ import { useRouter } from 'next/router';
 import { useEffect, useRef, useState } from 'react';
 import { toast } from 'sonner';
 import Swal from 'sweetalert2';
-import { ChevronDownIcon, ChevronRightIcon } from '../../ui-lib';
+import { ChevronDownIcon } from '../../icons/ChevronDownIcon';
+import { ChevronRightIcon } from '../../icons/ChevronRightIcon';
 import { convertAWSDatetimeToDate } from '@suan/lib/util';
 
 interface ScriptRowProps {

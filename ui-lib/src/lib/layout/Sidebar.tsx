@@ -8,7 +8,7 @@ import { ChartIcon } from '../icons/ChartIcon';
 import { ChevronDownIcon } from '../icons/ChevronDownIcon';
 import { MarketIcon } from '../icons/MarketIcon';
 import { ScaleIcon } from '../icons/ScaleIcon';
-import { WalletIcon } from '../icons/WalletIcon';
+import WalletIcon from '../icons/WalletIcon';
 import { WalletContext } from '@marketplaces/utils-2';
 
 interface SidebarProps {

@@ -1,6 +1,7 @@
 import React, { useContext, useState } from 'react';
 import Scripts from './scripts/Scripts';
-import { Card, PlusIcon, SignTransactionModal } from '../ui-lib';
+import Card from '../common/Card';
+import SignTransactionModal from '../wallet/sign-transaction/SignTransactionModal';
 import { WalletContext, mapBuildTransactionInfo } from '@marketplaces/utils-2';
 import { toast } from 'sonner';
 

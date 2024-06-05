@@ -8,7 +8,7 @@ interface CheckoutData {
   tokenQuantity: string;
   invoiceID: string;
 }
-const EpaycoCheckout = (props: CheckoutData) => {
+export default function EpaycoCheckout(props: CheckoutData){
   const { amount, currency, tokenName, tokenQuantity, invoiceID } = props;
 
   const finalAmount = String(parseFloat(amount) * parseInt(tokenQuantity));
@@ -62,4 +62,3 @@ const EpaycoCheckout = (props: CheckoutData) => {
   );
 };
 
-export default EpaycoCheckout;

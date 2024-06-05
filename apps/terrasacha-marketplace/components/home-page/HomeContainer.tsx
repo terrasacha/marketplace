@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { CardProject } from '@marketplaces/ui-lib';
+import CardProject from '@marketplaces/ui-lib/src/lib/cards/CardProject2';
 import Pagination from '../home-page/paginationProject';
 import { Range } from 'react-range';
 

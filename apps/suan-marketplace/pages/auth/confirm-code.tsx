@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
-import { ConfirmCode, Title } from '@marketplaces/ui-lib';
+import ConfirmCode from '@marketplaces/ui-lib/src/lib/auth/ConfirmationCode';
+import Title from '@marketplaces/ui-lib/src/lib/auth/Title'
 import { confirmSignUpAuth, handleResendCode } from '@suan/backend';
 import { MyPage } from '@suan/components/common/types';
 import Image from 'next/image';

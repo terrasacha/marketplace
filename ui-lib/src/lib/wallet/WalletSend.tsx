@@ -1,12 +1,10 @@
 import React, { useContext, useEffect, useState } from 'react';
-import {
-  Card,
-  LoadingIcon,
-  PencilIcon,
-  Recipient,
-  SelectTokensModal,
-  SignTransactionModal,
-} from '../ui-lib';
+import SelectTokensModal from '../wallet/select-assets/SelectTokensModal'
+import SignTransactionModal from '../wallet/sign-transaction/SignTransactionModal'
+import Card from '../common/Card'
+import {LoadingIcon} from '../icons/LoadingIcon'
+import {PencilIcon} from '../icons/PencilIcon'
+import Recipient from '../wallet/Recipient';
 import { toast } from 'sonner';
 import { WalletContext } from '@marketplaces/utils-2';
 import { mapBuildTransactionInfo } from '@marketplaces/utils-2';

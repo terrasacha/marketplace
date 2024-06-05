@@ -8,7 +8,7 @@ interface ItemsDashboardProps {
   rates: any;
 }
 
-const ItemsDashboard: React.FC<ItemsDashboardProps> = ({
+export const ItemsDashboard: React.FC<ItemsDashboardProps> = ({
   amountOfTokens,
   assets,
   rates,

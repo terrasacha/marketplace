@@ -1,5 +1,5 @@
 // pages/dashboard/index.tsx
-import { DashboardInvestor } from '@marketplaces/ui-lib';
+import DashboardInvestor from '@marketplaces/ui-lib/src/lib/dashboard/DashboardInvestor';
 import { getTransactions } from '@suan//backend';
 import { MyPage } from '@suan//components/common/types';
 

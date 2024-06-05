@@ -1,12 +1,7 @@
 import { useContext, useState } from 'react';
-import {
-  Card,
-  CopyIcon,
-  CopyToClipboard,
-  ExternalLinkIcon,
-  LockIcon,
-  Tooltip,
-} from '../../ui-lib';
+import Tooltip from '../../common/Tooltip';
+import CopyToClipboard from '../../common/CopyToClipboard';
+import { ExternalLinkIcon } from '../../icons/ExternalLinkIcon'
 import Link from 'next/link';
 
 interface UtxoInfoCardProps {

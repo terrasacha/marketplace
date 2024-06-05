@@ -1,8 +1,6 @@
 import React, { useEffect, useState, useContext } from 'react';
-import { Spinner, Button } from 'flowbite-react';
-import { FaRegCopy, FaCopy } from 'react-icons/fa6';
 import { IoCloseSharp } from 'react-icons/io5';
-import { RestoreWalletContext } from '@marketplaces/ui-lib';
+import RestoreWalletContext from '@marketplaces/ui-lib/src/lib/store/restore-wallet-context';
 
 const WordsContainer = (props: any) => {
   const {

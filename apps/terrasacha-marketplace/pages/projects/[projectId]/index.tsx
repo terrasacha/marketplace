@@ -16,7 +16,8 @@ import TabsComponents from '@terrasacha//components/home-page/TabsProject';
 import FinancialTab from '@terrasacha//components/home-page/ProjectTabs/FinancialTab';
 import EarningsTab from '@terrasacha//components/home-page/ProjectTabs/EarningsTab';
 import ProjectionsTab from '@terrasacha//components/home-page/ProjectTabs/ProjectionsTab';
-import { Card, PageHeader } from '@marketplaces/ui-lib';
+import Card from '@marketplaces/ui-lib/src/lib/common/Card';
+import PageHeader from '@marketplaces/ui-lib/src/lib/common/PageHeader';
 import { useRouter } from 'next/router';
 
 const ProjectDataModal = dynamic(

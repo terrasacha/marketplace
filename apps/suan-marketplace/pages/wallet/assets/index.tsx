@@ -1,5 +1,5 @@
 import { MyPage } from '@suan//components/common/types';
-import { WalletAssets } from '@marketplaces/ui-lib';
+import WalletAssets from '@marketplaces/ui-lib/src/lib/wallet/WalletAssets';
 
 const Assets: MyPage = (props: any) => {
   return (

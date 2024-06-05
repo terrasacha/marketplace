@@ -1,5 +1,5 @@
 import dynamic from 'next/dynamic';
-import { ConfirmPassword } from '@marketplaces/ui-lib';
+import ConfirmPassword from '@marketplaces/ui-lib/src/lib/auth/ConfirmPassword';
 import Image from 'next/image';
 import { forgotPasswordSubmit, forgotPassword } from '@suan/backend';
 const ForgotPasswd = (props: any) => {

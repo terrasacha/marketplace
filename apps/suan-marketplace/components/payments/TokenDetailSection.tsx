@@ -1,6 +1,6 @@
 'use client';
 
-import { Card } from '@marketplaces/ui-lib';
+import Card from '@marketplaces/ui-lib/src/lib/common/Card';
 import Image from 'next/image';
 
 export function TokenDetailSection({

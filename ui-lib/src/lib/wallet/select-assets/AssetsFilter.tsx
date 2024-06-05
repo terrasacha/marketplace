@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { Modal, PencilIcon, TrashIcon } from '../../ui-lib';
+import { PencilIcon} from '../../icons/PencilIcon';
 
 interface AssetsFilterProps {
   assetsFilter: any;

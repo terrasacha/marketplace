@@ -1,5 +1,5 @@
 // pages/dashboard/index.tsx
-import { WalletDashboard } from '@marketplaces/ui-lib';
+import WalletDashboard from '@marketplaces/ui-lib/src/lib/wallet/WalletDashboard';
 import { MyPage } from '@suan//components/common/types';
 //import WalletDashboard from '@suan//components/wallet/WalletDashboard';
 import { getCurrentUser } from 'aws-amplify/auth';

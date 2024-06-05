@@ -1,13 +1,10 @@
 'use client';
 
-import {
-  Card,
-  EpaycoCheckout,
-  LoadingIcon,
-  PendingVerificationMessage,
-  SignTransactionModal,
-  TransactionInfoCard,
-} from '@marketplaces/ui-lib';
+import Card from '@marketplaces/ui-lib/src/lib/common/Card'
+import EpaycoCheckout from '@marketplaces/ui-lib/src/lib/epayco/EpaycoCheckout';
+import {LoadingIcon} from '@marketplaces/ui-lib/src/lib/icons/LoadingIcon';
+import PendingVerificationMessage from '@marketplaces/ui-lib/src/lib/common/PendingVerificationMessage'
+import SignTransactionModal from '@marketplaces/ui-lib/src/lib/wallet/sign-transaction/SignTransactionModal'
 import { useContext, useEffect, useState } from 'react';
 import { TokenDetailSection } from './TokenDetailSection';
 import ProjectInfoContext from '@terrasacha/store/projectinfo-context';

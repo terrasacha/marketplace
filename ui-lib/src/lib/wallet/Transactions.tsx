@@ -1,11 +1,8 @@
 import { useContext, useEffect, useState } from 'react';
-import {
-  Card,
-  LoadingIcon,
-  LoadingOverlay,
-  RefreshIcon,
-  TransactionInfoCard,
-} from '../ui-lib';
+import Card from '../common/Card'
+import LoadingOverlay from '../common/LoadingOverlay'
+import { RefreshIcon } from '../icons/RefreshIcon'
+import TransactionInfoCard from '../wallet/sign-transaction/TransactionInfoCard';
 import {
   WalletContext,
   getDateFromTimeStamp,

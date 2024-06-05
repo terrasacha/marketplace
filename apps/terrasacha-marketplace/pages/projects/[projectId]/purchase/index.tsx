@@ -4,7 +4,7 @@ import PaymentPage from '@terrasacha/components/payments/PaymentPage';
 import ProjectInfoContext from '@terrasacha/store/projectinfo-context';
 import { MyPage } from '@terrasacha/components/common/types';
 import { getActualPeriod } from '@terrasacha/utils/generic/getActualPeriod';
-import { PageHeader } from '@marketplaces/ui-lib';
+import PageHeader from '@marketplaces/ui-lib/src/lib/common/PageHeader';
 
 const PurchasePage: MyPage = (props: any) => {
   const { project, image } = props;
