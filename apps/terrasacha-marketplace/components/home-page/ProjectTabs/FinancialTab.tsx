@@ -1,4 +1,4 @@
-import { WalletIcon } from '@marketplaces/ui-lib/src/lib/icons/WalletIcon';
+import WalletIcon from '@marketplaces/ui-lib/src/lib/icons/WalletIcon';
 
 const FinancialTab: React.FC<any> = ({ financialData }) => {
   return (

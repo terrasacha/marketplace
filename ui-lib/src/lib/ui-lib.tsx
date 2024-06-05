@@ -53,7 +53,7 @@ import SankeyGraphComponent from './graphs/SankeyGraphComponent';
 import PieChartComponent from './graphs/PieChartComponent';
 import EpaycoCheckout from './epayco/EpaycoCheckout';
 import { RestoreWalletProvider } from './store/restore-wallet-context';
-import { WalletIcon } from './icons/WalletIcon';
+import WalletIcon  from './icons/WalletIcon';
 import { CopyIcon } from './icons/CopyIcon';
 import { CopyCheckIcon } from './icons/CopyCheckIcon';
 import { ChevronDownIcon } from './icons/ChevronDownIcon';
