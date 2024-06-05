@@ -1,5 +1,6 @@
 import { useEffect, useState } from 'react';
-import { Card, CreateOrderCard, SearchIcon } from '../ui-lib';
+import { SearchIcon } from '../icons/SearchIcon';
+import Card from '../common/Card';
 
 interface OrderBookCardProps {
   orderList?: Array<any> | null;

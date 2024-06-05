@@ -1,7 +1,7 @@
 import { MyPage } from '@terrasacha//components/common/types';
 import { getProject } from '@marketplaces/data-access';
 import { mapProjectData } from '@terrasacha//lib/mappers';
-import { DashboardProject } from '@marketplaces/ui-lib';
+import DashboardProject  from '@marketplaces/ui-lib/src/lib/dashboard/dashboard-project/DashboardProject';
 
 const DashboardPage: MyPage = (props: any) => {
   const { project, projectData, transactions, projectId } = props;

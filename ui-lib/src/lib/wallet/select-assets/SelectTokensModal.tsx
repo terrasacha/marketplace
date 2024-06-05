@@ -1,11 +1,6 @@
 import { useContext, useEffect, useState } from 'react';
-import {
-  AssetCard,
-  AssetsFilter,
-  Modal,
-  PencilIcon,
-  TrashIcon,
-} from '../../ui-lib';
+import AssetCard from '../../wallet/select-assets/AssetCard';
+import Modal from '../../common/Modal'
 import { WalletContext } from '@marketplaces/utils-2';
 
 interface SelectTokensModalProps {

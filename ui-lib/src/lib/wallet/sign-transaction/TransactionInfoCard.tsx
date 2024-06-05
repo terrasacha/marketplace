@@ -1,17 +1,13 @@
 import { useContext, useEffect, useState } from 'react';
-import {
-  UtxoInfoCard,
-  CopyToClipboard,
-  ChevronDownIcon,
-  ChevronUpIcon,
-  ChevronRightIcon,
-  CubeSendIcon,
-  TransferInIcon,
-  LoadingIcon,
-  ExternalLink,
-  Tooltip,
-  ExternalLinkIcon,
-} from '../../ui-lib';
+import Tooltip from '../../common/Tooltip';
+import UtxoInfoCard from '../../wallet/sign-transaction/UtxoInfoCard';
+import CopyToClipboard from '../../common/CopyToClipboard'
+import { ChevronDownIcon } from '../../icons/ChevronDownIcon'
+import { ChevronRightIcon } from '../../icons/ChevronRightIcon'
+import { CubeSendIcon } from '../../icons/CubeSendIcon'
+import { TransferInIcon } from '../../icons/TransferInIcon'
+import { LoadingIcon } from '../../icons/LoadingIcon'
+import { ExternalLinkIcon } from '../../icons/ExternalLinkIcon'
 import {
   JsonView,
   allExpanded,

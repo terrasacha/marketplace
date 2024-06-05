@@ -1,6 +1,6 @@
-import React, { PropsWithChildren} from "react";
+import React, { PropsWithChildren } from 'react';
 
 const NoLayout = ({ children }: PropsWithChildren) => {
-    return <>{children}</>;
-  };
-  export default NoLayout;
+  return <>{children}</>;
+};
+export default NoLayout;

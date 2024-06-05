@@ -1,4 +1,6 @@
-import { CopyCheckIcon, CopyIcon, Tooltip } from '../ui-lib';
+import { CopyCheckIcon } from '../icons/CopyCheckIcon';
+import {  CopyIcon } from '../icons/CopyIcon';
+import Tooltip  from '../common/Tooltip';
 import { useState } from 'react';
 import { toast } from 'sonner';
 

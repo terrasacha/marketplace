@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { TrashIcon } from '../ui-lib';
+import { TrashIcon } from '../icons/TrashIcon';
 
 interface RecipientProps {
   index: number;

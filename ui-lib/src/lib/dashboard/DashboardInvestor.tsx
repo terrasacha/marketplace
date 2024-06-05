@@ -1,11 +1,9 @@
 import { useContext, useEffect, useState } from 'react';
-import {
-  ItemsDashboard,
-  DetailItems,
-  LineChartComponent,
-  PieChartComponent,
-} from '@marketplaces/ui-lib';
-import { Card } from '../ui-lib';
+import Card from '../common/Card';
+import { ItemsDashboard } from './MainItemsDashboard'
+import { DetailItems } from './DetailItems'
+import LineChartComponent from '../graphs/LineChartComponent'
+import PieChartComponent from '../graphs/PieChartComponent'
 import TransactionShort from './TransactionsShort';
 import { WalletContext } from '@marketplaces/utils-2';
 import { mapWalletDataDashboardInvestor } from '@marketplaces/utils-2';

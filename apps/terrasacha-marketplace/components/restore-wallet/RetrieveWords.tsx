@@ -1,6 +1,6 @@
 import React, { useContext, useState, useEffect } from 'react';
 import { Radio, Label, Button } from 'flowbite-react';
-import {RestoreWalletContext} from '@marketplaces/ui-lib';
+import RestoreWalletContext from '@marketplaces/ui-lib/src/lib/store/restore-wallet-context';
 import WordsContainer from './WordsContainer';
 import { FaPen } from 'react-icons/fa';
 import { useRouter } from 'next/router';

@@ -1,4 +1,4 @@
-import { Card } from "../../ui-lib";
+import Card from "../../common/Card";
 
 export default function ActualUseAndPotentialInfoCard({
     actualUse,

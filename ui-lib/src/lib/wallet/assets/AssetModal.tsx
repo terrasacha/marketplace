@@ -1,5 +1,6 @@
 import { Button, Modal } from 'flowbite-react';
-import { CopyToClipboard, XIcon } from '../../ui-lib';
+import { XIcon } from '../../icons/XIcon';
+import CopyToClipboard from '../../common/CopyToClipboard'
 import {
   JsonView,
   allExpanded,

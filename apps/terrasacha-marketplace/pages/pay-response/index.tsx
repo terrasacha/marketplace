@@ -1,7 +1,7 @@
 import Link from 'next/link';
 import { MyPage } from '@terrasacha/components/common/types';
-import { CheckIcon, XIcon } from '@marketplaces/ui-lib';
-
+import { XIcon } from '@marketplaces/ui-lib/src/lib/icons/XIcon';
+import { CheckIcon } from '@marketplaces/ui-lib/src/lib/icons/CheckIcon'
 // const responses = {
 //   1: 'transacción aceptada',
 //   2: 'transacción rechazada',

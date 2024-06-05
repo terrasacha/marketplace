@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react';
-import { Card } from '../ui-lib';
+import Card from '../common/Card';
 import Image from 'next/image';
 import { getActualPeriod } from '@marketplaces/utils-2';
 import Link from 'next/link';

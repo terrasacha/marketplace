@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { Card, OrderBookCard } from '../ui-lib';
+import Card from '../common/Card';
 
 interface CreateOrderCardProps {
   userAssetList?: Array<any>;

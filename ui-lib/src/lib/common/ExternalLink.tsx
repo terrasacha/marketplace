@@ -1,4 +1,5 @@
-import { ExternalLinkIcon, Tooltip } from '../ui-lib';
+import { ExternalLinkIcon } from '../icons/ExternalLinkIcon';
+import Tooltip from '../common/Tooltip';
 
 interface CopyToClipboard {
   className?: string;

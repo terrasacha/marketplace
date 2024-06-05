@@ -25,6 +25,7 @@ const nextConfig = {
       'kiosuanbcrjsappcad3eb2dd1b14457b491c910d5aa45dd145518-dev.s3.amazonaws.com',
     ],
   },
+  optimizePackageImports: ["flowbite-react"]
 };
 
 const plugins = [

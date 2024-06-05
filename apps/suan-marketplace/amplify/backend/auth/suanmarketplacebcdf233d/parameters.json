@@ -1,6 +1,6 @@
 {
-  "authSelections": "identityPoolAndUserPool",
-  "resourceName": "kiosuanwalletnjsapp0c07f185",
+  "authSelections": "userPoolOnly",
+  "resourceName": "suanmarketplacebcdf233d",
   "serviceType": "imported",
   "region": "us-east-1",
   "requiredAttributes": [

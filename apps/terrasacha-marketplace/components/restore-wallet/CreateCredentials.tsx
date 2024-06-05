@@ -2,7 +2,7 @@ import React, { useState, useContext, useEffect } from 'react';
 import { Button } from 'flowbite-react';
 import { FaPen } from 'react-icons/fa';
 import { BsFillEyeFill, BsFillEyeSlashFill } from 'react-icons/bs';
-import { RestoreWalletContext } from '@marketplaces/ui-lib';
+import RestoreWalletContext from '@marketplaces/ui-lib/src/lib/store/restore-wallet-context';
 import { TailSpin } from 'react-loader-spinner';
 import { toast } from 'sonner';
 

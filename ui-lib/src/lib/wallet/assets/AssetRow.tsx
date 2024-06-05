@@ -1,5 +1,4 @@
 import { useState } from 'react';
-import { Modal, PencilIcon, TrashIcon } from '../../ui-lib';
 
 interface AssetRowProps {
   index: number;

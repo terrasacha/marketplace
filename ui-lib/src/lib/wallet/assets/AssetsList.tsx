@@ -1,6 +1,6 @@
 import { useState } from 'react';
-import { AssetModal, AssetRow } from '../../ui-lib'; // Importa AssetRow desde la ubicación correcta
-
+import AssetModal from '../../wallet/assets/AssetModal';
+import AssetRow from '../../wallet/assets/AssetRow';
 interface AssesListProps {
   assetsData: Array<any>;
   itemsPerPage: number;

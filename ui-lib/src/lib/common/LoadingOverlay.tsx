@@ -1,4 +1,4 @@
-import { LoadingIcon } from '../ui-lib';
+import { LoadingIcon } from '../icons/LoadingIcon';
 
 interface LoadingOverlayProps {
   className?: string;

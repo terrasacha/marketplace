@@ -1,5 +1,6 @@
 import React from 'react';
-import { Card } from '../ui-lib';
+import Card from "../common/Card";
+
 import {
   Chart as ChartJS,
   CategoryScale,

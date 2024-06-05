@@ -1,5 +1,5 @@
 import React, { useContext, useState } from 'react';
-import { Assets } from '../ui-lib';
+import Assets from '../wallet/assets/Assets';
 import { WalletContext } from '@marketplaces/utils-2';
 
 export default function WalletAssets(props: any) {

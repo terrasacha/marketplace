@@ -1,7 +1,6 @@
 // pages/dashboard/index.tsx
-import { WalletDashboard } from '@marketplaces/ui-lib';
 import { MyPage } from '@suan//components/common/types';
-import { WalletSend } from '@marketplaces/ui-lib';
+import WalletSend from '@marketplaces/ui-lib/src/lib/wallet/WalletSend';
 
 const Send: MyPage = (props: any) => {
   return (

@@ -1,5 +1,7 @@
 import { useContext, useEffect, useState } from 'react';
-import { Card, LoadingIcon, LoadingOverlay, RefreshIcon } from '../ui-lib';
+import Card from '../common/Card';
+import LoadingOverlay from '../common/LoadingOverlay';
+import { RefreshIcon } from '../icons/RefreshIcon';
 import TransactionInfoCardShort from './dashboard-project/TransactionInfoCardShort';
 import {
   WalletContext,

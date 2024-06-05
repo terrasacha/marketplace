@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
-import { ConfirmCode, Title } from '@marketplaces/ui-lib';
+import Title from '@marketplaces/ui-lib/src/lib/auth/Title'
+import ConfirmCode from '@marketplaces/ui-lib/src/lib/auth/ConfirmationCode'
 import { confirmSignUpAuth, handleResendCode } from '@terrasacha/backend';
 import { MyPage } from '@terrasacha/components/common/types';
 import Image from 'next/image';

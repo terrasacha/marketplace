@@ -61,7 +61,7 @@ const SignUpForm = (props: SignUpFormProps) => {
         throw new Error('Las contraseñas no coinciden');
       }
 
-      await signUpAuth(signupForm)
+      await signUpAuth(signupForm);
       router.push('/auth/confirm-code');
     } catch (error: any) {
       if (error.message === 'Las contraseñas no coinciden') {

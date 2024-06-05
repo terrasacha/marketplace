@@ -1,5 +1,5 @@
 // pages/dashboard/index.tsx
-import { CoreWalletPage } from '@marketplaces/ui-lib';
+import CoreWalletPage from '@marketplaces/ui-lib/src/lib/corewallet/CoreWalletPage';
 import { WalletContext } from '@marketplaces/utils-2';
 import { MyPage } from '@terrasacha/components/common/types';
 import { useContext } from 'react';

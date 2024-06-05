@@ -1,5 +1,5 @@
 import { useEffect, useState, useContext } from 'react';
-import { LineChartComponent } from '../../ui-lib';
+import LineChartComponent from '../../graphs/LineChartComponent';
 import DefaultCard from './DefaultCard';
 import DefaultCardClient from './DefaultCardClient';
 import TokenCard from './TokenCard';
@@ -8,7 +8,7 @@ import { WalletContext } from '@marketplaces/utils-2';
 import { mapDashboardProject } from '@marketplaces/utils-2';
 import ActualUseAndPotentialInfoCard from './ActualUseAndPotentialInfoCard';
 import BlockChainPieChart from './BlockChainPieChart';
-import { StackBarGraphComponent } from '../../ui-lib';
+import StackBarGraphComponent from '../../graphs/StackBarGraphComponent';
 export default function DashboardProject(props: any) {
   const { walletData } = useContext<any>(WalletContext);
   const { project, projectData, projectId } = props;

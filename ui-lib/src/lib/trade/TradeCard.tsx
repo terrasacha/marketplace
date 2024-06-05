@@ -1,5 +1,7 @@
 import { useContext, useEffect, useState } from 'react';
-import { Card, CreateOrderCard, OrderBookCard } from '../ui-lib';
+import Card from '../common/Card';
+import CreateOrderCard from '../trade/CreateOrderCard'
+import OrderBookCard from '../trade/OrderBookCard'
 import { WalletContext } from '@marketplaces/utils-2';
 
 export default function TradeCard(props: any) {

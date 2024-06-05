@@ -1,5 +1,5 @@
 import { MyPage } from '@suan/components/common/types';
-import { TradeCard } from '@marketplaces/ui-lib';
+import TradeCard  from '@marketplaces/ui-lib/src/lib/trade/TradeCard';
 
 const Trade: MyPage = (props: any) => {
   return (

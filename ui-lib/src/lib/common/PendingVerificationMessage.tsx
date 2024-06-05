@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react';
 import { getCurrentUser } from 'aws-amplify/auth';
-import { CheckIcon } from '../ui-lib';
+import { CheckIcon } from '../icons/CheckIcon';
 
 export default function PendingVerificationMessage() {
   const [verificationStatus, setVerificationStatus] = useState<any>(null);

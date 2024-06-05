@@ -2,16 +2,13 @@ import { useWallet } from '@meshsdk/react';
 import { useEffect, useState, useRef, useContext } from 'react';
 import Image from 'next/image';
 import Link from 'next/link';
-import { signOut } from 'aws-amplify/auth';
 import { useRouter } from 'next/router';
-import {
-  BookIcon,
-  ChartIcon,
-  ChevronDownIcon,
-  MarketIcon,
-  ScaleIcon,
-  WalletIcon,
-} from '../ui-lib';
+import { BookIcon } from '../icons/BookIcon';
+import { ChartIcon } from '../icons/ChartIcon';
+import { ChevronDownIcon } from '../icons/ChevronDownIcon';
+import { MarketIcon } from '../icons/MarketIcon';
+import { ScaleIcon } from '../icons/ScaleIcon';
+import WalletIcon from '../icons/WalletIcon';
 import { WalletContext } from '@marketplaces/utils-2';
 
 interface SidebarProps {
@@ -137,7 +134,9 @@ export default function Sidebar(props: SidebarProps) {
             </button>
             <ul
               id="dropdown-example"
-              className={`${!displayWalletOptions && 'hidden'} py-2 space-y-2 animate-fade animate-ease-in-out animate-duration-[400ms]`}
+              className={`${
+                !displayWalletOptions && 'hidden'
+              } py-2 space-y-2 animate-fade animate-ease-in-out animate-duration-[400ms]`}
             >
               <li>
                 <Link
