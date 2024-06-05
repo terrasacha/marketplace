@@ -124,7 +124,7 @@ export default function SignTransaction(props: SignTransactionProps) {
     return signSubmitResponse;
   };
 
-  const handleSignTransactionSendTransaction = async () => {
+  /* const handleSignTransactionSendTransaction = async () => {
     const signTxData = {
       wallet_id: walletID,
       cbor: cbor,
@@ -140,7 +140,7 @@ export default function SignTransaction(props: SignTransactionProps) {
     const signSubmitResponse = await response.json();
     console.log('Firmado de transacción: ', signSubmitResponse);
     return signSubmitResponse;
-  };
+  }; */
 
   const handleSign = async () => {
     setIsLoading(true);
@@ -163,9 +163,9 @@ export default function SignTransaction(props: SignTransactionProps) {
       signSubmitResponse = await handleSignTransactionBuyTokens();
     }
 
-    if (signType === 'sendTransaction') {
+    /* if (signType === 'sendTransaction') {
       signSubmitResponse = await handleSignTransactionSendTransaction();
-    }
+    } */
 
     if (signSubmitResponse?.txSubmit?.success) {
       handleOpenSignTransactionModal();

@@ -15,7 +15,7 @@ interface ScriptRowProps {
   policyId: string;
   projectID: string;
   active: boolean;
-  tokenGenesis: boolean;
+  tokenGenesis? : boolean
   script_type: string;
   createdAt: string;
   handleOpenMintModal: (policyId: string) => void;
