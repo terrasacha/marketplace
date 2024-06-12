@@ -3,7 +3,7 @@ import React, { useEffect, useState } from 'react';
 import { Pie } from 'react-chartjs-2';
 import { Chart as ChartJS, ArcElement, Tooltip, Legend } from 'chart.js';
 import Card from "../../common/Card";
-
+ChartJS.register(ArcElement, Tooltip, Legend);
 interface BlockChainPieChartProps {
   project: any;
 }
