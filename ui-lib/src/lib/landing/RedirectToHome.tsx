@@ -1,12 +1,10 @@
 import { useState } from 'react';
+import { signOut } from 'aws-amplify/auth';
 import Image from 'next/image';
-import Link from 'next/link';
 import { useEffect } from 'react';
 import { TailSpin } from 'react-loader-spinner';
 import { useRouter } from 'next/router';
-import { getCurrentUser } from 'aws-amplify/auth';
-import { toast } from 'sonner';
-import { useWallet, useAssets } from '@meshsdk/react'
+import { useAssets } from '@meshsdk/react'
 
 interface RedirectToHomeProps {
   poweredby: boolean;
@@ -21,8 +19,8 @@ const optionsToDisplay : any = {
     paragraph: 'Redirigiendo al marketplace...',
   },
   requestToken:{
-    title: 'Debes solicitar tu token de acceso',
-    paragraph: 'Para ingresar al marketplace primero debes solicitar tu token de acceso. Una vez lo tengas en tu billetera, podrás ingresar al marketplace.',
+    title: 'Último paso, solicitar tu token de acceso',
+    paragraph: 'Para acceder al Marketplace, necesitas solicitar primero tu token de acceso. Una vez recibido y disponible en tu billetera, podrás ingresar al Marketplace. Ten en cuenta que puede llevar algún tiempo hasta que el token esté listo en tu billetera. Por favor, espera mientras verificamos la recepción del token.',
   },
   alreadyClaimToken:{
     title: 'Ya solicitaste tu token de acceso',
@@ -35,17 +33,18 @@ const RedirectToHome = (props: RedirectToHomeProps) => {
   const [statusText, setStatusText] = useState<string>('Validando token en billetera')
   const [showButtonAccess, setShowButtonAccess] = useState<boolean>(false)
   const [claimed, setClaimed] = useState<boolean>(false)
+  
   const assets = useAssets() as Array<{ [key: string]: any }>
   
   const router = useRouter();
 
   useEffect(() => {
-    let tokenFound = false; // Bandera para indicar si se ha encontrado el token
+    let tokenFound = false;
     if (checkingWallet === 'hasTokenAuth') {
       router.push('/home');
     }
     const interval = setInterval(async () => {
-      if (!tokenFound && checkingWallet === 'alreadyClaimToken') { // Solo si el token no ha sido encontrado aún
+      if (!tokenFound && checkingWallet === 'alreadyClaimToken') {
         setLoading(true);
         try {
           const balanceData = await getWalletBalanceByAddress(walletData.address);
@@ -55,7 +54,7 @@ const RedirectToHome = (props: RedirectToHomeProps) => {
             setLoading(false);
             setStatusText('Token encontrado, redirigiendo...');
             setShowButtonAccess(true);
-            tokenFound = true; // Establecer la bandera a true cuando se encuentra el token
+            tokenFound = true;
           } else {
             setLoading(false);
           }
@@ -115,18 +114,18 @@ const RedirectToHome = (props: RedirectToHomeProps) => {
     }
   }
   return (
-    <div className="bg-white rounded-2xl min-w-[40rem] max-w-[40rem] 2xl:w-[38%] py-10 px-12 sm:px-20 h-auto flex flex-col justify-center">
-      <h2 className="text-3xl font-normal pb-4 flex justify-center">
+    <div className="bg-white rounded-2xl w-[40rem] max-w-[35rem] 2xl:w-[45%] py-10 px-10 sm:px-10 h-auto flex flex-col justify-center">
+      <h2 className="text-2xl font-normal pb-4 flex justify-center text-center">
        {optionsToDisplay[checkingWallet]?.title}
       </h2>
-      <p className="text-sm font-light text-gray-500 text-center mb-2">
+      <p className="text-sm text-gray-500 text-center mb-2">
       {optionsToDisplay[checkingWallet]?.paragraph}
       </p>
       <div className='h-8 w-full mb-6'>
       {checkingWallet === 'alreadyClaimToken' && loading &&
       <div className="w-full flex text-md gap-2 items-center justify-center">
         <TailSpin width="10" color="#0e7490" wrapperClass="" />
-        <p className='text-sm font-light text-gray-500'>{statusText}</p>
+        <p className='text-sm text-gray-500'>{statusText}</p>
       </div>
       }
       {showButtonAccess &&
@@ -153,6 +152,15 @@ const RedirectToHome = (props: RedirectToHomeProps) => {
                     )}
                 </button>
         }
+
+      {checkingWallet !== 'hasTokenAuth' &&<button className="flex h-10 w-full text-sm items-center justify-center p-0.5 font-normal focus:z-10 focus:outline-none text-red-400 enabled:hover:bg-red-100 focus:ring-red-600 :bg-red-400 dark:text-white dark:enabled:hover:bg-red-600  dark:focus:ring-gray-600 rounded-lg focus:ring-2 mt-6"
+      onClick={() => {
+        signOut().then(() => router.reload());
+      }}
+    >
+      Cerrar sesión 
+    </button>
+    }
       {poweredby && (
         <div className="flex items-center justify-center mt-4 text-xs">
           Powered by

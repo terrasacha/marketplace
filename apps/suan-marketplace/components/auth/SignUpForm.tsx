@@ -204,7 +204,7 @@ const SignUpForm: React.FC<SignUpFormProps> = ({ handleSetSignUpStatus }) => {
         Registrarse
       </button>
       <p className="text-sm pt-1 w-full text-center">
-        ¿Ya tienes una cuenta?
+        ¿Ya tienes una cuenta {' '}?
         <Link
           href={
             router.query.fromGenerateWallet === 'true'

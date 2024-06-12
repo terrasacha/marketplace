@@ -6,9 +6,9 @@ const Title = () => {
           <h1 className="text-7xl tracking-wide font-normal pb-1">transición hacia </h1>
           <h1 className="text-7xl tracking-wide font-normal pb-1">mundo de</h1>
           <h1 className="text-7xl tracking-wide font-normal pb-1">carbono neutral</h1>
-          <p className="text-2xl tracking-normal pt-20">Somos un motor alternativo Para facilitar el
-          desarrollo financiación e implementación de
-          proyectos de mitigaci6n de cambio climåtico</p>
+          <p className="text-2xl tracking-normal pt-20">Somos un motor alternativo para facilitar el
+          desarrollo, financiación e implementación de
+          proyectos de mitigación de cambio climåtico</p>
         </div>
     )
 };

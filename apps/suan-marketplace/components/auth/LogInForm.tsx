@@ -109,7 +109,7 @@ const LoginForm = () => {
         Ingresar
       </button>
       <p className="text-sm pt-5">
-        ¿No tienes una cuenta?
+        ¿No tienes una cuenta? {' '}
         <Link
           href={
             router.query.fromGenerateWallet === 'true'

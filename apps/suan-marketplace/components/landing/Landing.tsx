@@ -1,5 +1,4 @@
 import LoadingPage from '@marketplaces/ui-lib/src/lib/common/LoadingPage';
-import NavbarLanding from '@marketplaces/ui-lib/src/lib/landing/NavbarLanding';
 import RedirectToHome from '@marketplaces/ui-lib/src/lib/landing/RedirectToHome';
 import WelcomeCard from '@marketplaces/ui-lib/src/lib/landing/WelcomeCard';
 import { useState, useEffect } from 'react';
@@ -37,7 +36,6 @@ const Login = (props: any) => {
         fill
         style={{ objectFit: 'cover', objectPosition: 'center', zIndex: '0' }}
       />
-      <NavbarLanding user={user} />
       <div className="h-auto w-[90%] lg:w-[90%] 2xl:w-[80%] 3xl:w-[70%] flex justify-center z-10">
         {loading ? (
           <LoadingPage message="Consultando información del usuario" />

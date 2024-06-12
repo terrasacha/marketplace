@@ -12,8 +12,8 @@ const Title = () => {
         carbono neutral
       </h1>
       <p className="text-2xl tracking-normal pt-20">
-        Somos un motor alternativo Para facilitar el desarrollo financiación e
-        implementación de proyectos de mitigaci6n de cambio climåtico
+        Somos un motor alternativo para facilitar el desarrollo, financiación e
+        implementación de proyectos de mitigación de cambio climåtico
       </p>
     </div>
   );
