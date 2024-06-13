@@ -160,6 +160,10 @@ export const mapCategory = async (obj: string): Promise<string | boolean> => {
   const mapper: Record<string, string> = {
     PROYECTO_PLANTACIONES: 'Proyecto Plantaciones',
     'REDD+': 'REDD+',
+    'MIXTO': 'MIXTO',
+    'ECOSISTEMAS_ESTRATÉGICOS': 'ECOSISTEMAS_ESTRATÉGICOS'
+
+
   };
 
   return mapper[obj] || false;

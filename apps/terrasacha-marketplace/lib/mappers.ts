@@ -1,4 +1,4 @@
-import { getPolygonByCadastralNumber } from '@terrasacha/backend';
+import { getPolygonByCadastralNumber } from '@suan/backend';
 import {
   parseSerializedKoboData,
   convertAWSDatetimeToDate,
@@ -160,6 +160,10 @@ export const mapCategory = async (obj: string): Promise<string | boolean> => {
   const mapper: Record<string, string> = {
     PROYECTO_PLANTACIONES: 'Proyecto Plantaciones',
     'REDD+': 'REDD+',
+    'MIXTO': 'MIXTO',
+    'ECOSISTEMAS_ESTRATÉGICOS': 'ECOSISTEMAS_ESTRATÉGICOS'
+
+
   };
 
   return mapper[obj] || false;
@@ -216,9 +220,12 @@ const timeBetweenDates = (firstPeriod: any, lastPeriod: any) => {
   let years = Math.floor(totalMonths / 12);
   let months = totalMonths % 12;
 
-  let daysInLastMonth = endDate.diff(startDate.add(years, 'years').add(months, 'months'), 'days');
-  return { years, months, days: daysInLastMonth }
-}
+  let daysInLastMonth = endDate.diff(
+    startDate.add(years, 'years').add(months, 'months'),
+    'days'
+  );
+  return { years, months, days: daysInLastMonth };
+};
 const mapProjectGeneralAspects = async (data: any): Promise<any> => {
   let parsedData: any = '';
   if (data) {
@@ -388,7 +395,10 @@ export const mapProjectData = async (data: any): Promise<any> => {
       amount: tkhd.amount,
     };
   });
-  const lifeTimeProject: any = timeBetweenDates(periods[0].date, periods[periods.length - 1].date)
+  const lifeTimeProject: any = timeBetweenDates(
+    periods[0].date,
+    periods[periods.length - 1].date
+  );
   const actualPeriod: any = await getActualPeriod(Date.now(), periods);
 
   const pfProjectValidatorDocumentsID: string =
@@ -560,13 +570,12 @@ export const mapProjectData = async (data: any): Promise<any> => {
   );
 
   // geo json
-  const cadastralNumbersArray =
-      cadastralData.map(
-        (item: any) => item.cadastralNumber
-      );
+  const cadastralNumbersArray = cadastralData.map(
+    (item: any) => item.cadastralNumber
+  );
   const geoJsonPredialData = await getPolygonByCadastralNumber(
     cadastralNumbersArray
-  )
+  );
 
   return {
     projectInfo: {
@@ -651,6 +660,6 @@ export const mapProjectData = async (data: any): Promise<any> => {
       cashFlowResume: cashFlowResume,
       financialIndicators: { financialIndicatorsID, financialIndicators },
     },
-    projectPredialGeoJson: geoJsonPredialData
+    projectPredialGeoJson: geoJsonPredialData,
   };
 };

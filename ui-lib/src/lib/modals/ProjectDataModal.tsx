@@ -24,10 +24,10 @@ export default function ProjectDataModal({
   project,
 }: any) {
   const [activeTab, setActiveTab] = useState(0);
-  const tabs = ["Detalles", "Galeria", "Archivos", "Blockchain", "Finanzas"];
+  const tabs = ["Detalles", /* "Galeria", */ "Archivos", "Blockchain", "Finanzas"];
   const tabComponents = [
     TabDetalles,
-    TabGaleria,
+    /* TabGaleria, */
     TabArchivos,
     TabBlockchain,
     TabFinanzas,
@@ -255,11 +255,11 @@ export default function ProjectDataModal({
       <div className="grid grid-cols-1 xl:grid-cols-1">
         <BlockchainCard project={project} />
 
-        <OwnersDataVerification
+        {/* <OwnersDataVerification
           projectOwnersData={projectData.projectOwners.owners}
           renderFileLinkByDocumentID={renderFileLinkByDocumentID}
           projectID={projectData.projectInfo.id}
-        />
+        /> */}
       </div>
     );
   }

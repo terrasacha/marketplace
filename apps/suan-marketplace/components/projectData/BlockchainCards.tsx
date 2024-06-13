@@ -35,8 +35,9 @@ const CustomTooltip = ({ active, payload }: any) => {
 
 export default function BlockchainCard({ project }: BlockchainCardProps) {
   const [newChartData, setChartData] = useState<ChartDataItem[]>([]);
+  const [tableData, setTableData] = useState<ChartDataItem[]>([]);
+  const [totalOwnerValue, setTotalOwnerValue] = useState<ChartDataItem[]>(1);
   const [newData, setNewData] = useState<any>(null); // Nueva variable de estado
-
   const traducciones: Traducciones = {
     buffer: 'Buffer',
     comunity: 'Comunidad',
@@ -65,6 +66,14 @@ export default function BlockchainCard({ project }: BlockchainCardProps) {
     if (newData) {
       const chartData = transformDataForChart(newData, globalTokenTotalAmount);
       setChartData(chartData);
+      const distributionData = project.productFeatures.items.find((item : any)=> item.featureID === "GLOBAL_TOKEN_AMOUNT_DISTRIBUTION") || []
+      const infoTable = JSON.parse((distributionData.value))
+      const totalOwnerValue = infoTable.reduce(
+        (sum : number, item : any) => sum + parseInt(item.CANTIDAD),
+        0
+      );
+      setTableData(infoTable)
+      setTotalOwnerValue(totalOwnerValue)
     }
   }, []);
 
@@ -113,35 +122,61 @@ export default function BlockchainCard({ project }: BlockchainCardProps) {
   }
 
   return (
-    <div className="items-center justify-center flex sm:flex-row flex-col w-full">
+    <div className="items-center justify-center flex sm:flex-col gap-y-4 flex-col w-full">
       <p>
         Esta sera la distribución de los{' '}
         <strong>{getGlobalTokenTotalAmount(project)}</strong> tokens destinados
         a este proyecto
       </p>
-      <ResponsiveContainer width="100%" height={300}>
-        <PieChart>
-          <Pie
-            dataKey="value"
-            data={newChartData}
-            cx="50%"
-            cy="50%"
-            outerRadius={100}
-            innerRadius={50}
-            fill="#8884d8"
-            labelLine={false}
-          >
-            {newChartData.map((entry, index) => (
-              <Cell
-                key={`cell-${index}`}
-                fill={COLORS[index % COLORS.length]}
-              />
-            ))}
-          </Pie>
-          <Tooltip content={<CustomTooltip />} />
-          <Legend layout="horizontal" align="center" verticalAlign="bottom" />
-        </PieChart>
-      </ResponsiveContainer>
+      <table className="w-11/12 text-sm text-left text-gray-500 dark:text-gray-400">
+            <thead className="text-xs text-gray-700 uppercase bg-gray-200 dark:bg-gray-700 dark:text-gray-400">
+              <tr className="distribution">
+                {tableData.map((item, index) => (
+                  <th scope="col" className="px-3 py-2" key={index}>
+                    {item.CONCEPTO}
+                  </th>
+                ))}
+              </tr>
+            </thead>
+            <tbody>
+              <tr className="bg-white border-b dark:bg-gray-800 dark:border-gray-700 distribution">
+                {tableData.map((item, index) => (
+                  <td className="px-3 py-2" key={index}>
+                    {(
+                      (parseInt(item.CANTIDAD) / totalOwnerValue) *
+                      100
+                    ).toFixed(1)}
+                    %
+                  </td>
+                ))}
+              </tr>
+            </tbody>
+          </table>
+      <div className=' w-full flex justify-center'>
+        <ResponsiveContainer width="50%" height={300}>
+          <PieChart>
+            <Pie
+              dataKey="value"
+              data={newChartData}
+              cx="50%"
+              cy="50%"
+              outerRadius={100}
+              innerRadius={50}
+              fill="#8884d8"
+              labelLine={false}
+            >
+              {newChartData.map((entry, index) => (
+                <Cell
+                  key={`cell-${index}`}
+                  fill={COLORS[index % COLORS.length]}
+                />
+              ))}
+            </Pie>
+            <Tooltip content={<CustomTooltip />} />
+            <Legend layout="vertical" align="left" verticalAlign="middle" />
+          </PieChart>
+        </ResponsiveContainer>
+      </div>
     </div>
   );
 }
