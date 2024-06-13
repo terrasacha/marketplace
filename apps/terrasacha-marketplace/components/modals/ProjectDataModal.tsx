@@ -2,7 +2,6 @@ import { useState } from 'react';
 import GoogleMapReact from 'google-map-react';
 import { Modal, Tabs, Badge, Label, TextInput } from 'flowbite-react';
 import ProjectInfoCard from '../projectData/ProjectInfoCard';
-import OwnerInfoCard from '../projectData/OwnerInfoCard';
 import PostulantInfoCard from '../projectData/PostulantInfoCard';
 import ActualUseAndPotentialInfoCard from '../projectData/ActualUseAndPotentialInfoCard';
 import UserRestrictionsInfoCard from '../projectData/UseRestrictionsInfoCard';
@@ -263,9 +262,6 @@ export default function ProjectDataModal({
               yesIWantToUseGoogleMapApiInternals
             ></GoogleMapReact>
           </div>
-        </div>
-        <div className="bg-[#F4F8F9] rounded-lg">
-          <OwnerInfoCard owners={projectData.projectOwners.owners} />
         </div>
         <div className="bg-[#F4F8F9] rounded-lg">
           <PostulantInfoCard

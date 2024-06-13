@@ -59,18 +59,6 @@ export default function ProjectInfoCard({
                 <div>{municipio}</div>
               </div>
             </li>
-            <li className="general-item mb-2">
-              <div className="grid sm:grid-cols-2">
-                <span className="general-title font-bold">Número de matrícula inmobiliaria del predio:</span>
-                <div>{matricula}</div>
-              </div>
-            </li>
-            <li className="general-item mb-2">
-              <div className="grid sm:grid-cols-2">
-                <p className="general-title font-bold">Ficha catastral <span className="text-xs font-regular">(Número de ficha catastral que aparece en el impuesto predial del municipio del predio)</span>:</p>
-                <div>{fichaCatrastal}</div>
-              </div>
-            </li>
           </ul>
         </div>
       </div>
