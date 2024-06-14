@@ -1,9 +1,9 @@
 import React, { useEffect, useState } from 'react';
-
 import { Pie } from 'react-chartjs-2';
 import { Chart as ChartJS, ArcElement, Tooltip, Legend } from 'chart.js';
 import Card from "../../common/Card";
 ChartJS.register(ArcElement, Tooltip, Legend);
+
 interface BlockChainPieChartProps {
   project: any;
 }
@@ -11,6 +11,7 @@ interface BlockChainPieChartProps {
 interface ChartDataItem {
   name: string;
   value: number;
+  percentage: number; // Nuevo campo para el porcentaje
 }
 
 interface Traducciones {
@@ -22,7 +23,7 @@ const CustomTooltip = ({ active, payload }: any) => {
     const data = payload[0].payload;
     return (
       <div className="custom-tooltip">
-        <p className="label">{`${data.name}: ${data.value}`}</p>
+        <p className="label">{`${data.name}: ${data.value} (${data.percentage.toFixed(2)}%)`}</p>
       </div>
     );
   }
@@ -33,8 +34,8 @@ export default function BlockChainPieChart({
   project,
 }: BlockChainPieChartProps) {
   const [newChartData, setChartData] = useState<ChartDataItem[]>([]);
-  const [newData, setNewData] = useState<any>(null); // Nueva variable de estado
-  const [globalTokenAmount, setGlobalTokenAmount] = useState<any>(null);
+  const [globalTokenAmount, setGlobalTokenAmount] = useState<number>(0);
+
   const traducciones: Traducciones = {
     buffer: 'Buffer',
     comunity: 'Comunidad',
@@ -43,30 +44,9 @@ export default function BlockChainPieChart({
     suan: 'Suan',
   };
 
-  const COLORS = [
-    '#0088FE',
-    '#00C49F',
-    '#FFBB28',
-    '#FF8042',
-    '#AF19FF',
-    '#FF1942',
-    '#00FF99',
-    '#FF6600',
-    '#8A2BE2',
-  ];
-  const backgrounds = [
-    'rgb(255, 99, 132)',
-    'rgb(75, 192, 192)',
-    'rgb(53, 162, 235)',
-    'rgb(255, 205, 86)',
-    'rgb(255, 159, 64)',
-    'rgb(153, 102, 255)',
-  ];
-
   useEffect(() => {
     const globalTokenTotalAmount = getGlobalTokenTotalAmount(project);
     const newData = getNewChartData(project);
-    setNewData(newData);
     setGlobalTokenAmount(globalTokenTotalAmount);
 
     if (newData) {
@@ -95,21 +75,23 @@ export default function BlockChainPieChart({
     data: any,
     totalAmount: number
   ): ChartDataItem[] {
-    let dataFormatted = data.map((item: any) => {
+    const dataFormatted = data.map((item: any) => {
+      const percentage = (item.CANTIDAD / totalAmount) * 100;
       return {
         name: item.CONCEPTO,
         value: item.CANTIDAD,
+        percentage: percentage,
       };
     });
     return dataFormatted;
   }
 
   const data = {
-    labels: newChartData.map((item: any) => item.name),
+    labels: newChartData.map((item: ChartDataItem) => item.name),
     datasets: [
       {
         label: 'Tokens repartidos',
-        data: newChartData.map((item: any) => item.value),
+        data: newChartData.map((item: ChartDataItem) => item.value),
         backgroundColor: [
           'rgba(255, 99, 132, 0.9)',
           'rgba(75, 192, 192, 0.9)',
@@ -139,12 +121,27 @@ export default function BlockChainPieChart({
           color: '#DDD',
         },
       },
+      tooltip: {
+        callbacks: {
+          label: (context: any) => {
+            const label = context.label || '';
+            if (context.datasetIndex === 0 && context.dataIndex !== undefined) {
+              const dataset = data.datasets[context.datasetIndex];
+              const value = dataset.data[context.dataIndex];
+              const total = globalTokenAmount;
+              const percentage = ((value / total) * 100).toFixed(2);
+              return `${label}: ${value} (${percentage}%)`;
+            }
+            return label;
+          },
+        },
+      },
     },
   };
 
   return (
     <Card className="h-full !bg-custom-dark-hover text-white">
-      <Card.Header title={`Distribución de tokens`} />
+      <Card.Header title={`Distribución total de tokens`} subtitle={`Cantidad total de tokens disponibles para cada grupo`} />
       <Card.Body>
         <Pie data={data} options={options} />
       </Card.Body>

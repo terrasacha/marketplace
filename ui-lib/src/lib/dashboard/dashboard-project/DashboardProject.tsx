@@ -57,7 +57,7 @@ export default function DashboardProject(props: any) {
               dashboardProjectData.relevantInfo.tokenPercentageTokensOwn,
           },
           {
-            title: 'Valor total en portfolio',
+            title: 'Valor total del token en tu portfolio',
             value: dashboardProjectData.asset,
             image: 'naturaleza',
             rates: dashboardProjectData.rates,
@@ -171,12 +171,12 @@ export default function DashboardProject(props: any) {
           <BlockChainPieChart project={project} />
         </div>
       </div>
-      <div className="mt-4">
+      {/* <div className="mt-4">
         <ActualUseAndPotentialInfoCard
           actualUse={projectData.projectUses.actualUse}
           replaceUse={projectData.projectUses.replaceUse}
         />
-      </div>
+      </div> */}
     </div>
   );
 }

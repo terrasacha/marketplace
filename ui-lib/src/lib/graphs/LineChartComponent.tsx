@@ -24,9 +24,11 @@ ChartJS.register(
 
 export default function LineChartComponent(props: any) {
   const { axisColor, graphsColor, lineChartData, plotVolume } = props;
+  lineChartData.dataToPlot[0].data.unshift({period: 0, value: lineChartData.dataToPlot[0].data[0].value || 0, date: lineChartData.dataToPlot[0].data[0].date || 0, volume: lineChartData.dataToPlot[0].data[0].volume || 0})
+  lineChartData.dataToPlotVolume[0].data.unshift({period: 0, value: 0, date: lineChartData.dataToPlotVolume[0].data[0].date || 0})
   const labels = Array.from(
     { length: lineChartData.maxPeriod + 1 },
-    (_, index) => (index + 1).toString()
+    (_, index) => index.toString()
   );
   console.log(lineChartData, 'lineChartData');
   const datasets = lineChartData.dataToPlot
@@ -44,7 +46,7 @@ export default function LineChartComponent(props: any) {
             },
             borderColor: 'rgb(217 119 6)',
             backgroundColor: 'rgba(217, 119, 6, 0.5)',
-            stepped: 'before',
+            stepped: 'after',
           };
         }),
       ]
@@ -64,6 +66,7 @@ export default function LineChartComponent(props: any) {
       })
     );
   }
+
   const scales = {
     x: {
       ticks: {
@@ -90,6 +93,7 @@ export default function LineChartComponent(props: any) {
         text: 'Valor del token $USD',
         color: '#DDDDDD',
       },
+      min: 0, // Asegura que el eje Y comience en 0
     },
   };
 
@@ -109,6 +113,7 @@ export default function LineChartComponent(props: any) {
         text: 'Volumen (tCO2eq)',
         color: '#DDDDDD',
       },
+      min: 0, // Asegura que el eje Y de volumen comience en 0
     };
   }
 
@@ -116,6 +121,7 @@ export default function LineChartComponent(props: any) {
     labels,
     datasets,
   };
+
   const options = {
     responsive: true,
     maintainAspectRatio: false,
@@ -136,16 +142,17 @@ export default function LineChartComponent(props: any) {
       text: 'Evolución de proyectos',
     },
     scales,
-    data,
     parsing: {
       xAxisKey: 'period',
       yAxisKey: 'value',
     },
   };
+
   const LineChart = () => {
     //@ts-ignore
     return <Line options={options} data={data} />;
   };
+
   return (
     <div className="p-1 w-full h-full">
       <LineChart />
