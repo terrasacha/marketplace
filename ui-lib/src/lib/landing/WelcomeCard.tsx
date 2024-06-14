@@ -45,15 +45,15 @@ const WelcomeCard = (props: WelcomeCardProps) => {
         {userData ? "Crea tu billetera o utiliza una preexistente" : "¡Bienvenido!"}
       </h2>
       {userData? <p className="text-sm text-center">
-        {`El siguiente paso es crear tu billetera virtual o utilizar una que hayas creado con anterioridad. 
+        {`El siguiente paso es crear tu billetera virtual o utilizar una que hayas creado con anterioridad (asegurese de contar con las mnemonics). 
         Para ello haz click en "Crear billetera" o "Recuperar billetera", allí deberás seguir los requerimientos 
         para luego poder solicitar tu token de acceso y así ingresar al Marketplace.`}
       </p>: 
       <p className="text-sm text-center">
           Para operar en la aplicación necesita una billetera virtual que contenga el token de acceso 
           proporcionado por nuestra organización en su portfolio. Puede crear su billetera directamente en nuestra plataforma, 
-          para lo cual deberá crear primero un usuario, o conectar una billetera existente utilizando la extensión "Eternl" 
-          para el navegador. Si desea obtener más detalles sobre cómo crear una billetera en "Eternl", visite este {' '} 
+          para lo cual deberá crear primero un usuario, o conectar cualquier billetera externa oficial, recomendamos la utilización de "Eternl". 
+          Si desea obtener más detalles sobre cómo crear una billetera en "Eternl", visite este {' '} 
           <a href="https://suan-1.gitbook.io/documentacion-suan-sandbox"
               target="_blank"
               className="text-[#50A4FF]">enlace</a>.

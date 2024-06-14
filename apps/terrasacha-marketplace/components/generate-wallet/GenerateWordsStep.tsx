@@ -1,8 +1,9 @@
 import React, { useContext, useState } from 'react';
 import { Checkbox, Label, Button, Radio } from 'flowbite-react';
-import NewWalletContext from '@terrasacha/store/generate-new-wallet-context';
+import NewWalletContext from '@suan/store/generate-new-wallet-context';
 import WordsContainer from './WordsContainer';
 import { useRouter } from 'next/router';
+
 const options = [
   { id: 'twentyfour', value: 24, name: 'Veinticuatro' },
   { id: 'twentyone', value: 21, name: 'Veintiuno' },
@@ -13,22 +14,25 @@ const options = [
 const GenerateWordsStep = (props: any) => {
   const { words, setWords, recoveryWords, setRecoveryWords } =
     useContext<any>(NewWalletContext);
+
   const router = useRouter()
   const setCurrentSection = props.setCurrentSection;
   const [isChecked, setIsChecked] = useState(false);
   const [loading, setLoading] = useState(false);
+
   const generateWords = async () => {
-    try {
-      setLoading(true);
-      const response = await fetch(`api/calls/generateWords?size=${recoveryWords.length}`)
-      const data  = await response.json()
-      setWords(data);
-    } catch (error) {
-      console.error('Error al hacer la solicitud:', error);
-    } finally {
-      setLoading(false);
-    }
-  };
+  try {
+    setLoading(true);
+    const response = await fetch(`api/calls/generateWords?size=${recoveryWords.length}`)
+    const data  = await response.json()
+    setWords(data);
+  } catch (error) {
+    console.error('Error al hacer la solicitud:', error);
+  } finally {
+    setLoading(false);
+  }
+};
+
 
   const handleCheckboxChange = (event: React.ChangeEvent<HTMLInputElement>) => {
     setIsChecked(event.target.checked);
@@ -54,7 +58,7 @@ const GenerateWordsStep = (props: any) => {
         Selecciona la cantidad de palabras que deseas generar para recuperar tu
         billetera
       </p>
-      <fieldset className="flex gap-2 mb-4">
+      {words === null && <fieldset className="flex gap-2 mb-4">
         {options.map((option, index) => {
           return (
             <div className="flex items-center gap-2" key={index}>
@@ -69,7 +73,7 @@ const GenerateWordsStep = (props: any) => {
             </div>
           );
         })}
-      </fieldset>
+      </fieldset>}
       <WordsContainer
         useCase="generate"
         generateWords={generateWords}
@@ -79,7 +83,7 @@ const GenerateWordsStep = (props: any) => {
         <div className="flex w-full justify-end mt-3 ">
           <Button
             className="px-8 ml-4"
-            onClick={() => {setCurrentSection(1); router.push('/')}}
+            onClick={() =>{ setCurrentSection(1); router.push('/')}}
             color="gray"
           >
             Volver

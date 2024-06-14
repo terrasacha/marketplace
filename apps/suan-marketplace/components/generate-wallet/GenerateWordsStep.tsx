@@ -58,7 +58,7 @@ const GenerateWordsStep = (props: any) => {
         Selecciona la cantidad de palabras que deseas generar para recuperar tu
         billetera
       </p>
-      <fieldset className="flex gap-2 mb-4">
+      {words === null && <fieldset className="flex gap-2 mb-4">
         {options.map((option, index) => {
           return (
             <div className="flex items-center gap-2" key={index}>
@@ -73,7 +73,7 @@ const GenerateWordsStep = (props: any) => {
             </div>
           );
         })}
-      </fieldset>
+      </fieldset>}
       <WordsContainer
         useCase="generate"
         generateWords={generateWords}
