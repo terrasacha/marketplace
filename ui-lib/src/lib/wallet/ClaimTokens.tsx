@@ -2,8 +2,9 @@ import { useEffect, useState } from 'react';
 import { getCurrentUser } from 'aws-amplify/auth';
 
 export default function ClaimTokens() {
-  const [pendingTokensForClaiming, setPendingTokensForClaiming] =
-    useState<any>(null);
+  const [pendingTokensForClaiming, setPendingTokensForClaiming] = useState<any>(
+    []
+  );
 
   useEffect(() => {
     const fetchData = async () => {
@@ -32,11 +33,13 @@ export default function ClaimTokens() {
 
   const getTokens = async () => {
     // Función para solicitar tokens a endpoint de Luis
-  }
+  };
+
+  console.log('pendingTokensForClaiming', pendingTokensForClaiming);
 
   return (
     <>
-      {pendingTokensForClaiming && (
+      {pendingTokensForClaiming.length > 0 && (
         <div
           id="alert-additional-content-3"
           className="p-4 mb-5 space-y-4 text-green-800 border border-green-300 rounded-lg bg-green-50 dark:bg-gray-800 dark:text-green-400 dark:border-green-800"
@@ -60,13 +63,17 @@ export default function ClaimTokens() {
           </div>
           <ul className="list-disc list-inside">
             {pendingTokensForClaiming &&
-              pendingTokensForClaiming.map((pendingOrder: any) => {
-                return (
-                  <li>
-                    Orden <strong>{pendingOrder.id}</strong> sin reclamar: <strong>{pendingOrder.tokenName}</strong> x <strong>{pendingOrder.tokenAmount}</strong>
-                  </li>
-                );
-              })}
+              pendingTokensForClaiming.map(
+                (pendingOrder: any, index: number) => {
+                  return (
+                    <li key={index}>
+                      Orden <strong>{pendingOrder.id}</strong> sin reclamar:{' '}
+                      <strong>{pendingOrder.tokenName}</strong> x{' '}
+                      <strong>{pendingOrder.tokenAmount}</strong>
+                    </li>
+                  );
+                }
+              )}
           </ul>
           <div className="flex">
             <button

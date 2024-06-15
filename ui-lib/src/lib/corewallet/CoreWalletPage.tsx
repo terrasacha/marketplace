@@ -65,7 +65,7 @@ export default function CoreWallet(props: any) {
           // },
         },
       ],
-      metadata: [],
+      metadata: {},
     };
     if (walletData) {
       console.log('BuildTx Payload: ', payload);
@@ -85,7 +85,7 @@ export default function CoreWallet(props: any) {
           tx_type: 'preview',
           walletAddress: walletData.address,
           buildTxResponse: buildTxResponse,
-          metadata: [],
+          metadata: {},
         });
 
         setNewTransactionBuild(mappedTransactionData);

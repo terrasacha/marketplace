@@ -28,6 +28,7 @@ import WalletAssets from './wallet/WalletAssets';
 import WalletSend from './wallet/WalletSend';
 import TradeCard from './trade/TradeCard';
 import CreateOrderCard from './trade/CreateOrderCard';
+import OrderHistoryCard from './trade/OrderHistoryCard';
 import OrderBookCard from './trade/OrderBookCard';
 import Recipient from './wallet/Recipient';
 import Transactions from './wallet/Transactions';
@@ -98,6 +99,7 @@ export {
   WalletSend,
   TradeCard,
   CreateOrderCard,
+  OrderHistoryCard,
   OrderBookCard,
   Recipient,
   Transactions,

@@ -1610,15 +1610,61 @@ export async function getPeriodTokenData(tokens_name: Array<string>) {
 }
 
 export async function createOrder(objeto: any) {
+  const {
+    tokenPolicyId,
+    tokenName,
+    tokenAmount,
+    walletID,
+    scriptID,
+    value,
+    utxos,
+  } = objeto;
+  const response = await axios.post(
+    graphqlEndpoint,
+    {
+      query: `mutation MyMutation {
+          createOrder(input: {
+            tokenPolicyId: "${tokenPolicyId}",
+            tokenName:"${tokenName}",
+            tokenAmount: ${tokenAmount},
+            walletID: "${walletID}",
+            scriptID: "${scriptID}",
+            value: ${value},
+            utxos: "${utxos}",
+          })
+          {
+            id
+          }
+        }`,
+    },
+    {
+      headers: {
+        'x-api-key': awsAppSyncApiKey,
+      },
+    }
+  );
+  return response.data.data.createOrder;
+}
+
+export async function updateOrder(objeto: any) {
+  const { id, statusCode } = objeto;
   try {
     const response = await axios.post(
       graphqlEndpoint,
       {
-        query: `mutation MyMutation {
-          createOrder(input: {tokenName: "${objeto.tokenName}", tokenAmount: ${objeto.tokenAmount}, walletAddress: "${objeto.walletAddress}", walletStakeAddress: "${objeto.walletStakeAddress}"}) {
-            id
+        query: `
+          mutation UpdateOrder($input: UpdateOrderInput!) {
+            updateOrder(input: $input) {
+              id
+            }
           }
-        }`,
+        `,
+        variables: {
+          input: {
+            id: id,
+            statusCode: statusCode,
+          },
+        },
       },
       {
         headers: {
@@ -1626,7 +1672,8 @@ export async function createOrder(objeto: any) {
         },
       }
     );
-    return response.data.data.createOrder;
+
+    return response.data.data.updateOrder;
   } catch (error) {
     console.error('Error creating order:', error);
     return false;
@@ -1887,28 +1934,51 @@ export async function validatePassword(
 }
 
 export async function getOrdersList(
-  filterByWalletAddress: string | null = null
+  filterByWalletAddress: string | null = null,
+  limit: number = 10,
+  nextToken: string | null = null,
+  filterByStatusCode: string | null = null
 ) {
   try {
+    const filterConditions = [];
+
+    if (filterByWalletAddress) {
+      filterConditions.push(`walletAddress: {eq: "${filterByWalletAddress}"}`);
+    }
+
+    // if (filterByStatusCode !== null) {
+    //   filterConditions.push(`statusCode: {not: ${filterByStatusCode}}`);
+    // }
+
+    const filter =
+      filterConditions.length > 0
+        ? `, filter: {${filterConditions.join(', ')}}`
+        : '';
+
+    const pagination = nextToken ? `, nextToken: "${nextToken}"` : '';
+
+    const query = `query getOrders {
+      listOrders (limit: ${limit}${pagination}${filter}) {
+        items {
+          id
+          tokenPolicyId
+          tokenAmount
+          tokenName
+          utxos
+          walletID
+          wallet {
+            address
+          }
+          scriptID
+          value
+        }
+        nextToken
+      }
+    }`;
+
     const response = await axios.post(
       graphqlEndpoint,
-      {
-        query: `query getOrders {
-        listOrders ${
-          filterByWalletAddress
-            ? '(filter: {walletAddress: {eq: "' + filterByWalletAddress + '"}})'
-            : ''
-        } {
-          items {
-            id
-            tokenAmount
-            tokenName
-            walletStakeAddress
-            walletAddress
-          }
-        }
-      }`,
-      },
+      { query },
       {
         headers: {
           'x-api-key': awsAppSyncApiKey,
@@ -1916,7 +1986,9 @@ export async function getOrdersList(
       }
     );
 
-    return response.data.data.listOrders.items;
+    const { items, nextToken: newNextToken } = response.data.data.listOrders;
+
+    return { items, nextToken: newNextToken };
   } catch (error) {
     console.error('Error getting Orders List:', error);
     return false;
