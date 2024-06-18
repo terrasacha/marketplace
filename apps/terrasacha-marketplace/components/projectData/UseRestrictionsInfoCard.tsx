@@ -1,4 +1,8 @@
+import { hasNonEmptyValue } from "@terrasacha/lib/util";
 export default function UserRestrictionsInfoCard({ description, other }: any) {
+  const checkDescription = hasNonEmptyValue(description)
+  const checkOther = hasNonEmptyValue(other)
+  if(!checkDescription && !checkOther) return null
   return (
     <div className="w-full h-fit p-4 sm:p-8 dark:bg-gray-800 dark:border-gray-700">
       <div className="flex items-center justify-start mb-4">

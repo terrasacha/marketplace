@@ -90,7 +90,7 @@ export default function LineChartComponent(props: any) {
       },
       title: {
         display: true,
-        text: 'Valor del token $USD',
+        text: 'Valor del token expresado en USD',
         color: '#DDDDDD',
       },
       min: 0, // Asegura que el eje Y comience en 0
@@ -110,7 +110,7 @@ export default function LineChartComponent(props: any) {
       },
       title: {
         display: true,
-        text: 'Volumen (tCO2eq)',
+        text: 'Volumen de tonelada de carbono capturada(tCO2eq)',
         color: '#DDDDDD',
       },
       min: 0, // Asegura que el eje Y de volumen comience en 0

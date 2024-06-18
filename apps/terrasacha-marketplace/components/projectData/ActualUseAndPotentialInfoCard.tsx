@@ -1,7 +1,11 @@
+import { hasNonEmptyValue } from "@terrasacha/lib/util";
 export default function ActualUseAndPotentialInfoCard({
   actualUse,
   replaceUse,
 }: any) {
+  const checkActualUse = hasNonEmptyValue(actualUse)
+  const checkReplaceUse = hasNonEmptyValue(replaceUse)
+  if(!checkActualUse && !checkReplaceUse) return null
   return (
     <div className="w-full h-fit p-4 sm:p-8 dark:bg-gray-800 dark:border-gray-700">
       <div className="flex items-center justify-start mb-4">
