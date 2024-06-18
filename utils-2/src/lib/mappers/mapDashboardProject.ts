@@ -1,5 +1,15 @@
 import { getActualPeriod, mapTransactionListInfo } from "../utils-2";
 import { coingeckoPrices } from '@marketplaces/data-access';
+import { listTokens } from "@marketplaces/data-access";
+
+async function getPolicyID(productID: string) {
+    try {
+        const response: any = await listTokens(productID)
+        return response.data.data.listTokens.items[0].policyID || null
+    } catch (error) {
+        return null
+    }
+}
 function createLineChartData(data: any) {
     const convert1 = (price: number) => { return (price / data[0].rates.ADArateCOP) * data[0].rates.ADArateUSD }
     const dataToPlot = data.map((item: any) => {
@@ -69,7 +79,11 @@ const formatProjectDuration = (data: any) => {
         month = data.months > 1 ? ` ${data.months} meses` : ` ${data.months} mes`
     }
     if (data.years && data.years > 0) {
-        year = data.years > 1 ? `${data.years} años` : `${data.years} año,`
+        if (data.months === 0) {
+            year = data.years > 1 ? `${data.years} años` : `${data.years} año`
+        } else {
+            year = data.years > 1 ? `${data.years} años,` : `${data.years} año,`
+        }
     }
     return `${year}${month}${day}`
 }
@@ -134,6 +148,8 @@ const getRates = async () => {
 }
 export async function mapDashboardProject(project: any, projectData: any, projectId: string, walletData: any) {
     console.log('project', projectData)
+    const projectPolicyID = await getPolicyID(projectData.projectInfo.id)
+    console.log(projectPolicyID, 'projectPolicyID')
     const rates = await getRates()
     const projectTokenDistribution = project.productFeatures.items.filter((pf: any) => pf.featureID === 'GLOBAL_TOKEN_AMOUNT_DISTRIBUTION')[0].value
     const projectMunicipio = project.productFeatures.items.filter((pf: any) => pf.featureID === 'A_municipio')[0].value
@@ -141,7 +157,9 @@ export async function mapDashboardProject(project: any, projectData: any, projec
     const projectPeriod = project.productFeatures.items.filter((pf: any) => pf.featureID === 'GLOBAL_TOKEN_HISTORICAL_DATA')[0].value
     const projectTokenName = project.productFeatures.items.filter((pf: any) => pf.featureID === 'GLOBAL_TOKEN_NAME')[0].value
     const projectCurrency = project.productFeatures.items.filter((pf: any) => pf.featureID === 'GLOBAL_TOKEN_CURRENCY')[0].value
-    const assetFromSuan = walletData.assets.filter((asset: any) => asset.policy_id === "8726ae04e47a9d651336da628998eda52c7b4ab0a4f86deb90e51d83")
+    const assetFromSuan = walletData.assets.filter((asset: any) => asset.policy_id === projectPolicyID)
+    console.log(walletData.assets, 'walletData.assets')
+    console.log(assetFromSuan, 'assetFromSuan')
     const dataFromQuery = await fetch('/api/calls/getPeriodToken', {
         method: 'POST',
         body: JSON.stringify({
@@ -168,7 +186,8 @@ export async function mapDashboardProject(project: any, projectData: any, projec
         asset_currency: projectCurrency,
         rates
     }])
-    const totalTokens = asset[0] ? parseInt(asset[0].quantity) : 0
+    console.log(asset, 'assetMap')
+    const totalTokens = assetFromSuan[0]?.quantity || 0 /* ? parseInt(asset[0].quantity) : 0 */
 
 
     const tokenHistoricalData = JSON.parse(
@@ -212,6 +231,7 @@ export async function mapDashboardProject(project: any, projectData: any, projec
     const totalAmountOfTokens = project.productFeatures.items.filter((item: any) => {
         return item.featureID === 'GLOBAL_TOKEN_TOTAL_AMOUNT';
     })[0]?.value
+    console.log()
     const totalTokensSold = project.transactions.items.reduce(
         (acc: any, item: any) => {
             return acc + item.amountOfTokens;
@@ -234,8 +254,8 @@ export async function mapDashboardProject(project: any, projectData: any, projec
         tokenTotal: parseInt(actualPeriod?.amount),
         tokenUnits: parseInt(actualPeriod?.amount) - parseInt(totalTokensSold),
         tokenValue: actualPeriod?.price,
-        tokenPercentageSold: ((parseInt(totalTokensSold) * 100) / tokensToInversionists).toFixed(1),
-        tokenPercentageTokensOwn: ((totalTokens * 100) / totalAmountOfTokens).toFixed(1),
+        tokenPercentageSold: ((parseInt(totalTokensSold) * 100) / tokensToInversionists).toFixed(2),
+        tokenPercentageTokensOwn: ((totalTokens * 100) / totalAmountOfTokens).toFixed(2),
         totalAmountOfTokens,
         tokenCurrency: tokenCurrency,
     };

@@ -49,12 +49,15 @@ export default function DashboardProject(props: any) {
                 )} `
               : '0',
             percentage: dashboardProjectData.relevantInfo.tokenPercentageSold,
+            tooltipText: 'Cantidad de tokens vendidos del proyecto'
           },
           {
             title: 'Tokens propios',
             value: dashboardProjectData.totalTokens || 0,
             percentage:
               dashboardProjectData.relevantInfo.tokenPercentageTokensOwn,
+            tooltipText: 'Cantidad de tokens del proyecto en su billetera'
+
           },
           {
             title: 'Valor total del token en tu portfolio',
@@ -62,21 +65,26 @@ export default function DashboardProject(props: any) {
             image: 'naturaleza',
             rates: dashboardProjectData.rates,
             extra: 'client',
+            tooltipText: 'Valor total de los tokens del proyecto en su billetera'
+
           },
 
           {
             title: 'Progreso proyecto',
             percentage: dashboardProjectData.progressproject,
+            tooltipText: 'Progreso del proyecto respecto a los periodos transcurridos'
           },
           {
             title: 'Crecimiento precio del token',
             value: `${dashboardProjectData.tokenDeltaPrice} USD`,
             percentage: dashboardProjectData.actualProfitPercentage,
+            tooltipText: 'Aumento del valor unitario del token respecto al primer pediodo'
           },
           {
             title: 'Precio actual del token',
             value: `${dashboardProjectData.actualTokenPriceUSD} USD`,
             image: 'money_managment',
+            tooltipText: 'Precio del token en el periodo actual'
           },
         ].map((info, index) => (
           <div key={index} className="lg:col-span-1">
@@ -88,6 +96,7 @@ export default function DashboardProject(props: any) {
                 subtitle={info.subtitle}
                 image={info.image}
                 percentage={info.percentage}
+                tooltipText={info.tooltipText}
               />
             ) : (
               <DefaultCardClient
@@ -98,6 +107,7 @@ export default function DashboardProject(props: any) {
                 subtitle={info.subtitle}
                 image={info.image}
                 percentage={info.percentage}
+                tooltipText={info.tooltipText}
               />
             )}
           </div>
@@ -119,34 +129,40 @@ export default function DashboardProject(props: any) {
             title: dashboardProjectData.relevantInfo.municipio,
             value: dashboardProjectData.relevantInfo.vereda,
             image: 'tierra',
+            tooltipText:'Localización del predio'
           },
           {
-            title: 'Total de Tokens del proyecto',
+            title: 'Total de tokens del proyecto',
             subtitle: 'Toneladas disponibles',
             value: dashboardProjectData.totalAmountOfTokens,
             image: 'tokens',
+            tooltipText:'Cantidad total de tokens asociados al proyecto'
           },
           {
             title: 'Total de Tokens para inversionistas',
             subtitle: 'Toneladas disponibles',
             value: dashboardProjectData.tokensToInversionists,
             image: 'tokens',
+            tooltipText:'Cantidad total de tokens disponibles para ser adquiridos por inversionistas'
           },
           {
             title: 'Periodo actual',
             value: projectData.projectInfo.token.actualPeriod,
             image: 'reloj_de_arena',
+            tooltipText:'Periodo actual del proyecto'
           },
 
           {
-            title: 'Areas terreno',
+            title: 'Áreas terreno',
             value: `${projectData.projectInfo.area} ha`,
             image: 'siembra',
+            tooltipText:'Área total del predio expresado en hectáreas'
           },
           {
             title: 'Duración proyecto',
             value: dashboardProjectData.projectDuration,
             image: 'calendar',
+            tooltipText:'Duración total de la comercialización del proyecto'
           },
         ].map((info, index) => (
           <div key={index} className=" lg:grid-cols-1">
@@ -155,6 +171,7 @@ export default function DashboardProject(props: any) {
               value={info.value}
               subtitle={info.subtitle}
               image={info.image}
+              tooltipText={info.tooltipText}
             />
           </div>
         ))}

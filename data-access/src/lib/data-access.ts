@@ -1894,11 +1894,10 @@ export async function getOrdersList(
       graphqlEndpoint,
       {
         query: `query getOrders {
-        listOrders ${
-          filterByWalletAddress
+        listOrders ${filterByWalletAddress
             ? '(filter: {walletAddress: {eq: "' + filterByWalletAddress + '"}})'
             : ''
-        } {
+          } {
           items {
             id
             tokenAmount
@@ -1932,5 +1931,31 @@ export async function coingeckoPrices(crypto: string, base_currency: string) {
     return data.finalRate;
   } catch (error) {
     console.error('Error', error);
+  }
+}
+
+export async function listTokens(productID: string) {
+  try {
+    const response = await axios.post(
+      graphqlEndpoint,
+      {
+        query: `query listTokens {
+          listTokens(filter: {productID: {eq: "${productID}"}}) {
+            items {
+              policyID
+            }
+          }
+        }`,
+      },
+      {
+        headers: {
+          'x-api-key': awsAppSyncApiKey,
+        },
+      }
+    );
+    return response;
+  } catch (error) {
+    console.log(error);
+    return false;
   }
 }

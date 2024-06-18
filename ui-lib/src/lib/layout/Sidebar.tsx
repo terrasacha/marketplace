@@ -172,7 +172,7 @@ export default function Sidebar(props: SidebarProps) {
               </li>
             </ul>
           </li>
-          <li className={connected ? '' : 'hidden'}>
+          {/* <li className={connected ? '' : 'hidden'}>
             <Link
               onClick={onClose}
               href="/dashboard"
@@ -181,7 +181,7 @@ export default function Sidebar(props: SidebarProps) {
               <ChartIcon />
               <span className="ml-3">Dashboard</span>
             </Link>
-          </li>
+          </li> */}
           <li>
             <Link
               onClick={onClose}
