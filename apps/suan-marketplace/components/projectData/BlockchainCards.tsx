@@ -12,10 +12,10 @@ interface BlockchainCardProps {
   project: any;
 }
 
-interface ChartDataItem {
+/* interface ChartDataItem {
   name: string;
   value: number;
-}
+} */
 
 interface Traducciones {
   [key: string]: string;
@@ -34,9 +34,9 @@ const CustomTooltip = ({ active, payload }: any) => {
 };
 
 export default function BlockchainCard({ project }: BlockchainCardProps) {
-  const [newChartData, setChartData] = useState<ChartDataItem[]>([]);
-  const [tableData, setTableData] = useState<ChartDataItem[]>([]);
-  const [totalOwnerValue, setTotalOwnerValue] = useState<ChartDataItem[]>(1);
+  const [newChartData, setChartData] = useState([]);
+  const [tableData, setTableData] = useState([]);
+  const [totalOwnerValue, setTotalOwnerValue] = useState(1);
   const [newData, setNewData] = useState<any>(null); // Nueva variable de estado
   const traducciones: Traducciones = {
     buffer: 'Buffer',
@@ -114,7 +114,7 @@ export default function BlockchainCard({ project }: BlockchainCardProps) {
   function transformDataForChart(
     data: any,
     totalAmount: number
-  ): ChartDataItem[] {
+  ): any {
     return Object.keys(data).map((key) => ({
       name: traducciones[key] || key,
       value: Number(((Number(data[key]) / totalAmount) * 100).toFixed(1)),
@@ -131,7 +131,7 @@ export default function BlockchainCard({ project }: BlockchainCardProps) {
       <table className="w-11/12 text-sm text-left text-gray-500 dark:text-gray-400">
             <thead className="text-xs text-gray-700 uppercase bg-gray-200 dark:bg-gray-700 dark:text-gray-400">
               <tr className="distribution">
-                {tableData.map((item, index) => (
+                {tableData.map((item : any, index) => (
                   <th scope="col" className="px-3 py-2" key={index}>
                     {item.CONCEPTO}
                   </th>
@@ -140,7 +140,7 @@ export default function BlockchainCard({ project }: BlockchainCardProps) {
             </thead>
             <tbody>
               <tr className="bg-white border-b dark:bg-gray-800 dark:border-gray-700 distribution">
-                {tableData.map((item, index) => (
+                {tableData.map((item : any, index) => (
                   <td className="px-3 py-2" key={index}>
                     {(
                       (parseInt(item.CANTIDAD) / totalOwnerValue) *
