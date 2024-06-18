@@ -5,7 +5,7 @@ export function validarString(str: string, regex: RegExp): string {
   return "";
 }
 
-export const parseSerializedKoboData = async (data:any) => {
+export const parseSerializedKoboData = async (data: any) => {
   const contenido = data.replace(/[{}[\]]/g, "");
   const pares = contenido.split(", ");
 
@@ -43,7 +43,7 @@ export const formatNumberWithThousandsSeparator = (number: any) => {
   return number.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ".");
 };
 
-export const getElapsedTime = async (initDate: any, endDate:any = new Date()) => {
+export const getElapsedTime = async (initDate: any, endDate: any = new Date()) => {
   const diferenciaEnMilisegundos = endDate.getTime() - new Date(initDate).getTime();
   let minutosTranscurridos = Math.floor(diferenciaEnMilisegundos / (1000 * 60));
   let elapsedTime = "";
@@ -62,12 +62,12 @@ export const getElapsedTime = async (initDate: any, endDate:any = new Date()) =>
   return elapsedTime;
 };
 
-export const capitalizeWords = async (str:any) => {
+export const capitalizeWords = async (str: any) => {
   const lowercaseStr = str.toLowerCase();
 
   const words = lowercaseStr.split(" ");
 
-  const capitalizedWords = words.map((word:any) => {
+  const capitalizedWords = words.map((word: any) => {
     if (word.length > 0) {
       return word[0].toUpperCase() + word.slice(1);
     } else {
@@ -78,7 +78,7 @@ export const capitalizeWords = async (str:any) => {
   return capitalizedWords.join(" ");
 };
 
-export const getImagesCategories = (category:any) => {
+export const getImagesCategories = (category: any) => {
   try {
     let url = `https://kiosuanbcrjsappcad3eb2dd1b14457b491c910d5aa45dd145518-dev.s3.amazonaws.com/public/category-projects-images/${category}.avif`;
     url = url.replace("REDD+", "REDD%2B");
@@ -89,10 +89,10 @@ export const getImagesCategories = (category:any) => {
   }
 };
 
-export const getActualPeriod = async (actualDate: any, periods:any) => {
+export const getActualPeriod = async (actualDate: any, periods: any) => {
   actualDate = new Date(actualDate);
 
-  periods.sort((a:any, b:any) => a.date - b.date);
+  periods.sort((a: any, b: any) => a.date - b.date);
 
   // Inicializamos fechaInicio de la primera iteración como menos infinito.
   let fechaInicio = new Date(-8640000000000000); // Un día antes del mínimo valor de Date.
@@ -106,7 +106,7 @@ export const getActualPeriod = async (actualDate: any, periods:any) => {
     // console.log("fechaFin", fechaFin);
     // Verifica si la fecha actual está dentro del rango desde "fechaInicio" hasta "fechaFin".
     if (actualDate >= fechaInicio && actualDate <= fechaFin) {
-      return { period: periodo.period, amount: periodo.amount, price:periodo.price, fechaInicio, fechaFin };
+      return { period: periodo.period, amount: periodo.amount, price: periodo.price, fechaInicio, fechaFin };
     }
 
     // Actualiza "fechaInicio" para la próxima iteración.
@@ -115,3 +115,19 @@ export const getActualPeriod = async (actualDate: any, periods:any) => {
 
   return null;
 };
+export const hasNonEmptyValue = (obj: any) => {
+  function checkProperties(obj: any) {
+    for (let key in obj) {
+      if (typeof obj[key] === 'object' && obj[key] !== null) {
+        if (checkProperties(obj[key])) {
+          return true;
+        }
+      } else if (obj[key] !== '') {
+        return true;
+      }
+    }
+    return false;
+  }
+
+  return checkProperties(obj);
+}
