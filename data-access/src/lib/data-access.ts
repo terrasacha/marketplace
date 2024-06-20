@@ -143,18 +143,18 @@ const instance = axios.create({
   baseURL: `/api/`,
   withCredentials: true,
 });
-let awsAppSyncApiKey: string
-if (process.env['NEXT_PUBLIC_API_KEY_PLATAFORMA']) {
+let graphqlEndpoint = "https://4iaizxnzbjaajd2qdjnl3dpamm.appsync-api.us-east-1.amazonaws.com/graphql"
+let awsAppSyncApiKey = "da2-ybsfm4er7rextmyiiylwwjo6au"
+/* if (process.env['NEXT_PUBLIC_API_KEY_PLATAFORMA']) {
   awsAppSyncApiKey = process.env['NEXT_PUBLIC_API_KEY_PLATAFORMA'];
 } else {
   throw new Error(`Parameter graphqlEndpoint not found`);
 }
-let graphqlEndpoint: string;
 if (process.env['NEXT_PUBLIC_graphqlEndpoint']) {
   graphqlEndpoint = process.env['NEXT_PUBLIC_graphqlEndpoint'];
 } else {
   throw new Error(`Parameter graphqlEndpoint not found`);
-}
+} */
 let s3BucketName: string;
 if (process.env['NEXT_PUBLIC_s3BucketName']) {
   s3BucketName = process.env['NEXT_PUBLIC_s3BucketName'];
@@ -333,6 +333,8 @@ export async function getProjects() {
         },
       }
     );
+    console.log(awsAppSyncApiKey, 'awsAppSyncApiKey')
+    console.log(graphqlEndpoint, 'graphqlEndpoint')
     let validProducts = response.data.data.listProducts.items.filter(
       (product: any) => {
         let countFeatures = product.productFeatures.items.reduce(
@@ -1031,6 +1033,7 @@ export async function getWalletByUser(userId: string): Promise<any> {
         },
       }
     );
+    console.log(response)
     //@ts-ignore
     output = response.data.data.getUser?.wallets?.items || [];
   } catch (error) {

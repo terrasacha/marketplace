@@ -168,6 +168,7 @@ export async function mapDashboardProject(project: any, projectData: any, projec
     }
     )
     const data = await dataFromQuery.json()
+    console.log(data, 'data171')
     assetFromSuan.forEach((item: any) => {
         let match = data.find((item2: any) => item2.asset_name === item.asset_name);
         if (match) {
