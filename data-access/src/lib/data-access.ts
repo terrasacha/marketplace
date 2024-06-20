@@ -2045,7 +2045,7 @@ export async function coingeckoPrices(crypto: string, base_currency: string) {
   }
 }
 
-export async function listTokens(productID: string) {
+export async function listTokensDashboard(productID: string) {
   try {
     const response = await axios.post(
       graphqlEndpoint,

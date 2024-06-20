@@ -1,10 +1,10 @@
 import { getActualPeriod, mapTransactionListInfo } from "../utils-2";
 import { coingeckoPrices } from '@marketplaces/data-access';
-import { listTokens } from "@marketplaces/data-access";
+import { listTokensDashboard } from "@marketplaces/data-access";
 
 async function getPolicyID(productID: string) {
     try {
-        const response: any = await listTokens(productID)
+        const response: any = await listTokensDashboard(productID)
         return response.data.data.listTokens.items[0].policyID || null
     } catch (error) {
         return null
