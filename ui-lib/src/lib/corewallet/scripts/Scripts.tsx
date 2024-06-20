@@ -2,7 +2,7 @@ import { useRouter } from 'next/router';
 import { getIpfsUrlHash } from '@suan/utils/generic/ipfs';
 import { splitLongValues, txHashLink } from '@suan/utils/generic/conversions';
 import Card from '../../common/Card';
-import { PlusIcon } from '../../icons/PlusIcon'
+import { PlusIcon } from '../../icons/PlusIcon';
 import SignTransactionModal from '../../wallet/sign-transaction/SignTransactionModal';
 import ScriptsList from './ScriptsList';
 import { useContext, useEffect, useState } from 'react';
@@ -385,7 +385,7 @@ export default function Scripts(props: any) {
 
     // Get category image from IPFS
 
-    const IPFSUrlHash = getIpfsUrlHash(projectData.categoryID);
+    const IPFSUrlHash = getIpfsUrlHash("REDD+");
     const tokenImageUrl = `ipfs://${IPFSUrlHash}`;
 
     // Get Area & location (Hace falta trabajar sobre el seteo de estos datos en Plataforma)
@@ -395,10 +395,14 @@ export default function Scripts(props: any) {
     const projectLocation = getProjectLocation(projectData);
 
     const metadata = {
-      area: '100', // Tarea: almacenar dato de area
-      category: projectData.categoryID,
-      createdAt: projectData.createdAt,
-      description: projectData.description,
+      'Nombre del token': actualScript.token_name,
+      'Identificador del proyecto': projectData.id,
+      'Nombre del proyecto': projectData.name,
+      Area: projectArea, // Tarea: almacenar dato de area
+      Categoria: projectData.categoryID,
+      'Fecha de creación': projectData.createdAt,
+      Descripción: projectData.description,
+      Ubicación: '0 0 0 0', // Tarea: almacenar coordenadas de centroide
       files: [
         {
           src: tokenImageUrl,
@@ -406,11 +410,7 @@ export default function Scripts(props: any) {
         },
       ],
       image: tokenImageUrl,
-      location: '0 0 0 0', // Tarea: almacenar coordenadas de centroide
       mediaType: 'image/png',
-      project_id: projectData.id,
-      project_name: projectData.name,
-      token_name: actualScript.token_name,
     };
 
     console.log('metadata', metadata);

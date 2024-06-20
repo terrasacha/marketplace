@@ -1,9 +1,9 @@
 import React, { useContext, useEffect, useState } from 'react';
-import SelectTokensModal from '../wallet/select-assets/SelectTokensModal'
-import SignTransactionModal from '../wallet/sign-transaction/SignTransactionModal'
-import Card from '../common/Card'
-import {LoadingIcon} from '../icons/LoadingIcon'
-import {PencilIcon} from '../icons/PencilIcon'
+import SelectTokensModal from '../wallet/select-assets/SelectTokensModal';
+import SignTransactionModal from '../wallet/sign-transaction/SignTransactionModal';
+import Card from '../common/Card';
+import { LoadingIcon } from '../icons/LoadingIcon';
+import { PencilIcon } from '../icons/PencilIcon';
 import Recipient from '../wallet/Recipient';
 import { toast } from 'sonner';
 import { WalletContext } from '@marketplaces/utils-2';
@@ -134,7 +134,11 @@ export default function WalletSend(props: AccountProps) {
       const minLovelaceValue = await request.json();
 
       if (minLovelaceValue) {
-        handleInputChange(index, 'adaAmount', String(minLovelaceValue / 1000000));
+        handleInputChange(
+          index,
+          'adaAmount',
+          String(minLovelaceValue / 1000000)
+        );
       }
     }
 
@@ -304,7 +308,7 @@ export default function WalletSend(props: AccountProps) {
       const payload = {
         wallet_id: walletID,
         addresses: addresses,
-        metadata: messageArray,
+        metadata: { '634': { msg: messageArray } },
       };
       console.log('BuildTx Payload: ', payload);
 
@@ -323,7 +327,7 @@ export default function WalletSend(props: AccountProps) {
           tx_type: 'preview',
           walletAddress: walletData.address,
           buildTxResponse: buildTxResponse,
-          metadata: messageArray,
+          metadata: { '634': { msg: messageArray } },
         });
 
         setNewTransactionBuild(mappedTransactionData);

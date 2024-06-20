@@ -10,7 +10,7 @@ interface MapBuildTransactionInfoProps {
   walletAddress: string;
   tx_type: string;
   buildTxResponse: any;
-  metadata: Array<string>;
+  metadata: any;
 }
 interface MapTransactionListProps {
   walletAddress: string;
@@ -429,7 +429,6 @@ export async function mapTransactionListInfo({
         };
       }
     );
-
 
     const tx_info: MappedTransactionInfoProps = {
       tx_type: tx_type,

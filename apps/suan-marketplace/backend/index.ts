@@ -62,6 +62,7 @@ export async function confirmSignUpAuth({ username, confirmationCode }: ConfirmS
 
 
 export async function signInAuth({ username, password }: SignInInput) {
+  
   try {
     const user = await signIn({ username, password })
     return user

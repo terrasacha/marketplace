@@ -124,23 +124,109 @@ export default function SignTransaction(props: SignTransactionProps) {
     return signSubmitResponse;
   };
 
-  /* const handleSignTransactionSendTransaction = async () => {
-    const signTxData = {
+  const handleSignTransactionSendTransaction = async () => {
+    const confirmSubmitData = {
       wallet_id: walletID,
-      cbor: cbor,
-      metadata: metadata,
+      cbor: pendingTx.cbor,
+      scriptIds: [],
+      metadata_cbor: pendingTx.metadata_cbor,
+      redeemers_cbor: [],
     };
     const response = await fetch('/api/transactions/sign-submit', {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
       },
-      body: JSON.stringify(signTxData),
+      body: JSON.stringify(confirmSubmitData),
     });
     const signSubmitResponse = await response.json();
     console.log('Firmado de transacción: ', signSubmitResponse);
     return signSubmitResponse;
-  }; */
+  };
+
+  const handleSignTransactionCreateOrder = async () => {
+    const confirmSubmitData = {
+      wallet_id: walletID,
+      cbor: pendingTx.cbor,
+      scriptIds: [],
+      metadata_cbor: pendingTx.metadata_cbor,
+      redeemers_cbor: [],
+    };
+    const response = await fetch('/api/transactions/sign-submit', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify(confirmSubmitData),
+    });
+    const signSubmitResponse = await response.json();
+    console.log('Firmado de transacción: ', signSubmitResponse);
+
+    if (signSubmitResponse?.txSubmit?.success) {
+      // Actualizar un campo en tabla dynamo que indique que los tokens del proyecto han sido reclamados por el propietario o no
+      // Actualizar campo token genesis
+      try {
+        const [createOrderResponse] = await Promise.all([
+          fetch('/api/calls/createOrder', {
+            method: 'POST',
+            headers: {
+              'Content-Type': 'application/json',
+            },
+            body: JSON.stringify(pendingTx.postDistributionPayload.createOrder),
+          }),
+        ]);
+
+        const createOrderResponseData = await createOrderResponse.json();
+
+        console.log('Creación de la orden:', createOrderResponseData);
+      } catch (error) {
+        console.error('Error:', error);
+      }
+    }
+
+    return signSubmitResponse;
+  };
+
+  const handleSignTransactionUnlockOrder = async () => {
+    const confirmSubmitData = {
+      wallet_id: walletID,
+      cbor: pendingTx.cbor,
+      scriptIds: [pendingTx.scriptId],
+      metadata_cbor: pendingTx.metadata_cbor,
+      redeemers_cbor: [pendingTx.redeemer_cbor],
+    };
+    const response = await fetch('/api/transactions/sign-submit', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify(confirmSubmitData),
+    });
+    const signSubmitResponse = await response.json();
+    console.log('Firmado de transacción: ', signSubmitResponse);
+
+    if (signSubmitResponse?.txSubmit?.success) {
+      try {
+        const [updateOrderResponse] = await Promise.all([
+          fetch('/api/calls/updateOrder', {
+            method: 'POST',
+            headers: {
+              'Content-Type': 'application/json',
+            },
+            body: JSON.stringify(pendingTx.postDistributionPayload.updateOrder),
+          }),
+        ]);
+
+        const updateOrderResponseData = await updateOrderResponse.json();
+
+        console.log('Creación de la orden:', updateOrderResponseData);
+      } catch (error) {
+        console.error('Error:', error);
+      }
+    }
+
+    return signSubmitResponse;
+  };
 
   const handleSign = async () => {
     setIsLoading(true);
@@ -163,9 +249,20 @@ export default function SignTransaction(props: SignTransactionProps) {
       signSubmitResponse = await handleSignTransactionBuyTokens();
     }
 
-    /* if (signType === 'sendTransaction') {
+    if (signType === 'sendTransaction') {
       signSubmitResponse = await handleSignTransactionSendTransaction();
-    } */
+    }
+
+    if (signType === 'createOrder') {
+      signSubmitResponse = await handleSignTransactionCreateOrder();
+    }
+
+    if (signType === 'unlockOrder') {
+      signSubmitResponse = await handleSignTransactionUnlockOrder();
+    }
+
+    // Crear transacción
+    
 
     if (signSubmitResponse?.txSubmit?.success) {
       handleOpenSignTransactionModal();

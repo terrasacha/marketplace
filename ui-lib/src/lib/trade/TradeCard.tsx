@@ -1,97 +1,112 @@
 import { useContext, useEffect, useState } from 'react';
 import Card from '../common/Card';
-import CreateOrderCard from '../trade/CreateOrderCard'
-import OrderBookCard from '../trade/OrderBookCard'
+import CreateOrderCard from '../trade/CreateOrderCard';
+import OrderBookCard from '../trade/OrderBookCard';
 import { WalletContext } from '@marketplaces/utils-2';
+import { AssetModal, OrderHistoryCard } from '../ui-lib';
 
 export default function TradeCard(props: any) {
-  const { walletData } = useContext<any>(WalletContext);
+  const { walletID, walletData } = useContext<any>(WalletContext);
+
+  console.log("walletData", walletData)
 
   const [activeTab, setActiveTab] = useState<string>('my_orders');
-  const [orderList, setOrderList] = useState<Array<any> | null>(null);
-  const [orderHistory, setOrderHistory] = useState<Array<any> | null>(null);
+  const [orderList, setOrderList] = useState<Array<any>>([]);
+  const [orderHistoryList, setOrderHistoryList] = useState<Array<any> | null>(
+    null
+  );
+  const [userOrderList, setUserOrderList] = useState<Array<any>>([]);
+  const [suanUserTokens, setSuanUserTokens] = useState<Array<any>>([]);
+
+  const paginationLimit = 1;
 
   const handleSetActiveTab = (tab: string) => {
     setActiveTab(tab);
   };
 
-  const getOrderList = async () => {
-    const request1 = await fetch(`/api/calls/getOrders`);
+  const getOrderList = async (nextToken = '') => {
+    const params = {
+      walletId: '',
+      paginationLimit: String(paginationLimit),
+      filterByStatusCode: 'listed',
+      nextToken: nextToken,
+    };
+    const queryParams = new URLSearchParams(params).toString();
+    console.log(`/api/calls/getOrders?${queryParams}`)
+    const request = await fetch(`/api/calls/getOrders?${queryParams}`);
+    const orders = await request.json();
 
-    const orders = await request1.json();
-    setOrderList(orders);
-
-    const request2 = await fetch(
-      `/api/calls/getOrders?walletAddress=${walletData.address}`
-    );
-
-    const ordersHistory = await request2.json();
-    setOrderHistory(ordersHistory);
+    console.log('orders', orders);
+    setOrderList(orders.items);
   };
+
+  const getUserOrderList = async () => {
+    const params = {
+      walletId: walletID,
+      paginationLimit: String(paginationLimit),
+      nextToken: '',
+    };
+    const queryParams = new URLSearchParams(params).toString();
+    console.log(`/api/calls/getOrders?${queryParams}`)
+    const request = await fetch(`/api/calls/getOrders?${queryParams}`);
+
+    const ordersHistory = await request.json();
+    setUserOrderList(ordersHistory.items);
+  };
+
+  const getSuanTokens = async () => {
+    const request = await fetch(`/api/calls/backend/listTokens`);
+    const suanTokens = await request.json();
+
+    // const filteredSuanProjectsTokenList = walletData.assets.filter((asset: any) => asset.asset_name === suanTokens)
+    const filteredSuanProjectsTokenList = walletData.assets.filter((item1: any) => {
+      return suanTokens.some((item2: any) =>
+        item1.policy_id === item2.policyID && item1.asset_name === item2.tokenName
+      );
+    }).map((item1: any) => {
+      const match = suanTokens.find((item2: any) =>
+        item1.policy_id === item2.policyID && item1.asset_name === item2.tokenName
+      );
+      return {
+        ...item1,
+        ...match
+      };
+    });
+    setSuanUserTokens(filteredSuanProjectsTokenList)
+
+  }
 
   useEffect(() => {
     getOrderList();
+    getUserOrderList()
+    getSuanTokens()
   }, []);
 
   return (
     <div className="grid grid-cols-3 gap-5">
       <div className="col-span-3 xl:col-span-1">
         <CreateOrderCard
-          userAssetList={walletData.assets}
+          walletId={walletID}
+          userAssetList={suanUserTokens}
           walletAddress={walletData.address}
           walletStakeAddress={walletData.stake_address}
           getOrderList={getOrderList}
         />
       </div>
       <div className="col-span-3 xl:col-span-2">
-        <OrderBookCard orderList={orderList} />
+        <OrderBookCard
+          walletAddress={walletData.address}
+          walletId={walletID}
+          orderList={orderList}
+          itemsPerPage={5}
+        />
       </div>
       <div className="col-span-3">
-        <Card>
-          <div className="text-sm font-medium text-center text-gray-500 border-b border-gray-200">
-            <ul className="flex flex-wrap -mb-px">
-              <li className="me-2">
-                <a
-                  href="#"
-                  className={`inline-block p-4 border-b-2 rounded-t-lg ${
-                    activeTab === 'my_orders'
-                      ? 'text-blue-600 border-blue-600'
-                      : 'border-transparent hover:text-gray-600 hover:border-gray-300'
-                  }`}
-                  onClick={() => handleSetActiveTab('my_orders')}
-                >
-                  Mis Ordenes
-                </a>
-              </li>
-              <li className="me-2">
-                <a
-                  href="#"
-                  className={`inline-block p-4 border-b-2 rounded-t-lg ${
-                    activeTab === 'my_orders_history'
-                      ? 'text-blue-600 border-blue-600'
-                      : 'border-transparent hover:text-gray-600 hover:border-gray-300'
-                  }`}
-                  aria-current="page"
-                  onClick={() => handleSetActiveTab('my_orders_history')}
-                >
-                  Historial de ordenes
-                </a>
-              </li>
-            </ul>
-          </div>
-          <Card.Body>
-            {activeTab === 'my_orders' && (
-              <div className="h-96 flex justify-center items-center">
-                No tienes ordenes activas
-              </div>
-            )}
-            {activeTab === 'my_orders_history' && (
-              <div className="h-96 flex justify-center items-center">
-                Aún no has realizado ordenes
-              </div>
-            )}
-          </Card.Body>
-        </Card>
+        <OrderHistoryCard
+          userOrderList={userOrderList}
+          itemsPerPage={1}
+          walletAddress={walletData.address}
+          walletId={walletID} />
       </div>
     </div>
   );

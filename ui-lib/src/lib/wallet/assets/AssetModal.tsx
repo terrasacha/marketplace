@@ -1,6 +1,6 @@
 import { Button, Modal } from 'flowbite-react';
 import { XIcon } from '../../icons/XIcon';
-import CopyToClipboard from '../../common/CopyToClipboard'
+import CopyToClipboard from '../../common/CopyToClipboard';
 import {
   JsonView,
   allExpanded,
@@ -38,8 +38,7 @@ export default function AssetModal(props: AssetModalProps) {
       if (assetInfo.minting_tx_metadata) {
         Object.entries(assetInfo.minting_tx_metadata).forEach(
           ([key, value]: any) => {
-            const metadataInfo =
-              value[assetData.policy_id][`0x${assetInfo.asset_name}`];
+            const metadataInfo = value;
             metadata = {
               ...metadata,
               ...metadataInfo,
@@ -47,37 +46,47 @@ export default function AssetModal(props: AssetModalProps) {
           }
         );
       }
+      console.log(metadata)
 
-      const hardTestCase = {
-        area: '4990',
-        files: [
-          {
-            src: 'ipfs://QmaLUqr86WwpnSrLwAUVUuWSXzViGsy9uLoUrTJ3ApTq2T',
-            mediaType: 'image/png',
-          },
-        ],
-        image: 'ipfs://QmaLUqr86WwpnSrLwAUVUuWSXzViGsy9uLoUrTJ3ApTq2T',
-        category: 'MIXTO',
-        location: '4.272969755061237, -72.79084537151759 0 0',
-        createdAt: '15/12/2023',
-        mediaType: 'image/png',
-        project_id: '99d0f2a1-61e5-4bf5-b6ef-1f7aea6097c3',
-        token_name: 'SUAN-1F7AEA6097C3',
-        description: [
-          'Este Proyecto está ubicado en la región de la sabana',
-          'colombiana conocida como los Llanos Orientales; en un conjunto',
-          'de 88 predios que se encuentran ubicados en la región sur del',
-          'rio meta, entre los afluentes rio metica y el rio yucao; y',
-          'suman un área aproximada de 4.990 Ha, como zona buffer de 100',
-          'mts de las rondas hídrica.  Con este proyecto se pretende',
-          'aumentar el área de protección mediante regeneración natural',
-          'asistida para el establecimiento de especies nativas de la',
-          'zona.',
-        ],
-        project_name: 'Polígono Meta Ecosistemas Estrategicos',
-      };
-      console.log('hardTestCase', hardTestCase);
-      setAssetMetadata(hardTestCase);
+      const cases = {
+        "2fa3f8b68cd8f4bb95ebc0e24ee5ee7629081e094cab8319caf0453f": {
+          "0x53616e64626f785375616e41636365737331": {
+            "name": "Token NFT SandBox",
+            "description": "NFT con acceso a marketplace en Sandbox"
+          }
+        }
+      }
+
+      // const hardTestCase = {
+      //   area: '4990',
+      //   files: [
+      //     {
+      //       src: 'ipfs://QmaLUqr86WwpnSrLwAUVUuWSXzViGsy9uLoUrTJ3ApTq2T',
+      //       mediaType: 'image/png',
+      //     },
+      //   ],
+      //   image: 'ipfs://QmaLUqr86WwpnSrLwAUVUuWSXzViGsy9uLoUrTJ3ApTq2T',
+      //   category: 'MIXTO',
+      //   location: '4.272969755061237, -72.79084537151759 0 0',
+      //   createdAt: '15/12/2023',
+      //   mediaType: 'image/png',
+      //   project_id: '99d0f2a1-61e5-4bf5-b6ef-1f7aea6097c3',
+      //   token_name: 'SUAN-1F7AEA6097C3',
+      //   description: [
+      //     'Este Proyecto está ubicado en la región de la sabana',
+      //     'colombiana conocida como los Llanos Orientales; en un conjunto',
+      //     'de 88 predios que se encuentran ubicados en la región sur del',
+      //     'rio meta, entre los afluentes rio metica y el rio yucao; y',
+      //     'suman un área aproximada de 4.990 Ha, como zona buffer de 100',
+      //     'mts de las rondas hídrica.  Con este proyecto se pretende',
+      //     'aumentar el área de protección mediante regeneración natural',
+      //     'asistida para el establecimiento de especies nativas de la',
+      //     'zona.',
+      //   ],
+      //   project_name: 'Polígono Meta Ecosistemas Estrategicos',
+      // };
+      // console.log('hardTestCase', hardTestCase);
+      setAssetMetadata(metadata);
       setAssetInfo(assetInfo);
 
       console.log('AssetInfo obtenido: ', assetInfo);
@@ -109,11 +118,10 @@ export default function AssetModal(props: AssetModalProps) {
           <div className="flex flex-col items-center lg:w-30 p-3 pt-10">
             {assetMetadata?.image ? (
               <img
-                src={`https://coffee-dry-barnacle-850.mypinata.cloud/ipfs/${
-                  assetMetadata?.image
-                    ? assetMetadata.image.replace('ipfs://', '')
-                    : ''
-                }`}
+                src={`https://coffee-dry-barnacle-850.mypinata.cloud/ipfs/${assetMetadata?.image
+                  ? assetMetadata.image.replace('ipfs://', '')
+                  : ''
+                  }`}
                 alt="Asset Image"
                 className="w-80 h-auto"
               />
@@ -219,48 +227,47 @@ export default function AssetModal(props: AssetModalProps) {
                   <tbody className="fila_activos">
                     {Object.keys(assetMetadata).length > 0
                       ? Object.entries(assetMetadata).map(
-                          ([key, value]: any, idx: number) => {
-                            if (Array.isArray(value)) {
-                              return (
-                                <>
-                                  <tr>
-                                    <td>{key}:</td>
-                                  </tr>
-                                  {value.map((item: any, index: number) => {
-                                    if (typeof item === 'object') {
-                                      return Object.entries(item).map(
-                                        ([key2, value2]: any) => (
-                                          <tr key={key2}>
-                                            <td>{'-> ' + key2}</td>
-                                            <td>{value2}</td>
-                                          </tr>
-                                        )
-                                      );
-                                    } else {
-                                      return (
-                                        <tr>
-                                          <td>{'-> ' + index}</td>
-                                          <td>{item}</td>
-                                        </tr>
-                                      );
-                                    }
-                                  })}
-                                </>
-                              );
-                            } else {
-                              return (
-                                <tr
-                                  className={`${
-                                    idx % 2 === 0 && 'bg-gray-600'
-                                  }`}
-                                >
-                                  <td>{key}</td>
-                                  <td>{value}</td>
+                        ([key, value]: any, idx: number) => {
+                          if (Array.isArray(value)) {
+                            return (
+                              <>
+                                <tr>
+                                  <td>{key}:</td>
                                 </tr>
-                              );
-                            }
+                                {value.map((item: any, index: number) => {
+                                  if (typeof item === 'object') {
+                                    return Object.entries(item).map(
+                                      ([key2, value2]: any) => (
+                                        <tr key={key2}>
+                                          <td>{'-> ' + key2}</td>
+                                          <td>{value2}</td>
+                                        </tr>
+                                      )
+                                    );
+                                  } else {
+                                    return (
+                                      <tr>
+                                        <td>{'-> ' + index}</td>
+                                        <td>{item}</td>
+                                      </tr>
+                                    );
+                                  }
+                                })}
+                              </>
+                            );
+                          } else {
+                            return (
+                              <tr
+                                className={`${idx % 2 === 0 && 'bg-gray-600'
+                                  }`}
+                              >
+                                <td>{key}</td>
+                                <td>{value}</td>
+                              </tr>
+                            );
                           }
-                        )
+                        }
+                      )
                       : 'No se ha encontrado metadatos'}
                   </tbody>
                 ) : (

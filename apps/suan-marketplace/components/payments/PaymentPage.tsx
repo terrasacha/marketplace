@@ -1,9 +1,9 @@
 'use client';
-import Card from '@marketplaces/ui-lib/src/lib/common/Card'
+import Card from '@marketplaces/ui-lib/src/lib/common/Card';
 import EpaycoCheckout from '@marketplaces/ui-lib/src/lib/epayco/EpaycoCheckout';
-import {LoadingIcon} from '@marketplaces/ui-lib/src/lib/icons/LoadingIcon';
-import PendingVerificationMessage from '@marketplaces/ui-lib/src/lib/common/PendingVerificationMessage'
-import SignTransactionModal from '@marketplaces/ui-lib/src/lib/wallet/sign-transaction/SignTransactionModal'
+import { LoadingIcon } from '@marketplaces/ui-lib/src/lib/icons/LoadingIcon';
+import PendingVerificationMessage from '@marketplaces/ui-lib/src/lib/common/PendingVerificationMessage';
+import SignTransactionModal from '@marketplaces/ui-lib/src/lib/wallet/sign-transaction/SignTransactionModal';
 import { useContext, useEffect, useState } from 'react';
 import { TokenDetailSection } from './TokenDetailSection';
 import ProjectInfoContext from '@suan/store/projectinfo-context';
@@ -585,8 +585,10 @@ export default function PaymentPage({}) {
     // Llamada a procesador de pago
 
     if (!walletBySuan) {
+      // En caso de que se pague con billetera externa
       await startMinting();
     } else {
+      // En caso de que se pague con billetera interna
       setTxHash('');
       setPayingStep(PAYING_STEPS.PROCESSING);
       setTransactionStatusMessage(
@@ -601,7 +603,7 @@ export default function PaymentPage({}) {
           tx_type: 'preview',
           walletAddress: walletAddress,
           buildTxResponse: buildTxResponse,
-          metadata: [],
+          metadata: {},
         });
 
         setNewTransactionBuild({
@@ -619,9 +621,9 @@ export default function PaymentPage({}) {
 
   const handleOpenSignTransactionModal = () => {
     setSignTransactionModal(!signTransactionModal);
-    if (!signTransactionModal === false) {
-      setPayingStep(PAYING_STEPS.ERROR);
-    }
+    // if (!signTransactionModal === false) {
+    //   setPayingStep(PAYING_STEPS.ERROR);
+    // }
   };
 
   const filteredList = projectInfo.projectFeatures
