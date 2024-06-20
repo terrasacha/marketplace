@@ -143,9 +143,12 @@ const instance = axios.create({
   baseURL: `/api/`,
   withCredentials: true,
 });
-const awsAppSyncApiKey: string = process.env['secrets']
-  ? JSON.parse(process.env['secrets']).API_KEY_PLATAFORMA
-  : process.env['NEXT_PUBLIC_API_KEY_PLATAFORMA'];
+let awsAppSyncApiKey: string
+if (process.env['NEXT_PUBLIC_API_KEY_PLATAFORMA']) {
+  awsAppSyncApiKey = process.env['NEXT_PUBLIC_API_KEY_PLATAFORMA'];
+} else {
+  throw new Error(`Parameter graphqlEndpoint not found`);
+}
 let graphqlEndpoint: string;
 if (process.env['NEXT_PUBLIC_graphqlEndpoint']) {
   graphqlEndpoint = process.env['NEXT_PUBLIC_graphqlEndpoint'];
