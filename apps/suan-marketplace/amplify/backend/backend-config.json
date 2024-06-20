@@ -1,6 +1,6 @@
 {
   "auth": {
-    "suanmarketplacebcdf233d": {
+    "suanmarket26982e56": {
       "customAuth": false,
       "dependsOn": [],
       "providerPlugin": "awscloudformation",
@@ -9,35 +9,91 @@
     }
   },
   "parameters": {
-    "AMPLIFY_auth_suanmarketplacebcdf233d_nativeClientId": {
+    "AMPLIFY_auth_suanmarket26982e56_allowUnauthenticatedIdentities": {
       "usedBy": [
         {
           "category": "auth",
-          "resourceName": "suanmarketplacebcdf233d"
+          "resourceName": "suanmarket26982e56"
         }
       ]
     },
-    "AMPLIFY_auth_suanmarketplacebcdf233d_userPoolId": {
+    "AMPLIFY_auth_suanmarket26982e56_authRoleArn": {
       "usedBy": [
         {
           "category": "auth",
-          "resourceName": "suanmarketplacebcdf233d"
+          "resourceName": "suanmarket26982e56"
         }
       ]
     },
-    "AMPLIFY_auth_suanmarketplacebcdf233d_userPoolName": {
+    "AMPLIFY_auth_suanmarket26982e56_authRoleName": {
       "usedBy": [
         {
           "category": "auth",
-          "resourceName": "suanmarketplacebcdf233d"
+          "resourceName": "suanmarket26982e56"
         }
       ]
     },
-    "AMPLIFY_auth_suanmarketplacebcdf233d_webClientId": {
+    "AMPLIFY_auth_suanmarket26982e56_identityPoolId": {
       "usedBy": [
         {
           "category": "auth",
-          "resourceName": "suanmarketplacebcdf233d"
+          "resourceName": "suanmarket26982e56"
+        }
+      ]
+    },
+    "AMPLIFY_auth_suanmarket26982e56_identityPoolName": {
+      "usedBy": [
+        {
+          "category": "auth",
+          "resourceName": "suanmarket26982e56"
+        }
+      ]
+    },
+    "AMPLIFY_auth_suanmarket26982e56_nativeClientId": {
+      "usedBy": [
+        {
+          "category": "auth",
+          "resourceName": "suanmarket26982e56"
+        }
+      ]
+    },
+    "AMPLIFY_auth_suanmarket26982e56_unauthRoleArn": {
+      "usedBy": [
+        {
+          "category": "auth",
+          "resourceName": "suanmarket26982e56"
+        }
+      ]
+    },
+    "AMPLIFY_auth_suanmarket26982e56_unauthRoleName": {
+      "usedBy": [
+        {
+          "category": "auth",
+          "resourceName": "suanmarket26982e56"
+        }
+      ]
+    },
+    "AMPLIFY_auth_suanmarket26982e56_userPoolId": {
+      "usedBy": [
+        {
+          "category": "auth",
+          "resourceName": "suanmarket26982e56"
+        }
+      ]
+    },
+    "AMPLIFY_auth_suanmarket26982e56_userPoolName": {
+      "usedBy": [
+        {
+          "category": "auth",
+          "resourceName": "suanmarket26982e56"
+        }
+      ]
+    },
+    "AMPLIFY_auth_suanmarket26982e56_webClientId": {
+      "usedBy": [
+        {
+          "category": "auth",
+          "resourceName": "suanmarket26982e56"
         }
       ]
     }

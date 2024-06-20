@@ -1,6 +1,6 @@
 {
-  "authSelections": "userPoolOnly",
-  "resourceName": "suanmarketplacebcdf233d",
+  "authSelections": "identityPoolAndUserPool",
+  "resourceName": "suanmarket26982e56",
   "serviceType": "imported",
   "region": "us-east-1",
   "requiredAttributes": [

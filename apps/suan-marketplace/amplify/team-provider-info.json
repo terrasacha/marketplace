@@ -13,12 +13,13 @@
     },
     "categories": {
       "auth": {
-        "suanmarketplacebcdf233d": {
-          "nativeClientId": "45icep84p2eatavasp99rv36qq",
+        "suanmarketffa24b4d": {
           "userPoolId": "us-east-1_GkPDCjB4C",
           "userPoolName": "kiosuanbcrjsappa6accc93_userpool_a6accc93-prod",
-          "webClientId": "38ek9t163kigfcp5mshd5ce03h"
-        }
+          "webClientId": "38ek9t163kigfcp5mshd5ce03h",
+          "nativeClientId": "45icep84p2eatavasp99rv36qq"
+        },
+        "suanmarketplacebcdf233d": {}
       }
     }
   },
@@ -36,11 +37,18 @@
     },
     "categories": {
       "auth": {
-        "suanmarketplacebcdf233d": {
-          "nativeClientId": "5llsqe9bsaq5jls57blv6v1bjc",
-          "userPoolId": "us-east-1_DFaBfYrB1",
-          "userPoolName": "kiosuanbcrjsappa6accc93_userpool_a6accc93-dev",
-          "webClientId": "5nhkci304gu0ckt550eo6l0103"
+        "suanmarket26982e56": {
+          "userPoolId": "us-east-1_GkPDCjB4C",
+          "userPoolName": "kiosuanbcrjsappa6accc93_userpool_a6accc93-prod",
+          "webClientId": "38ek9t163kigfcp5mshd5ce03h",
+          "nativeClientId": "45icep84p2eatavasp99rv36qq",
+          "identityPoolId": "us-east-1:f44bbe32-a608-4347-a91f-5cd08f19025e",
+          "identityPoolName": "kiosuanbcrjsappa6accc93_identitypool_a6accc93__prod",
+          "allowUnauthenticatedIdentities": true,
+          "authRoleArn": "arn:aws:iam::036134507423:role/amplify-kiosuanbcrjsapp-prod-150248-authRole",
+          "authRoleName": "amplify-kiosuanbcrjsapp-prod-150248-authRole",
+          "unauthRoleArn": "arn:aws:iam::036134507423:role/amplify-kiosuanbcrjsapp-prod-150248-unauthRole",
+          "unauthRoleName": "amplify-kiosuanbcrjsapp-prod-150248-unauthRole"
         }
       }
     }
