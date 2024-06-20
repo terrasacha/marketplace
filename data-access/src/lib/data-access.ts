@@ -1003,6 +1003,8 @@ export async function verifyWallet(stakeAddress: string) {
 export async function getWalletByUser(userId: string): Promise<any> {
   let output = '';
   let response = '';
+  console.log(process.env["NEXT_PUBLIC_graphqlEndpoint"])
+
   try {
     response = await axios.post(
       graphqlEndpoint,
@@ -1618,6 +1620,7 @@ export async function createOrder(objeto: any) {
     scriptID,
     value,
     utxos,
+    statusCode,
   } = objeto;
   const response = await axios.post(
     graphqlEndpoint,
@@ -1631,6 +1634,7 @@ export async function createOrder(objeto: any) {
             scriptID: "${scriptID}",
             value: ${value},
             utxos: "${utxos}",
+            statusCode: "${statusCode}",
           })
           {
             id
@@ -1933,22 +1937,48 @@ export async function validatePassword(
   }
 }
 
+export async function listTokens() {
+
+  // Get categories only with projects created
+  const response = await axios.post(
+    graphqlEndpoint,
+    {
+      query: `query getTokens {
+        listTokens {
+          items {
+            policyID
+            tokenName
+          }
+        }
+      }`,
+    },
+    {
+      headers: {
+        'x-api-key': awsAppSyncApiKey,
+      },
+    }
+  );
+  const suanTokens = response.data.data.listTokens.items;
+
+  return suanTokens;
+}
+
 export async function getOrdersList(
-  filterByWalletAddress: string | null = null,
+  filterByWalletId: string | null = null,
   limit: number = 10,
-  nextToken: string | null = null,
-  filterByStatusCode: string | null = null
+  filterByStatusCode: string | null = null,
+  nextToken: string | null = null
 ) {
   try {
     const filterConditions = [];
 
-    if (filterByWalletAddress) {
-      filterConditions.push(`walletAddress: {eq: "${filterByWalletAddress}"}`);
+    if (filterByWalletId !== null && filterByWalletId !== "") {
+      filterConditions.push(`walletID: {eq: "${filterByWalletId}"}`);
     }
 
-    // if (filterByStatusCode !== null) {
-    //   filterConditions.push(`statusCode: {not: ${filterByStatusCode}}`);
-    // }
+    if (filterByStatusCode !== null && filterByStatusCode !== "") {
+      filterConditions.push(`statusCode: {eq: "${filterByStatusCode}"}`);
+    }
 
     const filter =
       filterConditions.length > 0
@@ -1956,14 +1986,15 @@ export async function getOrdersList(
         : '';
 
     const pagination = nextToken ? `, nextToken: "${nextToken}"` : '';
-
+    /* limit: ${limit}${pagination} */
     const query = `query getOrders {
-      listOrders (limit: ${limit}${pagination}${filter}) {
+      listOrders (${filter}) {
         items {
           id
           tokenPolicyId
           tokenAmount
           tokenName
+          statusCode
           utxos
           walletID
           wallet {
@@ -1975,6 +2006,7 @@ export async function getOrdersList(
         nextToken
       }
     }`;
+    console.log("query", query)
 
     const response = await axios.post(
       graphqlEndpoint,

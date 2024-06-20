@@ -3,58 +3,83 @@ import Card from '../common/Card';
 import CreateOrderCard from '../trade/CreateOrderCard';
 import OrderBookCard from '../trade/OrderBookCard';
 import { WalletContext } from '@marketplaces/utils-2';
-import { OrderHistoryCard } from '../ui-lib';
+import { AssetModal, OrderHistoryCard } from '../ui-lib';
 
 export default function TradeCard(props: any) {
   const { walletID, walletData } = useContext<any>(WalletContext);
 
+  console.log("walletData", walletData)
+
   const [activeTab, setActiveTab] = useState<string>('my_orders');
-  const [orderList, setOrderList] = useState<Array<any> | null>(null);
+  const [orderList, setOrderList] = useState<Array<any>>([]);
   const [orderHistoryList, setOrderHistoryList] = useState<Array<any> | null>(
     null
   );
-  const [userOrdersList, setUserOrdersList] = useState<Array<any> | null>(null);
+  const [userOrderList, setUserOrderList] = useState<Array<any>>([]);
+  const [suanUserTokens, setSuanUserTokens] = useState<Array<any>>([]);
 
-  const paginationLimit = 5;
+  const paginationLimit = 1;
 
   const handleSetActiveTab = (tab: string) => {
     setActiveTab(tab);
   };
 
-  const getOrderList = async () => {
+  const getOrderList = async (nextToken = '') => {
     const params = {
-      walletAddress: '',
+      walletId: '',
       paginationLimit: String(paginationLimit),
-      nextToken: '',
+      filterByStatusCode: 'listed',
+      nextToken: nextToken,
     };
     const queryParams = new URLSearchParams(params).toString();
+    console.log(`/api/calls/getOrders?${queryParams}`)
     const request = await fetch(`/api/calls/getOrders?${queryParams}`);
-
     const orders = await request.json();
+
     console.log('orders', orders);
     setOrderList(orders.items);
   };
 
-  const getOrderHistoryList = async () => {
-    const request = await fetch(
-      `/api/calls/getOrders?walletAddress=${walletData.address}?limit=${paginationLimit}?nextToken=`
-    );
+  const getUserOrderList = async () => {
+    const params = {
+      walletId: walletID,
+      paginationLimit: String(paginationLimit),
+      nextToken: '',
+    };
+    const queryParams = new URLSearchParams(params).toString();
+    console.log(`/api/calls/getOrders?${queryParams}`)
+    const request = await fetch(`/api/calls/getOrders?${queryParams}`);
 
     const ordersHistory = await request.json();
-    setOrderHistoryList(ordersHistory.items);
+    setUserOrderList(ordersHistory.items);
   };
 
-  const getUserOrdersList = async () => {
-    const request = await fetch(
-      `/api/calls/getOrders?walletAddress=${walletData.address}?limit=${paginationLimit}?nextToken=`
-    );
+  const getSuanTokens = async () => {
+    const request = await fetch(`/api/calls/backend/listTokens`);
+    const suanTokens = await request.json();
 
-    const ordersHistory = await request.json();
-    setUserOrdersList(ordersHistory.items);
-  };
+    // const filteredSuanProjectsTokenList = walletData.assets.filter((asset: any) => asset.asset_name === suanTokens)
+    const filteredSuanProjectsTokenList = walletData.assets.filter((item1: any) => {
+      return suanTokens.some((item2: any) =>
+        item1.policy_id === item2.policyID && item1.asset_name === item2.tokenName
+      );
+    }).map((item1: any) => {
+      const match = suanTokens.find((item2: any) =>
+        item1.policy_id === item2.policyID && item1.asset_name === item2.tokenName
+      );
+      return {
+        ...item1,
+        ...match
+      };
+    });
+    setSuanUserTokens(filteredSuanProjectsTokenList)
+
+  }
 
   useEffect(() => {
     getOrderList();
+    getUserOrderList()
+    getSuanTokens()
   }, []);
 
   return (
@@ -62,7 +87,7 @@ export default function TradeCard(props: any) {
       <div className="col-span-3 xl:col-span-1">
         <CreateOrderCard
           walletId={walletID}
-          userAssetList={walletData.assets}
+          userAssetList={suanUserTokens}
           walletAddress={walletData.address}
           walletStakeAddress={walletData.stake_address}
           getOrderList={getOrderList}
@@ -73,10 +98,15 @@ export default function TradeCard(props: any) {
           walletAddress={walletData.address}
           walletId={walletID}
           orderList={orderList}
+          itemsPerPage={5}
         />
       </div>
       <div className="col-span-3">
-        <OrderHistoryCard />
+        <OrderHistoryCard
+          userOrderList={userOrderList}
+          itemsPerPage={1}
+          walletAddress={walletData.address}
+          walletId={walletID} />
       </div>
     </div>
   );

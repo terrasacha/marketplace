@@ -6,24 +6,111 @@ import { SignTransactionModal } from '../ui-lib';
 import { toast } from 'sonner';
 
 interface OrderBookCardProps {
-  orderList?: Array<any> | null;
+  orderList: Array<any>;
+  itemsPerPage: number;
   walletId: string;
   walletAddress: string;
 }
 
 export default function OrderBookCard(props: OrderBookCardProps) {
-  const { orderList, walletId, walletAddress } = props;
+  const { orderList, walletId, walletAddress, itemsPerPage } = props;
 
   const [newTransactionBuild, setNewTransactionBuild] = useState<any>(null);
   const [signTransactionModal, setSignTransactionModal] = useState(false);
+
+  const [currentPage, setCurrentPage] = useState(1);
+
+
+  const indexOfLastItem = currentPage * itemsPerPage;
+  const indexOfFirstItem = indexOfLastItem - itemsPerPage;
+  const currentItems = orderList.slice(indexOfFirstItem, indexOfLastItem);
+  const totalItems = orderList.length;
+  const canShowPrevious = currentPage > 1;
+  const canShowNext = indexOfLastItem < totalItems;
+
+  const nextPage = () => {
+    setCurrentPage((prevPage) => prevPage + 1);
+  };
+
+  const prevPage = () => {
+    setCurrentPage((prevPage) => prevPage - 1);
+  };
+
 
   const handleOpenSignTransactionModal = () => {
     setSignTransactionModal(!signTransactionModal);
   };
 
-  const handleBuyOrder = async (orderId: string) => {
-    const actualOrder = orderList?.find((order: any) => order.id === orderId);
+  const handleRemoveOrder = async (orderId: string) => {
+    const actualOrder: any = orderList?.find((order: any) => order.id === orderId);
 
+    const unlockOracleOrderPayload = {
+      order_side: 'Unlist',
+      payload: {
+        wallet_id: walletId,
+        orderPolicyId:
+          'bec2c2e0f30909ccd1b2e6dcc12ca890a6892d7a0d9553db770e7cea',
+        utxo: actualOrder.utxos,
+        addresses: [
+          {
+            address: walletAddress,
+            lovelace: 0,
+            multiAsset: [
+              {
+                policyid: actualOrder.tokenPolicyId,
+                tokens: {
+                  [actualOrder.tokenName]: parseInt(actualOrder.tokenAmount),
+                },
+              },
+            ],
+          },
+        ],
+      },
+      metadata: {}
+    };
+
+    console.log('unlockOracleOrderPayload', unlockOracleOrderPayload);
+
+    const response = await fetch('/api/transactions/unlock-order', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify(unlockOracleOrderPayload),
+    });
+    const buildTxResponse = await response.json();
+
+    if (buildTxResponse?.success) {
+      const mappedTransactionData = await mapBuildTransactionInfo({
+        tx_type: 'preview',
+        walletAddress: walletAddress,
+        buildTxResponse: buildTxResponse,
+        metadata: {},
+      });
+
+      const postDistributionPayload = {
+        updateOrder: {
+          id: actualOrder.id,
+          statusCode: 'unlisted',
+        },
+      }
+
+      setNewTransactionBuild({
+        ...mappedTransactionData,
+        postDistributionPayload,
+        scriptId: 'bec2c2e0f30909ccd1b2e6dcc12ca890a6892d7a0d9553db770e7cea',
+      });
+      handleOpenSignTransactionModal();
+    } else {
+      toast.error(
+        'Algo ha salido mal, revisa las direcciones de billetera ...'
+      );
+    }
+  }
+
+  const handleBuyOrder = async (orderId: string) => {
+    const actualOrder: any = orderList?.find((order: any) => order.id === orderId);
+    console.log("actualOrder", actualOrder)
     const unlockOracleOrderPayload = {
       order_side: 'Buy',
       payload: {
@@ -76,7 +163,7 @@ export default function OrderBookCard(props: OrderBookCardProps) {
       const postDistributionPayload = {
         updateOrder: {
           id: actualOrder.id,
-          statusCode: 'comprada',
+          statusCode: 'claimed',
         },
         // createTransaction: {
         //   productID: projectInfo.projectID,
@@ -143,8 +230,8 @@ export default function OrderBookCard(props: OrderBookCardProps) {
               <div className="w-full text-center"></div>
             </div>
             <div className="space-y-1">
-              {orderList &&
-                orderList.map((order: any, index: number) => {
+              {currentItems &&
+                currentItems.map((order: any, index: number) => {
                   return (
                     <div
                       key={index}
@@ -163,13 +250,25 @@ export default function OrderBookCard(props: OrderBookCardProps) {
                         <p>t₳ {(order.value / 1000000) * order.tokenAmount}</p>
                       </div>
                       <div className="w-full text-center">
-                        <button
-                          type="button"
-                          className="text-yellow-300 hover:text-white border border-yellow-300 hover:bg-yellow-400 focus:outline-none focus:ring-4 focus:ring-yellow-300 font-medium rounded text-sm px-5 py-2.5 "
-                          onClick={() => handleBuyOrder(order.id)}
-                        >
-                          Comprar
-                        </button>
+                        {order.walletID === walletId ? (
+
+                          <button
+                            type="button"
+                            className="text-red-300 min-w-[150px] hover:text-white border border-red-300 hover:bg-red-400 focus:outline-none focus:ring-4 focus:ring-red-300 font-medium rounded text-sm px-5 py-2.5 "
+                            onClick={() => handleRemoveOrder(order.id)}
+                          >
+                            Retirar
+                          </button>
+                        ) : (
+
+                          <button
+                            type="button"
+                            className="text-yellow-300 min-w-[150px] hover:text-white border border-yellow-300 hover:bg-yellow-400 focus:outline-none focus:ring-4 focus:ring-yellow-300 font-medium rounded text-sm px-5 py-2.5 "
+                            onClick={() => handleBuyOrder(order.id)}
+                          >
+                            Comprar
+                          </button>
+                        )}
                       </div>
                     </div>
                   );
@@ -180,23 +279,24 @@ export default function OrderBookCard(props: OrderBookCardProps) {
               <span className="text-sm text-gray-700 dark:text-gray-400">
                 Mostrando de{' '}
                 <span className="font-semibold text-gray-900 dark:text-white">
-                  0
+                  {indexOfFirstItem + 1}
                 </span>{' '}
                 a{' '}
                 <span className="font-semibold text-gray-900 dark:text-white">
-                  0
+                  {Math.min(indexOfLastItem, totalItems)}
                 </span>{' '}
                 de un total de{' '}
                 <span className="font-semibold text-gray-900 dark:text-white">
-                  0
+                  {totalItems}
                 </span>{' '}
                 Activos
               </span>
               <div className="inline-flex mt-2 xs:mt-0">
                 <button
-                  className={`flex items-center justify-center px-3 h-8 text-sm font-medium text-white bg-custom-dark rounded-s hover:bg-custom-dark-hover
-            `}
-                  disabled
+                  className={`flex items-center justify-center px-3 h-8 text-sm font-medium text-white bg-custom-dark rounded-s hover:bg-custom-dark-hover ${!canShowPrevious && 'opacity-50 cursor-not-allowed'
+                    }`}
+                  onClick={prevPage}
+                  disabled={!canShowPrevious}
                 >
                   <svg
                     className="w-3.5 h-3.5 me-2 rtl:rotate-180"
@@ -216,9 +316,10 @@ export default function OrderBookCard(props: OrderBookCardProps) {
                   Prev
                 </button>
                 <button
-                  className={`flex items-center justify-center px-3 h-8 text-sm font-medium text-white bg-custom-dark border-0 border-s border-gray-700 rounded-e hover:bg-custom-dark-hover '
-            }`}
-                  disabled
+                  className={`flex items-center justify-center px-3 h-8 text-sm font-medium text-white bg-custom-dark border-0 border-s border-gray-700 rounded-e hover:bg-custom-dark-hover ${!canShowNext && 'opacity-50 cursor-not-allowed'
+                    }`}
+                  onClick={nextPage}
+                  disabled={!canShowNext}
                 >
                   Next
                   <svg

@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import Card from '../common/Card';
 import { SignTransactionModal } from '../ui-lib';
 import { mapBuildTransactionInfo } from '@marketplaces/utils-2';
@@ -44,6 +44,42 @@ export default function CreateOrderCard(props: CreateOrderCardProps) {
 
   const [newTransactionBuild, setNewTransactionBuild] = useState<any>(null);
   const [signTransactionModal, setSignTransactionModal] = useState(false);
+
+  /* useEffect(() => {
+    const getMinLovelace
+    if (newOrder.asset && newOrder.value && newOrder.quantity) {
+      // Obtener min ada value
+      const payload = {
+        address: "addr_test1wzlv9shq7vysnnx3ktndesfv4zg2dzfd0gxe257mwu88e6s00jwza",
+        lovelace: newOrder.value,
+        multiAsset: [{
+          "policyid": "string",
+          "tokens": {
+            "additionalProp1": 0,
+            "additionalProp2": 0,
+            "additionalProp3": 0
+          }
+        }],
+      };
+
+      const request = await fetch('/api/helpers/min-lovelace', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(payload),
+      });
+      const minLovelaceValue = await request.json();
+
+      if (minLovelaceValue) {
+        handleInputChange(
+          index,
+          'adaAmount',
+          String(minLovelaceValue / 1000000)
+        );
+      }
+    }
+  }, [newOrder]) */
 
   const handleSetNewOrder = (key: string, value: string) => {
     let parsedValue = value;
@@ -138,6 +174,7 @@ export default function CreateOrderCard(props: CreateOrderCardProps) {
           tokenPolicyId: newOrder.assetPolicyId,
           tokenName: newOrder.asset,
           tokenAmount: parseInt(newOrder.quantity),
+          statusCode: "listed",
           value: parseFloat(newOrder.value) * 1000000,
         },
       };
@@ -197,10 +234,9 @@ export default function CreateOrderCard(props: CreateOrderCardProps) {
                 id="adas"
                 type="text"
                 aria-invalid="false"
-                className={`bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 ${
-                  error.quantityError &&
+                className={`bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 ${error.quantityError &&
                   'border-red-500 focus:ring-red-500 focus:border-red-500'
-                }`}
+                  }`}
                 autoComplete="off"
                 placeholder="0"
                 value={newOrder.quantity}
@@ -241,7 +277,7 @@ export default function CreateOrderCard(props: CreateOrderCardProps) {
               </div>
             </div>
             {/* Resumen de orden */}
-            <div className="flex-col pt-10">
+            {/* <div className="flex-col pt-10">
               <div className="flex justify-between mb-2">
                 <p>Total Fee</p>
                 <p>0</p>
@@ -255,7 +291,7 @@ export default function CreateOrderCard(props: CreateOrderCardProps) {
                 <p>0</p>
               </div>
             </div>
-
+ */}
             <button
               type="button"
               disabled={error.quantityError ? true : false}

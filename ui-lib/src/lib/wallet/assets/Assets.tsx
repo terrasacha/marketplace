@@ -2,6 +2,7 @@ import { useEffect, useState } from 'react';
 import Card from '../../common/Card';
 import PieChartCustom from '../../common/charts/PieChartCustom';
 import AssetsList from '../../wallet/assets/AssetsList';
+import { getIpfsUrlHash } from '@suan/utils/generic/ipfs';
 interface AssetsProps {
   assetsData: Array<any>;
   chartActive: boolean;
@@ -23,6 +24,9 @@ export default function Assets(props: AssetsProps) {
       value: parseInt(asset.quantity),
     };
   });
+
+  const hola = getIpfsUrlHash("test")
+  console.log(hola)
 
   return (
     <Card>

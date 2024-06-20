@@ -48,6 +48,15 @@ export default function AssetModal(props: AssetModalProps) {
       }
       console.log(metadata)
 
+      const cases = {
+        "2fa3f8b68cd8f4bb95ebc0e24ee5ee7629081e094cab8319caf0453f": {
+          "0x53616e64626f785375616e41636365737331": {
+            "name": "Token NFT SandBox",
+            "description": "NFT con acceso a marketplace en Sandbox"
+          }
+        }
+      }
+
       // const hardTestCase = {
       //   area: '4990',
       //   files: [
@@ -109,11 +118,10 @@ export default function AssetModal(props: AssetModalProps) {
           <div className="flex flex-col items-center lg:w-30 p-3 pt-10">
             {assetMetadata?.image ? (
               <img
-                src={`https://coffee-dry-barnacle-850.mypinata.cloud/ipfs/${
-                  assetMetadata?.image
-                    ? assetMetadata.image.replace('ipfs://', '')
-                    : ''
-                }`}
+                src={`https://coffee-dry-barnacle-850.mypinata.cloud/ipfs/${assetMetadata?.image
+                  ? assetMetadata.image.replace('ipfs://', '')
+                  : ''
+                  }`}
                 alt="Asset Image"
                 className="w-80 h-auto"
               />
@@ -219,48 +227,47 @@ export default function AssetModal(props: AssetModalProps) {
                   <tbody className="fila_activos">
                     {Object.keys(assetMetadata).length > 0
                       ? Object.entries(assetMetadata).map(
-                          ([key, value]: any, idx: number) => {
-                            if (Array.isArray(value)) {
-                              return (
-                                <>
-                                  <tr>
-                                    <td>{key}:</td>
-                                  </tr>
-                                  {value.map((item: any, index: number) => {
-                                    if (typeof item === 'object') {
-                                      return Object.entries(item).map(
-                                        ([key2, value2]: any) => (
-                                          <tr key={key2}>
-                                            <td>{'-> ' + key2}</td>
-                                            <td>{value2}</td>
-                                          </tr>
-                                        )
-                                      );
-                                    } else {
-                                      return (
-                                        <tr>
-                                          <td>{'-> ' + index}</td>
-                                          <td>{item}</td>
-                                        </tr>
-                                      );
-                                    }
-                                  })}
-                                </>
-                              );
-                            } else {
-                              return (
-                                <tr
-                                  className={`${
-                                    idx % 2 === 0 && 'bg-gray-600'
-                                  }`}
-                                >
-                                  <td>{key}</td>
-                                  <td>{value}</td>
+                        ([key, value]: any, idx: number) => {
+                          if (Array.isArray(value)) {
+                            return (
+                              <>
+                                <tr>
+                                  <td>{key}:</td>
                                 </tr>
-                              );
-                            }
+                                {value.map((item: any, index: number) => {
+                                  if (typeof item === 'object') {
+                                    return Object.entries(item).map(
+                                      ([key2, value2]: any) => (
+                                        <tr key={key2}>
+                                          <td>{'-> ' + key2}</td>
+                                          <td>{value2}</td>
+                                        </tr>
+                                      )
+                                    );
+                                  } else {
+                                    return (
+                                      <tr>
+                                        <td>{'-> ' + index}</td>
+                                        <td>{item}</td>
+                                      </tr>
+                                    );
+                                  }
+                                })}
+                              </>
+                            );
+                          } else {
+                            return (
+                              <tr
+                                className={`${idx % 2 === 0 && 'bg-gray-600'
+                                  }`}
+                              >
+                                <td>{key}</td>
+                                <td>{value}</td>
+                              </tr>
+                            );
                           }
-                        )
+                        }
+                      )
                       : 'No se ha encontrado metadatos'}
                   </tbody>
                 ) : (

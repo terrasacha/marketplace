@@ -385,7 +385,7 @@ export default function Scripts(props: any) {
 
     // Get category image from IPFS
 
-    const IPFSUrlHash = getIpfsUrlHash(projectData.categoryID);
+    const IPFSUrlHash = getIpfsUrlHash("REDD+");
     const tokenImageUrl = `ipfs://${IPFSUrlHash}`;
 
     // Get Area & location (Hace falta trabajar sobre el seteo de estos datos en Plataforma)

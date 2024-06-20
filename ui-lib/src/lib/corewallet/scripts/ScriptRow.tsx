@@ -5,6 +5,7 @@ import Swal from 'sweetalert2';
 import { ChevronDownIcon } from '../../icons/ChevronDownIcon';
 import { ChevronRightIcon } from '../../icons/ChevronRightIcon';
 import { convertAWSDatetimeToDate } from '@suan/lib/util';
+import { CopyToClipboard } from '../../ui-lib';
 
 interface ScriptRowProps {
   index: number;
@@ -15,7 +16,7 @@ interface ScriptRowProps {
   policyId: string;
   projectID: string;
   active: boolean;
-  tokenGenesis? : boolean
+  tokenGenesis?: boolean
   script_type: string;
   createdAt: string;
   handleOpenMintModal: (policyId: string) => void;
@@ -129,9 +130,8 @@ export default function ScriptRow(props: ScriptRowProps) {
   return (
     <>
       <tr
-        className={`${
-          !active ? 'bg-gray-400' : 'bg-custom-dark'
-        } border-b-8 border-custom-fondo`}
+        className={`${!active ? 'bg-gray-400' : 'bg-custom-dark'
+          } border-b-8 border-custom-fondo`}
       >
         <td className="px-6 py-4">
           <div className="flex space-x-2">
@@ -171,9 +171,8 @@ export default function ScriptRow(props: ScriptRowProps) {
               </button>
               <div
                 id="dropdown"
-                className={`z-10 ${
-                  !isActionsActive && 'hidden'
-                } bg-white divide-y divide-gray-100 rounded-lg shadow w-44 dark:bg-gray-700 absolute mt-2`}
+                className={`z-10 ${!isActionsActive && 'hidden'
+                  } bg-white divide-y divide-gray-100 rounded-lg shadow w-44 dark:bg-gray-700 absolute mt-2`}
               >
                 <ul
                   className="py-2 text-sm text-gray-700 dark:text-gray-200"
@@ -207,9 +206,8 @@ export default function ScriptRow(props: ScriptRowProps) {
                   )}
                   <li>
                     <button
-                      className={`flex w-full px-4 py-2 ${
-                        active ? 'bg-red-600' : 'bg-green-600'
-                      } text-white`}
+                      className={`flex w-full px-4 py-2 ${active ? 'bg-red-600' : 'bg-green-600'
+                        } text-white`}
                       onClick={() => {
                         setIsActionsActive(false);
                         updateScript(policyId);
@@ -242,9 +240,24 @@ export default function ScriptRow(props: ScriptRowProps) {
         <td className="px-6 py-4">{script_type}</td>
         <td className="px-6 py-4">{tokenName}</td>
         <td className="px-6 py-4">{projectID}</td>
-        <td className="px-6 py-4">{policyId}</td>
-        <td className="px-6 py-4">{pbk}</td>
-        <td className="px-6 py-4">{testnetAddr}</td>
+        <td className="px-6 py-4"><div className="flex items-center gap-2"><p className='truncate w-20'>{policyId}</p>
+          <CopyToClipboard
+            iconClassName="h-5 w-5"
+            copyValue={policyId}
+            tooltipLabel="Copiar !"
+          /></div></td>
+        <td className="px-6 py-4"><div className="flex items-center gap-2"><p className='truncate w-20'>{pbk}</p>
+          <CopyToClipboard
+            iconClassName="h-5 w-5"
+            copyValue={pbk}
+            tooltipLabel="Copiar !"
+          /></div></td>
+        <td className="px-6 py-4"><div className="flex items-center gap-2"><p className='truncate w-20'>{testnetAddr}</p>
+          <CopyToClipboard
+            iconClassName="h-5 w-5"
+            copyValue={testnetAddr}
+            tooltipLabel="Copiar !"
+          /></div></td>
       </tr>
       {isChildVisible &&
         childScripts.map((childScript, childIndex) => (
