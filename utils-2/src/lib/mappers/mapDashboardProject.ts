@@ -174,7 +174,6 @@ export async function mapDashboardProject(project: any, projectData: any, projec
     }
     )
     const data = await dataFromQuery.json()
-    console.log(data, 'data171')
     const asset = assetFromSuan.filter((asset: any) => asset.productID === projectId)
     const lineChartData = createLineChartData([{
         //@ts-ignore
@@ -261,7 +260,7 @@ export async function mapDashboardProject(project: any, projectData: any, projec
     const actualTokenPriceUSD = calculateActualTokenPrice(projectData.projectInfo.token.actualPeriodTokenPrice, relevantInfo.tokenCurrency, rates)
     const tokenDeltaPrice = await calculateDeltaPrice(actualProfit, totalTokens, relevantInfo.tokenCurrency, rates)
     const progressproject = projectData.projectInfo.token.actualPeriod && (projectData.projectInfo.token.actualPeriod / projectData.projectInfo.token.historicalData.length) * 100 || "0.0"
-    const totalValueTokensAdas = data * parseInt(assetFromSuan[0].quantity)
+    const totalValueTokensAdas = assetFromSuan[0]?.quantity ? data * parseInt(assetFromSuan[0].quantity) : 0
     const totalValueRate = calcutatePriceRate(relevantInfo.tokenCurrency, rates, totalValueTokensAdas, totalTokens)
     return {
         asset: asset[0],
