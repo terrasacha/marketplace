@@ -61,10 +61,9 @@ export default function DashboardProject(props: any) {
           },
           {
             title: 'Valor total del token en tu portfolio',
-            value: dashboardProjectData.asset,
+            value: `${dashboardProjectData.totalValueRate} ${dashboardProjectData.relevantInfo.tokenCurrency} `,
             image: 'naturaleza',
             rates: dashboardProjectData.rates,
-            extra: 'client',
             tooltipText: 'Valor total de los tokens del proyecto en su billetera'
 
           },
@@ -88,7 +87,6 @@ export default function DashboardProject(props: any) {
           },
         ].map((info, index) => (
           <div key={index} className="lg:col-span-1">
-            {!info.extra ? (
               <DefaultCard
                 title={info.title}
                 value={info.value}
@@ -98,18 +96,6 @@ export default function DashboardProject(props: any) {
                 percentage={info.percentage}
                 tooltipText={info.tooltipText}
               />
-            ) : (
-              <DefaultCardClient
-                title={info.title}
-                value={info.value}
-                rates={info.rates}
-                //@ts-ignore
-                subtitle={info.subtitle}
-                image={info.image}
-                percentage={info.percentage}
-                tooltipText={info.tooltipText}
-              />
-            )}
           </div>
         ))}
       </div>

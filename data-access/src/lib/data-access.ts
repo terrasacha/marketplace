@@ -1549,43 +1549,20 @@ export async function claimToken({ id }: any) {
 
 export async function getPeriodTokenData(tokens_name: Array<string>) {
   try {
-    let tokensToQuery =
-      tokens_name.map((token) => `{value: {eq: "${token}"}}`).join(', ') || '';
+
     const response = await axios.post(
       graphqlEndpoint,
       {
         query: `query MyQuery {
-          listProductFeatures(
-            filter: {
-              featureID: {eq: "GLOBAL_TOKEN_NAME"},
-              or: [${tokensToQuery}]
-            },
-            limit: 1000
-          ) {
-            items {
-              id
-              productID
-              value
-              product {
-                name
-                productFeatures(
-                  filter: {
-                    or: [
-                      {featureID: {eq: "GLOBAL_TOKEN_HISTORICAL_DATA"}},
-                      {featureID: {eq: "GLOBAL_TOKEN_CURRENCY"}}
-                    ]
-                  }
-                ) {
-                  items {
-                    featureID
-                    id
-                    value
-                  }
-                }
-              }
-            }
-          }
-        }`,
+  listTokens {
+    items {
+      tokenName
+      oraclePrice
+      id
+    }
+  }
+}
+`,
       },
       {
         headers: {
@@ -1594,23 +1571,9 @@ export async function getPeriodTokenData(tokens_name: Array<string>) {
       }
     );
 
-    let data = response.data.data.listProductFeatures.items.map((item: any) => {
-      let periods = item.product.productFeatures.items.filter(
-        (pf: any) => pf.featureID === 'GLOBAL_TOKEN_HISTORICAL_DATA'
-      )[0].value;
-      let currency = item.product.productFeatures.items.filter(
-        (pf: any) => pf.featureID === 'GLOBAL_TOKEN_CURRENCY'
-      )[0].value;
-      return {
-        asset_name: item.value,
-        periods,
-        currency,
-        productID: item.productID,
-        productName: item.product.name,
-      };
-    });
-    console.log(data);
-    return data;
+    let tokenData = response.data.data.listTokens.items[0].oraclePrice / 1000000
+    console.log(tokenData, 'tokenData 1575')
+    return tokenData;
   } catch (error) {
     console.log(error);
     return false;
