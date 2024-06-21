@@ -155,14 +155,8 @@ if (process.env['NEXT_PUBLIC_graphqlEndpoint']) {
 } else {
   throw new Error(`Parameter graphqlEndpoint not found`);
 } */
-let s3BucketName: string;
-if (process.env['NEXT_PUBLIC_s3BucketName']) {
-  s3BucketName = process.env['NEXT_PUBLIC_s3BucketName'];
-} else {
-  throw new Error(`Parameter graphqlEndpoint not found`);
-}
 
-export function post(route: string, body = {}) {
+export async function post(route: string, body = {}) {
   return instance
     .post(`${route}`, body)
     .then(({ data }) => {
@@ -1613,7 +1607,6 @@ export async function getPeriodTokenData(tokens_name: Array<string>) {
     );
 
     let tokenData = response.data.data.listTokens.items[0].oraclePrice / 1000000
-    console.log(tokenData, 'tokenData 1575')
     return tokenData;
   } catch (error) {
     console.log(error);

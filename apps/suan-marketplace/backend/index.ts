@@ -62,7 +62,7 @@ export async function confirmSignUpAuth({ username, confirmationCode }: ConfirmS
 
 
 export async function signInAuth({ username, password }: SignInInput) {
-  
+
   try {
     const user = await signIn({ username, password })
     return user
@@ -103,7 +103,7 @@ export async function forgotPasswordSubmit({
   }
 };
 
-export const handleResendCode = async(username:string) => {
+export const handleResendCode = async (username: string) => {
   const {
     destination,
     deliveryMedium,
@@ -115,22 +115,8 @@ const instance = axios.create({
   baseURL: `/api/`,
   withCredentials: true,
 });
-const awsAppSyncApiKey: string = process.env.secrets
-  ? JSON.parse(process.env.secrets).API_KEY_PLATAFORMA
-  : process.env.NEXT_PUBLIC_API_KEY_PLATAFORMA;
-let graphqlEndpoint: string;
-if (process.env.NEXT_PUBLIC_graphqlEndpoint) {
-  graphqlEndpoint = process.env.NEXT_PUBLIC_graphqlEndpoint;
-} else {
-  throw new Error(`Parameter graphqlEndpoint not found`);
-}
-let s3BucketName: string;
-if (process.env.NEXT_PUBLIC_s3BucketName) {
-  s3BucketName = process.env.NEXT_PUBLIC_s3BucketName;
-} else {
-  throw new Error(`Parameter graphqlEndpoint not found`);
-}
-
+const awsAppSyncApiKey: string = "da2-ybsfm4er7rextmyiiylwwjo6au"
+const graphqlEndpoint: string = "https://4iaizxnzbjaajd2qdjnl3dpamm.appsync-api.us-east-1.amazonaws.com/graphql"
 export function post(route: string, body = {}) {
   return instance
     .post(`${route}`, body)
