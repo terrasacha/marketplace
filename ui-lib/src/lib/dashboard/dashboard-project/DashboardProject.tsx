@@ -9,7 +9,10 @@ import { mapDashboardProject } from '@marketplaces/utils-2';
 import ActualUseAndPotentialInfoCard from './ActualUseAndPotentialInfoCard';
 import BlockChainPieChart from './BlockChainPieChart';
 import StackBarGraphComponent from '../../graphs/StackBarGraphComponent';
+import { useRouter } from 'next/router';
+
 export default function DashboardProject(props: any) {
+  const router = useRouter();
   const { walletData } = useContext<any>(WalletContext);
   const { project, projectData, projectId } = props;
   /* const { wallet, connected } = useWallet(); */
@@ -29,6 +32,29 @@ export default function DashboardProject(props: any) {
   if (!dashboardProjectData) return <></>;
   return (
     <div className="bg-[#F4F8F9] h-auto w-full px-5 pt-6">
+      <div className="flex justify-between">
+        <button
+          onClick={() => router.back()}
+          className="flex items-center text-[#287993] text-sm"
+        >
+          <svg
+            className="w-3 h-3 mr-2 text-[#287993]  dark:text-white"
+            aria-hidden="true"
+            xmlns="http://www.w3.org/2000/svg"
+            fill="none"
+            viewBox="0 0 8 14"
+          >
+            <path
+              stroke="currentColor"
+              strokeLinecap="round"
+              strokeLinejoin="round"
+              strokeWidth="2"
+              d="M7 1 1.3 6.326a.91.91 0 0 0 0 1.348L7 13"
+            />
+          </svg>
+          Regresar
+        </button>
+      </div>
       <h2 className="p-4 text-2xl lg:text-3xl font-semibold text-gray-900 dark:text-gray-500">
         {project.name}
       </h2>
@@ -43,8 +69,8 @@ export default function DashboardProject(props: any) {
         {[
           {
             title: 'Total tokens vendidos',
-            value: dashboardProjectData.totalTokensSold
-              ? `${dashboardProjectData.totalTokensSold.toLocaleString(
+            value: dashboardProjectData.tokensSold
+              ? `${dashboardProjectData.tokensSold.toLocaleString(
                   'es-CO'
                 )} `
               : '0',
@@ -56,12 +82,12 @@ export default function DashboardProject(props: any) {
             value: dashboardProjectData.totalTokens || 0,
             percentage:
               dashboardProjectData.relevantInfo.tokenPercentageTokensOwn,
-            tooltipText: 'Cantidad de tokens del proyecto en su billetera'
+            tooltipText: 'Cantidad de tokens del proyecto en su billetera. Porcentaje respecto a la cantidad de tokens distribuidos para inversionistas.'
 
           },
           {
             title: 'Valor total del token en tu portfolio',
-            value: `${dashboardProjectData.totalValueRate} ${dashboardProjectData.relevantInfo.tokenCurrency} `,
+            value: `${dashboardProjectData.totalValueRate} USD `,
             image: 'naturaleza',
             rates: dashboardProjectData.rates,
             tooltipText: 'Valor total de los tokens del proyecto en su billetera'

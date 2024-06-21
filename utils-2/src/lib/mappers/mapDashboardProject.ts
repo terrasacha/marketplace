@@ -10,9 +10,48 @@ async function getPolicyID(productID: string) {
         return null
     }
 }
+const getAvailableTokens = async (
+    spendContractAddress: string,
+    tokenName: string,
+    tokenContractId: string
+) => {
+    const response = await fetch(
+        '/api/calls/backend/getWalletBalanceByAddress',
+        {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify(spendContractAddress),
+        }
+    );
+    const responseData = await response.json();
+
+    console.log('spendData', responseData);
+
+    const spentWalletData = responseData[0];
+
+    if (!spentWalletData) {
+        console.log('Parece que un error ha ocurrido ...');
+    }
+
+    const investorProjectTokensAmount = spentWalletData.assets.reduce(
+        (sum: number, item: any) => {
+            if (
+                item.asset_name === tokenName &&
+                item.policy_id === tokenContractId
+            ) {
+                return sum + parseInt(item.quantity);
+            }
+        },
+        0
+    );
+    return investorProjectTokensAmount;
+};
+
 function calcutatePriceRate(currency: any, rate: any, adaprice: any, quantity: any) {
     const rateProjectCurrency = currency === "COP" ? rate.ADArateCOP : rate.ADArateUSD
-    let total = parseInt(quantity) * adaprice * rateProjectCurrency
+    let total = parseInt(quantity) * adaprice * rate.ADArateUSD
     console.log(total, 'total')
     return total
 }
@@ -235,6 +274,23 @@ export async function mapDashboardProject(project: any, projectData: any, projec
         0
     );
     const tokensToInversionists = getTokensInversionst(project.productFeatures.items)
+    let availableTokens = 0
+    const mintProjectTokenContract = project.scripts.items.find(
+        (script: any) => script.script_type === 'mintProjectToken' && script.Active === true
+    );
+
+    const spendContractFromMintProjectToken = project.scripts.items.find(
+        (script: any) => script.script_type === 'spendProject' && script.Active === true
+    );
+
+    if (mintProjectTokenContract && spendContractFromMintProjectToken) {
+        availableTokens = await getAvailableTokens(
+            spendContractFromMintProjectToken.testnetAddr,
+            mintProjectTokenContract.token_name,
+            mintProjectTokenContract.id
+        );
+    }
+    const tokensSold = totalAmountOfTokens - availableTokens
     let relevantInfo = {
         name: project.name
             .toLowerCase()
@@ -250,7 +306,7 @@ export async function mapDashboardProject(project: any, projectData: any, projec
         tokenTotal: parseInt(actualPeriod?.amount),
         tokenUnits: parseInt(actualPeriod?.amount) - parseInt(totalTokensSold),
         tokenValue: actualPeriod?.price,
-        tokenPercentageSold: ((parseInt(totalTokensSold) * 100) / tokensToInversionists).toFixed(2),
+        tokenPercentageSold: ((tokensSold * 100) / totalAmountOfTokens).toFixed(2),
         tokenPercentageTokensOwn: ((totalTokens * 100) / totalAmountOfTokens).toFixed(2),
         totalAmountOfTokens,
         tokenCurrency: tokenCurrency,
@@ -266,6 +322,7 @@ export async function mapDashboardProject(project: any, projectData: any, projec
         asset: asset[0],
         totalValueRate: totalValueRate.toFixed(2),
         relevantInfo,
+        tokensSold,
         totalAmountOfTokens,
         tokensToInversionists,
         totalTokensSold,
