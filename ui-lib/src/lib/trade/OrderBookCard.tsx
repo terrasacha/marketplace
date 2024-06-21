@@ -49,7 +49,7 @@ export default function OrderBookCard(props: OrderBookCardProps) {
       payload: {
         wallet_id: walletId,
         orderPolicyId:
-          'bec2c2e0f30909ccd1b2e6dcc12ca890a6892d7a0d9553db770e7cea',
+          '22c96d953d493748149c83ae1a1395c194feb1e72be9b8ce7d652534',
         utxo: actualOrder.utxos,
         addresses: [
           {
@@ -65,8 +65,8 @@ export default function OrderBookCard(props: OrderBookCardProps) {
             ],
           },
         ],
+        metadata: {}
       },
-      metadata: {}
     };
 
     console.log('unlockOracleOrderPayload', unlockOracleOrderPayload);
@@ -98,7 +98,7 @@ export default function OrderBookCard(props: OrderBookCardProps) {
       setNewTransactionBuild({
         ...mappedTransactionData,
         postDistributionPayload,
-        scriptId: 'bec2c2e0f30909ccd1b2e6dcc12ca890a6892d7a0d9553db770e7cea',
+        scriptId: '22c96d953d493748149c83ae1a1395c194feb1e72be9b8ce7d652534',
       });
       handleOpenSignTransactionModal();
     } else {
@@ -116,7 +116,7 @@ export default function OrderBookCard(props: OrderBookCardProps) {
       payload: {
         wallet_id: walletId,
         orderPolicyId:
-          'bec2c2e0f30909ccd1b2e6dcc12ca890a6892d7a0d9553db770e7cea',
+          '22c96d953d493748149c83ae1a1395c194feb1e72be9b8ce7d652534',
         utxo: actualOrder.utxos,
         addresses: [
           {
@@ -188,7 +188,7 @@ export default function OrderBookCard(props: OrderBookCardProps) {
       setNewTransactionBuild({
         ...mappedTransactionData,
         postDistributionPayload,
-        scriptId: 'bec2c2e0f30909ccd1b2e6dcc12ca890a6892d7a0d9553db770e7cea',
+        scriptId: '22c96d953d493748149c83ae1a1395c194feb1e72be9b8ce7d652534',
       });
       handleOpenSignTransactionModal();
     } else {

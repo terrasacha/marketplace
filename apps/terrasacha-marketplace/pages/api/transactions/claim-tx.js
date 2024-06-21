@@ -4,9 +4,8 @@ export default async function handler(req, res) {
       const payload = req.body; // Utiliza req.body en lugar de req.query para obtener datos del cuerpo de la solicitud
 
       const claim_redeemer = payload.claim_redeemer;
-      const admin_id = payload.admin_id;
 
-      const url = `${process.env.NEXT_PUBLIC_TRAZABILIDAD_ENDPOINT}/api/v1/transactions/claim-tx/${claim_redeemer}?admin_id=${admin_id}`;
+      const url = `${process.env.NEXT_PUBLIC_TRAZABILIDAD_ENDPOINT}/api/v1/transactions/claim-tx/${claim_redeemer}`;
 
       const response = await fetch(url, {
         method: 'POST',

@@ -27,7 +27,7 @@ export function TokenDetailSection({
           <img
             src={tokenImageUrl}
             alt="Imagen desde IPFS"
-            className="animate-pulse"
+            className=""
             width={200}
             height={200}
           ></img>

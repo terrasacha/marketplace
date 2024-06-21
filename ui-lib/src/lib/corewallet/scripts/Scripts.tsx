@@ -53,9 +53,6 @@ export default function Scripts(props: any) {
 
   const handleOpenSignTransactionModal = () => {
     setSignTransactionModal(!signTransactionModal);
-    if (!signTransactionModal === false) {
-      toast.error('Tokens no enviados ...');
-    }
   };
 
   const handleDeleteScript = async (
@@ -402,7 +399,7 @@ export default function Scripts(props: any) {
       Categoria: projectData.categoryID,
       'Fecha de creación': projectData.createdAt,
       Descripción: projectData.description,
-      Ubicación: '0 0 0 0', // Tarea: almacenar coordenadas de centroide
+      //Ubicación: '0 0 0 0', // Tarea: almacenar coordenadas de centroide
       files: [
         {
           src: tokenImageUrl,

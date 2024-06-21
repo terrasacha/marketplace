@@ -3,9 +3,9 @@ export default async function handler(req, res) {
     try {
       const payload = req.body; // Utiliza req.body en lugar de req.query para obtener datos del cuerpo de la solicitud
 
-      const claim_redeemer = payload.claim_redeemer;
+      const order_side = payload.order_side;
 
-      const url = `${process.env.NEXT_PUBLIC_TRAZABILIDAD_ENDPOINT}/api/v1/transactions/claim-tx/${claim_redeemer}`;
+      const url = `${process.env.NEXT_PUBLIC_TRAZABILIDAD_ENDPOINT}/api/v1/transactions/unlock-order/${order_side}`;
 
       const response = await fetch(url, {
         method: 'POST',
