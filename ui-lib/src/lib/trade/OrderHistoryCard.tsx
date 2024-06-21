@@ -54,7 +54,7 @@ export default function TradeCard(props: OrderHistoryCardProps) {
       payload: {
         wallet_id: walletId,
         orderPolicyId:
-          'bec2c2e0f30909ccd1b2e6dcc12ca890a6892d7a0d9553db770e7cea',
+          '22c96d953d493748149c83ae1a1395c194feb1e72be9b8ce7d652534',
         utxo: actualOrder.utxos,
         addresses: [
           {
@@ -103,7 +103,7 @@ export default function TradeCard(props: OrderHistoryCardProps) {
       setNewTransactionBuild({
         ...mappedTransactionData,
         postDistributionPayload,
-        scriptId: 'bec2c2e0f30909ccd1b2e6dcc12ca890a6892d7a0d9553db770e7cea',
+        scriptId: '22c96d953d493748149c83ae1a1395c194feb1e72be9b8ce7d652534',
       });
       handleOpenSignTransactionModal();
     } else {
@@ -138,7 +138,7 @@ export default function TradeCard(props: OrderHistoryCardProps) {
                 Mis Ordenes
               </a>
             </li>
-            <li className="me-2">
+{/*             <li className="me-2">
               <a
                 href="#"
                 className={`inline-block p-4 border-b-2 rounded-t-lg ${activeTab === 'my_orders_history'
@@ -150,7 +150,7 @@ export default function TradeCard(props: OrderHistoryCardProps) {
               >
                 Mis Compras
               </a>
-            </li>
+            </li> */}
           </ul>
         </div>
         <Card.Body>
