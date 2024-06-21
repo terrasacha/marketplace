@@ -75,7 +75,7 @@ export default function DashboardProject(props: any) {
                 )} `
               : '0',
             percentage: dashboardProjectData.relevantInfo.tokenPercentageSold,
-            tooltipText: 'Cantidad de tokens vendidos del proyecto'
+            tooltipText: 'Cantidad de tokens vendidos del proyecto a inversionistas'
           },
           {
             title: 'Tokens propios',

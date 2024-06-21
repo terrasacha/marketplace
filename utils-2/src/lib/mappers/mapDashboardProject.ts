@@ -290,7 +290,7 @@ export async function mapDashboardProject(project: any, projectData: any, projec
             mintProjectTokenContract.id
         );
     }
-    const tokensSold = totalAmountOfTokens - availableTokens
+    const tokensSold = tokensToInversionists - availableTokens
     let relevantInfo = {
         name: project.name
             .toLowerCase()
@@ -306,7 +306,7 @@ export async function mapDashboardProject(project: any, projectData: any, projec
         tokenTotal: parseInt(actualPeriod?.amount),
         tokenUnits: parseInt(actualPeriod?.amount) - parseInt(totalTokensSold),
         tokenValue: actualPeriod?.price,
-        tokenPercentageSold: ((tokensSold * 100) / totalAmountOfTokens).toFixed(2),
+        tokenPercentageSold: ((tokensSold * 100) / tokensToInversionists).toFixed(2),
         tokenPercentageTokensOwn: ((totalTokens * 100) / totalAmountOfTokens).toFixed(2),
         totalAmountOfTokens,
         tokenCurrency: tokenCurrency,
