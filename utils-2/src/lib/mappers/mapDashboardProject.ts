@@ -153,7 +153,7 @@ const getRates = async () => {
     return dataFormatted
 }
 export async function mapDashboardProject(project: any, projectData: any, projectId: string, walletData: any) {
-    console.log('project', projectData)
+    console.log('project', project)
     const projectPolicyID = await getPolicyID(projectData.projectInfo.id)
     console.log(projectPolicyID, 'projectPolicyID')
     const rates = await getRates()
