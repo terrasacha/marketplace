@@ -408,6 +408,7 @@ export default function PaymentPage({}) {
       cancelButtonText: 'Cancelar',
     }).then(async (result) => {
       if (result.isConfirmed) {
+        const { userId } = await getCurrentUser();
         // Crear orden de compra en base de datos
         // Calcular precio
 
@@ -425,15 +426,11 @@ export default function PaymentPage({}) {
           tokenName: projectInfo.token.tokenName,
           currency: projectInfo.tokenCurrency,
           productID: projectInfo.projectID,
-          userID: null,
+          userID: userId,
           walletAddress: walletAddress,
           walletStakeAddress: walletStakeAddress,
           exchangeRate: currencyToCryptoRate,
         };
-
-        if (userId) {
-          payload.userID = userId;
-        }
 
         const response = await fetch('/api/calls/backend/createPayment', {
           method: 'POST',
@@ -503,7 +500,6 @@ export default function PaymentPage({}) {
       // Evaluar si el valor de los adas que le llegan al beneficiario es mayor o igual del numero de tokens * precio
       const payload = {
         claim_redeemer: 'Buy',
-        admin_id: '575a7f01272dd95a9ba2696e9e3d4895fe39b12350f7fa88a301b3ad',
         payload: {
           wallet_id: walletID,
           spendPolicyId: spendContractFromMintProjectToken.id,

@@ -597,6 +597,17 @@ export async function getPendingTokensForClaiming(userId: string) {
             tokenName
             tokenAmount
             statusCode
+            product {
+              scripts {
+                items {
+                  id
+                  script_type
+                  token_name
+                  testnetAddr
+                  Active
+                }
+              }
+            }
           }
         }
       }`,
@@ -951,7 +962,6 @@ export async function validateUser(userId: string, step: string) {
   const mutation = `mutation UpdateUser($input: UpdateUserInput!) {
     updateUser(input: $input) {
       id
-      isValidated
     }
   }`;
 
@@ -1008,7 +1018,6 @@ export async function verifyWallet(stakeAddress: string) {
 export async function getWalletByUser(userId: string): Promise<any> {
   let output = '';
   let response = '';
-  console.log(process.env["NEXT_PUBLIC_graphqlEndpoint"])
 
   try {
     response = await axios.post(
@@ -1035,7 +1044,6 @@ export async function getWalletByUser(userId: string): Promise<any> {
         },
       }
     );
-    console.log(response)
     //@ts-ignore
     output = response.data.data.getUser?.wallets?.items || [];
   } catch (error) {
@@ -1354,11 +1362,44 @@ export async function updatePayment({ id, ref, statusCode }: any) {
 
     return response.data;
   } catch (error) {
-    console.error('Error updating product:', error);
+    console.error('Error updating payment:', error);
     return false;
   }
 }
 
+
+export async function updatePaymentClaimedStatus({ id, claimedByUser }: any) {
+  try {
+    const response = await axios.post(
+      graphqlEndpoint,
+      {
+        query: `
+          mutation UpdatePayment($input: UpdatePaymentInput!) {
+            updatePayment(input: $input) {
+              id
+            }
+          }
+        `,
+        variables: {
+          input: {
+            id: id,
+            claimedByUser: claimedByUser,
+          },
+        },
+      },
+      {
+        headers: {
+          'x-api-key': awsAppSyncApiKey,
+        },
+      }
+    );
+
+    return response.data;
+  } catch (error) {
+    console.error('Error updating payment:', error);
+    return false;
+  }
+}
 export async function createPayment({
   id,
   orderType,
@@ -2012,7 +2053,6 @@ export async function getOrdersList(
         nextToken
       }
     }`;
-    console.log("query", query)
 
     const response = await axios.post(
       graphqlEndpoint,

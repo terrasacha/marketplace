@@ -219,7 +219,48 @@ export default function SignTransaction(props: SignTransactionProps) {
 
         const updateOrderResponseData = await updateOrderResponse.json();
 
-        console.log('Creación de la orden:', updateOrderResponseData);
+        console.log('Actualizacion de la orden:', updateOrderResponseData);
+      } catch (error) {
+        console.error('Error:', error);
+      }
+    }
+
+    return signSubmitResponse;
+  };
+
+  const handleSignTransactionUnlockOrderPayment = async () => {
+    const confirmSubmitData = {
+      wallet_id: pendingTx.walletId,
+      cbor: pendingTx.cbor,
+      scriptIds: [pendingTx.scriptId],
+      metadata_cbor: pendingTx.metadata_cbor,
+      redeemers_cbor: [pendingTx.redeemer_cbor],
+    };
+    const response = await fetch('/api/transactions/sign-submit', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify(confirmSubmitData),
+    });
+    const signSubmitResponse = await response.json();
+    console.log('Firmado de transacción: ', signSubmitResponse);
+
+    if (signSubmitResponse?.txSubmit?.success) {
+      try {
+        const [updatePaymentResponse] = await Promise.all([
+          fetch('/api/calls/backend/updatePaymentClaimedStatus', {
+            method: 'POST',
+            headers: {
+              'Content-Type': 'application/json',
+            },
+            body: JSON.stringify(pendingTx.postDistributionPayload.updatePayment),
+          }),
+        ]);
+
+        const updatePaymentResponseData = await updatePaymentResponse.json();
+
+        console.log('Actualizacion de el pago:', updatePaymentResponseData);
       } catch (error) {
         console.error('Error:', error);
       }
@@ -241,6 +282,8 @@ export default function SignTransaction(props: SignTransactionProps) {
 
     let signSubmitResponse;
 
+    console.log("pendingTx", pendingTx)
+
     if (signType === 'distributeTokens') {
       signSubmitResponse = await handleSignTransactionDistributeTokens();
     }
@@ -261,8 +304,12 @@ export default function SignTransaction(props: SignTransactionProps) {
       signSubmitResponse = await handleSignTransactionUnlockOrder();
     }
 
+    if (signType === 'unlockOrderPayment') {
+      signSubmitResponse = await handleSignTransactionUnlockOrderPayment();
+    }
+
     // Crear transacción
-    
+
 
     if (signSubmitResponse?.txSubmit?.success) {
       handleOpenSignTransactionModal();
@@ -302,10 +349,9 @@ export default function SignTransaction(props: SignTransactionProps) {
           <input
             type="password"
             aria-invalid="false"
-            className={`bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded focus:ring-blue-500 focus:border-blue-500 block w-full ps-10 p-2.5 ${
-              passwordError &&
+            className={`bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded focus:ring-blue-500 focus:border-blue-500 block w-full ps-10 p-2.5 ${passwordError &&
               'border-2 border-red-500 focus:ring-red-500 focus:border-red-500'
-            }`}
+              }`}
             autoComplete="off"
             placeholder="Ingresa la contraseña de tu wallet"
             required

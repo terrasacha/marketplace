@@ -44,6 +44,7 @@ export default function CreateOrderCard(props: CreateOrderCardProps) {
 
   const [newTransactionBuild, setNewTransactionBuild] = useState<any>(null);
   const [signTransactionModal, setSignTransactionModal] = useState(false);
+  const [selectedAssetAmount, setSelectedAssetAmount] = useState(null);
 
   /* useEffect(() => {
     const getMinLovelace
@@ -93,6 +94,7 @@ export default function CreateOrderCard(props: CreateOrderCardProps) {
         const asset = userAssetList?.find(
           (asset: any) => asset.policy_id === parsedValue
         );
+        setSelectedAssetAmount(asset.quantity)
         return {
           ...prevState,
           [key]: asset.asset_name,
@@ -132,7 +134,7 @@ export default function CreateOrderCard(props: CreateOrderCardProps) {
       payload: {
         wallet_id: walletId,
         orderPolicyId:
-          'bec2c2e0f30909ccd1b2e6dcc12ca890a6892d7a0d9553db770e7cea',
+          '22c96d953d493748149c83ae1a1395c194feb1e72be9b8ce7d652534',
         tokenA: {
           policy_id: newOrder.assetPolicyId,
           token_name: newOrder.asset,
@@ -169,7 +171,7 @@ export default function CreateOrderCard(props: CreateOrderCardProps) {
       const postDistributionPayload = {
         createOrder: {
           walletID: walletId,
-          scriptID: 'bec2c2e0f30909ccd1b2e6dcc12ca890a6892d7a0d9553db770e7cea',
+          scriptID: '22c96d953d493748149c83ae1a1395c194feb1e72be9b8ce7d652534',
           utxos: buildTxResponse.build_tx.tx_id,
           tokenPolicyId: newOrder.assetPolicyId,
           tokenName: newOrder.asset,
@@ -227,24 +229,33 @@ export default function CreateOrderCard(props: CreateOrderCardProps) {
               </select>
             </div>
             <div>
-              <label htmlFor="countries" className="block mb-2 text-gray-900">
+              <label htmlFor="adas" className="block mb-2 text-gray-900">
                 Cantidad
               </label>
-              <input
-                id="adas"
-                type="text"
-                aria-invalid="false"
-                className={`bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 ${error.quantityError &&
-                  'border-red-500 focus:ring-red-500 focus:border-red-500'
-                  }`}
-                autoComplete="off"
-                placeholder="0"
-                value={newOrder.quantity}
-                onInput={(e) =>
-                  handleSetNewOrder('quantity', e.currentTarget.value)
+              <div className="relative w-full">
+                <input
+                  id="adas"
+                  type="text"
+                  aria-invalid="false"
+                  className={`bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded focus:ring-blue-500 focus:border-blue-500 block w-full pr-16 p-2.5 ${error.quantityError &&
+                    'border-red-500 focus:ring-red-500 focus:border-red-500'
+                    }`}
+                  autoComplete="off"
+                  placeholder="0"
+                  value={newOrder.quantity}
+                  onInput={(e) =>
+                    handleSetNewOrder('quantity', e.currentTarget.value)
+                  }
+                  required
+                />
+                {
+                  newOrder.asset && (
+                    <div className="absolute inset-y-0 end-0 flex items-center pe-3.5 pointer-events-none">
+                      Máx: {selectedAssetAmount}
+                    </div>
+                  )
                 }
-                required
-              />
+              </div>
               {error.quantityError && (
                 <div className="flex justify-end">
                   <p className="text-red-500 text-xs mt-1">
@@ -253,6 +264,7 @@ export default function CreateOrderCard(props: CreateOrderCardProps) {
                 </div>
               )}
             </div>
+
             <div>
               <label htmlFor="countries" className="block mb-2 text-gray-900">
                 Por un valor de
@@ -276,6 +288,7 @@ export default function CreateOrderCard(props: CreateOrderCardProps) {
                 />
               </div>
             </div>
+
             {/* Resumen de orden */}
             {/* <div className="flex-col pt-10">
               <div className="flex justify-between mb-2">
