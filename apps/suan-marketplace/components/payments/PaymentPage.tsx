@@ -92,7 +92,8 @@ export default function PaymentPage({}) {
   }
   const blockfrostProvider = new BlockfrostProvider(blockFrostKeysPreview);
   console.log('projectInfo', projectInfo);
-  const IPFSUrlHash = getIpfsUrlHash(projectInfo.categoryID);
+  // const IPFSUrlHash = getIpfsUrlHash(projectInfo.categoryID);
+  const IPFSUrlHash = getIpfsUrlHash("REDD+");
 
   const tokenImageUrl = `https://coffee-dry-barnacle-850.mypinata.cloud/ipfs/${IPFSUrlHash}`;
   console.log('tokenImageUrl', tokenImageUrl);
