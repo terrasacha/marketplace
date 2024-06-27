@@ -187,19 +187,19 @@ const MainLayout = ({ children }: PropsWithChildren) => {
     }
     return walletInfoOnDB;
   };
-  const handleSidebarClose = () => {
-    setIsOpen(false);
+  const handleSidebarStatus = () => {
+    setIsOpen(!isOpen);
   };
 
   return (
     <>
       {allowAccess ? (
         <>
-          <Navbar walletInfo={walletInfo} />
+          <Navbar walletInfo={walletInfo} handleSidebarStatus={handleSidebarStatus}/>
           <Sidebar
             isOpen={isOpen}
             balance={balance}
-            onClose={handleSidebarClose}
+            onClose={handleSidebarStatus}
             user={user}
             appName="Suan"
             image="/images/home-page/suan_logo.png"

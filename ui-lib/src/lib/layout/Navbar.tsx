@@ -8,9 +8,10 @@ const ModalProfileUser = dynamic(() => import('../modals/ModalProfileUser'));
 
 interface NavbarProps {
   walletInfo: any;
+  handleSidebarStatus: () => void;
 }
 export default function Navbar(props: NavbarProps) {
-  const { walletInfo } = props;
+  const { walletInfo, handleSidebarStatus } = props;
   const [isSidebarOpen, setIsSidebarOpen] = useState(false);
   const [showprofile, setShowProfile] = useState<any>(null);
   const [showModal, setShowModal] = useState(false);
@@ -56,7 +57,7 @@ export default function Navbar(props: NavbarProps) {
           <div className="flex items-center justify-between py-2">
             <div className="flex items-center justify-start">
               <button
-                onClick={toggleSidebar}
+                onClick={handleSidebarStatus}
                 aria-controls="logo-sidebar"
                 type="button"
                 className="inline-flex items-center p-2 text-sm text-gray-500 rounded-lg lg:hidden hover:bg-gray-100 focus:outline-none focus:ring-2 focus:ring-gray-200 dark:text-gray-400 dark:hover:bg-gray-700 dark:focus:ring-gray-600"
