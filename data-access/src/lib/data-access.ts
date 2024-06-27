@@ -959,10 +959,9 @@ export async function validateUserStep2(userId: string) {
       graphqlEndpoint,
       {
         query: `
-        mutation UpdateWallet($input: UpdateWalletInput!) {
-          updateWallet(input: $input) {
+        mutation UpdateUser($input: UpdateUserInput!) {
+          updateUser(input: $input) {
             id
-            claimed_token
           }
         }
       `,
