@@ -143,8 +143,9 @@ const instance = axios.create({
   baseURL: `/api/`,
   withCredentials: true,
 });
-let graphqlEndpoint = "https://4iaizxnzbjaajd2qdjnl3dpamm.appsync-api.us-east-1.amazonaws.com/graphql"
-let awsAppSyncApiKey = "da2-ybsfm4er7rextmyiiylwwjo6au"
+let graphqlEndpoint =
+  'https://4iaizxnzbjaajd2qdjnl3dpamm.appsync-api.us-east-1.amazonaws.com/graphql';
+let awsAppSyncApiKey = 'da2-ybsfm4er7rextmyiiylwwjo6au';
 /* if (process.env['NEXT_PUBLIC_API_KEY_PLATAFORMA']) {
   awsAppSyncApiKey = process.env['NEXT_PUBLIC_API_KEY_PLATAFORMA'];
 } else {
@@ -327,8 +328,8 @@ export async function getProjects() {
         },
       }
     );
-    console.log(awsAppSyncApiKey, 'awsAppSyncApiKey')
-    console.log(graphqlEndpoint, 'graphqlEndpoint')
+    console.log(awsAppSyncApiKey, 'awsAppSyncApiKey');
+    console.log(graphqlEndpoint, 'graphqlEndpoint');
     let validProducts = response.data.data.listProducts.items.filter(
       (product: any) => {
         let countFeatures = product.productFeatures.items.reduce(
@@ -952,29 +953,36 @@ export async function isValidUser(userId: string) {
   return false;
 }
 
-export async function validateUser(userId: string, step: string) {
-  const mutation = `mutation UpdateUser($input: UpdateUserInput!) {
-    updateUser(input: $input) {
-      id
-    }
-  }`;
-
-  const variables: any = { input: { id: userId } };
-
-  if (step === '1') {
-    variables.input.isValidatedStep1 = true;
-  } else if (step === '2') {
-    variables.input.isValidatedStep2 = true;
-  }
-
+export async function validateUserStep2(userId: string) {
   try {
-    const response = await axios.post(graphqlEndpoint, {
-      query: mutation,
-      variables,
-      headers: { 'x-api-key': awsAppSyncApiKey },
-    });
+    const response = await axios.post(
+      graphqlEndpoint,
+      {
+        query: `
+        mutation UpdateWallet($input: UpdateWalletInput!) {
+          updateWallet(input: $input) {
+            id
+            claimed_token
+          }
+        }
+      `,
+        variables: {
+          input: {
+            id: userId,
+            isValidatedStep2: true,
+          },
+        },
+      },
+      {
+        headers: {
+          'x-api-key': awsAppSyncApiKey,
+        },
+      }
+    );
+
     return response;
-  } catch {
+  } catch (error) {
+    console.log(error);
     return false;
   }
 }
@@ -1361,7 +1369,6 @@ export async function updatePayment({ id, ref, statusCode }: any) {
   }
 }
 
-
 export async function updatePaymentClaimedStatus({ id, claimedByUser }: any) {
   try {
     const response = await axios.post(
@@ -1584,7 +1591,6 @@ export async function claimToken({ id }: any) {
 
 export async function getPeriodTokenData(tokens_name: Array<string>) {
   try {
-
     const response = await axios.post(
       graphqlEndpoint,
       {
@@ -1606,7 +1612,8 @@ export async function getPeriodTokenData(tokens_name: Array<string>) {
       }
     );
 
-    let tokenData = response.data.data.listTokens.items[0].oraclePrice / 1000000
+    let tokenData =
+      response.data.data.listTokens.items[0].oraclePrice / 1000000;
     return tokenData;
   } catch (error) {
     console.log(error);
@@ -1941,7 +1948,6 @@ export async function validatePassword(
 }
 
 export async function listTokens() {
-
   // Get categories only with projects created
   const response = await axios.post(
     graphqlEndpoint,
@@ -1975,11 +1981,11 @@ export async function getOrdersList(
   try {
     const filterConditions = [];
 
-    if (filterByWalletId !== null && filterByWalletId !== "") {
+    if (filterByWalletId !== null && filterByWalletId !== '') {
       filterConditions.push(`walletID: {eq: "${filterByWalletId}"}`);
     }
 
-    if (filterByStatusCode !== null && filterByStatusCode !== "") {
+    if (filterByStatusCode !== null && filterByStatusCode !== '') {
       filterConditions.push(`statusCode: {eq: "${filterByStatusCode}"}`);
     }
 
