@@ -55,6 +55,7 @@ export default function TransactionShort(props: TransactionsProps) {
       stake: walletStakeAddress,
       skip: page * txPerPage - txPerPage,
       limit: txPerPage,
+      all: false
     };
     const response = await fetch('/api/transactions/account-tx', {
       method: 'POST',
