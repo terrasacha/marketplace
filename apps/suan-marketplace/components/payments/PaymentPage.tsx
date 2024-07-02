@@ -93,7 +93,7 @@ export default function PaymentPage({}) {
   const blockfrostProvider = new BlockfrostProvider(blockFrostKeysPreview);
   console.log('projectInfo', projectInfo);
   // const IPFSUrlHash = getIpfsUrlHash(projectInfo.categoryID);
-  const IPFSUrlHash = getIpfsUrlHash("REDD+");
+  const IPFSUrlHash = getIpfsUrlHash('REDD+');
 
   const tokenImageUrl = `https://coffee-dry-barnacle-850.mypinata.cloud/ipfs/${IPFSUrlHash}`;
   console.log('tokenImageUrl', tokenImageUrl);
@@ -606,6 +606,12 @@ export default function PaymentPage({}) {
         setNewTransactionBuild({
           ...mappedTransactionData,
           scriptId: actualScriptId,
+          postDistributionPayload: {
+            projectId: projectInfo.projectID,
+            projectName: projectInfo.projectName,
+            tokenName: projectInfo.token.tokenName,
+            tokenAmount: parseInt(tokenAmount),
+          },
         });
         handleOpenSignTransactionModal();
       } else {

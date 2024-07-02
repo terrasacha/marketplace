@@ -291,6 +291,7 @@ export default function SignTransaction(props: SignTransactionProps) {
     }
 
     if (signType === 'buyTokens') {
+      const data = pendingTx.postDistributionPayload // Esta variable contiene la info almacenada en  --> PaymentPage:609
       signSubmitResponse = await handleSignTransactionBuyTokens();
     }
 
