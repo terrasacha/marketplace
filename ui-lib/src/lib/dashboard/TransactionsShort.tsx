@@ -142,7 +142,7 @@ export default function TransactionShort(props: TransactionsProps) {
 
   useEffect(() => {
     if (pendingTransaction) {
-      setTimeout(checkTxConfirmations, 5000);
+      setTimeout(checkTxConfirmations, 20000);
     }
   }, [pendingTransaction]);
 

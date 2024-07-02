@@ -134,23 +134,25 @@ export function WalletContextProvider({
     const interval = setInterval(async () => {
       const walletData = await fetchWalletData();
 
-      const newBalance = walletData.balance;
-      console.log('prevBalance', prevBalance);
-      console.log('newBalance', newBalance);
-      console.log('walletDataUpdate', walletData);
-      if (prevBalance !== newBalance && prevBalance !== null) {
-        setBalanceChanged(newBalance - prevBalance);
+      if (walletData) {
+        const newBalance = walletData.balance;
+        console.log('prevBalance', prevBalance);
+        console.log('newBalance', newBalance);
+        console.log('walletDataUpdate', walletData);
+        if (prevBalance !== newBalance && prevBalance !== null) {
+          setBalanceChanged(newBalance - prevBalance);
 
-        /* const sound = new Howl({
-          src: ['path/to/your/sound/file.mp3'],
-        });
-        sound.play(); */
+          /* const sound = new Howl({
+            src: ['path/to/your/sound/file.mp3'],
+          });
+          sound.play(); */
 
-        setTimeout(() => {
-          setBalanceChanged(0);
-        }, 2000);
+          setTimeout(() => {
+            setBalanceChanged(0);
+          }, 2000);
+        }
+        setPrevBalance(newBalance);
       }
-      setPrevBalance(newBalance);
     }, 30000);
 
     return () => clearInterval(interval);
