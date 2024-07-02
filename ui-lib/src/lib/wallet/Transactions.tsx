@@ -1,7 +1,7 @@
 import { useContext, useEffect, useState } from 'react';
-import Card from '../common/Card'
-import LoadingOverlay from '../common/LoadingOverlay'
-import { RefreshIcon } from '../icons/RefreshIcon'
+import Card from '../common/Card';
+import LoadingOverlay from '../common/LoadingOverlay';
+import { RefreshIcon } from '../icons/RefreshIcon';
 import TransactionInfoCard from '../wallet/sign-transaction/TransactionInfoCard';
 import {
   WalletContext,
@@ -16,7 +16,7 @@ interface TransactionsProps {
 
 export default function Transactions(props: TransactionsProps) {
   const { txPerPage } = props;
-  const { walletStakeAddress, walletData, fetchWalletData } =
+  const { walletStakeAddress, walletData, fetchWalletData, balanceChanged } =
     useContext<any>(WalletContext);
   const [transactionsList, setTransactionsList] = useState<Array<any>>([]);
   const [isLoading, setIsLoading] = useState<boolean>(false);
@@ -31,7 +31,8 @@ export default function Transactions(props: TransactionsProps) {
   const router = useRouter();
 
   useEffect(() => {
-    const pendingTx = router.query.pendingTx;
+    /* const pendingTx = router.query.pendingTx; */
+    const pendingTx = localStorage.getItem('pendingTx');
     const currentDate = new Date();
 
     if (pendingTx && typeof pendingTx === 'string') {
@@ -54,6 +55,12 @@ export default function Transactions(props: TransactionsProps) {
     getTransactionsData();
   }, [router]);
 
+  useEffect(() => {
+    if (balanceChanged !== 0) {
+      getTransactionsData();
+    }
+  }, [balanceChanged]);
+
   const getTransactionsData = async (page: number = 1) => {
     setIsLoading(true);
     await fetchWalletData();
@@ -61,7 +68,7 @@ export default function Transactions(props: TransactionsProps) {
       stake: walletStakeAddress,
       skip: page * txPerPage - txPerPage,
       limit: txPerPage,
-      all: false
+      all: false,
     };
     const response = await fetch('/api/transactions/account-tx', {
       method: 'POST',
@@ -90,8 +97,6 @@ export default function Transactions(props: TransactionsProps) {
   };
 
   const checkTxConfirmations = async () => {
-    console.log('pendingTransaction', pendingTransaction);
-
     if (pendingTransaction) {
       const pendingTransactionItemRequest = await fetch(
         '/api/helpers/tx-status',
@@ -117,6 +122,7 @@ export default function Transactions(props: TransactionsProps) {
           tx_confirmation_n: responseData[0].num_confirmations || 0,
         }));
       } else {
+        localStorage.removeItem('pendingTx');
         setPendingTransaction(null);
         await getTransactionsData();
         // setTransactionsList((prevState) => [

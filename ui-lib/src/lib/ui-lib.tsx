@@ -78,6 +78,7 @@ import { TransferInIcon } from './icons/TransferInIcon';
 import { SearchIcon } from './icons/SearchIcon';
 import { RefreshIcon } from './icons/RefreshIcon';
 import { XIcon } from './icons/XIcon';
+import { SquareArrowUpIcon } from './icons/SquareArrowUpIcon';
 import ItemsDashboard from './dashboard/MainItemsDashboard';
 import TransactionsTable from './dashboard/TransactionsTable';
 import DetailItems from './dashboard/DetailItems';
@@ -166,6 +167,7 @@ export {
   SearchIcon,
   RefreshIcon,
   XIcon,
+  SquareArrowUpIcon,
   ItemsDashboard,
   TransactionsTable,
   DetailItems,

@@ -10,6 +10,7 @@ import { MarketIcon } from '../icons/MarketIcon';
 import { ScaleIcon } from '../icons/ScaleIcon';
 import WalletIcon from '../icons/WalletIcon';
 import { WalletContext } from '@marketplaces/utils-2';
+import { LoadingIcon, SquareArrowUpIcon } from '../ui-lib';
 
 interface SidebarProps {
   isOpen: boolean;
@@ -34,7 +35,8 @@ export default function Sidebar(props: SidebarProps) {
     poweredBy,
     balance,
   } = props;
-  const { walletAdmin } = useContext<any>(WalletContext);
+  const { walletAdmin, isLoading, lastSyncDate, balanceChanged } =
+    useContext<any>(WalletContext);
   const router = useRouter();
   const { wallet, connected } = useWallet();
   const [walletStakeID, setWalletStakeID] = useState<any>(undefined);
@@ -42,6 +44,9 @@ export default function Sidebar(props: SidebarProps) {
   const sidebarRef = useRef<HTMLDivElement | null>(null);
   const [displayWalletOptions, setDisplayWalletOptions] = useState(false);
   const [displayMarketOptions, setDisplayMarketOptions] = useState(false);
+  const [syncedAgo, setSyncedAgo] = useState<number>(0);
+  const [changeOnBalanceDetected, setChangeOnBalanceDetected] =
+    useState<boolean>(false);
 
   useEffect(() => {
     const handleClickOutside = (event: MouseEvent) => {
@@ -72,6 +77,34 @@ export default function Sidebar(props: SidebarProps) {
     }
   }, [connected]);
 
+  useEffect(() => {
+    if (balanceChanged !== 0) {
+      setChangeOnBalanceDetected(true);
+
+      setTimeout(() => {
+        setChangeOnBalanceDetected(false);
+      }, 4000);
+    }
+  }, [balanceChanged]);
+
+  useEffect(() => {
+    // Fecha almacenada (ejemplo: 1 de julio de 2024)
+
+    const calcularTiempo = () => {
+      const fechaActual = Date.now();
+      const diferencia = Math.floor((fechaActual - lastSyncDate) / 1000);
+
+      setSyncedAgo(diferencia);
+    };
+
+    // Calcular el tiempo inmediatamente y luego cada segundo
+    calcularTiempo();
+    const intervalo = setInterval(calcularTiempo, 1000);
+
+    // Limpiar el intervalo cuando el componente se desmonte
+    return () => clearInterval(intervalo);
+  }, [lastSyncDate]);
+
   async function loadUserData() {
     const addresses = await wallet.getRewardAddresses();
     setWalletStakeID(addresses[0]);
@@ -85,7 +118,7 @@ export default function Sidebar(props: SidebarProps) {
     <aside
       ref={sidebarRef}
       id="logo-sidebar"
-      className={`fixed top-0 left-0 z-40 w-80 h-screen transition-transform lg:translate-x-0  ${
+      className={`fixed top-0 left-0 z-50 w-80 h-screen transition-transform lg:translate-x-0  ${
         isOpen ? 'translate-x-0' : '-translate-x-full'
       }`}
     >
@@ -103,10 +136,32 @@ export default function Sidebar(props: SidebarProps) {
 
         <div className="pt-4 border-t border-gray-200"></div>
         <div>
-          <label htmlFor="website-admin" className="block text-sm text-black">
-            Tu saldo
+          <label className="block text-sm text-black">Tu saldo</label>
+          <h3
+            className={`text-lg truncate ${
+              changeOnBalanceDetected
+                ? balanceChanged >= 0
+                  ? 'balance-changed-positive'
+                  : 'balance-changed-negative'
+                : 'text-black'
+            }`}
+          >
+            ₳ {!isLoading ? balance : <LoadingIcon className="h-5 w-5" />}
+            {changeOnBalanceDetected && (
+              <>
+                <span className="inline-block animate-bounce ml-2">
+                  {'('}
+                  {balanceChanged >= 0 ? '+ ' : '- '}
+                  {Math.abs(balanceChanged / 1000000)}
+                  {')'}
+                </span>
+                {/* <SquareArrowUpIcon className="inline-block ml-2 text-green-500 animate-bounce h-5 w-5" /> */}
+              </>
+            )}
+          </h3>
+          <label className="block text-xs text-gray-500">
+            Sincronizado hace {syncedAgo} segundos
           </label>
-          <h3 className="text-lg text-black truncate">₳ {balance}</h3>
         </div>
         <div className="pt-4 mt-4 border-t border-gray-200"></div>
 

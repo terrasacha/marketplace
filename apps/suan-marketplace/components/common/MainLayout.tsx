@@ -195,7 +195,10 @@ const MainLayout = ({ children }: PropsWithChildren) => {
     <>
       {allowAccess ? (
         <>
-          <Navbar walletInfo={walletInfo} handleSidebarStatus={handleSidebarStatus}/>
+          <Navbar
+            walletInfo={walletInfo}
+            handleSidebarStatus={handleSidebarStatus}
+          />
           <Sidebar
             isOpen={isOpen}
             balance={balance}

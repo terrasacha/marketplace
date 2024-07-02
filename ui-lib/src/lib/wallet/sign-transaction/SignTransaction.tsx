@@ -254,7 +254,9 @@ export default function SignTransaction(props: SignTransactionProps) {
             headers: {
               'Content-Type': 'application/json',
             },
-            body: JSON.stringify(pendingTx.postDistributionPayload.updatePayment),
+            body: JSON.stringify(
+              pendingTx.postDistributionPayload.updatePayment
+            ),
           }),
         ]);
 
@@ -282,7 +284,7 @@ export default function SignTransaction(props: SignTransactionProps) {
 
     let signSubmitResponse;
 
-    console.log("pendingTx", pendingTx)
+    console.log('pendingTx', pendingTx);
 
     if (signType === 'distributeTokens') {
       signSubmitResponse = await handleSignTransactionDistributeTokens();
@@ -310,17 +312,14 @@ export default function SignTransaction(props: SignTransactionProps) {
 
     // Crear transacción
 
-
     if (signSubmitResponse?.txSubmit?.success) {
       handleOpenSignTransactionModal();
       toast.success('Seras redirigido en unos instantes...');
+      localStorage.setItem('pendingTx', JSON.stringify(pendingTx));
 
       setTimeout(() => {
         router.push({
           pathname: '/wallet/transactions',
-          query: {
-            pendingTx: JSON.stringify(pendingTx),
-          },
         });
       }, 3000);
     } else {
@@ -349,9 +348,10 @@ export default function SignTransaction(props: SignTransactionProps) {
           <input
             type="password"
             aria-invalid="false"
-            className={`bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded focus:ring-blue-500 focus:border-blue-500 block w-full ps-10 p-2.5 ${passwordError &&
+            className={`bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded focus:ring-blue-500 focus:border-blue-500 block w-full ps-10 p-2.5 ${
+              passwordError &&
               'border-2 border-red-500 focus:ring-red-500 focus:border-red-500'
-              }`}
+            }`}
             autoComplete="off"
             placeholder="Ingresa la contraseña de tu wallet"
             required

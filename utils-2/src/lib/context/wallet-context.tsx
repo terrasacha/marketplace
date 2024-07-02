@@ -1,4 +1,4 @@
-import { createContext, useMemo, useState } from 'react';
+import { createContext, useEffect, useMemo, useState } from 'react';
 import { getProjects } from '@marketplaces/data-access';
 import { getActualPeriod } from '../utils-2';
 
@@ -16,6 +16,10 @@ export function WalletContextProvider({
   const [walletBySuan, setWalletBySuan] = useState<boolean>(false);
   const [walletAdmin, setWalletAdmin] = useState<boolean>(false);
   const [walletData, setWalletData] = useState<any>(null);
+  const [lastSyncDate, setLastSyncDate] = useState<any>(null);
+  const [isLoading, setIsLoading] = useState<any>(false);
+  const [prevBalance, setPrevBalance] = useState(null);
+  const [balanceChanged, setBalanceChanged] = useState(0);
 
   const handleWalletData = async ({
     walletID,
@@ -95,6 +99,7 @@ export function WalletContextProvider({
   };
 
   const fetchWalletData = async (wAddress: string | null = null) => {
+    setIsLoading(true);
     console.log('fetch wallet data');
     const wallet_address = walletAddress || wAddress;
     if (wallet_address) {
@@ -109,13 +114,47 @@ export function WalletContextProvider({
         }
       );
       const responseData = await response.json();
+
+      if (prevBalance === null) {
+        setPrevBalance(responseData[0].balance);
+      }
+
       setWalletData(responseData[0]);
+      setIsLoading(false);
+      setLastSyncDate(Date.now());
 
       return responseData[0];
     }
+    setIsLoading(false);
     setWalletData(null);
     return null;
   };
+
+  useEffect(() => {
+    const interval = setInterval(async () => {
+      const walletData = await fetchWalletData();
+
+      const newBalance = walletData.balance;
+      console.log('prevBalance', prevBalance);
+      console.log('newBalance', newBalance);
+      console.log('walletDataUpdate', walletData);
+      if (prevBalance !== newBalance && prevBalance !== null) {
+        setBalanceChanged(newBalance - prevBalance);
+
+        /* const sound = new Howl({
+          src: ['path/to/your/sound/file.mp3'],
+        });
+        sound.play(); */
+
+        setTimeout(() => {
+          setBalanceChanged(0);
+        }, 2000);
+      }
+      setPrevBalance(newBalance);
+    }, 30000);
+
+    return () => clearInterval(interval);
+  }, [fetchWalletData]);
 
   const connected = () => {
     if (walletData) {
@@ -134,6 +173,9 @@ export function WalletContextProvider({
       walletBySuan,
       walletAdmin,
       walletData,
+      isLoading,
+      lastSyncDate,
+      balanceChanged,
       handleWalletData,
       handleClearData,
       fetchWalletData,
