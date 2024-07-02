@@ -335,7 +335,7 @@ const Product: MyPage = (props: any) => {
                     </p>
                   </div>
                   <Link
-                    className="flex justify-center w-full text-amber-400 bg-custom-dark hover:bg-custom-dark-hover focus:outline-none focus:ring-4 focus:ring-gray-300 font-medium rounded text-lg px-5 py-2.5 "
+                    className=" buy-button flex justify-center w-full text-amber-400 bg-custom-dark hover:bg-custom-dark-hover focus:outline-none focus:ring-4 focus:ring-gray-300 font-medium rounded text-lg px-5 py-2.5 "
                     href={`/projects/${project.id}/purchase`}
                   >
                     Ir a comprar !

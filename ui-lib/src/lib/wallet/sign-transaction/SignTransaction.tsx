@@ -4,7 +4,7 @@ import { LockIcon } from '../../icons/LockIcon';
 import { WalletContext } from '@marketplaces/utils-2';
 import { useRouter } from 'next/router';
 import { toast } from 'sonner';
-
+import { eventTransaction } from '../../common/event';
 interface SignTransactionProps {
   handleOpenSignTransactionModal: () => void;
   pendingTx: any;
@@ -283,7 +283,7 @@ export default function SignTransaction(props: SignTransactionProps) {
     }
 
     let signSubmitResponse;
-
+    let data
     console.log('pendingTx', pendingTx);
 
     if (signType === 'distributeTokens') {
@@ -291,7 +291,7 @@ export default function SignTransaction(props: SignTransactionProps) {
     }
 
     if (signType === 'buyTokens') {
-      const data = pendingTx.postDistributionPayload // Esta variable contiene la info almacenada en  --> PaymentPage:609
+      data = pendingTx.postDistributionPayload // Esta variable contiene la info almacenada en  --> PaymentPage:609 || Gracias bro. Sign: 🧙‍♂️
       signSubmitResponse = await handleSignTransactionBuyTokens();
     }
 
@@ -314,6 +314,14 @@ export default function SignTransaction(props: SignTransactionProps) {
     // Crear transacción
 
     if (signSubmitResponse?.txSubmit?.success) {
+      //analytics
+      eventTransaction({
+        action: 'buy_token',
+        category: 'marketplace',
+        label: `Token from project ${data.projectName} purchased`,
+        token: data.tokenName, 
+        amount: data.tokenAmount
+      });
       handleOpenSignTransactionModal();
       toast.success('Seras redirigido en unos instantes...');
       localStorage.setItem('pendingTx', JSON.stringify(pendingTx));

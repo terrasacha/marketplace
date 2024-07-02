@@ -16,6 +16,7 @@ import TelegramFloatingButton from '@suan//components/TelegramFloatingButton';
 import { Amplify } from 'aws-amplify';
 
 import config from '../src/aws-exports';
+import Script from 'next/script';
 
 Amplify.configure(config);
 

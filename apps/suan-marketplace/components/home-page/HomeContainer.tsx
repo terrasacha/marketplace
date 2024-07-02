@@ -3,7 +3,6 @@ import React, { useState, useEffect } from 'react';
 import CardProject from '@marketplaces/ui-lib/src/lib/cards/CardProject2'
 import Pagination from '../home-page/paginationProject';
 import { Range } from 'react-range';
-
 const PAGE_SIZE = 9; // Number of projects per page
 interface ProductFeature {
   featureID: string;
@@ -66,7 +65,6 @@ export default function HomeContainer(props: { projects: any[]; env: any }) {
       setSelectedCategories([...selectedCategories, category]);
     }
   };
-
   // Function to toggle selection of a year
   const toggleYearSelection = (year: string) => {
     const isSelected = selectedYears.includes(year);

@@ -6,6 +6,8 @@ import { useRouter } from 'next/router';
 import { Label, Select } from 'flowbite-react';
 import { TailSpin } from 'react-loader-spinner';
 import { Tooltip } from 'react-tooltip';
+import { event } from '../common/event';
+
 interface SignUpFormProps {
   handleSetSignUpStatus: (data: string) => void;
   logo: string;
@@ -63,6 +65,13 @@ const SignUpForm = (props: SignUpFormProps) => {
       }
 
       await signUpAuth(signupForm);
+      //analytics
+      event({
+        action: 'sign_up',
+        category: 'marketplace',
+        label: 'New user created',
+        value: signupForm.username,
+      });
       router.push('/auth/confirm-code');
     } catch (error: any) {
       if (error.message === 'Las contraseñas no coinciden') {

@@ -1,10 +1,11 @@
 import { useState } from 'react';
-import { signOut } from 'aws-amplify/auth';
+import { signOut, getCurrentUser } from 'aws-amplify/auth';
 import Image from 'next/image';
 import { useEffect } from 'react';
 import { TailSpin } from 'react-loader-spinner';
 import { useRouter } from 'next/router';
 import { useAssets } from '@meshsdk/react'
+import { event }from '../common/event';
 
 interface RedirectToHomeProps {
   poweredby: boolean;
@@ -103,6 +104,15 @@ const RedirectToHome = (props: RedirectToHomeProps) => {
             }),
           })
           const data2 = response2.json()
+          const user = await getCurrentUser()
+
+          //analytics
+          event({
+            action: 'claim_access_token',
+            category: 'marketplace',
+            label: 'User claim access token',
+            value: user.username,
+          });
           setClaimed(true)
           return handleSetCheckingWallet('alreadyClaimToken')
         }
