@@ -52,7 +52,7 @@ const RedirectToHome = (props: RedirectToHomeProps) => {
           const balanceData = await getWalletBalanceByAddress(walletData.address);
           const hasTokenAuth = balanceData[0].assets.some((asset: any) => asset.policy_id === process.env.NEXT_PUBLIC_TOKEN_AUTHORIZER &&
               asset.asset_name === process.env.NEXT_PUBLIC_TOKEN_AUTHORIZER_NAME);
-          if (!hasTokenAuth) {
+          if (hasTokenAuth) {
             setLoading(false);
             setStatusText('Token encontrado, redirigiendo...');
             setShowButtonAccess(true);
@@ -151,6 +151,8 @@ const RedirectToHome = (props: RedirectToHomeProps) => {
       }
     }
     const retryAccessToken = async () => {
+      setTryAgainAccessToken(false)
+
       if (walletData) {
         let payload = walletData.address;
         try {
@@ -159,7 +161,6 @@ const RedirectToHome = (props: RedirectToHomeProps) => {
               method: 'GET',
             });
             toast.success('Solicitud de token enviada nuevamente.')
-            setTryAgainAccessToken(false)
 
           } catch (error) {
             toast.warning('Error al intentar enviar el token. Reintente más tarde.')
@@ -185,15 +186,7 @@ const RedirectToHome = (props: RedirectToHomeProps) => {
       }
       {tryAgainAccessToken &&
         <button onClick={() => retryAccessToken()} className="relative w-full h-10 flex items-center justify-center font-normal focus:z-10 focus:outline-none text-white bg-cyan-700 border border-transparent enabled:hover:bg-cyan-800 focus:ring-cyan-300 dark:bg-cyan-600 dark:enabled:hover:bg-cyan-700 dark:focus:ring-cyan-800 rounded-lg focus:ring-2 px-8 py-2">
-        {loading ? (
-            <TailSpin
-              width="20"
-              color="#fff"
-              wrapperClass="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2"
-            />
-          ) : (
-            'Reintentar envío'
-          )}
+            Reintentar envío
       </button>
       }
       {showButtonAccess &&
