@@ -4,7 +4,7 @@ import { LockIcon } from '../../icons/LockIcon';
 import { WalletContext } from '@marketplaces/utils-2';
 import { useRouter } from 'next/router';
 import { toast } from 'sonner';
-import { eventTransaction } from '../../common/event';
+import { eventTransactionCrypto } from '../../common/event';
 interface SignTransactionProps {
   handleOpenSignTransactionModal: () => void;
   pendingTx: any;
@@ -315,7 +315,7 @@ export default function SignTransaction(props: SignTransactionProps) {
 
     if (signSubmitResponse?.txSubmit?.success) {
       //analytics
-      eventTransaction({
+      eventTransactionCrypto({
         action: 'buy_token',
         category: 'marketplace',
         label: `Token from project ${data.projectName} purchased`,
