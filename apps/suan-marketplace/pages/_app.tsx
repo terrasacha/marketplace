@@ -29,7 +29,7 @@ function MyApp({ Component, pageProps }: MyAppProps) {
   return (
     <MeshProvider>
       <Head>
-        <title>Cuadro de mando Inversionista-Suan</title>
+        <title>Cuadro de mando Inversionista-Terrasacha</title>
         <meta
           name="description"
           //content="Cuadro de mando de Inversionista en Suan"
