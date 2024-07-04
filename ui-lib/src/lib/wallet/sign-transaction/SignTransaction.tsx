@@ -315,13 +315,16 @@ export default function SignTransaction(props: SignTransactionProps) {
 
     if (signSubmitResponse?.txSubmit?.success) {
       //analytics
-      eventTransactionCrypto({
-        action: 'buy_token',
-        category: 'marketplace',
-        label: `Token from project ${data.projectName} purchased`,
-        token: data.tokenName, 
-        amount: data.tokenAmount
-      });
+
+      if(signType === "buyTokens") {
+        eventTransactionCrypto({
+          action: 'buy_token',
+          category: 'marketplace',
+          label: `Token from project ${data.projectName} purchased`,
+          token: data.tokenName, 
+          amount: data.tokenAmount
+        });
+      }
       handleOpenSignTransactionModal();
       toast.success('Seras redirigido en unos instantes...');
       localStorage.setItem('pendingTx', JSON.stringify(pendingTx));
