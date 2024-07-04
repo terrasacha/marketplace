@@ -59,6 +59,7 @@ const MainLayout = ({ children }: PropsWithChildren) => {
               wallet[0].stake_address
             );
             if (hasTokenAuthFunction) {
+              window.sessionStorage.setItem("hasTokenAuth", "true")
               const address = wallet[0].address;
               setAllowAccess(true);
               setWalletInfo({
@@ -110,6 +111,7 @@ const MainLayout = ({ children }: PropsWithChildren) => {
           true
         );
         if (hasTokenAuthFunction) {
+          window.sessionStorage.setItem("hasTokenAuth", "true")
           setWalletInfo({
             name: name,
             addr: changeAddress,
@@ -129,6 +131,8 @@ const MainLayout = ({ children }: PropsWithChildren) => {
   }, [connected]);
 
   const checkTokenStakeAddress = async (rewardAddresses: any) => {
+    let tokenAuthOnSessionStorage = window.sessionStorage.getItem("hasTokenAuth")
+    if(tokenAuthOnSessionStorage === "true") return true
     const response = await fetch('/api/calls/backend/checkTokenStakeAddress', {
       method: 'POST',
       headers: {

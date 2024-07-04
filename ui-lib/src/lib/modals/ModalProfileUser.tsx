@@ -125,6 +125,7 @@ const ModalProfileUser = (props: ModalProfileUserProps) => {
           {!walletInfo.externalWallet ? (
             <button
               onClick={() => {
+                window.sessionStorage.removeItem("hasTokenAuth");
                 signOut()
                   .then(() => router.push('/'))
                   .then(() => handleClearData());
