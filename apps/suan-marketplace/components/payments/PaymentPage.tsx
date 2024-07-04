@@ -567,7 +567,7 @@ export default function PaymentPage({}) {
           const buildTxResponse = await request.json();
           console.log('BuildTx Response: ', buildTxResponse);
           
-          if(!buildTxResponse?.success) {
+          if(buildTxResponse?.success) {
 
             return buildTxResponse;
 
