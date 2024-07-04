@@ -16,7 +16,7 @@ interface TransactionsProps {
 
 export default function Transactions(props: TransactionsProps) {
   const { txPerPage } = props;
-  const { walletStakeAddress, walletData, fetchWalletData, balanceChanged } =
+  const { walletStakeAddress, walletData, walletID, fetchWalletData, balanceChanged } =
     useContext<any>(WalletContext);
   const [transactionsList, setTransactionsList] = useState<Array<any>>([]);
   const [isLoading, setIsLoading] = useState<boolean>(false);

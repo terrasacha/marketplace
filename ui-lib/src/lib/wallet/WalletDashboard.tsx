@@ -23,7 +23,7 @@ interface WalletDashboardProps {
 }
 
 export default function WalletDashboard(props: WalletDashboardProps) {
-  const { walletData, fetchWalletData } = useContext<any>(WalletContext);
+  const { walletData, fetchWalletData, walletID } = useContext<any>(WalletContext);
   console.log(walletData);
   const [showAddress, setShowAddress] = useState<boolean>(true);
   const router = useRouter();
@@ -99,7 +99,11 @@ export default function WalletDashboard(props: WalletDashboardProps) {
             </Card.Body>
           </Card>
           <div className="h-fit">
-            <Transactions txPerPage={5} />
+            {
+              walletID !== "575a7f01272dd95a9ba2696e9e3d4895fe39b12350f7fa88a301b3ad" && (
+                <Transactions txPerPage={5} />
+              )
+            }
           </div>
         </div>
         <div className="flex-col col-span-2 space-y-5 mt-5 2xl:mt-0">
