@@ -40,6 +40,7 @@ const PAYING_STEPS = {
   ERROR: 'error',
 };
 
+
 export default function PaymentPage({}) {
   const { wallet, connected } = useWallet();
   const [tokenAmount, setTokenAmount] = useState<string>('');
@@ -96,7 +97,8 @@ export default function PaymentPage({}) {
   }
   const blockfrostProvider = new BlockfrostProvider(blockFrostKeysPreview);
   console.log('projectInfo', projectInfo);
-  const IPFSUrlHash = getIpfsUrlHash(projectInfo.categoryID);
+  // const IPFSUrlHash = getIpfsUrlHash(projectInfo.categoryID);
+  const IPFSUrlHash = getIpfsUrlHash('REDD+');
 
   const tokenImageUrl = `https://coffee-dry-barnacle-850.mypinata.cloud/ipfs/${IPFSUrlHash}`;
   console.log('tokenImageUrl', tokenImageUrl);
@@ -553,17 +555,48 @@ export default function PaymentPage({}) {
 
       console.log('BuildTx Payload: ', payload);
 
-      const request = await fetch('/api/transactions/claim-tx', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify(payload),
-      });
-      const buildTxResponse = await request.json();
-      console.log('BuildTx Response: ', buildTxResponse);
+      let success = false;
+      const maxRetries = 2; // 3 minutes / 20 seconds = 9 retries
+      let retries = 0;
 
-      return buildTxResponse;
+      while (!success && retries <= maxRetries) {
+        try {
+
+          const request = await fetch('/api/transactions/claim-tx', {
+            method: 'POST',
+            headers: {
+              'Content-Type': 'application/json',
+            },
+            body: JSON.stringify(payload),
+          });
+          const buildTxResponse = await request.json();
+          console.log('BuildTx Response: ', buildTxResponse);
+          
+          if(!buildTxResponse?.success) {
+
+            return buildTxResponse;
+
+          } else {
+            toast.error("Reintentando ...")
+            throw new Error('Build transaction failed');
+          }
+          
+        } catch (error: any) {
+          console.error(
+            `Request failed: ${error.message}. Retrying in 20 seconds...`
+          );
+          retries += 1;
+          if (retries <= maxRetries) {
+            await new Promise((resolve) => setTimeout(resolve, 20000));
+          } else {
+            toast.error(
+              'Algo ha salido mal, revisa las direcciones de billetera ...'
+            );
+          }
+        }
+      }
+
+      setPayingStep(PAYING_STEPS.ERROR)
     }
   };
 
@@ -609,6 +642,12 @@ export default function PaymentPage({}) {
         setNewTransactionBuild({
           ...mappedTransactionData,
           scriptId: actualScriptId,
+          postDistributionPayload: {
+            projectId: projectInfo.projectID,
+            projectName: projectInfo.projectName,
+            tokenName: projectInfo.token.tokenName,
+            tokenAmount: parseInt(tokenAmount),
+          },
         });
         handleOpenSignTransactionModal();
       } else {

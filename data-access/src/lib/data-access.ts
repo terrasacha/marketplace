@@ -238,6 +238,188 @@ export async function getCategories() {
   return filteredObj;
 }
 
+export async function getAllProjects() {
+  try {
+    const response = await axios.post(
+      graphqlEndpoint,
+      {
+        query: `query getProjects {
+          listProducts(filter: {isActive: {eq: true}}) {
+            nextToken
+            items {
+              id
+              description
+              categoryID 
+              category {
+                name
+              }
+              name
+              status
+              tokenGenesis
+              updatedAt
+              createdAt
+              tokens {
+                items {
+                  id
+                  oraclePrice
+                  policyID
+                  createdAt
+                  productID
+                  supply
+                  tokenName
+                  updatedAt
+                }
+              }
+              images {
+                items {
+                  id
+                  productID
+                  title
+                  imageURL
+                  imageURLToDisplay
+                  format
+                  carouselDescription
+                }
+              }
+              transactions {
+                items {
+                  id
+                  amountOfTokens
+                }
+              }
+              scripts (filter: {Active: {eq: true}}){
+                items {
+                  id
+                  script_type
+                  token_name
+                  pbk
+                  testnetAddr
+                  Active
+                }
+              }
+              productFeatures {
+                nextToken
+                items {
+                  value
+                  documents {
+                    items {
+                      isApproved
+                      signed
+                    }
+                  }
+                  featureID
+                  feature {
+                    name
+                    isVerifable
+                    isTemplate
+                    description
+                    unitOfMeasureID
+                    unitOfMeasure {
+                      description
+                    }
+                  }
+                  productFeatureResults {
+                    items {
+                      resultID
+                      isActive
+                      result {
+                        id
+                        value
+                        varID
+                      }
+                    }
+                  }
+                }
+              }  
+            }
+          }
+        }`,
+      },
+      {
+        headers: {
+          'x-api-key': awsAppSyncApiKey,
+        },
+      }
+    );
+    console.log(awsAppSyncApiKey, 'awsAppSyncApiKey');
+    console.log(graphqlEndpoint, 'graphqlEndpoint');
+    let validProducts = response.data.data.listProducts.items.filter(
+      (product: any) => {
+        let countFeatures = product.productFeatures.items.reduce(
+          (count: number, pf: any) => {
+            // Condicion 1: Tener periodos de precios y cantidad de tokens
+            if (pf.featureID === 'GLOBAL_TOKEN_HISTORICAL_DATA') {
+              let data = JSON.parse(pf.value);
+              let todaysDate = Date.now();
+              if (data.some((date: any) => Date.parse(date.date) > todaysDate))
+                return count + 1;
+            }
+            // Condicion 2: Tener titulares diligenciados
+            /* if (pf.featureID === 'B_owners') {
+              let data = JSON.parse(pf.value || '[]');
+              if (Object.keys(data).length !== 0) return count + 1;
+            } */
+            // Condicion 3: Validador ha oficializado la información financiera
+            if (
+              pf.featureID === 'GLOBAL_VALIDATOR_SET_FINANCIAL_CONDITIONS' &&
+              pf.value === 'true'
+            ) {
+              return count + 1;
+            }
+            // Condicion 4: Validador ha oficializado la información tecnica
+            if (
+              pf.featureID === 'GLOBAL_VALIDATOR_SET_TECHNICAL_CONDITIONS' &&
+              pf.value === 'true'
+            ) {
+              return count + 1;
+            }
+            // Condicion 5: Postulante ha aceptado las condiciones
+            if (
+              pf.featureID === 'GLOBAL_OWNER_ACCEPTS_CONDITIONS' &&
+              pf.value === 'true'
+            ) {
+              return count + 1;
+            }
+            // Condicion 6: Postulante ha ingresado
+            if (pf.featureID === 'C_ubicacion') {
+              return count + 1;
+            }
+            return count;
+          },
+          0
+        );
+        return countFeatures === 5;
+      }
+    );
+
+    // Condicion 7: Todos los archivos deben estar validados
+    validProducts = validProducts.filter((product: any) => {
+      const verifiablePF = product.productFeatures.items.filter(
+        (pf: any) => pf.feature.isVerifable === true
+      );
+
+      const documents = verifiablePF
+        .map((pf: any) => {
+          const docs = pf.documents.items.filter(
+            (document: any) => document.status !== 'validatorFile'
+          );
+          return docs;
+        })
+        .flat();
+
+      const approvedDocuments = documents.filter(
+        (projectFile: any) => projectFile.isApproved === true
+      );
+      if (documents.length === approvedDocuments.length) return true;
+    });
+
+    return validProducts;
+  } catch (error) {
+    console.error('Error fetching projects:', error);
+    return [];
+  }
+}
+
 export async function getProjects() {
   try {
     const response = await axios.post(
@@ -258,6 +440,18 @@ export async function getProjects() {
               tokenGenesis
               updatedAt
               createdAt
+              tokens {
+                items {
+                  id
+                  oraclePrice
+                  policyID
+                  createdAt
+                  productID
+                  supply
+                  tokenName
+                  updatedAt
+                }
+              }
               images {
                 items {
                   id

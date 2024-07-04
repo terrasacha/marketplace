@@ -218,6 +218,18 @@ export async function getProjects() {
               showOn
               updatedAt
               createdAt
+              tokens {
+                items {
+                  id
+                  oraclePrice
+                  policyID
+                  createdAt
+                  productID
+                  supply
+                  tokenName
+                  updatedAt
+                }
+              }
               images {
                 items {
                   id

@@ -550,17 +550,48 @@ export default function PaymentPage({}) {
 
       console.log('BuildTx Payload: ', payload);
 
-      const request = await fetch('/api/transactions/claim-tx', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify(payload),
-      });
-      const buildTxResponse = await request.json();
-      console.log('BuildTx Response: ', buildTxResponse);
+      let success = false;
+      const maxRetries = 2; // 3 minutes / 20 seconds = 9 retries
+      let retries = 0;
 
-      return buildTxResponse;
+      while (!success && retries <= maxRetries) {
+        try {
+
+          const request = await fetch('/api/transactions/claim-tx', {
+            method: 'POST',
+            headers: {
+              'Content-Type': 'application/json',
+            },
+            body: JSON.stringify(payload),
+          });
+          const buildTxResponse = await request.json();
+          console.log('BuildTx Response: ', buildTxResponse);
+          
+          if(!buildTxResponse?.success) {
+
+            return buildTxResponse;
+
+          } else {
+            toast.error("Reintentando ...")
+            throw new Error('Build transaction failed');
+          }
+          
+        } catch (error: any) {
+          console.error(
+            `Request failed: ${error.message}. Retrying in 20 seconds...`
+          );
+          retries += 1;
+          if (retries <= maxRetries) {
+            await new Promise((resolve) => setTimeout(resolve, 20000));
+          } else {
+            toast.error(
+              'Algo ha salido mal, revisa las direcciones de billetera ...'
+            );
+          }
+        }
+      }
+
+      setPayingStep(PAYING_STEPS.ERROR)
     }
   };
 

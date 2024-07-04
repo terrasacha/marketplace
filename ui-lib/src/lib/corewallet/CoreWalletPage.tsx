@@ -1,4 +1,5 @@
 import React, { useContext, useState } from 'react';
+import Projects from './scripts/Projects';
 import Scripts from './scripts/Scripts';
 import Card from '../common/Card';
 import SignTransactionModal from '../wallet/sign-transaction/SignTransactionModal';
@@ -167,6 +168,9 @@ export default function CoreWallet(props: any) {
         <div className="col-span-2">
           <Scripts />
         </div>
+        {/* <div className="col-span-2">
+          <Projects />
+        </div> */}
       </div>
       <SignTransactionModal
         signTransactionModal={signTransactionModal}
