@@ -204,11 +204,16 @@ const MainLayout = ({ children }: PropsWithChildren) => {
             balance={balance}
             onClose={handleSidebarStatus}
             user={user}
-            appName="Suan"
-            image="/images/home-page/suan_logo.png"
-            heightLogo={120}
-            widthLogo={60}
-            poweredBy={false}
+            appName="Terrasacha"
+            //appName="Suan"
+            //image="/images/home-page/suan_logo.png"
+            //heightLogo={120}
+            //widthLogo={60}
+            image="/images/home-page/terrasacha_logo_vertical.png"
+            heightLogo={60}
+            widthLogo={120}
+            poweredBy={true}
+            //poweredBy={false}
           />
           <main className="lg:ml-80 mt-20">{children}</main>
         </>
