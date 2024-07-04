@@ -24,8 +24,12 @@ ChartJS.register(
 
 export default function LineChartComponent(props: any) {
   const { axisColor, graphsColor, lineChartData, plotVolume } = props;
-  lineChartData.dataToPlot[0].data.unshift({period: 0, value: lineChartData.dataToPlot[0].data[0].value || 0, date: lineChartData.dataToPlot[0].data[0].date || 0, volume: lineChartData.dataToPlot[0].data[0].volume || 0})
-  lineChartData.dataToPlotVolume[0].data.unshift({period: 0, value: 0, date: lineChartData.dataToPlotVolume[0].data[0].date || 0})
+  if(lineChartData.dataToPlot[0].data[0].period !== 0){
+    lineChartData.dataToPlot[0].data.unshift({period: 0, value: lineChartData.dataToPlot[0].data[0].value || 0, date: lineChartData.dataToPlot[0].data[0].date || 0, volume: lineChartData.dataToPlot[0].data[0].volume || 0})
+  }
+  if(lineChartData.dataToPlotVolume[0].data[0].period !== 0){
+    lineChartData.dataToPlotVolume[0].data.unshift({period: 0, value: 0, date: lineChartData.dataToPlotVolume[0].data[0].date || 0})
+  }
   const labels = Array.from(
     { length: lineChartData.maxPeriod + 1 },
     (_, index) => index.toString()
