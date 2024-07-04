@@ -556,7 +556,6 @@ export default function PaymentPage({}) {
 
       while (!success && retries <= maxRetries) {
         try {
-
           const request = await fetch('/api/transactions/claim-tx', {
             method: 'POST',
             headers: {
@@ -566,16 +565,13 @@ export default function PaymentPage({}) {
           });
           const buildTxResponse = await request.json();
           console.log('BuildTx Response: ', buildTxResponse);
-          
-          if(buildTxResponse?.success) {
 
-            return buildTxResponse;
-
+          if (buildTxResponse?.success) {
+            return { buildTxResponse, payload };
           } else {
-            toast.error("Reintentando ...")
+            toast.error('Reintentando ...');
             throw new Error('Build transaction failed');
           }
-          
         } catch (error: any) {
           console.error(
             `Request failed: ${error.message}. Retrying in 20 seconds...`
@@ -591,7 +587,7 @@ export default function PaymentPage({}) {
         }
       }
 
-      setPayingStep(PAYING_STEPS.ERROR)
+      setPayingStep(PAYING_STEPS.ERROR);
     }
   };
 
@@ -624,13 +620,13 @@ export default function PaymentPage({}) {
       );
       // Construcción de transacción
 
-      const buildTxResponse = await handleBuildTx();
+      const build: any = await handleBuildTx();
 
-      if (buildTxResponse?.success) {
+      if (build.buildTxResponse?.success) {
         const mappedTransactionData = await mapBuildTransactionInfo({
           tx_type: 'preview',
           walletAddress: walletAddress,
-          buildTxResponse: buildTxResponse,
+          buildTxResponse: build.buildTxResponse,
           metadata: {},
         });
 
@@ -643,6 +639,7 @@ export default function PaymentPage({}) {
             tokenName: projectInfo.token.tokenName,
             tokenAmount: parseInt(tokenAmount),
           },
+          retryPayload: build.payload,
         });
         handleOpenSignTransactionModal();
       } else {
@@ -655,9 +652,9 @@ export default function PaymentPage({}) {
 
   const handleOpenSignTransactionModal = () => {
     setSignTransactionModal(!signTransactionModal);
-    // if (!signTransactionModal === false) {
-    //   setPayingStep(PAYING_STEPS.ERROR);
-    // }
+    /* if (!signTransactionModal === false) {
+      setPurchaseStep(PURCHASE_STEPS.BUYING);
+    } */
   };
 
   const filteredList = projectInfo.projectFeatures

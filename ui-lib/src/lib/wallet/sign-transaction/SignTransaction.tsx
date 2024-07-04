@@ -1,7 +1,7 @@
 import { useContext, useState } from 'react';
 import { LoadingIcon } from '../../icons/LoadingIcon';
 import { LockIcon } from '../../icons/LockIcon';
-import { WalletContext } from '@marketplaces/utils-2';
+import { WalletContext, mapBuildTransactionInfo } from '@marketplaces/utils-2';
 import { useRouter } from 'next/router';
 import { toast } from 'sonner';
 import { eventTransactionCrypto } from '../../common/event';
@@ -13,7 +13,7 @@ interface SignTransactionProps {
 
 export default function SignTransaction(props: SignTransactionProps) {
   const { handleOpenSignTransactionModal, pendingTx, signType } = props;
-  const { walletID } = useContext<any>(WalletContext);
+  const { walletID, walletAddress } = useContext<any>(WalletContext);
 
   const [password, setPassword] = useState<any>('');
   const [passwordError, setPasswordError] = useState<boolean>(false);
@@ -101,13 +101,19 @@ export default function SignTransaction(props: SignTransactionProps) {
     return signSubmitResponse;
   };
 
-  const handleSignTransactionBuyTokens = async () => {
+  const handleSignTransactionBuyTokens = async (tx: any = null) => {
+    let txToSign = null;
+    if (tx) {
+      txToSign = tx;
+    } else {
+      txToSign = pendingTx;
+    }
     const confirmSubmitData = {
       wallet_id: walletID,
-      cbor: pendingTx.cbor,
-      scriptIds: [pendingTx.scriptId],
-      metadata_cbor: pendingTx.metadata_cbor,
-      redeemers_cbor: [pendingTx.redeemer_cbor],
+      cbor: txToSign.cbor,
+      scriptIds: [txToSign.scriptId],
+      metadata_cbor: txToSign.metadata_cbor,
+      redeemers_cbor: [txToSign.redeemer_cbor],
     };
     const response = await fetch('/api/transactions/sign-submit', {
       method: 'POST',
@@ -283,7 +289,7 @@ export default function SignTransaction(props: SignTransactionProps) {
     }
 
     let signSubmitResponse;
-    let data
+    let data;
     console.log('pendingTx', pendingTx);
 
     if (signType === 'distributeTokens') {
@@ -291,7 +297,7 @@ export default function SignTransaction(props: SignTransactionProps) {
     }
 
     if (signType === 'buyTokens') {
-      data = pendingTx.postDistributionPayload // Esta variable contiene la info almacenada en  --> PaymentPage:609 || Gracias bro. Sign: 🧙‍♂️
+      data = pendingTx.postDistributionPayload; // Esta variable contiene la info almacenada en  --> PaymentPage:609 || Gracias bro. Sign: 🧙‍♂️
       signSubmitResponse = await handleSignTransactionBuyTokens();
     }
 
@@ -316,13 +322,13 @@ export default function SignTransaction(props: SignTransactionProps) {
     if (signSubmitResponse?.txSubmit?.success) {
       //analytics
 
-      if(signType === "buyTokens") {
+      if (signType === 'buyTokens') {
         eventTransactionCrypto({
           action: 'buy_token',
           category: 'marketplace',
           label: `Token from project ${data.projectName} purchased`,
-          token: data.tokenName, 
-          amount: data.tokenAmount
+          token: data.tokenName,
+          amount: data.tokenAmount,
         });
       }
       handleOpenSignTransactionModal();
@@ -335,6 +341,80 @@ export default function SignTransaction(props: SignTransactionProps) {
         });
       }, 3000);
     } else {
+      if (signType === 'buyTokens') {
+        let success = false;
+        const maxRetries = 2; // 3 minutes / 20 seconds = 9 retries
+        let retries = 0;
+
+        while (!success && retries <= maxRetries) {
+          try {
+            const request = await fetch('/api/transactions/claim-tx', {
+              method: 'POST',
+              headers: {
+                'Content-Type': 'application/json',
+              },
+              body: JSON.stringify(pendingTx.retryPayload),
+            });
+            const buildTxResponse = await request.json();
+            console.log('BuildTx Response: ', buildTxResponse);
+
+            if (buildTxResponse?.success) {
+              const mappedTransactionData = await mapBuildTransactionInfo({
+                tx_type: 'preview',
+                walletAddress: walletAddress,
+                buildTxResponse: buildTxResponse,
+                metadata: {},
+              });
+
+              const txData = {
+                ...mappedTransactionData,
+                scriptId: pendingTx.scriptId,
+              };
+
+              const newSignSubmitResponse =
+                await handleSignTransactionBuyTokens(txData);
+
+              if (newSignSubmitResponse?.txSubmit?.success) {
+                eventTransactionCrypto({
+                  action: 'buy_token',
+                  category: 'marketplace',
+                  label: `Token from project ${data.projectName} purchased`,
+                  token: data.tokenName,
+                  amount: data.tokenAmount,
+                });
+
+                handleOpenSignTransactionModal();
+                toast.success('Seras redirigido en unos instantes...');
+                localStorage.setItem('pendingTx', JSON.stringify(pendingTx));
+
+                setTimeout(() => {
+                  router.push({
+                    pathname: '/wallet/transactions',
+                  });
+                }, 3000);
+              } else {
+                toast.error('Reintentando ...');
+                throw new Error('Build transaction failed');
+              }
+            } else {
+              toast.error('Reintentando ...');
+              throw new Error('Build transaction failed');
+            }
+          } catch (error: any) {
+            console.error(
+              `Request failed: ${error.message}. Retrying in 20 seconds...`
+            );
+            retries += 1;
+            if (retries <= maxRetries) {
+              await new Promise((resolve) => setTimeout(resolve, 20000));
+            } else {
+              toast.error(
+                'Algo ha salido mal, revisa las direcciones de billetera ...'
+              );
+            }
+          }
+        }
+      }
       toast.error('Ha ocurrido un error al intentar realizar la transacción');
     }
 

@@ -257,6 +257,41 @@ export default function Scripts(props: any) {
     return data;
   };
 
+  function fixAddressArray(data: any, targetAddress: string) {
+    let newEntry = null;
+    for (let entry of data) {
+      if (entry.address === targetAddress) {
+        for (let asset of entry.multiAsset) {
+          if (asset.tokens && asset.tokens.ProyectoYToken) {
+            // Obtener el valor del token
+            let originalValue = asset.tokens.ProyectoYToken;
+            // Calcular la mitad
+            let halfValue = Math.floor(originalValue / 2);
+            // Asignar la primera mitad al valor original
+            asset.tokens.ProyectoYToken = halfValue;
+            // Crear un nuevo elemento con la otra mitad
+            let newAsset = {
+              policyid: asset.policyid,
+              tokens: {
+                ProyectoYToken: originalValue - halfValue,
+              },
+            };
+            // Clonar el objeto de entrada original y modificar la cantidad del token
+            newEntry = JSON.parse(JSON.stringify(entry));
+            newEntry.multiAsset[0].tokens.ProyectoYToken =
+              newAsset.tokens.ProyectoYToken;
+            break;
+          }
+        }
+        break;
+      }
+    }
+    if (newEntry) {
+      data.push(newEntry);
+    }
+    return data;
+  }
+
   const handleDistributeTokens = async (policyId: string | null = null) => {
     const actualScript = scripts.find((script: any) => script.id === policyId);
 
@@ -377,12 +412,20 @@ export default function Scripts(props: any) {
         }
       });
 
-      console.log(addresses);
+      console.log('addresses', addresses);
+      const newAddressArray = fixAddressArray(
+        addresses,
+        mapStakeHolders.inversionista
+      );
+      console.log('newAddressArray', newAddressArray);
+      // filtrar por stake address = mapStakeHolders.inversionista obtener indice y modificar la cantidad de tokens
+      // dividir en 2, luego la mitad que queda hacer un push de los addresses con un item similar al indice del inversionista
+      // pero con la mitad restante
     }
 
     // Get category image from IPFS
 
-    const IPFSUrlHash = getIpfsUrlHash("REDD+");
+    const IPFSUrlHash = getIpfsUrlHash('REDD+');
     const tokenImageUrl = `ipfs://${IPFSUrlHash}`;
 
     // Get Area & location (Hace falta trabajar sobre el seteo de estos datos en Plataforma)
