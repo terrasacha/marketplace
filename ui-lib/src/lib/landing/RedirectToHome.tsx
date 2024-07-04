@@ -1,11 +1,12 @@
 import { useState } from 'react';
-import { signOut } from 'aws-amplify/auth';
+import { signOut, getCurrentUser } from 'aws-amplify/auth';
 import Image from 'next/image';
 import { useEffect } from 'react';
 import { TailSpin } from 'react-loader-spinner';
 import { useRouter } from 'next/router';
 import { useAssets } from '@meshsdk/react'
-
+import { event }from '../common/event';
+import { toast } from 'sonner';
 interface RedirectToHomeProps {
   poweredby: boolean;
   appName: string;
@@ -33,6 +34,7 @@ const RedirectToHome = (props: RedirectToHomeProps) => {
   const [statusText, setStatusText] = useState<string>('Validando token en billetera')
   const [showButtonAccess, setShowButtonAccess] = useState<boolean>(false)
   const [claimed, setClaimed] = useState<boolean>(false)
+  const [tryAgainAccessToken, setTryAgainAccessToken] = useState<boolean>(false)
   
   const assets = useAssets() as Array<{ [key: string]: any }>
   
@@ -63,15 +65,21 @@ const RedirectToHome = (props: RedirectToHomeProps) => {
           setLoading(false);
         }
       }
-    }, 8000);
+    }, 20000);
   
     return () => clearInterval(interval);
   }, [checkingWallet]);
+
+  useEffect(() => {
+    let timer: any
+    if (claimed) {
+      timer = setInterval(() => {
+        setTryAgainAccessToken(true);
+      }, 180000);
+    }
+    return () => clearInterval(timer);
+  }, [claimed]);
   
-
-
-  
-
   const getWalletBalanceByAddress = async (address: any) =>{
     const balanceFetchResponse = await fetch('/api/calls/backend/getWalletBalanceByAddress', {
       method: 'POST',
@@ -86,34 +94,82 @@ const RedirectToHome = (props: RedirectToHomeProps) => {
   }
 
   const requestToken = async () => {
-    if (walletData) {
-      let payload = walletData.address
-      try {
+      if (walletData) {
+        let payload = walletData.address;
+        let attempts = 0;
+        const maxAttempts = 6;
+        const retryInterval = 30000;
+        const tryRequest = async () => {
+          try {
+            const response = await fetch(`api/helpers/requestAccessToken?destinAddress=${payload}`, {
+              method: 'GET',
+            });
+    
+            const data = await response.json(); /* {detail: 'error'} */
+    
+            if (!data.detail) {
+              const response2 = await fetch('api/calls/backend/walletClaimToken', {
+                method: 'POST',
+                body: JSON.stringify({
+                  id: walletData.id,
+                }),
+              });
+    
+              const data2 = await response2.json();
+              const user = await getCurrentUser();
+    
+              // analytics
+              event({
+                action: 'claim_access_token',
+                category: 'marketplace',
+                label: 'User claim access token',
+                value: user.username,
+              });
+    
+              setClaimed(true);
+              handleSetCheckingWallet('alreadyClaimToken');
+              setLoading(false);
+              return;
+            } else {
+              throw new Error('Request failed with detail in response');
+            }
+          } catch (error) {
+            console.error('Error al hacer la solicitud:', error);
+            attempts++;
+            if (attempts < maxAttempts) {
+              toast.info('Reintentando envío de token...')
+              setTimeout(tryRequest, retryInterval);
+            } else {
+              toast.warning('Error al intentar enviar el token. Reintente más tarde.')
+              setLoading(false);
+            }
+          }
+        };
+    
         setLoading(true);
-        const response = await fetch(`api/helpers/requestAccessToken?destinAddress=${payload}`,{
-          method: 'GET',
-        })
-        
-        const data = await response.json()
-        if(!data.detail){        
-          const response2 = await fetch('api/calls/backend/walletClaimToken',{
-            method: 'POST',
-            body: JSON.stringify({
-              id: walletData.id
-            }),
-          })
-          const data2 = response2.json()
-          setClaimed(true)
-          return handleSetCheckingWallet('alreadyClaimToken')
-        }
-      } catch (error) {
-        console.error('Error al hacer la solicitud:', error);
-      } finally {
-        setLoading(false);
+        tryRequest();
       }
     }
-  }
-  return (
+   /*  const retryAccessToken = async () => {
+      setTryAgainAccessToken(false)
+
+      if (walletData) {
+        let payload = walletData.address;
+        try {
+            setLoading(true)
+            const response = await fetch(`api/helpers/requestAccessToken?destinAddress=${payload}`, {
+              method: 'GET',
+            });
+            toast.success('Solicitud de token enviada nuevamente.')
+
+          } catch (error) {
+            toast.warning('Error al intentar enviar el token. Reintente más tarde.')
+            setLoading(false)
+          }
+          setLoading(false)
+    }
+  } */
+    return (
     <div className="bg-white rounded-2xl w-[40rem] max-w-[35rem] 2xl:w-[45%] py-10 px-10 sm:px-10 h-auto flex flex-col justify-center">
       <h2 className="text-2xl font-normal pb-4 flex justify-center text-center">
        {optionsToDisplay[checkingWallet]?.title}
@@ -128,6 +184,11 @@ const RedirectToHome = (props: RedirectToHomeProps) => {
         <p className='text-sm text-gray-500'>{statusText}</p>
       </div>
       }
+      {/* {tryAgainAccessToken &&
+        <button onClick={() => retryAccessToken()} className="relative w-full h-10 flex items-center justify-center font-normal focus:z-10 focus:outline-none text-white bg-cyan-700 border border-transparent enabled:hover:bg-cyan-800 focus:ring-cyan-300 dark:bg-cyan-600 dark:enabled:hover:bg-cyan-700 dark:focus:ring-cyan-800 rounded-lg focus:ring-2 px-8 py-2">
+            Reintentar envío
+      </button>
+      } */}
       {showButtonAccess &&
           <button onClick={() =>router.push('/home')} className="relative w-full h-10 mt-4 flex items-center justify-center font-normal focus:z-10 focus:outline-none text-white bg-cyan-700 border border-transparent enabled:hover:bg-cyan-800 focus:ring-cyan-300 dark:bg-cyan-600 dark:enabled:hover:bg-cyan-700 dark:focus:ring-cyan-800 rounded-lg focus:ring-2 px-8 py-2">
             Acceder

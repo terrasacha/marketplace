@@ -1,5 +1,5 @@
 import { updatePayment } from '@marketplaces/data-access';
-
+import { eventTransactionFIAT } from '@marketplaces/ui-lib/src/lib/common/event';
 const statudCode = {
   1: 'Aceptada',
   2: 'Aceptada',
@@ -15,7 +15,7 @@ const fechaAAwsTimestamp = (fechaStr) => {
 
   // Verificar si la fecha es válida
   if (isNaN(fecha.getTime())) {
-      throw new Error("Fecha inválida");
+    throw new Error("Fecha inválida");
   }
 
   // Obtener el Unix timestamp en segundos
@@ -36,7 +36,19 @@ export default async function handler(req, res) {
         timestamp: fechaAAwsTimestamp(payload.x_transaction_date),
       };
       const updatedOrderResponse = await updatePayment(data);
-
+      //analytics
+      eventTransactionFIAT({
+        action: 'buy_token',
+        category: 'marketplace',
+        label: `FIAT pay`,
+        token: payload.x_description,
+        amount: payload.x_amount,
+        currency: payload.x_currency_code,
+        tax: payload.x_tax,
+        transaction_status: payload.x_cod_transaction_state,
+        x_ref_payco: payload.x_ref_payco,
+        customer_email: payload.x_customer_email
+      });
       res.status(200).json(updatedOrderResponse);
     } else {
       res.status(405).json({ error: 'Método no permitido' });

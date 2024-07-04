@@ -6,6 +6,8 @@ import { useRouter } from 'next/router';
 import { Label, Select } from 'flowbite-react';
 import { TailSpin } from 'react-loader-spinner';
 import { Tooltip } from 'react-tooltip';
+import { event } from '../common/event';
+
 interface SignUpFormProps {
   handleSetSignUpStatus: (data: string) => void;
   logo: string;
@@ -63,6 +65,13 @@ const SignUpForm = (props: SignUpFormProps) => {
       }
 
       await signUpAuth(signupForm);
+      //analytics
+      event({
+        action: 'sign_up',
+        category: 'marketplace',
+        label: 'New user created',
+        value: signupForm.username,
+      });
       router.push('/auth/confirm-code');
     } catch (error: any) {
       if (error.message === 'Las contraseñas no coinciden') {
@@ -101,7 +110,7 @@ const SignUpForm = (props: SignUpFormProps) => {
 {/*         <a className='' data-tooltip-id="my-tooltip" data-tooltip-content={"Consideraciones: El nombre de usuario no puede contener espacios. La contraseña debe tener más de 8 caracteres y poseer al menos un valor numérico"}> <svg  xmlns="http://www.w3.org/2000/svg"  width="20"  height="20"  viewBox="0 0 24 24"  fill="none"  stroke="currentColor"  stroke-width="2"  stroke-linecap="round"  stroke-linejoin="round"  className="icon icon-tabler icons-tabler-outline icon-tabler-info-circle"><path stroke="none" d="M0 0h24v24H0z" fill="none"/><path d="M3 12a9 9 0 1 0 18 0a9 9 0 0 0 -18 0" /><path d="M12 9h.01" /><path d="M11 12h1v4h1" /></svg>
         </a> */}
       </h2>
-      <p className='text-xs'>Consideraciones: El nombre de usuario no puede contener espacios. La contraseña debe tener más de 8 caracteres y poseer al menos un valor numérico</p>
+      <p className='text-xs'>Consideraciones: El nombre de usuario no puede contener espacios ni caracteres especiales. La contraseña debe tener más de 8 caracteres y poseer al menos un valor numérico</p>
       <form className="pt-10 pb-5">
         <div className="relative z-0 w-full mb-4 group">
           <input

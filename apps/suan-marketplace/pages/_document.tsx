@@ -6,6 +6,21 @@ export default function Document() {
     <Html lang="es" translate="no">
       <Head>
         <script src="https://checkout.epayco.co/checkout.js"></script>
+        <Script
+        strategy='lazyOnload'
+        src={`https://www.googletagmanager.com/gtag/js?id=G-PLQDT1KEHT`}
+        />
+
+        <Script id='' strategy='lazyOnload'>
+          {`
+                window.dataLayer = window.dataLayer || [];
+                function gtag(){dataLayer.push(arguments);}
+                gtag('js', new Date());
+                gtag('config', 'G-PLQDT1KEHT', {
+                page_path: window.location.pathname,
+                });
+            `}
+        </Script>
       </Head>
       <body className="bg-[#fafbff]">
         <Main />
