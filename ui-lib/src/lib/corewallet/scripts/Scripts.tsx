@@ -413,11 +413,11 @@ export default function Scripts(props: any) {
       });
 
       console.log('addresses', addresses);
-      const newAddressArray = fixAddressArray(
+      /* const newAddressArray = fixAddressArray(
         addresses,
         mapStakeHolders.inversionista
       );
-      console.log('newAddressArray', newAddressArray);
+      console.log('newAddressArray', newAddressArray); */
       // filtrar por stake address = mapStakeHolders.inversionista obtener indice y modificar la cantidad de tokens
       // dividir en 2, luego la mitad que queda hacer un push de los addresses con un item similar al indice del inversionista
       // pero con la mitad restante
@@ -475,6 +475,8 @@ export default function Scripts(props: any) {
         },
       },
     };
+
+    debugger
 
     console.log('payload', payload);
     const response = await fetch('/api/transactions/mint-tokens', {
