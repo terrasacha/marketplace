@@ -24,8 +24,8 @@ const optionsToDisplay : any = {
     paragraph: 'Para acceder al Marketplace, necesitas solicitar primero tu token de acceso. Una vez recibido y disponible en tu billetera, podrás ingresar al Marketplace. Ten en cuenta que puede llevar algún tiempo hasta que el token esté listo en tu billetera. Por favor, espera mientras verificamos la recepción del token.',
   },
   alreadyClaimToken:{
-    title: 'Ya solicitaste tu token de acceso',
-    paragraph: 'Ten en cuenta que el token puede tardar hasta tres minutos en impactar en tu billetera. Espere mientras validamos la información',
+    title: 'Ya enviamos el token de acceso a tu billetera'/* 'Ya solicitaste tu token de acceso' */,
+    paragraph: 'Con este token podrás acceder al marketplace y comenzar a operar. Por favor, espera mientras validamos la transacción.',
   }
 }
 const RedirectToHome = (props: RedirectToHomeProps) => {
