@@ -1,6 +1,6 @@
 {
   "auth": {
-    "terrasachamarketplac76d15e14": {
+    "terrasachamarket007bd3c7": {
       "customAuth": false,
       "dependsOn": [],
       "providerPlugin": "awscloudformation",
@@ -8,59 +8,92 @@
       "serviceType": "imported"
     }
   },
-  "hosting": {
-    "amplifyhosting": {
-      "providerPlugin": "awscloudformation",
-      "service": "amplifyhosting",
-      "type": "manual"
-    }
-  },
   "parameters": {
-    "AMPLIFY_auth_terrasachamarketplac76d15e14_nativeClientId": {
+    "AMPLIFY_auth_terrasachamarket007bd3c7_allowUnauthenticatedIdentities": {
       "usedBy": [
         {
           "category": "auth",
-          "resourceName": "terrasachamarketplac76d15e14"
+          "resourceName": "terrasachamarket007bd3c7"
         }
       ]
     },
-    "AMPLIFY_auth_terrasachamarketplac76d15e14_userPoolId": {
+    "AMPLIFY_auth_terrasachamarket007bd3c7_authRoleArn": {
       "usedBy": [
         {
           "category": "auth",
-          "resourceName": "terrasachamarketplac76d15e14"
+          "resourceName": "terrasachamarket007bd3c7"
         }
       ]
     },
-    "AMPLIFY_auth_terrasachamarketplac76d15e14_userPoolName": {
+    "AMPLIFY_auth_terrasachamarket007bd3c7_authRoleName": {
       "usedBy": [
         {
           "category": "auth",
-          "resourceName": "terrasachamarketplac76d15e14"
+          "resourceName": "terrasachamarket007bd3c7"
         }
       ]
     },
-    "AMPLIFY_auth_terrasachamarketplac76d15e14_webClientId": {
+    "AMPLIFY_auth_terrasachamarket007bd3c7_identityPoolId": {
       "usedBy": [
         {
           "category": "auth",
-          "resourceName": "terrasachamarketplac76d15e14"
+          "resourceName": "terrasachamarket007bd3c7"
         }
       ]
     },
-    "AMPLIFY_hosting_amplifyhosting_appId": {
+    "AMPLIFY_auth_terrasachamarket007bd3c7_identityPoolName": {
       "usedBy": [
         {
-          "category": "hosting",
-          "resourceName": "amplifyhosting"
+          "category": "auth",
+          "resourceName": "terrasachamarket007bd3c7"
         }
       ]
     },
-    "AMPLIFY_hosting_amplifyhosting_type": {
+    "AMPLIFY_auth_terrasachamarket007bd3c7_nativeClientId": {
       "usedBy": [
         {
-          "category": "hosting",
-          "resourceName": "amplifyhosting"
+          "category": "auth",
+          "resourceName": "terrasachamarket007bd3c7"
+        }
+      ]
+    },
+    "AMPLIFY_auth_terrasachamarket007bd3c7_unauthRoleArn": {
+      "usedBy": [
+        {
+          "category": "auth",
+          "resourceName": "terrasachamarket007bd3c7"
+        }
+      ]
+    },
+    "AMPLIFY_auth_terrasachamarket007bd3c7_unauthRoleName": {
+      "usedBy": [
+        {
+          "category": "auth",
+          "resourceName": "terrasachamarket007bd3c7"
+        }
+      ]
+    },
+    "AMPLIFY_auth_terrasachamarket007bd3c7_userPoolId": {
+      "usedBy": [
+        {
+          "category": "auth",
+          "resourceName": "terrasachamarket007bd3c7"
+        }
+      ]
+    },
+    "AMPLIFY_auth_terrasachamarket007bd3c7_userPoolName": {
+      "usedBy": [
+        {
+          "category": "auth",
+          "resourceName": "terrasachamarket007bd3c7"
+        }
+      ]
+    },
+    "AMPLIFY_auth_terrasachamarket007bd3c7_webClientId": {
+      "usedBy": [
+        {
+          "category": "auth",
+          "resourceName": "terrasachamarket007bd3c7"
         }
       ]
     }

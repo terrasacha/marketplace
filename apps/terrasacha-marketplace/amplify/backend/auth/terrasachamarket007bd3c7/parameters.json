@@ -1,6 +1,6 @@
 {
-  "authSelections": "userPoolOnly",
-  "resourceName": "terrasachamarketplac76d15e14",
+  "authSelections": "identityPoolAndUserPool",
+  "resourceName": "terrasachamarket007bd3c7",
   "serviceType": "imported",
   "region": "us-east-1",
   "requiredAttributes": [
