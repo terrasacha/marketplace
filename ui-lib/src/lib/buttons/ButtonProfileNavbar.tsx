@@ -1,4 +1,6 @@
 import { colorByLetter } from '@marketplaces/utils-2';
+import { getCurrentUser } from 'aws-amplify/auth';
+import { useState, useEffect } from 'react';
 interface ButtonProfileNavbarProps {
   openModal: any;
   walletInfo: any;
@@ -7,13 +9,23 @@ interface ButtonProfileNavbarProps {
 const ButtonProfileNavbar = (props: ButtonProfileNavbarProps) => {
   const { openModal, walletInfo, showModal } = props;
   const walletChar = walletInfo.name.charAt(0).toUpperCase();
+  const [username, setUsername] = useState<any>('')
+  useEffect(() =>{
+    getCurrentUser().then((data : any) =>{
+      setUsername(data.username)
+    })
+    .catch((err) =>{
+      console.log(err)
+      setUsername(walletInfo.name)
+    })
+  },[])
   return (
     <button
       onClick={() => openModal(!showModal)}
       className="h-10 flex gap-4 items-center justify-center text-sm font-normal focus:z-10 focus:outline-none rounded-lg  py-8 px-4"
     >
       <div className="flex flex-col">
-        <p>{walletInfo.name || ''}</p>
+        <p>{username || ''}</p>
         <p className="font-light text-xxs">
           {`${walletInfo.addr.slice(0, 9)}...${walletInfo.addr.slice(-4)}` ||
             ''}
