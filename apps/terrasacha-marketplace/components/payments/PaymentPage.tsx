@@ -1,10 +1,10 @@
 'use client';
 
-import Card from '@marketplaces/ui-lib/src/lib/common/Card'
+import Card from '@marketplaces/ui-lib/src/lib/common/Card';
 import EpaycoCheckout from '@marketplaces/ui-lib/src/lib/epayco/EpaycoCheckout';
-import {LoadingIcon} from '@marketplaces/ui-lib/src/lib/icons/LoadingIcon';
-import PendingVerificationMessage from '@marketplaces/ui-lib/src/lib/common/PendingVerificationMessage'
-import SignTransactionModal from '@marketplaces/ui-lib/src/lib/wallet/sign-transaction/SignTransactionModal'
+import { LoadingIcon } from '@marketplaces/ui-lib/src/lib/icons/LoadingIcon';
+import PendingVerificationMessage from '@marketplaces/ui-lib/src/lib/common/PendingVerificationMessage';
+import SignTransactionModal from '@marketplaces/ui-lib/src/lib/wallet/sign-transaction/SignTransactionModal';
 import { useContext, useEffect, useState } from 'react';
 import { TokenDetailSection } from './TokenDetailSection';
 import ProjectInfoContext from '@terrasacha/store/projectinfo-context';
@@ -39,7 +39,6 @@ const PAYING_STEPS = {
   FINISHED: 'finished',
   ERROR: 'error',
 };
-
 
 export default function PaymentPage({}) {
   const { wallet, connected } = useWallet();
@@ -561,7 +560,6 @@ export default function PaymentPage({}) {
 
       while (!success && retries <= maxRetries) {
         try {
-
           const request = await fetch('/api/transactions/claim-tx', {
             method: 'POST',
             headers: {
@@ -571,16 +569,13 @@ export default function PaymentPage({}) {
           });
           const buildTxResponse = await request.json();
           console.log('BuildTx Response: ', buildTxResponse);
-          
-          if(!buildTxResponse?.success) {
 
+          if (!buildTxResponse?.success) {
             return buildTxResponse;
-
           } else {
-            toast.error("Reintentando ...")
+            toast.error('Reintentando ...');
             throw new Error('Build transaction failed');
           }
-          
         } catch (error: any) {
           console.error(
             `Request failed: ${error.message}. Retrying in 20 seconds...`
@@ -596,7 +591,7 @@ export default function PaymentPage({}) {
         }
       }
 
-      setPayingStep(PAYING_STEPS.ERROR)
+      setPayingStep(PAYING_STEPS.ERROR);
     }
   };
 
@@ -658,11 +653,11 @@ export default function PaymentPage({}) {
     }
   };
 
-  const handleOpenSignTransactionModal = () => {
+  const handleOpenSignTransactionModal = (signStatus: boolean = false) => {
     setSignTransactionModal(!signTransactionModal);
-    // if (!signTransactionModal === false) {
-    //   setPayingStep(PAYING_STEPS.ERROR);
-    // }
+    if (!signTransactionModal === false && !signStatus) {
+      setPurchaseStep(PURCHASE_STEPS.BUYING);
+    }
   };
 
   const filteredList = projectInfo.projectFeatures

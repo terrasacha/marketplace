@@ -78,7 +78,13 @@ export default function Sidebar(props: SidebarProps) {
   }, [connected]);
 
   useEffect(() => {
+    const playCashRegister = () => {
+      var audio: any = document.getElementById('a1');
+      audio.play();
+    };
+
     if (balanceChanged !== 0) {
+      playCashRegister();
       setChangeOnBalanceDetected(true);
 
       setTimeout(() => {
@@ -122,6 +128,7 @@ export default function Sidebar(props: SidebarProps) {
         isOpen ? 'translate-x-0' : '-translate-x-full'
       }`}
     >
+      <audio id="a1" src="/sounds/cash-register.mp3"></audio>
       <div className="relative h-screen px-5 pb-4 bg-custom-fondo shadow-[rgba(221,222,227,1)_1px_1px_4px_0px]">
         <div className="flex items-center justify-center py-8">
           <Link href="/home">

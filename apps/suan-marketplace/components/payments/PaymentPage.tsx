@@ -650,11 +650,11 @@ export default function PaymentPage({}) {
     }
   };
 
-  const handleOpenSignTransactionModal = () => {
+  const handleOpenSignTransactionModal = (signStatus: boolean = false) => {
     setSignTransactionModal(!signTransactionModal);
-    /* if (!signTransactionModal === false) {
+    if (!signTransactionModal === false && !signStatus) {
       setPurchaseStep(PURCHASE_STEPS.BUYING);
-    } */
+    }
   };
 
   const filteredList = projectInfo.projectFeatures

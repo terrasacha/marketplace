@@ -93,9 +93,15 @@ export function WalletContextProvider({
   const handleClearData = () => {
     setWalletID(null);
     setWalletName(null);
-    setWalletData(null);
     setWalletAddress(null);
     setWalletStakeAddress(null);
+    setWalletBySuan(false);
+    setWalletAdmin(false);
+    setWalletData(null);
+    setLastSyncDate(null);
+    setIsLoading(false);
+    setPrevBalance(null);
+    setBalanceChanged(0);
   };
 
   const fetchWalletData = async (wAddress: string | null = null) => {
@@ -142,18 +148,13 @@ export function WalletContextProvider({
         if (prevBalance !== newBalance && prevBalance !== null) {
           setBalanceChanged(newBalance - prevBalance);
 
-          /* const sound = new Howl({
-            src: ['path/to/your/sound/file.mp3'],
-          });
-          sound.play(); */
-
           setTimeout(() => {
             setBalanceChanged(0);
           }, 2000);
         }
         setPrevBalance(newBalance);
       }
-    }, 30000);
+    }, 60000);
 
     return () => clearInterval(interval);
   }, [fetchWalletData]);

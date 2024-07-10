@@ -38,6 +38,15 @@ const ModalProfileUser = (props: ModalProfileUserProps) => {
     };
   }, [modalRef, closeModal]);
 
+  
+  const clearAllCaches = () => {
+    Object.keys(localStorage).forEach((key) => {
+      if (key.startsWith('/api/transactions/account-tx')) {
+        localStorage.removeItem(key);
+      }
+    });
+  };
+
   const copyToClipboard = (data: string) => {
     navigator.clipboard.writeText(data).then(
       () => {
@@ -125,7 +134,7 @@ const ModalProfileUser = (props: ModalProfileUserProps) => {
           {!walletInfo.externalWallet ? (
             <button
               onClick={() => {
-                window.sessionStorage.removeItem("hasTokenAuth");
+                window.sessionStorage.removeItem('hasTokenAuth');
                 signOut()
                   .then(() => router.push('/'))
                   .then(() => handleClearData());

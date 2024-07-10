@@ -6,7 +6,7 @@ import { useRouter } from 'next/router';
 import { toast } from 'sonner';
 import { eventTransactionCrypto } from '../../common/event';
 interface SignTransactionProps {
-  handleOpenSignTransactionModal: () => void;
+  handleOpenSignTransactionModal: (signStatus?: boolean) => void;
   pendingTx: any;
   signType: string;
 }
@@ -331,9 +331,12 @@ export default function SignTransaction(props: SignTransactionProps) {
           amount: data.tokenAmount,
         });
       }
-      handleOpenSignTransactionModal();
+      handleOpenSignTransactionModal(true);
       toast.success('Seras redirigido en unos instantes...');
-      localStorage.setItem('pendingTx', JSON.stringify(pendingTx));
+      localStorage.setItem(
+        'pendingTx',
+        JSON.stringify({ data: pendingTx, timestamp: Date.now() })
+      );
 
       setTimeout(() => {
         router.push({
@@ -383,15 +386,21 @@ export default function SignTransaction(props: SignTransactionProps) {
                   amount: data.tokenAmount,
                 });
 
-                handleOpenSignTransactionModal();
+                handleOpenSignTransactionModal(true);
                 toast.success('Seras redirigido en unos instantes...');
-                localStorage.setItem('pendingTx', JSON.stringify(pendingTx));
+                // localStorage.setItem('pendingTx', JSON.stringify(pendingTx));
+                localStorage.setItem(
+                  'pendingTx',
+                  JSON.stringify({ data: pendingTx, timestamp: Date.now() })
+                );
 
                 setTimeout(() => {
                   router.push({
                     pathname: '/wallet/transactions',
                   });
                 }, 3000);
+
+                break;
               } else {
                 toast.error('Reintentando ...');
                 throw new Error('Build transaction failed');
@@ -460,7 +469,7 @@ export default function SignTransaction(props: SignTransactionProps) {
         <button
           type="button"
           className="flex justify-center w-full md:w-1/4 text-white bg-gray-800 hover:bg-gray-900 focus:outline-none focus:ring-4 focus:ring-gray-300 font-medium rounded text-sm px-5 py-2.5 "
-          onClick={handleOpenSignTransactionModal}
+          onClick={() => handleOpenSignTransactionModal()}
         >
           Cancelar
         </button>

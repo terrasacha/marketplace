@@ -2150,6 +2150,7 @@ export async function listTokens() {
           items {
             policyID
             tokenName
+            oraclePrice
           }
         }
       }`,

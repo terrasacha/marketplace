@@ -52,11 +52,11 @@ export default function WalletDashboard(props: WalletDashboardProps) {
                     <p className="text-lg">Mi billetera</p>
                     <div className="flex items-center gap-2">
                       <p className="text-sm truncate w-52">
-                        {walletData ? walletData.address : 'loading ...'}
+                        {walletData ? walletData?.address : 'loading ...'}
                       </p>
                       <CopyToClipboard
                         iconClassName="h-5 w-5"
-                        copyValue={walletData.address}
+                        copyValue={walletData?.address}
                         tooltipLabel="Copiar !"
                       />
                       <ExternalLink
@@ -64,7 +64,7 @@ export default function WalletDashboard(props: WalletDashboardProps) {
                         tooltipLabel="Consultar en CardanoScan Preview"
                         externalURL={
                           'https://preview.cardanoscan.io/address/' +
-                          walletData.address
+                          walletData?.address
                         }
                       />
                     </div>
@@ -73,7 +73,7 @@ export default function WalletDashboard(props: WalletDashboardProps) {
                         {showAddress ? (
                           <>
                             {walletData
-                              ? parseInt(walletData.balance) / 1000000
+                              ? parseInt(walletData?.balance) / 1000000
                               : '0'}{' '}
                             ADA
                           </>
@@ -101,7 +101,7 @@ export default function WalletDashboard(props: WalletDashboardProps) {
           <div className="h-fit">
             {
               walletID !== "575a7f01272dd95a9ba2696e9e3d4895fe39b12350f7fa88a301b3ad" && (
-                <Transactions txPerPage={5} />
+                <Transactions txPerPage={3} />
               )
             }
           </div>

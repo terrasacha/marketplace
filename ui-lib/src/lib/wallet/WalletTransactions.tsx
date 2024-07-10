@@ -8,7 +8,7 @@ export default function WalletTransactions(props: any) {
     <div className="grid grid-cols-1 ">
       {
         walletID !== "575a7f01272dd95a9ba2696e9e3d4895fe39b12350f7fa88a301b3ad" && (
-          <Transactions txPerPage={8} />
+          <Transactions txPerPage={3} />
 
         )
       }

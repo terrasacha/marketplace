@@ -5,13 +5,17 @@ import Card from '../common/Card';
 import SignTransactionModal from '../wallet/sign-transaction/SignTransactionModal';
 import { WalletContext, mapBuildTransactionInfo } from '@marketplaces/utils-2';
 import { toast } from 'sonner';
+import { LoadingIcon } from '../ui-lib';
 
 export default function CoreWallet(props: any) {
   const { walletID, walletData } = useContext<any>(WalletContext);
   const [oracleWalletLovelaceBalance, setOracleWalletLovelaceBalance] =
     useState<number | null>(null);
   const [newTransactionBuild, setNewTransactionBuild] = useState<any>(null);
-  const [isLoading, setIsLoading] = useState(false);
+  const [isLoading, setIsLoading] = useState<any>({
+    transfer: false,
+    query: false,
+  });
   const [signTransactionModal, setSignTransactionModal] = useState(false);
   const [adaToSend, setAdaToSend] = useState<string>('');
 
@@ -32,11 +36,20 @@ export default function CoreWallet(props: any) {
   };
 
   const handleGetOracleWalletLovelaceBalance = async () => {
+    setIsLoading((prevState: any) => ({
+      ...prevState,
+      query: true,
+    }));
     const lovelaceAmount = await getWalletBalanceByAddress(
       'addr_test1vrvyzwdky7hf7rqsnc3v69lr604tprdp3uyvkc0wqmrwmgqsgss8y'
     );
 
     setOracleWalletLovelaceBalance(lovelaceAmount);
+
+    setIsLoading((prevState: any) => ({
+      ...prevState,
+      query: false,
+    }));
   };
 
   const handleOpenSignTransactionModal = () => {
@@ -44,7 +57,10 @@ export default function CoreWallet(props: any) {
   };
 
   const handleSendTransaction = async () => {
-    setIsLoading(true);
+    setIsLoading((prevState: any) => ({
+      ...prevState,
+      transfer: true,
+    }));
 
     if (parseFloat(adaToSend) <= 0) {
       toast.error(
@@ -97,7 +113,10 @@ export default function CoreWallet(props: any) {
         );
       }
     }
-    setIsLoading(false);
+    setIsLoading((prevState: any) => ({
+      ...prevState,
+      transfer: false,
+    }));
   };
 
   return (
@@ -118,7 +137,11 @@ export default function CoreWallet(props: any) {
                       className="text-white bg-custom-dark hover:bg-custom-dark-hover focus:outline-none focus:ring-4 focus:ring-gray-300 font-medium rounded text-sm p-2.5 "
                       onClick={handleGetOracleWalletLovelaceBalance}
                     >
-                      Consultar
+                      {isLoading.query ? (
+                        <LoadingIcon className="w-5 h-5" />
+                      ) : (
+                        'Consultar'
+                      )}
                     </button>
                     <label
                       className={`${
@@ -158,7 +181,11 @@ export default function CoreWallet(props: any) {
                     className="text-white bg-custom-dark hover:bg-custom-dark-hover focus:outline-none focus:ring-4 focus:ring-gray-300 font-medium rounded text-sm p-2.5 "
                     onClick={handleSendTransaction}
                   >
-                    Transferir
+                    {isLoading.transfer ? (
+                      <LoadingIcon className="w-5 h-5" />
+                    ) : (
+                      'Transferir'
+                    )}
                   </button>
                 </div>
               </div>

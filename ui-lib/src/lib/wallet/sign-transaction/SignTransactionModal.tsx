@@ -4,7 +4,7 @@ import SignTransaction from './SignTransaction';
 import TransactionInfoCard from './TransactionInfoCard';
 
 interface SignTransactionModalProps {
-  handleOpenSignTransactionModal: () => void;
+  handleOpenSignTransactionModal: (signStatus?: boolean) => void;
   signTransactionModal: boolean;
   newTransactionBuild: any;
   signType: string;
@@ -21,7 +21,7 @@ export default function SignTransactionModal(props: SignTransactionModalProps) {
     handleOpenSignTransactionModal,
     signTransactionModal,
     newTransactionBuild,
-    signType
+    signType,
   } = props;
 
   return (

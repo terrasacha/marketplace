@@ -16,8 +16,13 @@ interface TransactionsProps {
 
 export default function Transactions(props: TransactionsProps) {
   const { txPerPage } = props;
-  const { walletStakeAddress, walletData, walletID, fetchWalletData, balanceChanged } =
-    useContext<any>(WalletContext);
+  const {
+    walletStakeAddress,
+    walletData,
+    walletID,
+    fetchWalletData,
+    balanceChanged,
+  } = useContext<any>(WalletContext);
   const [transactionsList, setTransactionsList] = useState<Array<any>>([]);
   const [isLoading, setIsLoading] = useState<boolean>(false);
 
@@ -32,14 +37,25 @@ export default function Transactions(props: TransactionsProps) {
 
   useEffect(() => {
     /* const pendingTx = router.query.pendingTx; */
+
     const pendingTx = localStorage.getItem('pendingTx');
+
     const currentDate = new Date();
 
     if (pendingTx && typeof pendingTx === 'string') {
       console.log('pendingTxFromRouter', pendingTx);
+      const { data, timestamp } = JSON.parse(pendingTx);
+
+      if (Date.now() - timestamp > 300000) {
+        // Eliminar pendingTx despues de 5 min
+        localStorage.removeItem('pendingTx');
+        setPendingTransaction(null);
+        return;
+      }
+
       setPendingTransaction((prevState: any) => {
         return {
-          ...JSON.parse(pendingTx),
+          ...data,
           title: 'Envio de fondos',
           subtitle: getDateFromTimeStamp(currentDate.getTime() / 1000),
           tx_type: 'sent',
@@ -52,32 +68,90 @@ export default function Transactions(props: TransactionsProps) {
   }, [router.query]);
 
   useEffect(() => {
-    getTransactionsData();
+    getTransactionsData(1, false);
   }, [router]);
 
   useEffect(() => {
+    const clearAllCaches = () => {
+      Object.keys(localStorage).forEach((key) => {
+        if (key.startsWith('/api/transactions/account-tx')) {
+          localStorage.removeItem(key);
+        }
+      });
+    };
+
     if (balanceChanged !== 0) {
-      getTransactionsData();
+      // Limpiar todas las caches
+      clearAllCaches();
+
+      // Traer datos de tabla
+      getTransactionsData(1, true);
     }
   }, [balanceChanged]);
 
-  const getTransactionsData = async (page: number = 1) => {
-    setIsLoading(true);
-    await fetchWalletData();
-    const payload = {
-      stake: walletStakeAddress,
-      skip: page * txPerPage - txPerPage,
-      limit: txPerPage,
-      all: false,
-    };
-    const response = await fetch('/api/transactions/account-tx', {
+  const fetchWithCache = async (
+    url: string,
+    payload: any,
+    invalidateCache: boolean = false
+  ) => {
+    const cacheKey = `${url}-${JSON.stringify(payload)}`;
+
+    if (!invalidateCache) {
+      const cachedData = localStorage.getItem(cacheKey);
+      if (cachedData) {
+        const { data, timestamp } = JSON.parse(cachedData);
+        if (Date.now() - timestamp < 3600000) {
+          // Invalida después de 1 hora
+          return data;
+        }
+      }
+    }
+
+    const response = await fetch(url, {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
       },
       body: JSON.stringify(payload),
     });
-    const responseData = await response.json();
+    const data = await response.json();
+    localStorage.setItem(
+      cacheKey,
+      JSON.stringify({ data, timestamp: Date.now() })
+    );
+
+    return data;
+  };
+
+  const getTransactionsData = async (
+    page: number = 1,
+    invalidateCache: boolean = false
+  ) => {
+    setIsLoading(true);
+    
+    const payload = {
+      stake: walletStakeAddress,
+      skip: page * txPerPage - txPerPage,
+      limit: txPerPage,
+      all: false,
+    };
+
+    const responseData = await fetchWithCache(
+      '/api/transactions/account-tx',
+      payload,
+      invalidateCache
+    );
+
+    if (pendingTransaction) {
+      const isPendingTxOk = responseData.data.find(
+        (tx: any) => tx.tx_hash === pendingTransaction.tx_id
+      );
+
+      if (isPendingTxOk) {
+        localStorage.removeItem('pendingTx');
+        setPendingTransaction(null);
+      }
+    }
 
     const paginationMetadataItem = {
       currentPage: responseData.current_page,
@@ -110,34 +184,35 @@ export default function Transactions(props: TransactionsProps) {
       );
       const responseData = await pendingTransactionItemRequest.json();
 
-      if (responseData[0].num_confirmations < 12) {
-        setPendingTransaction((prevState: any) => ({
-          ...prevState,
+      if (responseData) {
+        const newStatePendingTransaction = {
+          ...pendingTransaction,
           tx_status:
             responseData[0].num_confirmations !== null &&
-            responseData[0].num_confirmations > 1
+            responseData[0].num_confirmations >= 1
               ? 'on-chain'
               : 'pending',
           tx_confirmation_status: 'LOW',
           tx_confirmation_n: responseData[0].num_confirmations || 0,
-        }));
-      } else {
-        localStorage.removeItem('pendingTx');
-        setPendingTransaction(null);
-        await getTransactionsData();
-        // setTransactionsList((prevState) => [
-        //   pendingTransaction,
-        //   ...prevState,
-        // ]);
+        };
+        setPendingTransaction(newStatePendingTransaction);
+
+        // Actualizar cache
+        const pendingTx = localStorage.getItem('pendingTx');
+        if (pendingTx && typeof pendingTx === 'string') {
+          const parsedPendingTx = JSON.parse(pendingTx);
+
+          localStorage.setItem(
+            'pendingTx',
+            JSON.stringify({
+              data: newStatePendingTransaction,
+              timestamp: parsedPendingTx.timestamp,
+            })
+          );
+        }
       }
     }
   };
-
-  // useEffect(() => {
-  //   if (walletData) {
-  //     getTransactionsData();
-  //   }
-  // }, [walletData]);
 
   useEffect(() => {
     if (pendingTransaction) {
@@ -166,8 +241,7 @@ export default function Transactions(props: TransactionsProps) {
 
   const handleRefresh = async () => {
     setIsLoading(true);
-    //await fetchWalletData();
-    await getTransactionsData();
+    await fetchWalletData();
     setIsLoading(false);
   };
   return (

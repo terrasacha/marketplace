@@ -47,6 +47,7 @@ export default function AssetsList(props: AssesListProps) {
               asset_name={asset.asset_name}
               quantity={asset.quantity}
               price={asset.price}
+              total={asset.total}
               // Agrega onClick para abrir la modal
             />
           </div>
