@@ -21,7 +21,7 @@ export default function AssetModal(props: AssetModalProps) {
   const [assetMetadata, setAssetMetadata] = useState<any>(null);
   const [assetInfo, setAssetInfo] = useState<any>({});
 
-  const extractInnerObject = (obj: any) => {
+  const extractInnerObject: any = (obj: any) => {
     if (typeof obj === 'object' && obj !== null) {
       const keys = Object.keys(obj);
       if (keys.length === 1 && typeof obj[keys[0]] === 'object') {
