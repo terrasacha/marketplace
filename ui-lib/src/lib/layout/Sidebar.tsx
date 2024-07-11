@@ -11,6 +11,7 @@ import { ScaleIcon } from '../icons/ScaleIcon';
 import WalletIcon from '../icons/WalletIcon';
 import { WalletContext } from '@marketplaces/utils-2';
 import { LoadingIcon, SquareArrowUpIcon } from '../ui-lib';
+import SideBarBalanceSkeleton from '../common/skeleton/SideBarBalanceSkeleton';
 
 interface SidebarProps {
   isOpen: boolean;
@@ -142,7 +143,8 @@ export default function Sidebar(props: SidebarProps) {
         </div>
 
         <div className="pt-4 border-t border-gray-200"></div>
-        <div>
+        {balance ?
+          <div>
           <label className="block text-sm text-black">Tu saldo</label>
           <h3
             className={`text-lg truncate ${
@@ -170,6 +172,13 @@ export default function Sidebar(props: SidebarProps) {
             Sincronizado hace {syncedAgo} segundos
           </label>
         </div>
+        :
+        <SideBarBalanceSkeleton />
+        }
+
+        {/*Skeleton*/}
+        {/*Skeleton*/}
+
         <div className="pt-4 mt-4 border-t border-gray-200"></div>
 
         <ul className="space-y-4">

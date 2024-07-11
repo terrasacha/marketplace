@@ -1,6 +1,7 @@
 import { colorByLetter } from '@marketplaces/utils-2';
 import { getCurrentUser } from 'aws-amplify/auth';
 import { useState, useEffect } from 'react';
+import NavBarUserInfoSkeleton from '../common/skeleton/NavBarUserInfoSkeleton';
 interface ButtonProfileNavbarProps {
   openModal: any;
   walletInfo: any;
@@ -19,6 +20,7 @@ const ButtonProfileNavbar = (props: ButtonProfileNavbarProps) => {
       setUsername(walletInfo.name)
     })
   },[])
+  if(!walletChar) return <NavBarUserInfoSkeleton />
   return (
     <button
       onClick={() => openModal(!showModal)}

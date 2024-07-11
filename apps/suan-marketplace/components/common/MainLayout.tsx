@@ -33,6 +33,9 @@ const MainLayout = ({ children }: PropsWithChildren) => {
     }
   }, [walletData]);
   useEffect(() => {
+    if(window.sessionStorage.getItem("hasTokenAuth") === 'true'){
+      setAllowAccess(true)
+    }
     const fetchData = async () => {
       let access = false;
 
@@ -97,6 +100,9 @@ const MainLayout = ({ children }: PropsWithChildren) => {
 
   useEffect(() => {
     if (connected) {
+      if(window.sessionStorage.getItem("hasTokenAuth") === 'true'){
+        setAllowAccess(true)
+      }
       const fetchData = async () => {
         const changeAddress = await wallet.getChangeAddress();
         const rewardAddresses = await wallet.getRewardAddresses();
