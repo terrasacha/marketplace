@@ -9,7 +9,7 @@ import Navbar from '@marketplaces/ui-lib/src/lib/layout/Navbar';
 import { useWallet, useAddress, useLovelace } from '@meshsdk/react';
 import { useRouter } from 'next/router';
 import { getCurrentUser } from 'aws-amplify/auth';
-import { WalletContext } from '@marketplaces/utils-2';
+import WalletContext from '@marketplaces/utils-2/src/lib/context/wallet-context';
 
 const initialStatewalletInfo = {
   name: '',
@@ -33,6 +33,9 @@ const MainLayout = ({ children }: PropsWithChildren) => {
     }
   }, [walletData]);
   useEffect(() => {
+    if(window.sessionStorage.getItem("hasTokenAuth") === 'true'){
+      setAllowAccess(true)
+    }
     const fetchData = async () => {
       let access = false;
 
@@ -59,6 +62,7 @@ const MainLayout = ({ children }: PropsWithChildren) => {
               wallet[0].stake_address
             );
             if (hasTokenAuthFunction) {
+              window.sessionStorage.setItem("hasTokenAuth", "true")
               const address = wallet[0].address;
               setAllowAccess(true);
               setWalletInfo({
@@ -96,6 +100,9 @@ const MainLayout = ({ children }: PropsWithChildren) => {
 
   useEffect(() => {
     if (connected) {
+      if(window.sessionStorage.getItem("hasTokenAuth") === 'true'){
+        setAllowAccess(true)
+      }
       const fetchData = async () => {
         const changeAddress = await wallet.getChangeAddress();
         const rewardAddresses = await wallet.getRewardAddresses();
@@ -110,6 +117,7 @@ const MainLayout = ({ children }: PropsWithChildren) => {
           true
         );
         if (hasTokenAuthFunction) {
+          window.sessionStorage.setItem("hasTokenAuth", "true")
           setWalletInfo({
             name: name,
             addr: changeAddress,
@@ -129,6 +137,8 @@ const MainLayout = ({ children }: PropsWithChildren) => {
   }, [connected]);
 
   const checkTokenStakeAddress = async (rewardAddresses: any) => {
+    let tokenAuthOnSessionStorage = window.sessionStorage.getItem("hasTokenAuth")
+    if(tokenAuthOnSessionStorage === "true") return true
     const response = await fetch('/api/calls/backend/checkTokenStakeAddress', {
       method: 'POST',
       headers: {
@@ -187,25 +197,33 @@ const MainLayout = ({ children }: PropsWithChildren) => {
     }
     return walletInfoOnDB;
   };
-  const handleSidebarClose = () => {
-    setIsOpen(false);
+  const handleSidebarStatus = () => {
+    setIsOpen(!isOpen);
   };
 
   return (
     <>
       {allowAccess ? (
         <>
-          <Navbar walletInfo={walletInfo} />
+          <Navbar
+            walletInfo={walletInfo}
+            handleSidebarStatus={handleSidebarStatus}
+          />
           <Sidebar
             isOpen={isOpen}
             balance={balance}
-            onClose={handleSidebarClose}
+            onClose={handleSidebarStatus}
             user={user}
             appName="Terrasacha"
+            //appName="Suan"
+            //image="/images/home-page/suan_logo.png"
+            //heightLogo={120}
+            //widthLogo={60}
             image="/images/home-page/terrasacha_logo_vertical.png"
             heightLogo={60}
             widthLogo={120}
             poweredBy={true}
+            //poweredBy={false}
           />
           <main className="lg:ml-80 mt-20">{children}</main>
         </>
