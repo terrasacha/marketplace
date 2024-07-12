@@ -23,6 +23,7 @@ interface SidebarProps {
   heightLogo: number;
   poweredBy: boolean;
   balance: any;
+  balanceUSD: any
 }
 
 export default function Sidebar(props: SidebarProps) {
@@ -35,6 +36,7 @@ export default function Sidebar(props: SidebarProps) {
     heightLogo,
     poweredBy,
     balance,
+    balanceUSD
   } = props;
   const { walletAdmin, isLoading, lastSyncDate, balanceChanged } =
     useContext<any>(WalletContext);
@@ -47,7 +49,7 @@ export default function Sidebar(props: SidebarProps) {
   const [displayMarketOptions, setDisplayMarketOptions] = useState(false);
   const [syncedAgo, setSyncedAgo] = useState<number>(0);
   const [changeOnBalanceDetected, setChangeOnBalanceDetected] =
-    useState<boolean>(false);
+    useState<boolean>(true);
 
   useEffect(() => {
     const handleClickOutside = (event: MouseEvent) => {
@@ -145,9 +147,32 @@ export default function Sidebar(props: SidebarProps) {
         <div className="pt-4 border-t border-gray-200"></div>
         {balance ?
           <div>
-          <label className="block text-sm text-black">Tu saldo</label>
-          <h3
-            className={`text-lg truncate ${
+          <label className="block text-sm font-semibold text-gray-400">Tu saldo</label>
+          <div> 
+          <p
+          className={`text-xl truncate font-semibold mb-[-.1rem] ${
+            changeOnBalanceDetected
+              ? balanceChanged >= 0
+                ? 'balance-changed-positive'
+                : 'balance-changed-negative'
+              : 'text-black'
+          }`}
+          >
+          {!isLoading ? balanceUSD.toFixed(4) : <LoadingIcon className="h-5 w-5" />} <span className='font-bold text-gray-400 text-base'>USD</span>
+          {changeOnBalanceDetected && (
+              <>
+                <span className="inline-block animate-bounce ml-2">
+                  {'('}
+                  {balanceChanged >= 0 ? '+ ' : '- '}
+                  {Math.abs(balanceChanged / 1000000)}
+                  {')'}
+                </span>
+                {/* <SquareArrowUpIcon className="inline-block ml-2 text-green-500 animate-bounce h-5 w-5" /> */}
+              </>
+            )}
+          </p>
+          <p
+            className={`text-sm font-light truncate ${
               changeOnBalanceDetected
                 ? balanceChanged >= 0
                   ? 'balance-changed-positive'
@@ -155,7 +180,7 @@ export default function Sidebar(props: SidebarProps) {
                 : 'text-black'
             }`}
           >
-            ₳ {!isLoading ? balance : <LoadingIcon className="h-5 w-5" />}
+            {!isLoading ? balance : <LoadingIcon className="h-5 w-5" />} <span className='text-gray-400 text-xs'>ADA</span>
             {changeOnBalanceDetected && (
               <>
                 <span className="inline-block animate-bounce ml-2">
@@ -167,10 +192,11 @@ export default function Sidebar(props: SidebarProps) {
                 {/* <SquareArrowUpIcon className="inline-block ml-2 text-green-500 animate-bounce h-5 w-5" /> */}
               </>
             )}
-          </h3>
-          <label className="block text-xs text-gray-500">
+          </p>
+          <label className="block text-xs font-light text-gray-500 pt-2">
             Sincronizado hace {syncedAgo} segundos
           </label>
+          </div>
         </div>
         :
         <SideBarBalanceSkeleton />
