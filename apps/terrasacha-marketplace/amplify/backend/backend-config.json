@@ -1,6 +1,6 @@
 {
   "auth": {
-    "terrasachamarket007bd3c7": {
+    "terrasachamarket51863474": {
       "customAuth": false,
       "dependsOn": [],
       "providerPlugin": "awscloudformation",
@@ -94,6 +94,94 @@
         {
           "category": "auth",
           "resourceName": "terrasachamarket007bd3c7"
+        }
+      ]
+    },
+    "AMPLIFY_auth_terrasachamarket51863474_allowUnauthenticatedIdentities": {
+      "usedBy": [
+        {
+          "category": "auth",
+          "resourceName": "terrasachamarket51863474"
+        }
+      ]
+    },
+    "AMPLIFY_auth_terrasachamarket51863474_authRoleArn": {
+      "usedBy": [
+        {
+          "category": "auth",
+          "resourceName": "terrasachamarket51863474"
+        }
+      ]
+    },
+    "AMPLIFY_auth_terrasachamarket51863474_authRoleName": {
+      "usedBy": [
+        {
+          "category": "auth",
+          "resourceName": "terrasachamarket51863474"
+        }
+      ]
+    },
+    "AMPLIFY_auth_terrasachamarket51863474_identityPoolId": {
+      "usedBy": [
+        {
+          "category": "auth",
+          "resourceName": "terrasachamarket51863474"
+        }
+      ]
+    },
+    "AMPLIFY_auth_terrasachamarket51863474_identityPoolName": {
+      "usedBy": [
+        {
+          "category": "auth",
+          "resourceName": "terrasachamarket51863474"
+        }
+      ]
+    },
+    "AMPLIFY_auth_terrasachamarket51863474_nativeClientId": {
+      "usedBy": [
+        {
+          "category": "auth",
+          "resourceName": "terrasachamarket51863474"
+        }
+      ]
+    },
+    "AMPLIFY_auth_terrasachamarket51863474_unauthRoleArn": {
+      "usedBy": [
+        {
+          "category": "auth",
+          "resourceName": "terrasachamarket51863474"
+        }
+      ]
+    },
+    "AMPLIFY_auth_terrasachamarket51863474_unauthRoleName": {
+      "usedBy": [
+        {
+          "category": "auth",
+          "resourceName": "terrasachamarket51863474"
+        }
+      ]
+    },
+    "AMPLIFY_auth_terrasachamarket51863474_userPoolId": {
+      "usedBy": [
+        {
+          "category": "auth",
+          "resourceName": "terrasachamarket51863474"
+        }
+      ]
+    },
+    "AMPLIFY_auth_terrasachamarket51863474_userPoolName": {
+      "usedBy": [
+        {
+          "category": "auth",
+          "resourceName": "terrasachamarket51863474"
+        }
+      ]
+    },
+    "AMPLIFY_auth_terrasachamarket51863474_webClientId": {
+      "usedBy": [
+        {
+          "category": "auth",
+          "resourceName": "terrasachamarket51863474"
         }
       ]
     }
