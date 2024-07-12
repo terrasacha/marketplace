@@ -26,6 +26,17 @@ interface SidebarProps {
   balanceUSD: any
 }
 
+const getRates = async () => {
+  const response = await fetch('/api/calls/getRates')
+  const data = await response.json()
+  let dataFormatted: any = {}
+  data.map((item: any) => {
+      let obj = `ADArate${item.currency}`
+      dataFormatted[obj] = parseFloat(item.value.toFixed(4))
+  });
+  return dataFormatted
+}
+
 export default function Sidebar(props: SidebarProps) {
   const {
     isOpen,
@@ -48,8 +59,9 @@ export default function Sidebar(props: SidebarProps) {
   const [displayWalletOptions, setDisplayWalletOptions] = useState(false);
   const [displayMarketOptions, setDisplayMarketOptions] = useState(false);
   const [syncedAgo, setSyncedAgo] = useState<number>(0);
+  const [balanceChangeUSD, setBalanceChangeUSD] = useState<number>(0)
   const [changeOnBalanceDetected, setChangeOnBalanceDetected] =
-    useState<boolean>(true);
+    useState<boolean>(false);
 
   useEffect(() => {
     const handleClickOutside = (event: MouseEvent) => {
@@ -87,12 +99,17 @@ export default function Sidebar(props: SidebarProps) {
     };
 
     if (balanceChanged !== 0) {
+      getRates()
+    .then(rates =>{
+      //@ts-ignore
+      setBalanceChangeUSD(Math.abs(((balanceChanged / 1000000) * rates.ADArateUSD).toFixed(4)))
       playCashRegister();
       setChangeOnBalanceDetected(true);
 
       setTimeout(() => {
         setChangeOnBalanceDetected(false);
       }, 4000);
+    })
     }
   }, [balanceChanged]);
 
@@ -113,7 +130,6 @@ export default function Sidebar(props: SidebarProps) {
     // Limpiar el intervalo cuando el componente se desmonte
     return () => clearInterval(intervalo);
   }, [lastSyncDate]);
-
   async function loadUserData() {
     const addresses = await wallet.getRewardAddresses();
     setWalletStakeID(addresses[0]);
@@ -164,7 +180,7 @@ export default function Sidebar(props: SidebarProps) {
                 <span className="inline-block animate-bounce ml-2">
                   {'('}
                   {balanceChanged >= 0 ? '+ ' : '- '}
-                  {Math.abs(balanceChanged / 1000000)}
+                  {balanceChangeUSD}
                   {')'}
                 </span>
                 {/* <SquareArrowUpIcon className="inline-block ml-2 text-green-500 animate-bounce h-5 w-5" /> */}

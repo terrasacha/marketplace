@@ -11,6 +11,17 @@ import { useRouter } from 'next/router';
 import { getCurrentUser } from 'aws-amplify/auth';
 import WalletContext from '@marketplaces/utils-2/src/lib/context/wallet-context';
 
+const getRates = async () => {
+  const response = await fetch('/api/calls/getRates')
+  const data = await response.json()
+  let dataFormatted: any = {}
+  data.map((item: any) => {
+      let obj = `ADArate${item.currency}`
+      dataFormatted[obj] = parseFloat(item.value.toFixed(4))
+  });
+  return dataFormatted
+}
+
 const initialStatewalletInfo = {
   name: '',
   addr: '',
@@ -23,13 +34,19 @@ const MainLayout = ({ children }: PropsWithChildren) => {
   const [user, setUser] = useState<any>(null);
   const [walletInfo, setWalletInfo] = useState<any>(initialStatewalletInfo);
   const [balance, setBalance] = useState<any>(0);
+  const [balanceUSD, setBalanceUSD] = useState<number>(0)
   const [isOpen, setIsOpen] = useState<boolean>(false);
   const router = useRouter();
 
   const { handleWalletData } = useContext<any>(WalletContext);
   useEffect(() => {
     if (walletData) {
-      setBalance((walletData.balance / 1000000).toFixed(4));
+      getRates()
+      .then(rates =>{
+        console.log(rates,'rates 47')
+        setBalance((walletData.balance / 1000000).toFixed(4));
+        setBalanceUSD((walletData.balance / 1000000) * rates.ADArateUSD)
+      })
     }
   }, [walletData]);
   useEffect(() => {
@@ -69,9 +86,12 @@ const MainLayout = ({ children }: PropsWithChildren) => {
                 name: (wallet[0] as any)?.name,
                 addr: address,
               });
-              const balance =
+              const balance : any=
                 (parseInt(walletData.balance) / 1000000).toFixed(4) || 0;
-              setBalance(balance);
+              getRates().then(rates =>{
+                setBalance(balance);
+                setBalanceUSD(balance * rates.ADArateUSD)
+              })
               access = true;
             } else {
               sessionStorage.removeItem('preferredWalletSuan');
@@ -212,6 +232,7 @@ const MainLayout = ({ children }: PropsWithChildren) => {
           <Sidebar
             isOpen={isOpen}
             balance={balance}
+            balanceUSD={balanceUSD}
             onClose={handleSidebarStatus}
             user={user}
             appName="Terrasacha"
