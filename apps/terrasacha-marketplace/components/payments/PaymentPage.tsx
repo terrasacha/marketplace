@@ -1,5 +1,4 @@
 'use client';
-
 import Card from '@marketplaces/ui-lib/src/lib/common/Card';
 import EpaycoCheckout from '@marketplaces/ui-lib/src/lib/epayco/EpaycoCheckout';
 import { LoadingIcon } from '@marketplaces/ui-lib/src/lib/icons/LoadingIcon';
@@ -517,7 +516,7 @@ export default function PaymentPage({}) {
                 parseInt(tokenAmount) * parseInt(projectInfo.token.oraclePrice), // ,
               multiAsset: [],
             },
-            {
+            /* {
               address: spendContractFromMintProjectToken.testnetAddr,
               lovelace: 0,
               multiAsset: [
@@ -534,7 +533,7 @@ export default function PaymentPage({}) {
                 beneficiary: coreWallet.id, // Wallet ID del Administrador
                 //price: 17123288,//Math.round(adaPrice * 1000000),
               },
-            },
+            }, */
             {
               address: walletAddress,
               lovelace: 0,
@@ -570,8 +569,8 @@ export default function PaymentPage({}) {
           const buildTxResponse = await request.json();
           console.log('BuildTx Response: ', buildTxResponse);
 
-          if (!buildTxResponse?.success) {
-            return buildTxResponse;
+          if (buildTxResponse?.success) {
+            return { buildTxResponse, payload };
           } else {
             toast.error('Reintentando ...');
             throw new Error('Build transaction failed');
@@ -624,13 +623,13 @@ export default function PaymentPage({}) {
       );
       // Construcción de transacción
 
-      const buildTxResponse = await handleBuildTx();
+      const build: any = await handleBuildTx();
 
-      if (buildTxResponse?.success) {
+      if (build && build.buildTxResponse?.success) {
         const mappedTransactionData = await mapBuildTransactionInfo({
           tx_type: 'preview',
           walletAddress: walletAddress,
-          buildTxResponse: buildTxResponse,
+          buildTxResponse: build.buildTxResponse,
           metadata: {},
         });
 
@@ -643,6 +642,7 @@ export default function PaymentPage({}) {
             tokenName: projectInfo.token.tokenName,
             tokenAmount: parseInt(tokenAmount),
           },
+          retryPayload: build.payload,
         });
         handleOpenSignTransactionModal();
       } else {

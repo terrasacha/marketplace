@@ -49,7 +49,7 @@ export default function AssetModal(props: AssetModalProps) {
 
       let metadata = {};
 
-      if (assetInfo.minting_tx_metadata) {
+      if (assetInfo && assetInfo.minting_tx_metadata) {
         /* Object.entries(assetInfo.minting_tx_metadata).forEach(
           ([key, value]: any) => {
             const metadataInfo = value;

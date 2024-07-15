@@ -257,29 +257,33 @@ export default function Scripts(props: any) {
     return data;
   };
 
-  function fixAddressArray(data: any, targetAddress: string) {
+  /* function fixAddressArray(
+    data: any,
+    targetAddress: string,
+    tokenName: string
+  ) {
     let newEntry = null;
     for (let entry of data) {
       if (entry.address === targetAddress) {
         for (let asset of entry.multiAsset) {
-          if (asset.tokens && asset.tokens.ProyectoYToken) {
+          if (asset.tokens && asset.tokens[tokenName]) {
             // Obtener el valor del token
-            let originalValue = asset.tokens.ProyectoYToken;
+            let originalValue = asset.tokens[tokenName];
             // Calcular la mitad
             let halfValue = Math.floor(originalValue / 2);
             // Asignar la primera mitad al valor original
-            asset.tokens.ProyectoYToken = halfValue;
+            asset.tokens[tokenName] = halfValue;
             // Crear un nuevo elemento con la otra mitad
             let newAsset = {
               policyid: asset.policyid,
               tokens: {
-                ProyectoYToken: originalValue - halfValue,
+                [tokenName]: originalValue - halfValue,
               },
             };
             // Clonar el objeto de entrada original y modificar la cantidad del token
             newEntry = JSON.parse(JSON.stringify(entry));
-            newEntry.multiAsset[0].tokens.ProyectoYToken =
-              newAsset.tokens.ProyectoYToken;
+            newEntry.multiAsset[0].tokens[tokenName] =
+              newAsset.tokens[tokenName];
             break;
           }
         }
@@ -289,6 +293,68 @@ export default function Scripts(props: any) {
     if (newEntry) {
       data.push(newEntry);
     }
+    return data;
+  } */
+
+  function fixAddressArray(
+    data: any,
+    targetAddress: string,
+    tokenName: string
+  ) {
+    let newEntries = [];
+
+    for (let entry of data) {
+      if (entry.address === targetAddress) {
+        for (let asset of entry.multiAsset) {
+          if (asset.tokens && asset.tokens[tokenName]) {
+            // Obtener el valor del token
+            let originalValue = asset.tokens[tokenName];
+            // Calcular un cuarto del valor
+            let quarterValue = Math.floor(originalValue / 4);
+            // Asignar el primer cuarto al valor original
+            asset.tokens[tokenName] = quarterValue;
+            // Crear tres nuevos elementos con los otros tres cuartos
+            let newAsset1 = {
+              policyid: asset.policyid,
+              tokens: {
+                [tokenName]: quarterValue,
+              },
+            };
+            let newAsset2 = {
+              policyid: asset.policyid,
+              tokens: {
+                [tokenName]: quarterValue,
+              },
+            };
+            let newAsset3 = {
+              policyid: asset.policyid,
+              tokens: {
+                [tokenName]: originalValue - 3 * quarterValue,
+              },
+            };
+            // Clonar el objeto de entrada original tres veces y modificar la cantidad del token
+            let newEntry1 = JSON.parse(JSON.stringify(entry));
+            newEntry1.multiAsset[0].tokens[tokenName] =
+              newAsset1.tokens[tokenName];
+
+            let newEntry2 = JSON.parse(JSON.stringify(entry));
+            newEntry2.multiAsset[0].tokens[tokenName] =
+              newAsset2.tokens[tokenName];
+
+            let newEntry3 = JSON.parse(JSON.stringify(entry));
+            newEntry3.multiAsset[0].tokens[tokenName] =
+              newAsset3.tokens[tokenName];
+
+            // Añadir las nuevas entradas al array de nuevos elementos
+            newEntries.push(newEntry1, newEntry2, newEntry3);
+            break;
+          }
+        }
+        break;
+      }
+    }
+    // Añadir las nuevas entradas al array original de datos
+    data.push(...newEntries);
     return data;
   }
 
@@ -413,11 +479,12 @@ export default function Scripts(props: any) {
       });
 
       console.log('addresses', addresses);
-      /* const newAddressArray = fixAddressArray(
+      const newAddressArray = fixAddressArray(
         addresses,
-        mapStakeHolders.inversionista
+        mapStakeHolders.inversionista,
+        actualScript.token_name
       );
-      console.log('newAddressArray', newAddressArray); */
+      console.log('newAddressArray', newAddressArray);
       // filtrar por stake address = mapStakeHolders.inversionista obtener indice y modificar la cantidad de tokens
       // dividir en 2, luego la mitad que queda hacer un push de los addresses con un item similar al indice del inversionista
       // pero con la mitad restante
@@ -462,6 +529,11 @@ export default function Scripts(props: any) {
       payload: {
         wallet_id: walletID,
         addresses: addresses,
+        utxo: {
+          transaction_id:
+            '21b65f853f2d5c0e823c23bef9c7cb1ac4c0418ddf65037dd6fe576f1c32f179',
+          index: 0,
+        },
         mint: {
           asset: {
             policyid: actualScript.id,
@@ -475,8 +547,6 @@ export default function Scripts(props: any) {
         },
       },
     };
-
-    debugger
 
     console.log('payload', payload);
     const response = await fetch('/api/transactions/mint-tokens', {
