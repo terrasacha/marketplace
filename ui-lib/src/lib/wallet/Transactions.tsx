@@ -9,6 +9,7 @@ import {
   mapTransactionListInfo,
 } from '@marketplaces/utils-2';
 import { useRouter } from 'next/router';
+import { toast } from 'sonner';
 
 interface TransactionsProps {
   txPerPage: number;
@@ -100,8 +101,9 @@ export default function Transactions(props: TransactionsProps) {
       const cachedData = localStorage.getItem(cacheKey);
       if (cachedData) {
         const { data, timestamp } = JSON.parse(cachedData);
-        if (Date.now() - timestamp < 3600000) {
+        if (Date.now() - timestamp < 3600000 && !data?.error) {
           // Invalida después de 1 hora
+          console.log('entro');
           return data;
         }
       }
@@ -128,7 +130,7 @@ export default function Transactions(props: TransactionsProps) {
     invalidateCache: boolean = false
   ) => {
     setIsLoading(true);
-    
+
     const payload = {
       stake: walletStakeAddress,
       skip: page * txPerPage - txPerPage,
@@ -142,8 +144,13 @@ export default function Transactions(props: TransactionsProps) {
       invalidateCache
     );
 
+    if (responseData?.error) {
+      toast.error('Hubo un error sincronizando el historial de transacciones');
+      return;
+    }
+
     if (pendingTransaction) {
-      const isPendingTxOk = responseData.data.find(
+      const isPendingTxOk = responseData?.data.find(
         (tx: any) => tx.tx_hash === pendingTransaction.tx_id
       );
 
@@ -160,8 +167,8 @@ export default function Transactions(props: TransactionsProps) {
     };
     console.log('paginationMetadataItem', paginationMetadataItem);
     const mappedTransactionListData = await mapTransactionListInfo({
-      walletAddress: walletData.address,
-      data: responseData.data,
+      walletAddress: walletData?.address,
+      data: responseData?.data,
     });
 
     //getPendingTransaction(mappedTransactionListData);

@@ -193,11 +193,11 @@ export default function CoreWallet(props: any) {
           </Card>
         </div>
         <div className="col-span-2">
+          <Projects />
+        </div>
+        <div className="col-span-2">
           <Scripts />
         </div>
-        {/* <div className="col-span-2">
-          <Projects />
-        </div> */}
       </div>
       <SignTransactionModal
         signTransactionModal={signTransactionModal}

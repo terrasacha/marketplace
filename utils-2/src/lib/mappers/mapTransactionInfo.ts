@@ -277,7 +277,7 @@ export async function mapTransactionListInfo({
 }: MapTransactionListProps) {
   console.log('TransactionListRawInfoData', data);
 
-  const mappedData = data.reverse().map((tx: any, index: number) => {
+  const mappedData = data?.reverse().map((tx: any, index: number) => {
     const input_utxo = tx.inputs.map((utxo: any) => {
       const mappedAssetList = utxo.asset_list.map((asset: any) => {
         return {
@@ -449,6 +449,9 @@ export async function mapTransactionListInfo({
   });
 
   console.log('mappedData: ', mappedData);
+  if (!mappedData) {
+    return [];
+  }
 
   return mappedData.reverse();
 }

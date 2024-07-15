@@ -258,6 +258,22 @@ export async function getAllProjects() {
               tokenGenesis
               updatedAt
               createdAt
+              userProducts {
+                items {
+                  user {
+                    id
+                    role
+                    name
+                    wallets {
+                      items {
+                        id
+                        address
+                        stake_address
+                      }
+                    }
+                  }
+                }
+              }
               tokens {
                 items {
                   id
