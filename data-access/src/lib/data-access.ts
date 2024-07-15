@@ -436,13 +436,13 @@ export async function getAllProjects() {
   }
 }
 
-export async function getProjects() {
+export async function getProjects(app: string) {
   try {
     const response = await axios.post(
       graphqlEndpoint,
       {
         query: `query getProjects {
-          listProducts(filter: {isActive: {eq: true}}) {
+          listProducts(filter: {isActive: {eq: true}, showOn: {eq: "${app}"}}) {
             nextToken
             items {
               id

@@ -6,7 +6,6 @@ import PendingVerificationMessage from '@marketplaces/ui-lib/src/lib/common/Pend
 import SignTransactionModal from '@marketplaces/ui-lib/src/lib/wallet/sign-transaction/SignTransactionModal';
 import { useContext, useEffect, useState } from 'react';
 import { TokenDetailSection } from './TokenDetailSection';
-import ProjectInfoContext from '@suan/store/projectinfo-context';
 import { Button, TextInput } from 'flowbite-react';
 import { BlockChainIcon } from '../icons/BlockChainIcon';
 import { useWallet } from '@meshsdk/react';
@@ -22,6 +21,7 @@ import { WalletContext, mapBuildTransactionInfo } from '@marketplaces/utils-2';
 import { toast } from 'sonner';
 import Swal from 'sweetalert2';
 import { getCurrentUser } from 'aws-amplify/auth';
+import ProjectInfoContext from '@suan/store/projectinfo-context';
 
 const PURCHASE_STEPS = {
   BUYING: 'buying',

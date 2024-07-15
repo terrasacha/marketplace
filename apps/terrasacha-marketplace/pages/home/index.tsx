@@ -6,7 +6,6 @@ import { MyPage } from '@terrasacha/components/common/types';
 const Home: MyPage = (props: any) => {
   return (
     <>
-      {' '}
       <HomeContainer {...props} />
     </>
   );
@@ -14,7 +13,7 @@ const Home: MyPage = (props: any) => {
 
 export async function getServerSideProps() {
   const categories = await getCategories();
-  const projects = await getProjects();
+  const projects = await getProjects('Terrasacha');
   return {
     props: {
       categories: categories,

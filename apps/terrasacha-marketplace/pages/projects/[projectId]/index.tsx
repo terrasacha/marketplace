@@ -13,9 +13,15 @@ import { getActualPeriod } from '@terrasacha//utils/generic/getActualPeriod';
 import { mapProjectData } from '@terrasacha//lib/mappers';
 import dynamic from 'next/dynamic';
 import TabsComponents from '@terrasacha//components/home-page/TabsProject';
-import FinancialTab from '@terrasacha//components/home-page/ProjectTabs/FinancialTab';
-import EarningsTab from '@terrasacha//components/home-page/ProjectTabs/EarningsTab';
-import ProjectionsTab from '@terrasacha//components/home-page/ProjectTabs/ProjectionsTab';
+const FinancialTab = dynamic(
+  () => import('@terrasacha/components/home-page/ProjectTabs/FinancialTab')
+);
+const EarningsTab = dynamic(
+  () => import('@terrasacha/components/home-page/ProjectTabs/EarningsTab')
+);
+const ProjectionsTab = dynamic(
+  () => import('@terrasacha/components/home-page/ProjectTabs/ProjectionsTab')
+);
 import Card from '@marketplaces/ui-lib/src/lib/common/Card';
 import PageHeader from '@marketplaces/ui-lib/src/lib/common/PageHeader';
 import { useRouter } from 'next/router';
@@ -33,7 +39,7 @@ const Product: MyPage = (props: any) => {
   const [availableTokenAmount, setAvailableTokenAmount] = useState<
     number | null
   >(null);
-  
+
   useEffect(() => {
     const getAvailableTokens = async (
       spendContractAddress: string,
@@ -77,11 +83,16 @@ const Product: MyPage = (props: any) => {
 
     // Obtener del endpoint de luis la cantidad de tokens disponibles para comprar
     const mintProjectTokenContract = project.scripts.items.find(
-      (script: any) => script.script_type === 'mintProjectToken' && script.Active === true
+      (script: any) =>
+        script.script_type === 'mintProjectToken' && script.Active === true
     );
 
+    console.log('project.scripts', project.scripts);
+    console.log('mintProjectTokenContract', mintProjectTokenContract);
+
     const spendContractFromMintProjectToken = project.scripts.items.find(
-      (script: any) => script.script_type === 'spendProject' && script.Active === true
+      (script: any) =>
+        script.script_type === 'spendProject' && script.Active === true
     );
 
     if (mintProjectTokenContract && spendContractFromMintProjectToken) {
@@ -325,7 +336,7 @@ const Product: MyPage = (props: any) => {
                     </p>
                   </div>
                   <Link
-                    className="flex justify-center w-full text-amber-400 bg-custom-dark hover:bg-custom-dark-hover focus:outline-none focus:ring-4 focus:ring-gray-300 font-medium rounded text-lg px-5 py-2.5 "
+                    className=" buy-button flex justify-center w-full text-amber-400 bg-custom-dark hover:bg-custom-dark-hover focus:outline-none focus:ring-4 focus:ring-gray-300 font-medium rounded text-lg px-5 py-2.5 "
                     href={`/projects/${project.id}/purchase`}
                   >
                     Ir a comprar !
