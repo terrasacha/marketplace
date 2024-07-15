@@ -36,7 +36,7 @@ export function WalletContextProvider({
       setWalletAdmin(isWalletAdmin);
       const updatedWalletData = await fetchWalletData(walletAddress);
       setWalletStakeAddress(updatedWalletData.stake_address);
-      const projectsData = await getProjects();
+      /* const projectsData = await getProjects();
 
       const mappedAssetsPrice = await Promise.all(
         projectsData.map(async (project: any) => {
@@ -76,7 +76,7 @@ export function WalletContextProvider({
           };
         })
       );
-      console.log('mappedAssetsPrice', mappedAssetsPrice);
+      console.log('mappedAssetsPrice', mappedAssetsPrice); */
       // const updatedAssetsPrice = updatedWalletData.assetes.map(
       //   async (asset: any, index: number) => {
       //     // Listar todos los tokens de todos los proyectos y su precio actual

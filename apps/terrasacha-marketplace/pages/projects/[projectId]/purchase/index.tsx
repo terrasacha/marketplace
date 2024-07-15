@@ -1,10 +1,10 @@
 import React, { useEffect, useContext } from 'react';
-import { getImagesCategories, getProject } from '@terrasacha/backend';
 import PaymentPage from '@terrasacha/components/payments/PaymentPage';
 import ProjectInfoContext from '@terrasacha/store/projectinfo-context';
 import { MyPage } from '@terrasacha/components/common/types';
 import { getActualPeriod } from '@terrasacha/utils/generic/getActualPeriod';
 import PageHeader from '@marketplaces/ui-lib/src/lib/common/PageHeader';
+import { getImagesCategories, getProject } from '@marketplaces/data-access';
 
 const PurchasePage: MyPage = (props: any) => {
   const { project, image } = props;
@@ -43,27 +43,28 @@ const PurchasePage: MyPage = (props: any) => {
         0
       );
 
-      const totalTokensFromFirstToActualPeriod: number =
-        tokenHistoricalData.reduce((acc: any, hd: any) => {
-          if (parseInt(hd.period) <= parseInt(actualPeriod.period)) {
-            return acc + hd.amount;
-          } else {
-            return acc;
-          }
-        }, 0);
+      // const totalTokensFromFirstToActualPeriod: number =
+      //   tokenHistoricalData.reduce((acc: any, hd: any) => {
+      //     if (parseInt(hd.period) <= parseInt(actualPeriod.period)) {
+      //       return acc + hd.amount;
+      //     } else {
+      //       return acc;
+      //     }
+      //   }, 0);
 
-      const tokenUnits: number = totalProjectTokens - parseInt(totalTokensSold);
+      // const tokenUnits: number = totalProjectTokens - parseInt(totalTokensSold);
+
+      console.log('project ACAA', project)
 
       const projectInfo = {
         projectID: project.id,
         projectName: project.name,
         projectDescription: project.description,
         projectFeatures: project.productFeatures.items,
-        tokenName: project.token.tokenName,
         tokenCurrency: tokenCurrency,
         tokenPrice: actualPeriod?.price,
-        availableAmount: tokenUnits,
         categoryID: project.categoryID,
+        scripts: project.scripts.items,
         token: project.tokens.items[0],
         createdAt: new Date(project.createdAt).toLocaleDateString('es-ES'),
       };
