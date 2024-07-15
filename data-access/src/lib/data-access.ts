@@ -143,10 +143,9 @@ const instance = axios.create({
   baseURL: `/api/`,
   withCredentials: true,
 });
-let graphqlEndpoint =
-  'https://4iaizxnzbjaajd2qdjnl3dpamm.appsync-api.us-east-1.amazonaws.com/graphql';
-let awsAppSyncApiKey = 'da2-ybsfm4er7rextmyiiylwwjo6au';
-/* if (process.env['NEXT_PUBLIC_API_KEY_PLATAFORMA']) {
+let graphqlEndpoint : string
+let awsAppSyncApiKey : string
+if (process.env['NEXT_PUBLIC_API_KEY_PLATAFORMA']) {
   awsAppSyncApiKey = process.env['NEXT_PUBLIC_API_KEY_PLATAFORMA'];
 } else {
   throw new Error(`Parameter graphqlEndpoint not found`);
@@ -155,7 +154,7 @@ if (process.env['NEXT_PUBLIC_graphqlEndpoint']) {
   graphqlEndpoint = process.env['NEXT_PUBLIC_graphqlEndpoint'];
 } else {
   throw new Error(`Parameter graphqlEndpoint not found`);
-} */
+}
 
 export async function post(route: string, body = {}) {
   return instance
