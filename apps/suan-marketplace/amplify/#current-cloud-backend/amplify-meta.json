@@ -13,19 +13,19 @@
     }
   },
   "auth": {
-    "suanmarket26982e56": {
+    "suanmarketfcd88547": {
       "service": "Cognito",
       "serviceType": "imported",
       "providerPlugin": "awscloudformation",
       "dependsOn": [],
       "customAuth": false,
       "output": {
-        "UserPoolId": "us-east-1_GkPDCjB4C",
-        "UserPoolName": "kiosuanbcrjsappa6accc93_userpool_a6accc93-prod",
-        "AppClientID": "45icep84p2eatavasp99rv36qq",
-        "AppClientIDWeb": "38ek9t163kigfcp5mshd5ce03h",
-        "IdentityPoolId": "us-east-1:f44bbe32-a608-4347-a91f-5cd08f19025e",
-        "IdentityPoolName": "kiosuanbcrjsappa6accc93_identitypool_a6accc93__prod"
+        "UserPoolId": "us-east-1_xEdUhBro6",
+        "UserPoolName": "kiosuanbcrjsappa6accc93_userpool_a6accc93-test",
+        "AppClientID": "1he6vpb150q5sf8dnphd1p2frd",
+        "AppClientIDWeb": "4992s6qstuj23jlh1vap36p7rr",
+        "IdentityPoolId": "us-east-1:083c55aa-bfc6-4d07-83d4-407ce2ad5e0e",
+        "IdentityPoolName": "kiosuanbcrjsappa6accc93_identitypool_a6accc93__test"
       },
       "frontendAuthConfig": {
         "socialProviders": [],
@@ -43,7 +43,7 @@
           "EMAIL"
         ]
       },
-      "lastPushTimeStamp": "2024-06-20T18:40:30.176Z"
+      "lastPushTimeStamp": "2024-07-15T20:32:58.035Z"
     }
   }
 }

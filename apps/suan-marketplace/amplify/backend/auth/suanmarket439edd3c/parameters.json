@@ -1,0 +1,16 @@
+{
+  "authSelections": "identityPoolAndUserPool",
+  "resourceName": "suanmarket439edd3c",
+  "serviceType": "imported",
+  "region": "us-east-1",
+  "requiredAttributes": [
+    "email"
+  ],
+  "passwordPolicyMinLength": 8,
+  "passwordPolicyCharacters": [],
+  "mfaConfiguration": "OFF",
+  "autoVerifiedAttributes": [
+    "email"
+  ],
+  "mfaTypes": []
+}

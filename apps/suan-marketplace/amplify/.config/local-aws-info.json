@@ -1,12 +1,12 @@
 {
-  "dev": {
-    "configLevel": "project",
-    "useProfile": true,
-    "profileName": "suan_ignacio_diaz"
-  },
   "prod": {
     "configLevel": "project",
-    "useProfile": true,
-    "profileName": "suan_ignacio_diaz"
+    "useProfile": false,
+    "awsConfigFilePath": "/home/loow3/.amplify/awscloudformation/pZLPMSv2gR"
+  },
+  "dev": {
+    "configLevel": "project",
+    "useProfile": false,
+    "awsConfigFilePath": "/home/loow3/.amplify/awscloudformation/gTnptXI1WF"
   }
 }
