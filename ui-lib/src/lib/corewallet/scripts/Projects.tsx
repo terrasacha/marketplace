@@ -10,13 +10,13 @@ export default function Projects(props: any) {
   const [projectListFiltered, setProjectListFiltered] = useState<any>(null);
   const [activeTab, setActiveTab] = useState<string>('Distribuidos');
 
-  useEffect(() => {
-    async function fetchProjects() {
-      const projects = await getAllProjects();
-      console.log('projects', projects);
-      setProjectList(projects);
-    }
+  async function fetchProjects() {
+    const projects = await getAllProjects();
+    console.log('projects', projects);
+    setProjectList(projects);
+  }
 
+  useEffect(() => {
     fetchProjects();
   }, []);
 
@@ -72,7 +72,7 @@ export default function Projects(props: any) {
           <div className="grid grid-cols-2 gap-2">
             {projectListFiltered && projectListFiltered.length > 0 ? (
               projectListFiltered.map((project: any) => (
-                <ProjectItem project={project} key={project.id} />
+                <ProjectItem project={project} key={project.id} fetchProjects={fetchProjects}/>
               ))
             ) : (
               <div className="flex col-span-2 items-center justify-center h-52">

@@ -513,7 +513,7 @@ export default function PaymentPage({}) {
                 parseInt(tokenAmount) * parseInt(projectInfo.token.oraclePrice), // ,
               multiAsset: [],
             },
-            {
+            /* {
               address: spendContractFromMintProjectToken.testnetAddr,
               lovelace: 0,
               multiAsset: [
@@ -530,7 +530,7 @@ export default function PaymentPage({}) {
                 beneficiary: coreWallet.id, // Wallet ID del Administrador
                 //price: 17123288,//Math.round(adaPrice * 1000000),
               },
-            },
+            }, */
             {
               address: walletAddress,
               lovelace: 0,
@@ -622,7 +622,7 @@ export default function PaymentPage({}) {
 
       const build: any = await handleBuildTx();
 
-      if (build.buildTxResponse?.success) {
+      if (build && build.buildTxResponse?.success) {
         const mappedTransactionData = await mapBuildTransactionInfo({
           tx_type: 'preview',
           walletAddress: walletAddress,
