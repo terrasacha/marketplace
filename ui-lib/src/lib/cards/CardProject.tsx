@@ -75,7 +75,7 @@ const CardProject: React.FC<CardProjectProps> = ({ project }) => {
       <div className="relative flex justify-between items-start py-4 px-6 h-[40%] w-full bg-cover rounded-t-2xl rounded-tl-2xl overflow-hidden">
         <Image
           priority={false}
-          src={`https://kiosuanbcrjsappcad3eb2dd1b14457b491c910d5aa45dd145518-dev.s3.amazonaws.com/public/category-projects-images/${encodeURIComponent(
+          src={`${process.env['NEXT_PUBLIC_s3EndPoint']}public/category-projects-images/${encodeURIComponent(
             `${project.categoryID}`
           )}.avif`}
           alt="landing-suan-image"

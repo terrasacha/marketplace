@@ -22,7 +22,7 @@ const nextConfig = {
   },
   images: {
     domains: [
-      'kiosuanbcrjsappcad3eb2dd1b14457b491c910d5aa45dd145518-dev.s3.amazonaws.com',
+      `${process.env['NEXT_PUBLIC_s3BucketName']}.s3.amazonaws.com`,
     ],
   },
 };

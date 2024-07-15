@@ -185,7 +185,7 @@ export default function CardProject(props: any) {
         <div className="relative flex w-full h-full">
           <Image
             priority={false}
-            src={`https://kiosuanbcrjsappcad3eb2dd1b14457b491c910d5aa45dd145518-dev.s3.amazonaws.com/public/category-projects-images/${encodeURIComponent(
+            src={`${process.env['NEXT_PUBLIC_s3EndPoint']}public/category-projects-images/${encodeURIComponent(
               `${project.categoryID}`
             )}.avif`}
             className="rounded-t-lg"

@@ -1084,7 +1084,7 @@ export async function getCoreWallet() {
 
 export async function getImages(imageURL: string) {
   try {
-    const url = `https://kiosuanbcrjsappcad3eb2dd1b14457b491c910d5aa45dd145518-dev.s3.amazonaws.com/public/${imageURL}`;
+    const url = `${process.env['NEXT_PUBLIC_s3EndPoint']}public/${imageURL}`;
 
     const response = await axios.get(url, { responseType: 'arraybuffer' });
     const data = Buffer.from(response.data, 'binary').toString('base64');
@@ -1099,7 +1099,7 @@ export async function getImages(imageURL: string) {
 }
 export async function getImagesCategories(category: string) {
   try {
-    const url = `https://kiosuanbcrjsappcad3eb2dd1b14457b491c910d5aa45dd145518-dev.s3.amazonaws.com/public/category-projects-images/${category}.jpg`;
+    const url = `${process.env['NEXT_PUBLIC_s3EndPoint']}public/category-projects-images/${category}.jpg`;
     return url;
     // const response = await axios.get(url, { responseType: "arraybuffer" });
     // const data = Buffer.from(response.data, "binary").toString("base64");
