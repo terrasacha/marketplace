@@ -159,7 +159,6 @@ export default function ProjectItem(props: ProjectItemProps) {
     plugins: {
       legend: {
         display: true,
-        position: 'right',
         labels: {
           font: {
             size: 10,
