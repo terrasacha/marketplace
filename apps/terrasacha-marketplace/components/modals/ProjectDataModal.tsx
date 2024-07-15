@@ -21,6 +21,7 @@ export default function ProjectDataModal({
   projectData,
   project,
 }: any) {
+  console.log(projectData.projectInfo,'projectData.projectInfo ')
   const [activeTab, setActiveTab] = useState(0);
   const tabs = ['Detalles', /* 'Galeria', */ 'Archivos', 'Blockchain', 'Finanzas'];
   const tabComponents = [
@@ -141,7 +142,7 @@ export default function ProjectDataModal({
                   ))}
                 </div>
               </div>
-              <div className="sm:tab-component sm:p-8 p-2 rounded-lg bg-[#FFF]">
+              <div className="sm:tab-component sm:p-8 p-2 rounded-lg bg-[#FFF] w-full">
                 {tabComponents.map((TabComponent, index) => (
                   <div
                     key={index}
@@ -332,24 +333,25 @@ export default function ProjectDataModal({
 
   function TabFinanzas() {
     return (
-      <div className="grid grid-cols-1 xl:grid-cols-1 ">
-        <div className="bg-[#F4F8F9] rounded-lg mb-2">
+      <div className="flex flex-col w-full">
+        <div className="rounded-lg mb-2 w-full">
           <IncomeByProduct
             projectFinancialInfo={
               projectData.projectFinancialInfo.revenuesByProduct
             }
           />
         </div>
-        <div className="bg-[#F4F8F9] rounded-lg mb-2">
+        <div className="rounded-lg mb-2">
           <ProductsOfCycleProject
             productByCycle={
               projectData.projectFinancialInfo.projectProductByCycle
             }
           />
         </div>
-        <div className="bg-[#F4F8F9] rounded-lg mb-2">
+        <div className="rounded-lg mb-2">
           <CashFlowResume
             cashFlowResume={projectData.projectFinancialInfo.cashFlowResume}
+            financialIndicators={projectData.projectFinancialInfo.financialIndicators}
           />
         </div>
       </div>
