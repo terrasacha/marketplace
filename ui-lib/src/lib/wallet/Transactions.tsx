@@ -10,6 +10,7 @@ import {
 } from '@marketplaces/utils-2';
 import { useRouter } from 'next/router';
 import { toast } from 'sonner';
+import { mapAccountTxData } from '@marketplaces/utils-2/src/lib/mappers/mapTransactionInfo';
 
 interface TransactionsProps {
   txPerPage: number;
@@ -131,6 +132,8 @@ export default function Transactions(props: TransactionsProps) {
   ) => {
     setIsLoading(true);
 
+    console.log('walletStakeAddress', walletStakeAddress)
+
     const payload = {
       stake: walletStakeAddress,
       skip: page * txPerPage - txPerPage,
@@ -166,7 +169,7 @@ export default function Transactions(props: TransactionsProps) {
       totalItems: responseData.total_count,
     };
     console.log('paginationMetadataItem', paginationMetadataItem);
-    const mappedTransactionListData = await mapTransactionListInfo({
+    const mappedTransactionListData = await mapAccountTxData({
       walletAddress: walletData?.address,
       data: responseData?.data,
     });
@@ -202,11 +205,11 @@ export default function Transactions(props: TransactionsProps) {
           tx_confirmation_status: 'LOW',
           tx_confirmation_n: responseData[0].num_confirmations || 0,
         };
-        setPendingTransaction(newStatePendingTransaction);
 
         // Actualizar cache
         const pendingTx = localStorage.getItem('pendingTx');
         if (pendingTx && typeof pendingTx === 'string') {
+          setPendingTransaction(newStatePendingTransaction);
           const parsedPendingTx = JSON.parse(pendingTx);
 
           localStorage.setItem(

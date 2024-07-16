@@ -271,6 +271,206 @@ export async function mapBuildTransactionInfo({
   return tx_info;
 }
 
+export async function mapAccountTxData({
+  walletAddress,
+  data,
+}: MapTransactionListProps) {
+  console.log('TransactionListRawInfoData', data);
+
+  const mappedData = data?.reverse().map((tx: any, index: number) => {
+    const input_utxo = Object.values(tx.inputs).map((utxo: any) => {
+      const lovelace =
+        utxo.amount.find((a: any) => a.unit === 'lovelace')?.quantity || '0';
+
+      const mappedAssetList = utxo.amount
+        .filter((asset: any) => asset.unit !== 'lovelace')
+        .map((asset: any) => {
+          const policyId = asset.unit.substring(0, 56);
+          const name = asset.unit.substring(56);
+          return {
+            asset_name: hexToText(name),
+            fingerprint: asset.unit, // Asumo que no hay fingerprint en la nueva estructura
+            policy_id: policyId, // Asumo que no hay policy_id en la nueva estructura
+            quantity: parseInt(asset.quantity),
+          };
+        });
+
+      const isOwnerAddress = walletAddress === utxo.address ? true : false;
+
+      return {
+        tx_index: utxo.output_index,
+        tx_hash: utxo.tx_hash,
+        address: utxo.address,
+        isOwnerAddress: isOwnerAddress,
+        asset_list: mappedAssetList,
+        lovelace: parseInt(lovelace),
+        formatedADAValue: getNumberParts(lovelaceToAda(parseInt(lovelace))),
+      };
+    });
+
+    const output_utxo = Object.values(tx.outputs).map((utxo: any) => {
+      const lovelace =
+        utxo.amount.find((a: any) => a.unit === 'lovelace')?.quantity || '0';
+
+      const mappedAssetList = utxo.amount
+        .filter((asset: any) => asset.unit !== 'lovelace')
+        .map((asset: any) => {
+          const policyId = asset.unit.substring(0, 56);
+          const name = asset.unit.substring(56);
+
+          return {
+            asset_name: hexToText(name),
+            fingerprint: asset.unit, // Asumo que no hay fingerprint en la nueva estructura
+            policy_id: policyId, // Asumo que no hay policy_id en la nueva estructura
+            quantity: parseInt(asset.quantity),
+          };
+        });
+
+      const isOwnerAddress = walletAddress === utxo.address ? true : false;
+      return {
+        tx_index: utxo.output_index,
+        tx_hash: '', // No hay tx_hash en la salida de la nueva estructura
+        address: utxo.address,
+        isOwnerAddress: isOwnerAddress,
+        asset_list: mappedAssetList,
+        lovelace: parseInt(lovelace),
+        formatedADAValue: getNumberParts(lovelaceToAda(parseInt(lovelace))),
+      };
+    });
+
+    const input_utxo_value: {
+      value: number;
+      totalInputAssets: any;
+      totalAssetQuantity: number;
+    } = input_utxo.reduce(
+      (acumulador: any, utxo: any) => {
+        if (utxo.address === walletAddress) {
+          const totalAssetQuantity = utxo.asset_list.reduce(
+            (sum: any, asset: any) => sum + parseInt(asset.quantity),
+            acumulador.totalAssetQuantity
+          );
+          const totalInputAssets = utxo.asset_list.reduce(
+            (acc: any, asset: any) => {
+              if (!acc[asset.asset_name]) {
+                acc[asset.asset_name] = 0;
+              }
+              acc[asset.asset_name] =
+                acc[asset.asset_name] + parseInt(asset.quantity);
+              return acc;
+            },
+            { ...acumulador.totalInputAssets }
+          );
+          return {
+            value: acumulador.value + parseInt(utxo.lovelace),
+            totalInputAssets: totalInputAssets,
+            totalAssetQuantity: totalAssetQuantity,
+          };
+        }
+        return acumulador;
+      },
+      { value: 0, totalAssetQuantity: 0, totalInputAssets: {} }
+    );
+
+    const output_utxo_value: {
+      value: number;
+      totalAssetQuantity: number;
+      totalOutputAssets: any;
+    } = output_utxo.reduce(
+      (acumulador: any, utxo: any) => {
+        if (utxo.address === walletAddress) {
+          const totalAssetQuantity = utxo.asset_list.reduce(
+            (sum: any, asset: any) => sum + parseInt(asset.quantity),
+            acumulador.totalAssetQuantity
+          );
+          const totalOutputAssets = utxo.asset_list.reduce(
+            (acc: any, asset: any) => {
+              if (!acc[asset.asset_name]) {
+                acc[asset.asset_name] = 0;
+              }
+              acc[asset.asset_name] =
+                acc[asset.asset_name] + parseInt(asset.quantity);
+              return acc;
+            },
+            { ...acumulador.totalOutputAssets }
+          );
+          return {
+            value: acumulador.value + parseInt(utxo.lovelace),
+            totalOutputAssets: totalOutputAssets,
+            totalAssetQuantity: totalAssetQuantity,
+          };
+        }
+        return acumulador;
+      },
+      { value: 0, totalAssetQuantity: 0, totalOutputAssets: {} }
+    );
+
+    const tx_value = lovelaceToAda(
+      output_utxo_value.value - input_utxo_value.value
+    );
+    const tx_fee = lovelaceToAda(tx.fees);
+    const tx_size = tx.size;
+
+    let tx_type;
+    let title = '';
+    let subtitle = getDateFromTimeStamp(tx.block_time);
+    if (tx_value >= 0) {
+      title = 'Fondos Recibidos';
+      tx_type = TRANSACTION_TYPES.RECEIVED;
+    } else {
+      title = 'Fondos Enviados';
+      tx_type = TRANSACTION_TYPES.SENT;
+    }
+
+    if (
+      input_utxo_value.totalAssetQuantity > output_utxo_value.totalAssetQuantity
+    ) {
+      title = title + ', Tokens Enviados';
+    } else if (
+      input_utxo_value.totalAssetQuantity < output_utxo_value.totalAssetQuantity
+    ) {
+      title = title + ', Tokens Recibidos';
+    }
+
+    const tx_assets = assetDifference(
+      input_utxo_value.totalInputAssets,
+      output_utxo_value.totalOutputAssets,
+      tx_type
+    );
+    const tx_assets_mapped = Object.entries(tx_assets).map(
+      ([clave, valor]: any) => {
+        return {
+          name: clave,
+          quantity: valor,
+        };
+      }
+    );
+
+    const tx_info: MappedTransactionInfoProps = {
+      tx_type: tx_type,
+      title: title,
+      subtitle: subtitle,
+      tx_id: tx.tx_hash,
+      block: tx.block_height,
+      tx_size: tx_size,
+      tx_value: formatADAsToString(tx_value),
+      tx_fee: formatADAsToString(-Math.abs(tx_fee)),
+      tx_assets: tx_assets_mapped,
+      inputUTxOs: input_utxo,
+      outputUTxOs: output_utxo,
+      tx_time_live: getTimeLive(tx.block_time),
+      metadata: [], // No hay metadata en la nueva estructura
+    };
+    return tx_info;
+  });
+
+  console.log('mappedData: ', mappedData);
+  if (!mappedData) {
+    return [];
+  }
+
+  return mappedData.reverse();
+}
+
 export async function mapTransactionListInfo({
   walletAddress,
   data,
