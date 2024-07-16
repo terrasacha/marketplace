@@ -45,5 +45,5 @@ Thumbs.db
 # Next.js
 .next
 
-
+apps/suan-marketplace/src/aws-exports.js
 package-lock.json
