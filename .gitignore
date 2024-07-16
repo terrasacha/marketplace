@@ -44,7 +44,6 @@ Thumbs.db
 
 # Next.js
 .next
-apps/*/src/aws-exports.js
-apps/*/src/amplifyconfiguration.json
+
 
 package-lock.json
