@@ -236,14 +236,10 @@ const MainLayout = ({ children }: PropsWithChildren) => {
             balanceUSD={balanceUSD}
             onClose={handleSidebarStatus}
             user={user}
-            appName="Terrasacha"
-            //appName="Suan"
-            //image="/images/home-page/suan_logo.png"
-            //heightLogo={120}
-            //widthLogo={60}
-            image="/images/home-page/terrasacha_logo_vertical.png"
-            heightLogo={60}
-            widthLogo={120}
+            appName="Suan"
+            image="/images/home-page/suan_logo.png"
+            heightLogo={120}
+            widthLogo={60}
             poweredBy={true}
             //poweredBy={false}
           />
