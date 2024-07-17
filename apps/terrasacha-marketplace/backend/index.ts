@@ -62,6 +62,7 @@ export async function signUpAuth({
       body: JSON.stringify(userPayload),
     });
     const data = await responseApi.json();
+    console.log(data, 'response api local')
     return data;
   } catch (error) {
     throw error;

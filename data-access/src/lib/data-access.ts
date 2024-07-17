@@ -1977,36 +1977,35 @@ export async function updateTransaction({ id, txProcessed, fees }: any) {
 }
 export async function createUser(userPayload: any) {
   const { id, username, role, email } = userPayload;
-  console.log(
-    id,
-    username,
-    role,
-    email,
-    'info de entrada en createUser data-access'
-  );
-  const response = await axios.post(
-    graphqlEndpoint,
-    {
-      query: `mutation MyMutation {
-        createUser(input: {
-          id: "${id}"
-          name: "${username}"
-          isProfileUpdated: true
-          role: "${role}"
-          email: "${email}"
-        })
-        {
-          id
-        }
-      }`,
-    },
-    {
-      headers: {
-        'x-api-key': awsAppSyncApiKey,
+  try {
+    const response = await axios.post(
+      graphqlEndpoint,
+      {
+        query: `mutation MyMutation {
+          createUser(input: {
+            id: "${id}"
+            name: "${username}"
+            isProfileUpdated: true
+            role: "${role}"
+            email: "${email}"
+          })
+          {
+            id
+          }
+        }`,
       },
-    }
-  );
-  return response.data.data.createUser;
+      {
+        headers: {
+          'x-api-key': awsAppSyncApiKey,
+        },
+      }
+    );
+    return response.data.data.createUser;
+  } catch (error) {
+    //@ts-ignore
+    console.log(JSON.stringify(error), "ERROR DE LA QUERY")
+  }
+  
 }
 
 export async function validateExternalWalletUser(userPayload: any) {
