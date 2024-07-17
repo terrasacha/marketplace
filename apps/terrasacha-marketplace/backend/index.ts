@@ -62,7 +62,6 @@ export async function signUpAuth({
       body: JSON.stringify(userPayload),
     });
     const data = await responseApi.json();
-    console.log(data, 'response api local')
     return data;
   } catch (error) {
     throw error;
@@ -619,7 +618,7 @@ export async function getTransactions() {
 }
 export async function getImages(imageURL: string) {
   try {
-    const url = `${process.env['NEXT_PUBLIC_s3EndPoint']}public/${imageURL}`;
+    const url = `https://kiosuanbcrjsappcad3eb2dd1b14457b491c910d5aa45dd145518-dev.s3.amazonaws.com/public/${imageURL}`;
 
     const response = await axios.get(url, { responseType: 'arraybuffer' });
     const data = Buffer.from(response.data, 'binary').toString('base64');
@@ -634,7 +633,7 @@ export async function getImages(imageURL: string) {
 }
 export async function getImagesCategories(category: string) {
   try {
-    const url = `${process.env.REACT_APP_URL_BUCKET}/public/category-projects-images/${category}.avif`;
+    const url = `https://kiosuanbcrjsappcad3eb2dd1b14457b491c910d5aa45dd145518-dev.s3.amazonaws.com/public/category-projects-images/${category}.avif`;
     return url;
     // const response = await axios.get(url, { responseType: "arraybuffer" });
     // const data = Buffer.from(response.data, "binary").toString("base64");
