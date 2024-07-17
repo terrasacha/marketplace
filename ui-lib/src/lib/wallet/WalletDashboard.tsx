@@ -1,14 +1,12 @@
 import React, { useContext, useEffect, useState } from 'react';
-import {
-  EyeOffIcon,
-} from '../icons/EyeOffIcon';
+import { EyeOffIcon } from '../icons/EyeOffIcon';
 import { EyeIcon } from '../icons/EyeIcon';
-import Assets from '../wallet/assets/Assets'
-import ClaimTokens from '../wallet/ClaimTokens'
-import Card from '../common/Card'
-import CopyToClipboard from '../common/CopyToClipboard'
-import ExternalLink from '../common/ExternalLink'
-import Tooltip from '../common/Tooltip'
+import Assets from '../wallet/assets/Assets';
+import ClaimTokens from '../wallet/ClaimTokens';
+import Card from '../common/Card';
+import CopyToClipboard from '../common/CopyToClipboard';
+import ExternalLink from '../common/ExternalLink';
+import Tooltip from '../common/Tooltip';
 import Transactions from '../wallet/Transactions';
 import { WalletContext } from '@marketplaces/utils-2';
 import { useRouter } from 'next/router';
@@ -23,7 +21,8 @@ interface WalletDashboardProps {
 }
 
 export default function WalletDashboard(props: WalletDashboardProps) {
-  const { walletData, fetchWalletData, walletID } = useContext<any>(WalletContext);
+  const { walletData, fetchWalletData, walletID } =
+    useContext<any>(WalletContext);
   console.log(walletData);
   const [showAddress, setShowAddress] = useState<boolean>(true);
   const router = useRouter();
@@ -99,11 +98,7 @@ export default function WalletDashboard(props: WalletDashboardProps) {
             </Card.Body>
           </Card>
           <div className="h-fit">
-            {
-              walletID !== "575a7f01272dd95a9ba2696e9e3d4895fe39b12350f7fa88a301b3ad" && (
-                <Transactions txPerPage={3} />
-              )
-            }
+            <Transactions txPerPage={8} />
           </div>
         </div>
         <div className="flex-col col-span-2 space-y-5 mt-5 2xl:mt-0">
