@@ -1,60 +1,4 @@
 {
-  "staging": {
-    "awscloudformation": {
-      "AuthRoleName": "amplify-amplify107bc73c277c4-staging-e9aab-authRole",
-      "UnauthRoleArn": "arn:aws:iam::036134507423:role/amplify-amplify107bc73c277c4-staging-e9aab-unauthRole",
-      "AuthRoleArn": "arn:aws:iam::036134507423:role/amplify-amplify107bc73c277c4-staging-e9aab-authRole",
-      "Region": "us-east-1",
-      "DeploymentBucketName": "amplify-amplify107bc73c277c4-staging-e9aab-deployment",
-      "UnauthRoleName": "amplify-amplify107bc73c277c4-staging-e9aab-unauthRole",
-      "StackName": "amplify-amplify107bc73c277c4-staging-e9aab",
-      "StackId": "arn:aws:cloudformation:us-east-1:036134507423:stack/amplify-amplify107bc73c277c4-staging-e9aab/c07d6cf0-3e17-11ef-9bd5-0afffe0fc6f1",
-      "AmplifyAppId": "dpthnm0kh5f8o"
-    }
-  },
-  "prod": {
-    "awscloudformation": {
-      "AuthRoleName": "amplify-terrasachamarket-prod-34e9e-authRole",
-      "UnauthRoleArn": "arn:aws:iam::036134507423:role/amplify-terrasachamarket-prod-34e9e-unauthRole",
-      "AuthRoleArn": "arn:aws:iam::036134507423:role/amplify-terrasachamarket-prod-34e9e-authRole",
-      "Region": "us-east-1",
-      "DeploymentBucketName": "amplify-terrasachamarket-prod-34e9e-deployment",
-      "UnauthRoleName": "amplify-terrasachamarket-prod-34e9e-unauthRole",
-      "StackName": "amplify-terrasachamarket-prod-34e9e",
-      "StackId": "arn:aws:cloudformation:us-east-1:036134507423:stack/amplify-terrasachamarket-prod-34e9e/37186ea0-3e18-11ef-aea8-0e2da9294735",
-      "AmplifyAppId": "dpthnm0kh5f8o"
-    },
-    "categories": {
-      "auth": {
-        "terrasachamarket007bd3c7": {
-          "userPoolId": "us-east-1_GkPDCjB4C",
-          "userPoolName": "kiosuanbcrjsappa6accc93_userpool_a6accc93-prod",
-          "webClientId": "38ek9t163kigfcp5mshd5ce03h",
-          "nativeClientId": "45icep84p2eatavasp99rv36qq",
-          "identityPoolId": "us-east-1:f44bbe32-a608-4347-a91f-5cd08f19025e",
-          "identityPoolName": "kiosuanbcrjsappa6accc93_identitypool_a6accc93__prod",
-          "allowUnauthenticatedIdentities": true,
-          "authRoleArn": "arn:aws:iam::036134507423:role/amplify-kiosuanbcrjsapp-prod-150248-authRole",
-          "authRoleName": "amplify-kiosuanbcrjsapp-prod-150248-authRole",
-          "unauthRoleArn": "arn:aws:iam::036134507423:role/amplify-kiosuanbcrjsapp-prod-150248-unauthRole",
-          "unauthRoleName": "amplify-kiosuanbcrjsapp-prod-150248-unauthRole"
-        },
-        "terrasachamarket59c5bce5": {
-          "userPoolId": "us-east-1_GkPDCjB4C",
-          "userPoolName": "kiosuanbcrjsappa6accc93_userpool_a6accc93-prod",
-          "webClientId": "38ek9t163kigfcp5mshd5ce03h",
-          "nativeClientId": "45icep84p2eatavasp99rv36qq",
-          "identityPoolId": "us-east-1:f44bbe32-a608-4347-a91f-5cd08f19025e",
-          "identityPoolName": "kiosuanbcrjsappa6accc93_identitypool_a6accc93__prod",
-          "allowUnauthenticatedIdentities": true,
-          "authRoleArn": "arn:aws:iam::036134507423:role/amplify-kiosuanbcrjsapp-prod-150248-authRole",
-          "authRoleName": "amplify-kiosuanbcrjsapp-prod-150248-authRole",
-          "unauthRoleArn": "arn:aws:iam::036134507423:role/amplify-kiosuanbcrjsapp-prod-150248-unauthRole",
-          "unauthRoleName": "amplify-kiosuanbcrjsapp-prod-150248-unauthRole"
-        }
-      }
-    }
-  },
   "dev": {
     "awscloudformation": {
       "AuthRoleName": "amplify-terrasachamarket-dev-978b0-authRole",
@@ -69,19 +13,18 @@
     },
     "categories": {
       "auth": {
-        "terrasachamarketad3aa0e1": {},
         "terrasachamarket6acd7eb7": {
-          "userPoolId": "us-east-1_xEdUhBro6",
-          "userPoolName": "kiosuanbcrjsappa6accc93_userpool_a6accc93-test",
-          "webClientId": "4992s6qstuj23jlh1vap36p7rr",
-          "nativeClientId": "1he6vpb150q5sf8dnphd1p2frd",
-          "identityPoolId": "us-east-1:083c55aa-bfc6-4d07-83d4-407ce2ad5e0e",
-          "identityPoolName": "kiosuanbcrjsappa6accc93_identitypool_a6accc93__test",
           "allowUnauthenticatedIdentities": true,
           "authRoleArn": "arn:aws:iam::036134507423:role/amplify-kiosuanbcrjsapp-test-47325-authRole",
           "authRoleName": "amplify-kiosuanbcrjsapp-test-47325-authRole",
+          "identityPoolId": "us-east-1:083c55aa-bfc6-4d07-83d4-407ce2ad5e0e",
+          "identityPoolName": "kiosuanbcrjsappa6accc93_identitypool_a6accc93__test",
+          "nativeClientId": "1he6vpb150q5sf8dnphd1p2frd",
           "unauthRoleArn": "arn:aws:iam::036134507423:role/amplify-kiosuanbcrjsapp-test-47325-unauthRole",
-          "unauthRoleName": "amplify-kiosuanbcrjsapp-test-47325-unauthRole"
+          "unauthRoleName": "amplify-kiosuanbcrjsapp-test-47325-unauthRole",
+          "userPoolId": "us-east-1_xEdUhBro6",
+          "userPoolName": "kiosuanbcrjsappa6accc93_userpool_a6accc93-test",
+          "webClientId": "4992s6qstuj23jlh1vap36p7rr"
         }
       }
     }
