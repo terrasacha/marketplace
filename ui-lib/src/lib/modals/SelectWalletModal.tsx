@@ -130,7 +130,8 @@ export default function SelectWalletModal({ openModal, setOpenModal }: any) {
         ></AlertMessage>
         <div className="mt-2">
           <Link
-            href={'/help/createwallet'}
+            href="https://suan-1.gitbook.io/documentacion-suan-sandbox"
+            target='_blank'
             className="text-xs font-semibold hover:text-blue-400"
             onClick={() => setOpenModal(undefined)}
           >
