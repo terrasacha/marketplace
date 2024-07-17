@@ -30,7 +30,7 @@ export default function Projects(props: any) {
       }
       if (activeTab === 'Sin distribuir') {
         const projectsFiltered = projectList.filter(
-          (project: any) => project.tokenGenesis === false
+          (project: any) => project.tokenGenesis === false || project.tokenGenesis === null
         );
         setProjectListFiltered(projectsFiltered);
       }
