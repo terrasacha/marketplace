@@ -1,6 +1,6 @@
 import React, { useContext, useState } from 'react';
 import { Checkbox, Label, Button, Radio } from 'flowbite-react';
-import NewWalletContext from '@suan/store/generate-new-wallet-context';
+import NewWalletContext from '@terrasacha/store/generate-new-wallet-context';
 import WordsContainer from './WordsContainer';
 import { useRouter } from 'next/router';
 

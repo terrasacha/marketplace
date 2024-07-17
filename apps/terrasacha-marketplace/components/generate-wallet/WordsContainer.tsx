@@ -2,7 +2,7 @@ import React, { useEffect, useState, useContext } from 'react';
 import { Spinner, Button } from 'flowbite-react';
 import { FaRegCopy, FaCopy } from 'react-icons/fa6';
 import { IoCloseSharp } from 'react-icons/io5';
-import NewWalletContext from '@terrasacha/store/generate-new-wallet-context';
+import NewWalletContext from '@suan/store/generate-new-wallet-context';
 import { TailSpin } from 'react-loader-spinner';
 
 const WordsContainer = (props: any) => {
