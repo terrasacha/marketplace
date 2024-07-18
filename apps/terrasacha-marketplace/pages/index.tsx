@@ -37,7 +37,7 @@ const LandingPage: MyPage = (props: any) => {
             } else {
               walletData[0].claimed_token
                 ? setCheckingWallet('alreadyClaimToken')
-                : setCheckingWallet('requestToken');
+                : setCheckingWallet('alreadyClaimToken'); //requestToken. cambio para hacer la solicitud del token automaticamente
             }
             setWalletcount(walletData.length);
           }
