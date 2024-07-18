@@ -20,7 +20,6 @@ export default function OrderBookCard(props: OrderBookCardProps) {
 
   const [currentPage, setCurrentPage] = useState(1);
 
-
   const indexOfLastItem = currentPage * itemsPerPage;
   const indexOfFirstItem = indexOfLastItem - itemsPerPage;
   const currentItems = orderList.slice(indexOfFirstItem, indexOfLastItem);
@@ -36,13 +35,14 @@ export default function OrderBookCard(props: OrderBookCardProps) {
     setCurrentPage((prevPage) => prevPage - 1);
   };
 
-
   const handleOpenSignTransactionModal = () => {
     setSignTransactionModal(!signTransactionModal);
   };
 
   const handleRemoveOrder = async (orderId: string) => {
-    const actualOrder: any = orderList?.find((order: any) => order.id === orderId);
+    const actualOrder: any = orderList?.find(
+      (order: any) => order.id === orderId
+    );
 
     const unlockOracleOrderPayload = {
       order_side: 'Unlist',
@@ -50,7 +50,10 @@ export default function OrderBookCard(props: OrderBookCardProps) {
         wallet_id: walletId,
         orderPolicyId:
           '22c96d953d493748149c83ae1a1395c194feb1e72be9b8ce7d652534',
-        utxo: actualOrder.utxos,
+        utxo: {
+          transaction_id: actualOrder.utxos,
+          index: 0,
+        },
         addresses: [
           {
             address: walletAddress,
@@ -65,7 +68,7 @@ export default function OrderBookCard(props: OrderBookCardProps) {
             ],
           },
         ],
-        metadata: {}
+        metadata: {},
       },
     };
 
@@ -93,7 +96,7 @@ export default function OrderBookCard(props: OrderBookCardProps) {
           id: actualOrder.id,
           statusCode: 'unlisted',
         },
-      }
+      };
 
       setNewTransactionBuild({
         ...mappedTransactionData,
@@ -106,18 +109,23 @@ export default function OrderBookCard(props: OrderBookCardProps) {
         'Algo ha salido mal, revisa las direcciones de billetera ...'
       );
     }
-  }
+  };
 
   const handleBuyOrder = async (orderId: string) => {
-    const actualOrder: any = orderList?.find((order: any) => order.id === orderId);
-    console.log("actualOrder", actualOrder)
+    const actualOrder: any = orderList?.find(
+      (order: any) => order.id === orderId
+    );
+    console.log('actualOrder', actualOrder);
     const unlockOracleOrderPayload = {
       order_side: 'Buy',
       payload: {
         wallet_id: walletId,
         orderPolicyId:
           '22c96d953d493748149c83ae1a1395c194feb1e72be9b8ce7d652534',
-        utxo: actualOrder.utxos,
+        utxo: {
+          transaction_id: actualOrder.utxos,
+          index: 0,
+        },
         addresses: [
           {
             address: walletAddress,
@@ -138,7 +146,7 @@ export default function OrderBookCard(props: OrderBookCardProps) {
           },
         ],
       },
-      metadata: {}
+      metadata: {},
     };
 
     console.log('unlockOracleOrderPayload', unlockOracleOrderPayload);
@@ -251,7 +259,6 @@ export default function OrderBookCard(props: OrderBookCardProps) {
                       </div>
                       <div className="w-full text-center">
                         {order.walletID === walletId ? (
-
                           <button
                             type="button"
                             className="text-red-300 min-w-[150px] hover:text-white border border-red-300 hover:bg-red-400 focus:outline-none focus:ring-4 focus:ring-red-300 font-medium rounded text-sm px-5 py-2.5 "
@@ -260,7 +267,6 @@ export default function OrderBookCard(props: OrderBookCardProps) {
                             Retirar
                           </button>
                         ) : (
-
                           <button
                             type="button"
                             className="text-yellow-300 min-w-[150px] hover:text-white border border-yellow-300 hover:bg-yellow-400 focus:outline-none focus:ring-4 focus:ring-yellow-300 font-medium rounded text-sm px-5 py-2.5 "
@@ -293,8 +299,9 @@ export default function OrderBookCard(props: OrderBookCardProps) {
               </span>
               <div className="inline-flex mt-2 xs:mt-0">
                 <button
-                  className={`flex items-center justify-center px-3 h-8 text-sm font-medium text-white bg-custom-dark rounded-s hover:bg-custom-dark-hover ${!canShowPrevious && 'opacity-50 cursor-not-allowed'
-                    }`}
+                  className={`flex items-center justify-center px-3 h-8 text-sm font-medium text-white bg-custom-dark rounded-s hover:bg-custom-dark-hover ${
+                    !canShowPrevious && 'opacity-50 cursor-not-allowed'
+                  }`}
                   onClick={prevPage}
                   disabled={!canShowPrevious}
                 >
@@ -316,8 +323,9 @@ export default function OrderBookCard(props: OrderBookCardProps) {
                   Prev
                 </button>
                 <button
-                  className={`flex items-center justify-center px-3 h-8 text-sm font-medium text-white bg-custom-dark border-0 border-s border-gray-700 rounded-e hover:bg-custom-dark-hover ${!canShowNext && 'opacity-50 cursor-not-allowed'
-                    }`}
+                  className={`flex items-center justify-center px-3 h-8 text-sm font-medium text-white bg-custom-dark border-0 border-s border-gray-700 rounded-e hover:bg-custom-dark-hover ${
+                    !canShowNext && 'opacity-50 cursor-not-allowed'
+                  }`}
                   onClick={nextPage}
                   disabled={!canShowNext}
                 >
