@@ -17,7 +17,6 @@ export default function OrderBookCard(props: OrderBookCardProps) {
 
   const [newTransactionBuild, setNewTransactionBuild] = useState<any>(null);
   const [signTransactionModal, setSignTransactionModal] = useState(false);
-
   const [currentPage, setCurrentPage] = useState(1);
 
   const indexOfLastItem = currentPage * itemsPerPage;
@@ -105,9 +104,7 @@ export default function OrderBookCard(props: OrderBookCardProps) {
       });
       handleOpenSignTransactionModal();
     } else {
-      toast.error(
-        'Algo ha salido mal, revisa las direcciones de billetera ...'
-      );
+      toast.error('Algo ha salido mal, revisa las direcciones de billetera ...');
     }
   };
 
@@ -141,8 +138,7 @@ export default function OrderBookCard(props: OrderBookCardProps) {
           },
           {
             address: actualOrder.wallet.address,
-            lovelace:
-              parseInt(actualOrder.value) * parseInt(actualOrder.tokenAmount),
+            lovelace: parseInt(actualOrder.value) * parseInt(actualOrder.tokenAmount),
           },
         ],
       },
@@ -173,24 +169,6 @@ export default function OrderBookCard(props: OrderBookCardProps) {
           id: actualOrder.id,
           statusCode: 'claimed',
         },
-        // createTransaction: {
-        //   productID: projectInfo.projectID,
-        //   stakeAddress: walletStakeID[0],
-        //   policyID: simpleScriptPolicyID,
-        //   addressDestination: recipientAddress,
-        //   addressOrigin:
-        //     'addr_test1vqkge7txl2vdw26efyv7cytjl8l6n8678kz09agc0r34pdss0xtmp', //Desde donde se envian los fondos al usuario ADRESS MASTER,
-        //   amountOfTokens: parseInt(tokenAmount),
-        //   fees: parseInt(feeAmount) / 1000000, //Comision,
-        //   //metadataUrl: JSON.stringify(metadata),
-        //   network: networkId,
-        //   tokenName: projectInfo.token.tokenName,
-        //   txCborhex: signedTx,
-        //   txHash: txHashValue,
-        //   txIn: utxos[0].input.txHash,
-        //   txProcessed: true, // Si se proceso en block chain
-        //   type: 'mint',
-        // },
       };
 
       setNewTransactionBuild({
@@ -200,9 +178,7 @@ export default function OrderBookCard(props: OrderBookCardProps) {
       });
       handleOpenSignTransactionModal();
     } else {
-      toast.error(
-        'Algo ha salido mal, revisa las direcciones de billetera ...'
-      );
+      toast.error('Algo ha salido mal, revisa las direcciones de billetera ...');
     }
   };
 
@@ -220,7 +196,7 @@ export default function OrderBookCard(props: OrderBookCardProps) {
                 id="adas"
                 type="text"
                 aria-invalid="false"
-                className="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded focus:ring-blue-500 focus:border-blue-500 block w-full ps-10 p-2.5  "
+                className="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded focus:ring-blue-500 focus:border-blue-500 block w-full ps-10 p-2.5"
                 autoComplete="off"
                 placeholder="Busca un activo"
                 required
@@ -230,7 +206,8 @@ export default function OrderBookCard(props: OrderBookCardProps) {
         />
         <Card.Body>
           <div>
-            <div className="flex space-x-2 items-center px-3 py-2">
+            {/* Encabezado de la tabla, oculto en pantallas pequeñas */}
+            <div className="hidden md:flex space-x-2 items-center px-3 py-2">
               <div className="w-full text-center">Activo</div>
               <div className="w-full text-center">Cantidad</div>
               <div className="w-full text-center">Precio Unitario (ADA)</div>
@@ -243,25 +220,29 @@ export default function OrderBookCard(props: OrderBookCardProps) {
                   return (
                     <div
                       key={index}
-                      className="flex space-x-2 items-center bg-custom-dark text-white rounded-lg px-3 py-2"
+                      className="flex flex-wrap justify-between items-center bg-custom-dark text-white rounded-lg px-3 py-2"
                     >
-                      <div className="w-full text-center">
+                      <div className="w-full md:w-1/5 text-center">
+                        <p className="md:hidden text-gray-400">Activo</p>
                         <p>{order.tokenName}</p>
                       </div>
-                      <div className="w-full text-center">
+                      <div className="w-full md:w-1/5 text-center">
+                        <p className="md:hidden text-gray-400">Cantidad</p>
                         <p>{order.tokenAmount}</p>
                       </div>
-                      <div className="w-full text-center">
+                      <div className="w-full md:w-1/5 text-center">
+                        <p className="md:hidden text-gray-400">Precio Unitario (ADA)</p>
                         <p>t₳ {order.value / 1000000}</p>
                       </div>
-                      <div className="w-full text-center">
+                      <div className="w-full md:w-1/5 text-center">
+                        <p className="md:hidden text-gray-400">Total</p>
                         <p>t₳ {(order.value / 1000000) * order.tokenAmount}</p>
                       </div>
-                      <div className="w-full text-center">
+                      <div className="w-full md:w-1/5 text-center mt-2 md:mt-0">
                         {order.walletID === walletId ? (
                           <button
                             type="button"
-                            className="text-red-300 min-w-[150px] hover:text-white border border-red-300 hover:bg-red-400 focus:outline-none focus:ring-4 focus:ring-red-300 font-medium rounded text-sm px-5 py-2.5 "
+                            className="text-red-300 w-full hover:text-white border border-red-300 hover:bg-red-400 focus:outline-none focus:ring-4 focus:ring-red-300 font-medium rounded text-sm px-5 py-2.5"
                             onClick={() => handleRemoveOrder(order.id)}
                           >
                             Retirar
@@ -269,7 +250,7 @@ export default function OrderBookCard(props: OrderBookCardProps) {
                         ) : (
                           <button
                             type="button"
-                            className="text-yellow-300 min-w-[150px] hover:text-white border border-yellow-300 hover:bg-yellow-400 focus:outline-none focus:ring-4 focus:ring-yellow-300 font-medium rounded text-sm px-5 py-2.5 "
+                            className="text-yellow-300 w-full hover:text-white border border-yellow-300 hover:bg-yellow-400 focus:outline-none focus:ring-4 focus:ring-yellow-300 font-medium rounded text-sm px-5 py-2.5"
                             onClick={() => handleBuyOrder(order.id)}
                           >
                             Comprar
