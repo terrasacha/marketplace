@@ -59,7 +59,7 @@ export default function TradeCard(props: any) {
     const suanTokens = await request.json();
 
     // const filteredSuanProjectsTokenList = walletData.assets.filter((asset: any) => asset.asset_name === suanTokens)
-    const filteredSuanProjectsTokenList = walletData.assets
+    const filteredSuanProjectsTokenList = walletData?.assets
       .filter((item1: any) => {
         return suanTokens.some(
           (item2: any) =>
