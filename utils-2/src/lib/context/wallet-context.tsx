@@ -154,7 +154,7 @@ export function WalletContextProvider({
         }
         setPrevBalance(newBalance);
       }
-    }, 60000);
+    }, 20000);
 
     return () => clearInterval(interval);
   }, [fetchWalletData]);
