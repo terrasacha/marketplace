@@ -129,16 +129,17 @@ export default function TradeCard(props: OrderHistoryCardProps) {
             <li className="me-2">
               <a
                 href="#"
-                className={`inline-block p-4 border-b-2 rounded-t-lg ${activeTab === 'my_orders'
-                  ? 'text-blue-600 border-blue-600'
-                  : 'border-transparent hover:text-gray-600 hover:border-gray-300'
-                  }`}
+                className={`inline-block p-4 border-b-2 rounded-t-lg ${
+                  activeTab === 'my_orders'
+                    ? 'text-blue-600 border-blue-600'
+                    : 'border-transparent hover:text-gray-600 hover:border-gray-300'
+                }`}
                 onClick={() => handleSetActiveTab('my_orders')}
               >
                 Mis Ordenes
               </a>
             </li>
-{/*             <li className="me-2">
+            {/* <li className="me-2">
               <a
                 href="#"
                 className={`inline-block p-4 border-b-2 rounded-t-lg ${activeTab === 'my_orders_history'
@@ -157,7 +158,8 @@ export default function TradeCard(props: OrderHistoryCardProps) {
           <>
             {activeTab === 'my_orders' && (
               <div>
-                <div className="flex space-x-2 items-center px-3 py-2">
+                {/* Encabezado de la tabla, oculto en pantallas pequeñas */}
+                <div className="hidden md:flex space-x-2 items-center px-3 py-2">
                   <div className="w-full text-center">Activo</div>
                   <div className="w-full text-center">Cantidad</div>
                   <div className="w-full text-center">Precio Unitario (ADA)</div>
@@ -171,28 +173,33 @@ export default function TradeCard(props: OrderHistoryCardProps) {
                       return (
                         <div
                           key={index}
-                          className="flex space-x-2 items-center bg-custom-dark text-white rounded-lg px-3 py-2"
+                          className="flex flex-wrap justify-between items-center bg-custom-dark text-white rounded-lg px-3 py-2"
                         >
-                          <div className="w-full text-center">
+                          <div className="w-full md:w-1/5 text-center">
+                            <p className="md:hidden text-gray-400">Activo</p>
                             <p>{order.tokenName}</p>
                           </div>
-                          <div className="w-full text-center">
+                          <div className="w-full md:w-1/5 text-center">
+                            <p className="md:hidden text-gray-400">Cantidad</p>
                             <p>{order.tokenAmount}</p>
                           </div>
-                          <div className="w-full text-center">
+                          <div className="w-full md:w-1/5 text-center">
+                            <p className="md:hidden text-gray-400">Precio Unitario (ADA)</p>
                             <p>t₳ {order.value / 1000000}</p>
                           </div>
-                          <div className="w-full text-center">
+                          <div className="w-full md:w-1/5 text-center">
+                            <p className="md:hidden text-gray-400">Total</p>
                             <p>t₳ {(order.value / 1000000) * order.tokenAmount}</p>
                           </div>
-                          <div className="w-full text-center">
+                          <div className="w-full md:w-1/5 text-center">
+                            <p className="md:hidden text-gray-400">Estado</p>
                             <p>{statusMapper[order.statusCode] || 'Sin estado'}</p>
                           </div>
-                          <div className="w-full text-center">
+                          <div className="w-full md:w-1/5 text-center mt-2 md:mt-0">
                             {order.statusCode === 'listed' && (
                               <button
                                 type="button"
-                                className="text-yellow-300 hover:text-white border border-yellow-300 hover:bg-yellow-400 focus:outline-none focus:ring-4 focus:ring-yellow-300 font-medium rounded text-sm px-5 py-2.5 "
+                                className="text-yellow-300 w-full hover:text-white border border-yellow-300 hover:bg-yellow-400 focus:outline-none focus:ring-4 focus:ring-yellow-300 font-medium rounded text-sm px-5 py-2.5"
                                 onClick={() => handleRemoveOrder(order.id)}
                               >
                                 Retirar
@@ -222,8 +229,9 @@ export default function TradeCard(props: OrderHistoryCardProps) {
                   </span>
                   <div className="inline-flex mt-2 xs:mt-0">
                     <button
-                      className={`flex items-center justify-center px-3 h-8 text-sm font-medium text-white bg-custom-dark rounded-s hover:bg-custom-dark-hover ${!canShowPrevious && 'opacity-50 cursor-not-allowed'
-                        }`}
+                      className={`flex items-center justify-center px-3 h-8 text-sm font-medium text-white bg-custom-dark rounded-s hover:bg-custom-dark-hover ${
+                        !canShowPrevious && 'opacity-50 cursor-not-allowed'
+                      }`}
                       onClick={prevPage}
                       disabled={!canShowPrevious}
                     >
@@ -245,8 +253,9 @@ export default function TradeCard(props: OrderHistoryCardProps) {
                       Prev
                     </button>
                     <button
-                      className={`flex items-center justify-center px-3 h-8 text-sm font-medium text-white bg-custom-dark border-0 border-s border-gray-700 rounded-e hover:bg-custom-dark-hover ${!canShowNext && 'opacity-50 cursor-not-allowed'
-                        }`}
+                      className={`flex items-center justify-center px-3 h-8 text-sm font-medium text-white bg-custom-dark border-0 border-s border-gray-700 rounded-e hover:bg-custom-dark-hover ${
+                        !canShowNext && 'opacity-50 cursor-not-allowed'
+                      }`}
                       onClick={nextPage}
                       disabled={!canShowNext}
                     >
@@ -270,10 +279,8 @@ export default function TradeCard(props: OrderHistoryCardProps) {
                   </div>
                 </div>
               </div>
-            )
-            }
+            )}
             {activeTab === 'my_orders_history' && (
-
               <div className="h-96 flex justify-center items-center">
                 No tienes ordenes activas
               </div>

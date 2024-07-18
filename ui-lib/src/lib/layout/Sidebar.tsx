@@ -141,231 +141,206 @@ export default function Sidebar(props: SidebarProps) {
 
   return (
     <aside
-      ref={sidebarRef}
-      id="logo-sidebar"
-      className={`fixed top-0 left-0 z-50 w-80 h-screen transition-transform lg:translate-x-0  ${
-        isOpen ? 'translate-x-0' : '-translate-x-full'
-      }`}
-    >
-      <audio id="a1" src="/sounds/cash-register.mp3"></audio>
-      <div className="relative h-screen px-5 pb-4 bg-custom-fondo shadow-[rgba(221,222,227,1)_1px_1px_4px_0px]">
-        <div className="flex items-center justify-center py-8">
-          <Link href="/home">
-            <Image
-              src={image}
-              height={heightLogo} //88 terra
-              width={widthLogo} //120
-              alt={`${appName} Logo`}
-            />
-          </Link>
-        </div>
+  ref={sidebarRef}
+  id="logo-sidebar"
+  className={`fixed top-0 left-0 z-50 w-80 h-screen transition-transform lg:translate-x-0 ${
+    isOpen ? 'translate-x-0' : '-translate-x-full'
+  } flex flex-col justify-between`}
+>
+  <audio id="a1" src="/sounds/cash-register.mp3"></audio>
+  <div className="relative h-full px-5 pb-4 bg-custom-fondo shadow-[rgba(221,222,227,1)_1px_1px_4px_0px] flex flex-col justify-between overflow-y-auto"> 
+    <div>
+      <div className="flex items-center justify-center py-8">
+        <Link href="/home">
+          <Image src={image} height={heightLogo} width={widthLogo} alt={`${appName} Logo`} />
+        </Link>
+      </div>
 
-        <div className="pt-4 border-t border-gray-200"></div>
-        {balance ?
-          <div>
+      <div className="pt-4 border-t border-gray-200"></div>
+      {balance ? (
+        <div>
           <label className="block text-sm font-semibold text-gray-400">Tu saldo</label>
-          <div> 
-          <p
-          className={`text-xl truncate font-semibold mb-[-.1rem] ${
-            changeOnBalanceDetected
-              ? balanceChanged >= 0
-                ? 'balance-changed-positive'
-                : 'balance-changed-negative'
-              : 'text-black'
-          }`}
-          >
-          {!isLoading ? balanceUSD.toFixed(4) : <LoadingIcon className="h-5 w-5" />} <span className='font-bold text-gray-400 text-base'>USD</span>
-          {changeOnBalanceDetected && (
-              <>
-                <span className="inline-block animate-bounce ml-2">
-                  {'('}
-                  {balanceChanged >= 0 ? '+ ' : '- '}
-                  {balanceChangeUSD}
-                  {')'}
-                </span>
-                {/* <SquareArrowUpIcon className="inline-block ml-2 text-green-500 animate-bounce h-5 w-5" /> */}
-              </>
-            )}
-          </p>
-          <p
-            className={`text-sm font-light truncate ${
-              changeOnBalanceDetected
-                ? balanceChanged >= 0
-                  ? 'balance-changed-positive'
-                  : 'balance-changed-negative'
-                : 'text-black'
-            }`}
-          >
-            {!isLoading ? balance : <LoadingIcon className="h-5 w-5" />} <span className='text-gray-400 text-xs'>ADA</span>
-            {changeOnBalanceDetected && (
-              <>
-                <span className="inline-block animate-bounce ml-2">
-                  {'('}
-                  {balanceChanged >= 0 ? '+ ' : '- '}
-                  {Math.abs(balanceChanged / 1000000)}
-                  {')'}
-                </span>
-                {/* <SquareArrowUpIcon className="inline-block ml-2 text-green-500 animate-bounce h-5 w-5" /> */}
-              </>
-            )}
-          </p>
-          <label className="block text-xs font-light text-gray-500 pt-2">
-            Sincronizado hace {syncedAgo} segundos
-          </label>
+          <div>
+            <p
+              className={`text-xl truncate font-semibold mb-[-.1rem] ${
+                changeOnBalanceDetected
+                  ? balanceChanged >= 0
+                    ? 'balance-changed-positive'
+                    : 'balance-changed-negative'
+                  : 'text-black'
+              }`}
+            >
+              {!isLoading ? balanceUSD.toFixed(4) : <LoadingIcon className="h-5 w-5" />}{' '}
+              <span className="font-bold text-gray-400 text-base">USD</span>
+              {changeOnBalanceDetected && (
+                <>
+                  <span className="inline-block animate-bounce ml-2">
+                    {'('}
+                    {balanceChanged >= 0 ? '+ ' : '- '}
+                    {balanceChangeUSD}
+                    {')'}
+                  </span>
+                </>
+              )}
+            </p>
+            <p
+              className={`text-sm font-light truncate ${
+                changeOnBalanceDetected
+                  ? balanceChanged >= 0
+                    ? 'balance-changed-positive'
+                    : 'balance-changed-negative'
+                  : 'text-black'
+              }`}
+            >
+              {!isLoading ? balance : <LoadingIcon className="h-5 w-5" />}{' '}
+              <span className="text-gray-400 text-xs">ADA</span>
+              {changeOnBalanceDetected && (
+                <>
+                  <span className="inline-block animate-bounce ml-2">
+                    {'('}
+                    {balanceChanged >= 0 ? '+ ' : '- '}
+                    {Math.abs(balanceChanged / 1000000)}
+                    {')'}
+                  </span>
+                </>
+              )}
+            </p>
+            <label className="block text-xs font-light text-gray-500 pt-2">
+              Sincronizado hace {syncedAgo} segundos
+            </label>
           </div>
         </div>
-        :
+      ) : (
         <SideBarBalanceSkeleton />
-        }
+      )}
 
-        {/*Skeleton*/}
-        {/*Skeleton*/}
+      <div className="pt-4 mt-4 border-t border-gray-200"></div>
 
-        <div className="pt-4 mt-4 border-t border-gray-200"></div>
+      <ul className="space-y-4">
+        <li className={walletAdmin ? '' : 'hidden'}>
+          <Link
+            onClick={onClose}
+            href="/corewallet"
+            className="flex items-center p-2 text-black rounded-lg hover:bg-custom-dark hover:text-white transition duration-150 ease-linear"
+          >
+            <ChartIcon />
+            <span className="ml-3">CoreWallet</span>
+          </Link>
+        </li>
+        <li className={connected ? 'hidden' : ''}>
+          <button
+            className="flex w-full items-center p-2 text-black rounded-lg hover:bg-custom-dark hover:text-white transition duration-150 ease-linear"
+            onClick={() => setDisplayWalletOptions(!displayWalletOptions)}
+          >
+            <WalletIcon />
+            <span className="flex-1 ms-3 text-left rtl:text-right whitespace-nowrap">Billetera</span>
+            <ChevronDownIcon />
+          </button>
+          <ul
+            id="dropdown-example"
+            className={`${
+              !displayWalletOptions && 'hidden'
+            } py-2 space-y-2 animate-fade animate-ease-in-out animate-duration-[400ms]`}
+          >
+            <li>
+              <Link
+                href="/wallet"
+                className="flex items-center w-full p-2 pl-11 group text-black rounded-lg hover:bg-custom-dark hover:text-white transition duration-150 ease-linear"
+              >
+                Cuadro de mando
+              </Link>
+            </li>
+            <li>
+              <Link
+                href="/wallet/assets"
+                className="flex items-center w-full p-2 pl-11 group text-black rounded-lg hover:bg-custom-dark hover:text-white transition duration-150 ease-linear"
+              >
+                Activos
+              </Link>
+            </li>
+            <li>
+              <Link
+                href="/wallet/transactions"
+                className="flex items-center w-full p-2 pl-11 group text-black rounded-lg hover:bg-custom-dark hover:text-white transition duration-150 ease-linear"
+              >
+                Transacciones
+              </Link>
+            </li>
+            <li>
+              <Link
+                href="/wallet/send"
+                className="flex items-center w-full p-2 pl-11 group text-black rounded-lg hover:bg-custom-dark hover:text-white transition duration-150 ease-linear"
+              >
+                Nueva transaccion
+              </Link>
+            </li>
+            <li>
+              <Link
+                href="/wallet/achievements"
+                className="flex items-center w-full p-2 pl-11 group text-black rounded-lg hover:bg-custom-dark hover:text-white transition duration-150 ease-linear"
+              >
+                Logros
+              </Link>
+            </li>
+          </ul>
+        </li>
+        <li>
+          <Link
+            onClick={onClose}
+            href="/home"
+            className="flex items-center p-2 text-black rounded-lg hover:bg-custom-dark hover:text-white transition duration-150 ease-linear"
+          >
+            <ScaleIcon />
+            <span className="flex-1 ml-3 whitespace-nowrap">Proyectos</span>
+          </Link>
+        </li>
 
-        <ul className="space-y-4">
-          <li className={walletAdmin ? '' : 'hidden'}>
-            <Link
-              onClick={onClose}
-              href="/corewallet"
-              className="flex items-center p-2 text-black rounded-lg hover:bg-custom-dark hover:text-white transition duration-150 ease-linear"
-            >
-              <ChartIcon />
-              <span className="ml-3">CoreWallet</span>
-            </Link>
-          </li>
-          <li className={connected ? 'hidden' : ''}>
-            <button
-              className="flex w-full items-center p-2 text-black rounded-lg hover:bg-custom-dark hover:text-white transition duration-150 ease-linear"
-              onClick={() => setDisplayWalletOptions(!displayWalletOptions)}
-            >
-              <WalletIcon />
-              <span className="flex-1 ms-3 text-left rtl:text-right whitespace-nowrap">
-                Billetera
-              </span>
-              <ChevronDownIcon />
-            </button>
-            <ul
-              id="dropdown-example"
-              className={`${
-                !displayWalletOptions && 'hidden'
-              } py-2 space-y-2 animate-fade animate-ease-in-out animate-duration-[400ms]`}
-            >
-              <li>
-                <Link
-                  href="/wallet"
-                  className="flex items-center w-full p-2 pl-11 group text-black rounded-lg hover:bg-custom-dark hover:text-white transition duration-150 ease-linear"
-                >
-                  Cuadro de mando
-                </Link>
-              </li>
-              <li>
-                <Link
-                  href="/wallet/assets"
-                  className="flex items-center w-full p-2 pl-11 group text-black rounded-lg hover:bg-custom-dark hover:text-white transition duration-150 ease-linear"
-                >
-                  Activos
-                </Link>
-              </li>
-              <li>
-                <Link
-                  href="/wallet/transactions"
-                  className="flex items-center w-full p-2 pl-11 group text-black rounded-lg hover:bg-custom-dark hover:text-white transition duration-150 ease-linear"
-                >
-                  Transacciones
-                </Link>
-              </li>
-              <li>
-                <Link
-                  href="/wallet/send"
-                  className="flex items-center w-full p-2 pl-11 group text-black rounded-lg hover:bg-custom-dark hover:text-white transition duration-150 ease-linear"
-                >
-                  Nueva transaccion
-                </Link>
-              </li>
-              <li>
-                <Link
-                  href="/wallet/achievements"
-                  className="flex items-center w-full p-2 pl-11 group text-black rounded-lg hover:bg-custom-dark hover:text-white transition duration-150 ease-linear"
-                >
-                  Logros
-                </Link>
-              </li>
-            </ul>
-          </li>
-          {/* <li className={connected ? '' : 'hidden'}>
-            <Link
-              onClick={onClose}
-              href="/dashboard"
-              className="flex items-center p-2 text-black rounded-lg hover:bg-custom-dark hover:text-white transition duration-150 ease-linear"
-            >
-              <ChartIcon />
-              <span className="ml-3">Dashboard</span>
-            </Link>
-          </li> */}
-          <li>
-            <Link
-              onClick={onClose}
-              href="/home"
-              className="flex items-center p-2 text-black rounded-lg hover:bg-custom-dark hover:text-white transition duration-150 ease-linear"
-            >
-              <ScaleIcon />
-              <span className="flex-1 ml-3 whitespace-nowrap">Proyectos</span>
-            </Link>
-          </li>
-
-          <li className={connected ? 'hidden' : ''}>
-            <Link
-              onClick={onClose}
-              href="/trade"
-              className="flex items-center p-2 text-black rounded-lg hover:bg-custom-dark hover:text-white transition duration-150 ease-linear"
-            >
-              <MarketIcon />
-              <span className="flex-1 ml-3 whitespace-nowrap">Mercado P2P</span>
-            </Link>
-          </li>
-        </ul>
-        <ul
-          className="space-y-4"
-          style={{
-            position: 'absolute',
-            bottom: '1rem',
-            left: '50%',
-            transform: 'translateX(-50%)',
-            width: '90%',
-          }}
-        >
-          <li>
-            <Link
-              href="https://suan-1.gitbook.io/documentacion-suan-sandbox/"
-              target="_blank"
-              className="flex items-center p-2 text-black rounded-lg hover:bg-custom-dark hover:text-white transition duration-150 ease-linear"
-            >
-              <BookIcon />
-              <span className="flex-1 ml-3 whitespace-nowrap">Ayuda</span>
-            </Link>
-          </li>
-          <li className="pt-4 mt-4 border-t text-xs font-light border-gray-200 flex flex-col items-center justify-center text-center">
-            {poweredBy && (
-              <div className="flex items-center mt-2 mb-4">
-                Powered by
-                <Image
-                  src="/images/home-page/suan_logo.png"
-                  height={10}
-                  width={12}
-                  className="ml-1"
-                  alt="SUAN Logo"
-                />
-              </div>
-            )}
-            <div>
-              <p>Copyright © Derechos de autor</p>
-              <p>Todos los derechos reservados</p>
-              <p>Suan 2001-2023</p>
+        <li className={connected ? 'hidden' : ''}>
+          <Link
+            onClick={onClose}
+            href="/trade"
+            className="flex items-center p-2 text-black rounded-lg hover:bg-custom-dark hover:text-white transition duration-150 ease-linear"
+          >
+            <MarketIcon />
+            <span className="flex-1 ml-3 whitespace-nowrap">Mercado P2P</span>
+          </Link>
+        </li>
+      </ul>
+    </div>
+    <div>
+      <ul className="space-y-4">
+        <li>
+          <Link
+            href="https://suan-1.gitbook.io/documentacion-suan-sandbox/"
+            target="_blank"
+            className="flex items-center p-2 text-black rounded-lg hover:bg-custom-dark hover:text-white transition duration-150 ease-linear"
+          >
+            <BookIcon />
+            <span className="flex-1 ml-3 whitespace-nowrap">Ayuda</span>
+          </Link>
+        </li>
+        <li className="pt-4 mt-4 border-t text-xs font-light border-gray-200 flex flex-col items-center justify-center text-center">
+          {poweredBy && (
+            <div className="flex items-center mt-2 mb-4">
+              Powered by
+              <Image
+                src="/images/home-page/suan_logo.png"
+                height={10}
+                width={12}
+                className="ml-1"
+                alt="SUAN Logo"
+              />
             </div>
-          </li>
-        </ul>
-      </div>
-    </aside>
+          )}
+          <div>
+            <p>Copyright © Derechos de autor</p>
+            <p>Todos los derechos reservados</p>
+            <p>Suan 2001-2023</p>
+          </div>
+        </li>
+      </ul>
+    </div>
+  </div>
+</aside>
   );
 }
