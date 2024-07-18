@@ -267,7 +267,7 @@ export default function CreateOrderCard(props: CreateOrderCardProps) {
 
             <div>
               <label htmlFor="countries" className="block mb-2 text-gray-900">
-                Por un valor de
+                Precio (Unidad)
               </label>
               <div className="relative w-full">
                 <div className="absolute inset-y-0 start-0 top-0 flex items-center ps-3.5 pointer-events-none">
