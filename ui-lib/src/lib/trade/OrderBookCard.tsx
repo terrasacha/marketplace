@@ -17,6 +17,7 @@ export default function OrderBookCard(props: OrderBookCardProps) {
 
   const [newTransactionBuild, setNewTransactionBuild] = useState<any>(null);
   const [signTransactionModal, setSignTransactionModal] = useState(false);
+
   const [currentPage, setCurrentPage] = useState(1);
 
   const indexOfLastItem = currentPage * itemsPerPage;
@@ -104,7 +105,9 @@ export default function OrderBookCard(props: OrderBookCardProps) {
       });
       handleOpenSignTransactionModal();
     } else {
-      toast.error('Algo ha salido mal, revisa las direcciones de billetera ...');
+      toast.error(
+        'Algo ha salido mal, revisa las direcciones de billetera ...'
+      );
     }
   };
 
@@ -138,7 +141,8 @@ export default function OrderBookCard(props: OrderBookCardProps) {
           },
           {
             address: actualOrder.wallet.address,
-            lovelace: parseInt(actualOrder.value) * parseInt(actualOrder.tokenAmount),
+            lovelace:
+              parseInt(actualOrder.value) * parseInt(actualOrder.tokenAmount),
           },
         ],
       },
@@ -169,6 +173,24 @@ export default function OrderBookCard(props: OrderBookCardProps) {
           id: actualOrder.id,
           statusCode: 'claimed',
         },
+        // createTransaction: {
+        //   productID: projectInfo.projectID,
+        //   stakeAddress: walletStakeID[0],
+        //   policyID: simpleScriptPolicyID,
+        //   addressDestination: recipientAddress,
+        //   addressOrigin:
+        //     'addr_test1vqkge7txl2vdw26efyv7cytjl8l6n8678kz09agc0r34pdss0xtmp', //Desde donde se envian los fondos al usuario ADRESS MASTER,
+        //   amountOfTokens: parseInt(tokenAmount),
+        //   fees: parseInt(feeAmount) / 1000000, //Comision,
+        //   //metadataUrl: JSON.stringify(metadata),
+        //   network: networkId,
+        //   tokenName: projectInfo.token.tokenName,
+        //   txCborhex: signedTx,
+        //   txHash: txHashValue,
+        //   txIn: utxos[0].input.txHash,
+        //   txProcessed: true, // Si se proceso en block chain
+        //   type: 'mint',
+        // },
       };
 
       setNewTransactionBuild({
@@ -178,7 +200,9 @@ export default function OrderBookCard(props: OrderBookCardProps) {
       });
       handleOpenSignTransactionModal();
     } else {
-      toast.error('Algo ha salido mal, revisa las direcciones de billetera ...');
+      toast.error(
+        'Algo ha salido mal, revisa las direcciones de billetera ...'
+      );
     }
   };
 

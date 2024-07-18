@@ -137,11 +137,6 @@ export default function TradeCard(props: OrderHistoryCardProps) {
                     ? 'text-blue-600 border-blue-600'
                     : 'border-transparent hover:text-gray-600 hover:border-gray-300'
                 }`}
-                className={`inline-block p-4 border-b-2 rounded-t-lg ${
-                  activeTab === 'my_orders'
-                    ? 'text-blue-600 border-blue-600'
-                    : 'border-transparent hover:text-gray-600 hover:border-gray-300'
-                }`}
                 onClick={() => handleSetActiveTab('my_orders')}
               >
                 Mis Ordenes
