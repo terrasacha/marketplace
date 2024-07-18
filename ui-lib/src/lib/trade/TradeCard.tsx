@@ -8,7 +8,7 @@ import { AssetModal, OrderHistoryCard } from '../ui-lib';
 export default function TradeCard(props: any) {
   const { walletID, walletData } = useContext<any>(WalletContext);
 
-  console.log("walletData", walletData)
+  console.log('walletData', walletData);
 
   const [activeTab, setActiveTab] = useState<string>('my_orders');
   const [orderList, setOrderList] = useState<Array<any>>([]);
@@ -32,7 +32,7 @@ export default function TradeCard(props: any) {
       nextToken: nextToken,
     };
     const queryParams = new URLSearchParams(params).toString();
-    console.log(`/api/calls/getOrders?${queryParams}`)
+    console.log(`/api/calls/getOrders?${queryParams}`);
     const request = await fetch(`/api/calls/getOrders?${queryParams}`);
     const orders = await request.json();
 
@@ -47,7 +47,7 @@ export default function TradeCard(props: any) {
       nextToken: '',
     };
     const queryParams = new URLSearchParams(params).toString();
-    console.log(`/api/calls/getOrders?${queryParams}`)
+    console.log(`/api/calls/getOrders?${queryParams}`);
     const request = await fetch(`/api/calls/getOrders?${queryParams}`);
 
     const ordersHistory = await request.json();
@@ -59,27 +59,32 @@ export default function TradeCard(props: any) {
     const suanTokens = await request.json();
 
     // const filteredSuanProjectsTokenList = walletData.assets.filter((asset: any) => asset.asset_name === suanTokens)
-    const filteredSuanProjectsTokenList = walletData.assets.filter((item1: any) => {
-      return suanTokens.some((item2: any) =>
-        item1.policy_id === item2.policyID && item1.asset_name === item2.tokenName
-      );
-    }).map((item1: any) => {
-      const match = suanTokens.find((item2: any) =>
-        item1.policy_id === item2.policyID && item1.asset_name === item2.tokenName
-      );
-      return {
-        ...item1,
-        ...match
-      };
-    });
-    setSuanUserTokens(filteredSuanProjectsTokenList)
-
-  }
+    const filteredSuanProjectsTokenList = walletData.assets
+      .filter((item1: any) => {
+        return suanTokens.some(
+          (item2: any) =>
+            item1.policy_id === item2.policyID &&
+            item1.asset_name === item2.tokenName
+        );
+      })
+      .map((item1: any) => {
+        const match = suanTokens.find(
+          (item2: any) =>
+            item1.policy_id === item2.policyID &&
+            item1.asset_name === item2.tokenName
+        );
+        return {
+          ...item1,
+          ...match,
+        };
+      });
+    setSuanUserTokens(filteredSuanProjectsTokenList);
+  };
 
   useEffect(() => {
     getOrderList();
-    getUserOrderList()
-    getSuanTokens()
+    getUserOrderList();
+    getSuanTokens();
   }, []);
 
   return (
@@ -88,14 +93,14 @@ export default function TradeCard(props: any) {
         <CreateOrderCard
           walletId={walletID}
           userAssetList={suanUserTokens}
-          walletAddress={walletData.address}
-          walletStakeAddress={walletData.stake_address}
+          walletAddress={walletData?.address}
+          walletStakeAddress={walletData?.stake_address}
           getOrderList={getOrderList}
         />
       </div>
       <div className="col-span-3 xl:col-span-2">
         <OrderBookCard
-          walletAddress={walletData.address}
+          walletAddress={walletData?.address}
           walletId={walletID}
           orderList={orderList}
           itemsPerPage={5}
@@ -105,8 +110,9 @@ export default function TradeCard(props: any) {
         <OrderHistoryCard
           userOrderList={userOrderList}
           itemsPerPage={1}
-          walletAddress={walletData.address}
-          walletId={walletID} />
+          walletAddress={walletData?.address}
+          walletId={walletID}
+        />
       </div>
     </div>
   );
