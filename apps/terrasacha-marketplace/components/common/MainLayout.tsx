@@ -10,6 +10,7 @@ import { useWallet, useAddress, useLovelace } from '@meshsdk/react';
 import { useRouter } from 'next/router';
 import { getCurrentUser } from 'aws-amplify/auth';
 import WalletContext from '@marketplaces/utils-2/src/lib/context/wallet-context';
+import HomeSkeleton from "@marketplaces/ui-lib/src/lib/common/skeleton/HomeSkeleton"
 
 const getRates = async () => {
   const response = await fetch('/api/calls/getRates')
@@ -249,7 +250,7 @@ const MainLayout = ({ children }: PropsWithChildren) => {
           <main className="lg:ml-80 mt-20">{children}</main>
         </>
       ) : (
-        ''
+        <HomeSkeleton />
       )}
     </>
   );

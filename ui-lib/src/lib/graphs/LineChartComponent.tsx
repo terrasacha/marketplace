@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useEffect, useState, useMemo, useCallback } from 'react';
 import {
   Chart as ChartJS,
   CategoryScale,
@@ -11,6 +11,7 @@ import {
   Filler,
 } from 'chart.js';
 import { Line } from 'react-chartjs-2';
+
 ChartJS.register(
   CategoryScale,
   LinearScale,
@@ -23,21 +24,27 @@ ChartJS.register(
 );
 
 export default function LineChartComponent(props: any) {
-  const { axisColor, graphsColor, lineChartData, plotVolume } = props;
-  if(lineChartData.dataToPlot[0].data[0].period !== 0){
-    lineChartData.dataToPlot[0].data.unshift({period: 0, value: lineChartData.dataToPlot[0].data[0].value || 0, date: lineChartData.dataToPlot[0].data[0].date || 0, volume: lineChartData.dataToPlot[0].data[0].volume || 0})
-  }
-  if(lineChartData.dataToPlotVolume[0].data[0].period !== 0){
-    lineChartData.dataToPlotVolume[0].data.unshift({period: 0, value: 0, date: lineChartData.dataToPlotVolume[0].data[0].date || 0})
-  }
-  const labels = Array.from(
-    { length: lineChartData.maxPeriod + 1 },
-    (_, index) => index.toString()
+  const { lineChartData, plotVolume } = props;
+  const [chartData, setChartData] = useState(lineChartData);
+
+  useEffect(() => {
+    if (JSON.stringify(lineChartData) !== JSON.stringify(chartData)) {
+      setChartData(lineChartData);
+    }
+  }, [lineChartData, chartData]);
+
+  const labels = useMemo(
+    () =>
+      Array.from(
+        { length: chartData.maxPeriod + 1 },
+        (_, index) => index.toString()
+      ),
+    [chartData.maxPeriod]
   );
-  console.log(lineChartData, 'lineChartData');
-  const datasets = lineChartData.dataToPlot
-    ? [
-        ...lineChartData.dataToPlot.map((item: any) => {
+
+  const datasets = useMemo(() => {
+    const baseDatasets = chartData.dataToPlot
+      ? chartData.dataToPlot.map((item: any) => {
           return {
             label: item.name,
             data: item.data,
@@ -52,110 +59,122 @@ export default function LineChartComponent(props: any) {
             backgroundColor: 'rgba(217, 119, 6, 0.5)',
             stepped: 'after',
           };
-        }),
-      ]
-    : [];
+        })
+      : [];
 
-  if (plotVolume) {
-    datasets.push(
-      ...lineChartData.dataToPlotVolume.map((item: any) => {
-        return {
-          label: 'Volumen (tCO2eq)',
-          data: item.data,
-          borderColor: 'rgb(54, 162, 235)',
-          backgroundColor: 'rgba(54, 162, 235, 0.5)',
-          yAxisID: 'y1',
-          fill: true,
-        };
-      })
-    );
-  }
+    if (plotVolume) {
+      baseDatasets.push(
+        ...chartData.dataToPlotVolume.map((item: any) => {
+          return {
+            label: 'Volumen (tCO2eq)',
+            data: item.data,
+            borderColor: 'rgb(54, 162, 235)',
+            backgroundColor: 'rgba(54, 162, 235, 0.5)',
+            yAxisID: 'y1',
+            fill: true,
+          };
+        })
+      );
+    }
 
-  const scales = {
-    x: {
-      ticks: {
-        color: '#DDDDDD',
-      },
-      grid: {
-        color: '#4C4C4C',
-      },
-      title: {
-        display: true,
-        text: 'Periodo',
-        color: '#DDDDDD',
-      },
-    },
-    y: {
-      ticks: {
-        color: '#DDDDDD',
-      },
-      grid: {
-        color: '#4C4C4C',
-      },
-      title: {
-        display: true,
-        text: 'Valor del token expresado en USD',
-        color: '#DDDDDD',
-      },
-      min: 0, // Asegura que el eje Y comience en 0
-    },
-  };
+    return baseDatasets;
+  }, [chartData.dataToPlot, chartData.dataToPlotVolume, plotVolume]);
 
-  if (plotVolume) {
-    //@ts-ignore
-    scales.y1 = {
-      position: 'right',
-      ticks: {
-        color: '#DDDDDD',
+  const scales = useMemo(() => {
+    const baseScales = {
+      x: {
+        ticks: {
+          color: '#DDDDDD',
+        },
+        grid: {
+          color: '#4C4C4C',
+        },
+        title: {
+          display: true,
+          text: 'Periodo',
+          color: '#DDDDDD',
+        },
       },
-      grid: {
-        display: false,
-        color: '#4C4C4C',
+      y: {
+        ticks: {
+          color: '#DDDDDD',
+        },
+        grid: {
+          color: '#4C4C4C',
+        },
+        title: {
+          display: true,
+          text: 'Valor del token expresado en USD',
+          color: '#DDDDDD',
+        },
+        min: 0, 
       },
-      title: {
-        display: true,
-        text: 'Volumen de tonelada de carbono capturada(tCO2eq)',
-        color: '#DDDDDD',
-      },
-      min: 0, // Asegura que el eje Y de volumen comience en 0
     };
-  }
 
-  const data = {
-    labels,
-    datasets,
-  };
+    if (plotVolume) {
+      //@ts-ignore
+      baseScales.y1 = {
+        position: 'right',
+        ticks: {
+          color: '#DDDDDD',
+        },
+        grid: {
+          display: false,
+          color: '#4C4C4C',
+        },
+        title: {
+          display: true,
+          text: 'Volumen de tonelada de carbono capturada(tCO2eq)',
+          color: '#DDDDDD',
+        },
+        min: 0, 
+      };
+    }
 
-  const options = {
-    responsive: true,
-    maintainAspectRatio: false,
-    plugins: {
-      legend: {
-        position: 'top',
-        display: true,
-        labels: {
-          color: '#DDD',
-          filter: function (item: any) {
-            return item.text !== false;
+    return baseScales;
+  }, [plotVolume]);
+
+  const data = useMemo(
+    () => ({
+      labels,
+      datasets,
+    }),
+    [labels, datasets]
+  );
+
+  const options = useMemo(
+    () => ({
+      responsive: true,
+      maintainAspectRatio: false,
+      plugins: {
+        legend: {
+          position: 'top',
+          display: true,
+          labels: {
+            color: '#DDD',
+            filter: function (item: any) {
+              return item.text !== false;
+            },
           },
         },
       },
-    },
-    title: {
-      display: true,
-      text: 'Evolución de proyectos',
-    },
-    scales,
-    parsing: {
-      xAxisKey: 'period',
-      yAxisKey: 'value',
-    },
-  };
+      title: {
+        display: true,
+        text: 'Evolución de proyectos',
+      },
+      scales,
+      parsing: {
+        xAxisKey: 'period',
+        yAxisKey: 'value',
+      },
+    }),
+    [scales]
+  );
 
-  const LineChart = () => {
+  const LineChart = useCallback(() => {
     //@ts-ignore
     return <Line options={options} data={data} />;
-  };
+  }, [options, data]);
 
   return (
     <div className="p-1 w-full h-full">

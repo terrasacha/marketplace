@@ -10,6 +10,7 @@ import ActualUseAndPotentialInfoCard from './ActualUseAndPotentialInfoCard';
 import BlockChainPieChart from './BlockChainPieChart';
 import StackBarGraphComponent from '../../graphs/StackBarGraphComponent';
 import { useRouter } from 'next/router';
+import DashboardProjectSkeleton from '../../common/skeleton/DashboardProjectSkeleton';
 
 export default function DashboardProject(props: any) {
   const router = useRouter();
@@ -28,10 +29,9 @@ export default function DashboardProject(props: any) {
       );
     }
   }, [walletData]);
-
-  if (!dashboardProjectData) return <></>;
+  if(!dashboardProjectData) return <DashboardProjectSkeleton />
   return (
-    <div className="bg-[#F4F8F9] h-auto w-full px-5 pt-6">
+      <div className="bg-[#F4F8F9] h-auto w-full px-5 pt-6">
       <div className="flex justify-between">
         <button
           onClick={() => router.back()}
@@ -131,10 +131,11 @@ export default function DashboardProject(props: any) {
             Evolución del precio del token
           </h2>
 
+          {dashboardProjectData.lineChartData && 
           <LineChartComponent
             lineChartData={dashboardProjectData.lineChartData}
             plotVolume={true}
-          />
+          />}
         </div>
         {[
           {
@@ -200,12 +201,6 @@ export default function DashboardProject(props: any) {
           <BlockChainPieChart project={project} />
         </div>
       </div>
-      {/* <div className="mt-4">
-        <ActualUseAndPotentialInfoCard
-          actualUse={projectData.projectUses.actualUse}
-          replaceUse={projectData.projectUses.replaceUse}
-        />
-      </div> */}
-    </div>
-  );
+      </div>
+  )
 }
