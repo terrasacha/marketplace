@@ -3,6 +3,7 @@ import Link from 'next/link';
 import Image from 'next/image';
 import { useRouter } from 'next/router';
 import { TailSpin } from 'react-loader-spinner';
+import { BsFillEyeFill, BsFillEyeSlashFill } from 'react-icons/bs';
 
 const initialStateErrors = { loginError: '' };
 
@@ -14,6 +15,7 @@ export interface LoginFormProps {
   poweredby: boolean;
   appName: string;
 }
+const deafultStateShowInfo = { password: false };
 const LoginForm = (props: LoginFormProps) => {
   const { logo, widthLogo, heightLogo, appName, poweredby } = props;
   const { signInAuth } = props;
@@ -22,8 +24,10 @@ const LoginForm = (props: LoginFormProps) => {
     username: '',
     password: '',
   });
+  const [showInfo, setShowInfo] = useState(deafultStateShowInfo) as any[];
   const [loading, setLoading] = useState(false);
   const [errors, setErrors] = useState<any>(initialStateErrors);
+
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     setErrors(initialStateErrors);
     const { name, value } = e.target;
@@ -31,6 +35,13 @@ const LoginForm = (props: LoginFormProps) => {
       ...prevForm,
       [name]: value,
     }));
+  };
+  const handleShowInfo = (e : any, name: string) => {
+    e.preventDefault()
+    setShowInfo({
+      ...showInfo,
+      [name]: !showInfo[name],
+    });
   };
   const submitForm = async () => {
     setLoading(true);
@@ -42,10 +53,24 @@ const LoginForm = (props: LoginFormProps) => {
         return router.push('/');
       }
     } catch (error: any) {
+      console.log(error.name)
+      if (error.name === 'UserNotFoundException') {
+        setErrors((preForm: any) => ({
+          ...preForm,
+          loginError: 'El usuario no existe',
+        }));
+      } else if (error.name === 'NotAuthorizedException'){
+        setErrors((preForm: any) => ({
+          ...preForm,
+          loginError: 'Contraseña inválida',
+        }));
+      }
+      else{
       setErrors((preForm: any) => ({
         ...preForm,
         loginError: error.name,
       }));
+    }
     } finally {
       setLoading(false); // Se asegura de que setLoading(false) se ejecute, independientemente de si la promesa se resuelve o se rechaza.
     }
@@ -84,7 +109,7 @@ const LoginForm = (props: LoginFormProps) => {
         </div>
         <div className="relative z-0 w-full mb-4 group">
           <input
-            type="password"
+            type={showInfo.password ? 'text' : 'password'}
             value={loginForm.password}
             name="password"
             onChange={handleChange}
@@ -92,6 +117,12 @@ const LoginForm = (props: LoginFormProps) => {
             placeholder="password"
             required
           />
+           <button
+              className="absolute right-4 top-1/2 transform -translate-y-1/2 text-gray-500"
+              onClick={(e) => handleShowInfo(e, 'password')}
+            >
+              {showInfo.password ? <BsFillEyeFill /> : <BsFillEyeSlashFill />}
+            </button>
         </div>
       </form>
       <div className="flex items-center mb-4">

@@ -7,6 +7,7 @@ import { Label, Select } from 'flowbite-react';
 import { TailSpin } from 'react-loader-spinner';
 import { Tooltip } from 'react-tooltip';
 import { event } from '../common/event';
+import { BsFillEyeFill, BsFillEyeSlashFill } from 'react-icons/bs';
 
 interface SignUpFormProps {
   handleSetSignUpStatus: (data: string) => void;
@@ -18,6 +19,7 @@ interface SignUpFormProps {
   poweredby: boolean;
 }
 const initialStateErrors = { confirmPassword: '', createUserError: '' };
+const deafultStateShowInfo = { password: false, passwordConfirm: false };
 
 const SignUpForm = (props: SignUpFormProps) => {
   const {
@@ -41,6 +43,7 @@ const SignUpForm = (props: SignUpFormProps) => {
   const [loading, setLoading] = useState(false);
   const [termsAccepted, setTermsAccepted] = useState<boolean>(false);
   const [privacyAccepted, setPrivacyAccepted] = useState<boolean>(false);
+  const [showInfo, setShowInfo] = useState(deafultStateShowInfo) as any[];
 
   const handleChange = (e: any) => {
     const { name, value } = e.target;
@@ -74,10 +77,11 @@ const SignUpForm = (props: SignUpFormProps) => {
       });
       router.push('/auth/confirm-code');
     } catch (error: any) {
+      console.log(error.name)
       if (error.message === 'Las contraseñas no coinciden') {
         setErrors((preForm: any) => ({
           ...preForm,
-          confirmPasswordError: error,
+          confirmPasswordError: 'Las contraseñas no coinciden',
         }));
       } else if (error.name === 'UsernameExistsException') {
         setErrors((preForm: any) => ({
@@ -87,14 +91,26 @@ const SignUpForm = (props: SignUpFormProps) => {
       } else if (error.name === 'InvalidPasswordException') {
         setErrors((preForm: any) => ({
           ...preForm,
-          createUserError: 'La contraseña debe tener al menos 8 caracteres',
+          confirmPassword: 'La contraseña debe tener al menos 8 caracteres',
+        }));
+      }
+      else if (error.name === 'InvalidParameterException') {
+        setErrors((preForm: any) => ({
+          ...preForm,
+          createUserError: 'El nombre de usuario no satisface las condiciones requeridas',
         }));
       }
     } finally {
       setLoading(false);
     }
   };
-
+  const handleShowInfo = (e : any, name: string) => {
+    e.preventDefault()
+    setShowInfo({
+      ...showInfo,
+      [name]: !showInfo[name],
+    });
+  };
   return (
     <div className="bg-white rounded-2xl w-[35rem] max-w-[35rem] 2xl:w-[38%] py-10 px-12 sm:px-20 h-auto flex flex-col justify-center">
       <div className="w-full flex justify-center mb-8">
@@ -147,7 +163,7 @@ const SignUpForm = (props: SignUpFormProps) => {
         </div>
         <div className="relative z-0 w-full mb-4 group">
           <input
-            type="password"
+            type={showInfo.password ? 'text' : 'password'}
             value={signupForm.password}
             name="password"
             onChange={handleChange}
@@ -155,17 +171,33 @@ const SignUpForm = (props: SignUpFormProps) => {
             placeholder="Contraseña"
             required
           />
+          <button
+              className="absolute right-4 top-1/2 transform -translate-y-1/2 text-gray-500"
+              onClick={(e) => handleShowInfo(e,'password')}
+            >
+              {showInfo.password ? <BsFillEyeFill /> : <BsFillEyeSlashFill />}
+            </button>
         </div>
         <div className="relative z-0 w-full mb-2 group">
           <input
-            type="password"
-            value={extraForm.ConfirmPassword}
+            type={showInfo.passwordConfirm ? 'text' : 'password'}
+            value={extraForm.confirmPassword}
             name="confirmPassword"
             onChange={handleChangeExtraForm}
             className="block py-2.5 px-0 w-full text-sm text-gray-900 bg-transparent border-0 border-b-2 border-gray-300 appearance-none dark:text-white dark:border-gray-600 dark:focus:border-blue-500 focus:outline-none focus:ring-0 focus:border-blue-600 peer"
             placeholder="Confirmar contraseña"
             required
           />
+          <button
+              className="absolute right-4 top-1/2 transform -translate-y-1/2 text-gray-500"
+              onClick={(e) => handleShowInfo(e,'passwordConfirm')}
+            >
+              {showInfo.passwordConfirm ? (
+                <BsFillEyeFill />
+              ) : (
+                <BsFillEyeSlashFill />
+              )}
+            </button>
           <p className="text-xs text-red-400">{errors.confirmPasswordError}</p>
         </div>
         <div className="max-w-md mb-2">
