@@ -125,22 +125,7 @@ const LandingPage: MyPage = (props: any) => {
     }
     return walletInfoOnDB;
   };
-
-  const getWalletBalanceByAddress = async (address: any) => {
-    const balanceFetchResponse = await fetch(
-      '/api/calls/backend/getWalletBalanceByAddress',
-      {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify(address),
-      }
-    );
-
-    const balanceData = await balanceFetchResponse.json();
-    return balanceData;
-  };
+  
   const checkTokenStakeAddress = async (rewardAddresses: any) => {
     const response = await fetch('/api/calls/backend/checkTokenStakeAddress', {
       method: 'POST',

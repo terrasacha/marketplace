@@ -50,7 +50,7 @@ const RedirectToHome = (props: RedirectToHomeProps) => {
         setLoading(true);
         try {
           const balanceData = await getWalletBalanceByAddress(walletData.address);
-          const hasTokenAuth = balanceData[0].assets.some((asset: any) => asset.policy_id === process.env.NEXT_PUBLIC_TOKEN_AUTHORIZER &&
+          const hasTokenAuth = balanceData.assets.some((asset: any) => asset.policy_id === process.env.NEXT_PUBLIC_TOKEN_AUTHORIZER &&
               asset.asset_name === process.env.NEXT_PUBLIC_TOKEN_AUTHORIZER_NAME);
           if (hasTokenAuth) {
             setLoading(false);

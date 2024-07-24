@@ -122,14 +122,14 @@ export function WalletContextProvider({
       const responseData = await response.json();
 
       if (prevBalance === null) {
-        setPrevBalance(responseData[0].balance);
+        setPrevBalance(responseData.balance);
       }
 
-      setWalletData(responseData[0]);
+      setWalletData(responseData);
       setIsLoading(false);
       setLastSyncDate(Date.now());
 
-      return responseData[0];
+      return responseData;
     }
     setIsLoading(false);
     setWalletData(null);

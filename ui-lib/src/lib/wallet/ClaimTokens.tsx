@@ -61,13 +61,11 @@ export default function ClaimTokens() {
         body: JSON.stringify(spendContractAddress),
       }
     );
-    const responseData = await response.json();
+    const spentWalletData = await response.json();
 
-    console.log('spendData', responseData);
+    console.log('spendData', spentWalletData);
     console.log('tokenName', tokenName);
     console.log('tokenContractId', tokenContractId);
-
-    const spentWalletData = responseData[0];
 
     if (!spentWalletData) {
       toast.error('Parece que un error ha ocurrido ...');
