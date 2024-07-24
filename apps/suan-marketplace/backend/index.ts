@@ -619,7 +619,7 @@ export async function getImages(imageURL: string) {
 }
 export async function getImagesCategories(category: string) {
   try {
-    const url = `${process.env.REACT_APP_URL_BUCKET}/public/category-projects-images/${category}.avif`;
+    const url = `${process.env['NEXT_PUBLIC_s3EndPoint']}public/category-projects-images/${category}.avif`;
     return url;
     // const response = await axios.get(url, { responseType: "arraybuffer" });
     // const data = Buffer.from(response.data, "binary").toString("base64");

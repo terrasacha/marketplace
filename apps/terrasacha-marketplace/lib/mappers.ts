@@ -1,4 +1,5 @@
-import { getPolygonByCadastralNumber } from '@suan/backend';
+
+import { getPolygonByCadastralNumber } from '@terrasacha/backend';
 import {
   parseSerializedKoboData,
   convertAWSDatetimeToDate,

@@ -1,12 +1,6 @@
 import { useEffect, useState } from 'react';
 import Link from 'next/link';
 import GoogleMapReact from 'google-map-react';
-import {
-  getImagesCategories,
-  getPolygonByCadastralNumber,
-  getProject,
-  getProjectData,
-} from '@terrasacha/backend';
 import { Transition } from '@headlessui/react';
 import { MyPage } from '@terrasacha//components/common/types';
 import { getActualPeriod } from '@terrasacha//utils/generic/getActualPeriod';
@@ -25,6 +19,7 @@ const ProjectionsTab = dynamic(
 import Card from '@marketplaces/ui-lib/src/lib/common/Card';
 import PageHeader from '@marketplaces/ui-lib/src/lib/common/PageHeader';
 import { useRouter } from 'next/router';
+import { getImagesCategories, getProject, getProjectData } from '@marketplaces/data-access';
 
 const ProjectDataModal = dynamic(
   () => import('@terrasacha/components/modals/ProjectDataModal')
