@@ -1,6 +1,6 @@
 import React, { useState, useCallback } from 'react';
-import countries from '@suan//lib/countries.json';
-import { validarString } from '@suan//lib/util';
+import countries from '@cauca//lib/countries.json';
+import { validarString } from '@cauca//lib/util';
 import { error } from 'console';
 //import { CardanoWallet } from "@meshsdk/react";
 import CardanoWallet from '../cardano-wallet/CardanoWallet';
