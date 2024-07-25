@@ -43,7 +43,8 @@
       "@marketplaces/utils-2/src/lib/generic/*": ["utils-2/src/lib/generic/*"],
       "@marketplaces/utils-2/src/lib/mappers/*": ["utils-2/src/lib/mappers/*"],
       "@suan/*": ["apps/suan-marketplace/*"],
-      "@terrasacha/*": ["apps/terrasacha-marketplace/*"]
+      "@terrasacha/*": ["apps/terrasacha-marketplace/*"],
+      "@cauca/*": ["apps/suan-cauca-marketplace/*"]
     }
   },
   "exclude": ["node_modules", "tmp"]

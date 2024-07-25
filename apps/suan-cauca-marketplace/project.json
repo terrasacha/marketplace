@@ -1,0 +1,67 @@
+{
+  "name": "suan-marketplace",
+  "$schema": "../../node_modules/nx/schemas/project-schema.json",
+  "sourceRoot": "apps/suan-marketplace",
+  "projectType": "application",
+  "targets": {
+    "build": {
+      "executor": "@nx/next:build",
+      "outputs": [
+        "{options.outputPath}"
+      ],
+      "defaultConfiguration": "production",
+      "options": {
+        "outputPath": "dist/apps/suan-marketplace",
+        "postcssConfig": "apps/suan-marketplace/postcss.config.js"
+      },
+      "configurations": {
+        "development": {
+          "outputPath": "apps/suan-marketplace"
+        },
+        "production": {}
+      }
+    },
+    "serve": {
+      "executor": "@nx/next:server",
+      "defaultConfiguration": "development",
+      "options": {
+        "buildTarget": "suan-marketplace:build",
+        "postcssConfig": "apps/suan-marketplace/postcss.config.js",
+        "dev": true,
+        "port": 4100
+      },
+      "configurations": {
+        "development": {
+          "buildTarget": "suan-marketplace:build:development",
+          "dev": true
+        },
+        "production": {
+          "buildTarget": "suan-marketplace:build:production",
+          "dev": false
+        }
+      }
+    },
+    "export": {
+      "executor": "@nx/next:export",
+      "options": {
+        "buildTarget": "suan-marketplace:build:production"
+      }
+    },
+    "test": {
+      "executor": "@nx/jest:jest",
+      "outputs": [
+        "{workspaceRoot}/coverage/{projectRoot}"
+      ],
+      "options": {
+        "jestConfig": "apps/suan-marketplace/jest.config.ts"
+      }
+    },
+    "lint": {
+      "executor": "@nx/eslint:lint",
+      "outputs": [
+        "{options.outputFile}"
+      ]
+    }
+  },
+  "tags": []
+}
