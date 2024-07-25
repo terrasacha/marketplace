@@ -32,7 +32,7 @@ export default function CoreWallet(props: any) {
     );
 
     const balanceData = await balanceFetchResponse.json();
-    return balanceData[0].balance;
+    return balanceData.balance;
   };
 
   const handleGetOracleWalletLovelaceBalance = async () => {

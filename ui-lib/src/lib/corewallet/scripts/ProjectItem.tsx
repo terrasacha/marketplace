@@ -186,23 +186,21 @@ export default function ProjectItem(props: ProjectItemProps) {
               <button
                 type="button"
                 className="text-custom-dark bg-white hover:gray-300 focus:outline-none focus:ring-4 focus:ring-gray-300 font-medium rounded text-sm p-2.5 "
-                onClick={() => {
-                  getTokenAmountDistribution(project.productFeatures);
-                }}
+                onClick={() => {}}
               >
                 Enviar tokens a propietario
               </button>
             ) : (
               <>
                 <button
-                  id="clickable"
+                  id={`clickable${project.id}`}
                   type="button"
                   className="text-custom-dark bg-white hover:gray-300 focus:outline-none focus:ring-4 focus:ring-gray-300 font-medium rounded text-sm p-2.5 "
                 >
                   Distribuir Tokens
                 </button>
 
-                <Tooltip anchorSelect="#clickable" clickable>
+                <Tooltip anchorSelect={`#clickable${project.id}`} clickable>
                   <div className="p-2">
                     <input
                       type="text"
@@ -273,8 +271,7 @@ export default function ProjectItem(props: ProjectItemProps) {
               <p className="mb-2 text-amber-400">Contrato de distribución</p>
               <div className="flex gap-2">
                 <p className="flex-1 text-xs truncate w-36">
-                  POLICY ID:{' '}
-                  <span>{mintProjectToken?.id}</span>
+                  POLICY ID: <span>{mintProjectToken?.id}</span>
                 </p>
                 <div className="flex-none">
                   <CopyToClipboard
@@ -298,8 +295,7 @@ export default function ProjectItem(props: ProjectItemProps) {
               </div>
               <div className="flex gap-2">
                 <p className="flex-1 text-xs truncate w-36">
-                  ADDRESS:{' '}
-                  <span>{mintProjectToken?.testnetAddr}</span>
+                  ADDRESS: <span>{mintProjectToken?.testnetAddr}</span>
                 </p>
                 <div className="flex-none">
                   <CopyToClipboard
@@ -338,8 +334,7 @@ export default function ProjectItem(props: ProjectItemProps) {
               </div>
               <div className="flex gap-2">
                 <p className="flex-1 text-xs truncate w-36">
-                  ADDRESS:{' '}
-                  <span>{spendSwap?.testnetAddr}</span>
+                  ADDRESS: <span>{spendSwap?.testnetAddr}</span>
                 </p>
                 <div className="flex-none">
                   <CopyToClipboard

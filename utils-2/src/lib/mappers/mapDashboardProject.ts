@@ -106,6 +106,12 @@ function createLineChartData(data: any) {
 
 
     const maxPeriod = dataToPlot ? dataToPlot.sort((a: any, b: any) => b.data.length - a.data.length)[0]?.data.length : 0
+    if(dataToPlot[0].data[0].period !== 0){
+        dataToPlot[0].data.unshift({period: 0, value: dataToPlot[0].data[0].value || 0, date: dataToPlot[0].data[0].date || 0, volume: dataToPlot[0].data[0].volume || 0})
+      }
+      if(dataToPlotVolume[0].data[0].period !== 0){
+        dataToPlotVolume[0].data.unshift({period: 0, value: 0, date: dataToPlotVolume[0].data[0].date || 0})
+      }
     return {
         dataToPlot,
         maxPeriod,

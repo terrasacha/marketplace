@@ -47,13 +47,14 @@ const ConfirmCode = (props: ConfirmCodeProps) => {
     setLoading(true);
     try {
       const data = await confirmSignUpAuth(confirmationCode);
+      console.log(data, 'confirmSignUpAuth')
       if (data) {
         router.push('/auth/login');
       }
     } catch (error: any) {
       setErrors((preForm: any) => ({
         ...preForm,
-        loginError: error,
+        loginError: 'Código inválido',
       }));
     } finally {
       setLoading(false);

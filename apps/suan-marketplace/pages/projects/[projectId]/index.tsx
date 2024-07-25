@@ -1,12 +1,6 @@
 import { useEffect, useState } from 'react';
 import Link from 'next/link';
 import GoogleMapReact from 'google-map-react';
-import {
-  getImagesCategories,
-  getPolygonByCadastralNumber,
-  getProject,
-  getProjectData,
-} from '@suan/backend';
 import { Transition } from '@headlessui/react';
 import { MyPage } from '@suan/components/common/types';
 import { getActualPeriod } from '@suan/utils/generic/getActualPeriod';
@@ -25,6 +19,7 @@ const ProjectionsTab = dynamic(
 import Card from '@marketplaces/ui-lib/src/lib/common/Card';
 import PageHeader  from '@marketplaces/ui-lib/src/lib/common/PageHeader';
 import { useRouter } from 'next/router';
+import { getImagesCategories, getProject, getProjectData } from '@marketplaces/data-access';
 
 const ProjectDataModal = dynamic(
   () => import('@suan/components/modals/ProjectDataModal')
@@ -56,11 +51,9 @@ const Product: MyPage = (props: any) => {
           body: JSON.stringify(spendContractAddress),
         }
       );
-      const responseData = await response.json();
+      const spentWalletData = await response.json();
 
-      console.log('spendData', responseData);
-
-      const spentWalletData = responseData[0];
+      console.log('spendData', spentWalletData);
 
       if (!spentWalletData) {
         console.log('Parece que un error ha ocurrido ...');
@@ -497,6 +490,7 @@ export async function getServerSideProps(context: any) {
 
   const project = await getProject(projectId);
   const projectData = await getProjectData(projectId);
+  console.log(projectData)
   const mappedProjectdata = await mapProjectData(projectData);
   const image = await getImagesCategories(
     encodeURIComponent(`${project.categoryID}_banner`)

@@ -178,32 +178,6 @@ export default function ScriptRow(props: ScriptRowProps) {
                   className="py-2 text-sm text-gray-700 dark:text-gray-200"
                   aria-labelledby="dropdownDefaultButton"
                 >
-                  {script_type === 'mintProjectToken' && active && (
-                    <>
-                      <li>
-                        <button
-                          className="flex w-full px-4 py-2 hover:bg-gray-100"
-                          onClick={() => {
-                            setIsActionsActive(false);
-                            handleOpenMintModal(policyId);
-                          }}
-                        >
-                          Quemar tokens
-                        </button>
-                      </li>
-                      <li>
-                        <button
-                          className="flex w-full px-4 py-2 hover:bg-gray-100"
-                          onClick={() => {
-                            setIsActionsActive(false);
-                            handleDistributeTokens(policyId);
-                          }}
-                        >
-                          Distribuir tokens
-                        </button>
-                      </li>
-                    </>
-                  )}
                   <li>
                     <button
                       className={`flex w-full px-4 py-2 ${active ? 'bg-red-600' : 'bg-green-600'

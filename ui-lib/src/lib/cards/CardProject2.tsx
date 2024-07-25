@@ -53,11 +53,9 @@ export default function CardProject(props: any) {
           body: JSON.stringify(spendContractAddress),
         }
       );
-      const responseData = await response.json();
+      const spentWalletData = await response.json();
 
-      console.log('spendData', responseData);
-
-      const spentWalletData = responseData[0];
+      console.log('spendData', spentWalletData);
 
       if (!spentWalletData) {
         console.log('Parece que un error ha ocurrido ...');
