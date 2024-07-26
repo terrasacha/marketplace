@@ -35,7 +35,6 @@ export default function ClaimTokens() {
 
       const data = await response.json();
 
-      console.log('pendingTokensForClaiming', data);
       setPendingTokensForClaiming(data);
     };
 
@@ -205,8 +204,6 @@ export default function ClaimTokens() {
     }
 
   };
-
-  console.log('pendingTokensForClaiming', pendingTokensForClaiming);
 
   return (
     <>

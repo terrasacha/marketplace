@@ -105,7 +105,6 @@ export async function mapBuildTransactionInfo({
   buildTxResponse,
   metadata,
 }: MapBuildTransactionInfoProps) {
-  console.log('TransactionRawInfoData', buildTxResponse);
 
   const cbor = buildTxResponse.cbor;
   const redeemer_cbor = buildTxResponse.redeemer_cbor;
@@ -266,7 +265,6 @@ export async function mapBuildTransactionInfo({
     metadata: metadata,
   };
 
-  console.log('tx_info: ', tx_info);
 
   return tx_info;
 }
@@ -275,7 +273,6 @@ export async function mapAccountTxData({
   walletAddress,
   data,
 }: MapTransactionListProps) {
-  console.log('TransactionListRawInfoData', data);
 
   const mappedData = data?.reverse().map((tx: any, index: number) => {
     const input_utxo = Object.values(tx.inputs).map((utxo: any) => {
@@ -463,7 +460,6 @@ export async function mapAccountTxData({
     return tx_info;
   });
 
-  console.log('mappedData: ', mappedData);
   if (!mappedData) {
     return [];
   }
@@ -475,7 +471,6 @@ export async function mapTransactionListInfo({
   walletAddress,
   data,
 }: MapTransactionListProps) {
-  console.log('TransactionListRawInfoData', data);
 
   const mappedData = data?.reverse().map((tx: any, index: number) => {
     const input_utxo = tx.inputs.map((utxo: any) => {
@@ -648,7 +643,6 @@ export async function mapTransactionListInfo({
     return tx_info;
   });
 
-  console.log('mappedData: ', mappedData);
   if (!mappedData) {
     return [];
   }

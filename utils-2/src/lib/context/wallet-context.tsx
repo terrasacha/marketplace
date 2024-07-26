@@ -142,9 +142,6 @@ export function WalletContextProvider({
 
       if (walletData) {
         const newBalance = walletData.balance;
-        console.log('prevBalance', prevBalance);
-        console.log('newBalance', newBalance);
-        console.log('walletDataUpdate', walletData);
         if (prevBalance !== newBalance && prevBalance !== null) {
           setBalanceChanged(newBalance - prevBalance);
 

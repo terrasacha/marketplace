@@ -45,7 +45,6 @@ export default function Transactions(props: TransactionsProps) {
     const currentDate = new Date();
 
     if (pendingTx && typeof pendingTx === 'string') {
-      console.log('pendingTxFromRouter', pendingTx);
       const { data, timestamp } = JSON.parse(pendingTx);
 
       if (Date.now() - timestamp > 300000) {
@@ -104,7 +103,6 @@ export default function Transactions(props: TransactionsProps) {
         const { data, timestamp } = JSON.parse(cachedData);
         if (Date.now() - timestamp < 3600000 && !data?.error) {
           // Invalida después de 1 hora
-          console.log('entro');
           return data;
         }
       }
@@ -131,8 +129,6 @@ export default function Transactions(props: TransactionsProps) {
     invalidateCache: boolean = false
   ) => {
     setIsLoading(true);
-
-    console.log('walletStakeAddress', walletStakeAddress)
 
     const payload = {
       stake: walletStakeAddress,
@@ -168,7 +164,6 @@ export default function Transactions(props: TransactionsProps) {
       pageSize: responseData.page_size,
       totalItems: responseData.total_count,
     };
-    console.log('paginationMetadataItem', paginationMetadataItem);
     const mappedTransactionListData = await mapAccountTxData({
       walletAddress: walletData?.address,
       data: responseData?.data,

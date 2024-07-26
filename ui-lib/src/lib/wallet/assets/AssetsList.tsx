@@ -22,8 +22,8 @@ export default function AssetsList(props: AssesListProps) {
   // Pagination
   const indexOfLastItem = currentPage * itemsPerPage;
   const indexOfFirstItem = indexOfLastItem - itemsPerPage;
-  const currentItems = assetsData.slice(indexOfFirstItem, indexOfLastItem);
-  const totalItems = assetsData.length;
+  const currentItems = assetsData?.slice(indexOfFirstItem, indexOfLastItem);
+  const totalItems = assetsData?.length;
   const canShowPrevious = currentPage > 1;
   const canShowNext = indexOfLastItem < totalItems;
 
@@ -39,7 +39,7 @@ export default function AssetsList(props: AssesListProps) {
     <>
       {/* Tus activos serán listados acá */}
       <div className="space-y-2">
-        {currentItems.map((asset, index) => (
+        {currentItems?.map((asset, index) => (
           <div key={index} onClick={() => handleOpenAssetModal(asset)}>
             <AssetRow
               key={index}

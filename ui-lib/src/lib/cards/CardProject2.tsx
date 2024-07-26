@@ -55,8 +55,6 @@ export default function CardProject(props: any) {
       );
       const spentWalletData = await response.json();
 
-      console.log('spendData', spentWalletData);
-
       if (!spentWalletData) {
         console.log('Parece que un error ha ocurrido ...');
       }
@@ -117,8 +115,6 @@ export default function CardProject(props: any) {
   // };
 
   // const investorTokenDistribution = getInvestorTokensDistributed(project);
-
-  console.log('project', project);
 
   const tokenHistoricalData = JSON.parse(
     project.productFeatures.items.filter((item: any) => {

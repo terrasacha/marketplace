@@ -41,8 +41,7 @@ export default function Assets(props: AssetsProps) {
       const request = await fetch(`/api/calls/backend/listTokens`);
       const suanTokens = await request.json();
 
-      const mappedAssetsData = assetsData
-        .filter((asset: any) => {
+      const mappedAssetsData = assetsData?.filter((asset: any) => {
           return suanTokens.some(
             (item2: any) =>
               asset.policy_id === item2.policyID &&
@@ -109,14 +108,11 @@ export default function Assets(props: AssetsProps) {
     };
   });
 
-  const hola = getIpfsUrlHash('test');
-  console.log(hola);
-
   return (
     <Card>
       <Card.Header title="Activos" />
       <Card.Body>
-        {assetsData.length ? (
+        {assetsData?.length ? (
           <>
             {chartActive && (
               <div>

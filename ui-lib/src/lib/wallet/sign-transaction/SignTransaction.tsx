@@ -1,4 +1,4 @@
-import { useContext, useState } from 'react';
+import { useContext, useRef, useState } from 'react';
 import { LoadingIcon } from '../../icons/LoadingIcon';
 import { LockIcon } from '../../icons/LockIcon';
 import { WalletContext, mapBuildTransactionInfo } from '@marketplaces/utils-2';
@@ -19,7 +19,14 @@ export default function SignTransaction(props: SignTransactionProps) {
   const [passwordError, setPasswordError] = useState<boolean>(false);
   const [isLoading, setIsLoading] = useState<boolean>(false);
 
+  const isRouteChanging = useRef(false);
+
   const router = useRouter();
+  const handleRouteChangeStart = () => {
+    isRouteChanging.current = true;
+  };
+  
+  router.events.on('routeChangeStart', handleRouteChangeStart);
 
   const validateWalletPassword = async () => {
     const response = await fetch('/api/calls/backend/validateWalletPassword', {
@@ -350,6 +357,10 @@ export default function SignTransaction(props: SignTransactionProps) {
         let retries = 0;
 
         while (!success && retries <= maxRetries) {
+          if (isRouteChanging.current) {
+            break; // Si la ruta está cambiando, salir del bucle
+          }
+  
           try {
             const request = await fetch('/api/transactions/claim-tx', {
               method: 'POST',
