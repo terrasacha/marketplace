@@ -1,0 +1,57 @@
+{
+  "name": "suan-cauca-marketplace",
+  "$schema": "../../node_modules/nx/schemas/project-schema.json",
+  "sourceRoot": "apps/suan-cauca-marketplace",
+  "projectType": "application",
+  "targets": {
+    "build": {
+      "executor": "@nx/next:build",
+      "outputs": ["{options.outputPath}"],
+      "defaultConfiguration": "production",
+      "options": {
+        "outputPath": "dist/apps/suan-cauca-marketplace"
+      },
+      "configurations": {
+        "development": {
+          "outputPath": "apps/suan-cauca-marketplace"
+        },
+        "production": {}
+      }
+    },
+    "serve": {
+      "executor": "@nx/next:server",
+      "defaultConfiguration": "development",
+      "options": {
+        "buildTarget": "suan-cauca-marketplace:build",
+        "dev": true
+      },
+      "configurations": {
+        "development": {
+          "buildTarget": "suan-cauca-marketplace:build:development",
+          "dev": true
+        },
+        "production": {
+          "buildTarget": "suan-cauca-marketplace:build:production",
+          "dev": false
+        }
+      }
+    },
+    "export": {
+      "executor": "@nx/next:export",
+      "options": {
+        "buildTarget": "suan-cauca-marketplace:build:production"
+      }
+    },
+    "test": {
+      "executor": "@nx/jest:jest",
+      "outputs": ["{workspaceRoot}/coverage/{projectRoot}"],
+      "options": {
+        "jestConfig": "apps/suan-cauca-marketplace/jest.config.ts"
+      }
+    },
+    "lint": {
+      "executor": "@nx/eslint:lint"
+    }
+  },
+  "tags": []
+}
