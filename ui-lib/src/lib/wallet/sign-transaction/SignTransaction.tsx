@@ -47,7 +47,7 @@ export default function SignTransaction(props: SignTransactionProps) {
       cbor: pendingTx.cbor,
       scriptIds: [pendingTx.scriptId],
       metadata_cbor: pendingTx.metadata_cbor,
-      redeemers_cbor: [pendingTx.redeemer_cbor],
+      redeemers_cbor: [pendingTx.redeemer_cbor]
     };
     const response = await fetch('/api/transactions/sign-submit', {
       method: 'POST',
@@ -121,6 +121,7 @@ export default function SignTransaction(props: SignTransactionProps) {
       scriptIds: [txToSign.scriptId],
       metadata_cbor: txToSign.metadata_cbor,
       redeemers_cbor: [txToSign.redeemer_cbor],
+      transaction_id: pendingTx.transaction_id
     };
     const response = await fetch('/api/transactions/sign-submit', {
       method: 'POST',
@@ -131,8 +132,6 @@ export default function SignTransaction(props: SignTransactionProps) {
     });
     const signSubmitResponse = await response.json();
     console.log('Firmado de transacción: ', signSubmitResponse);
-    // if (signSubmitResponse?.txSubmit?.success) {
-    // }
 
     return signSubmitResponse;
   };

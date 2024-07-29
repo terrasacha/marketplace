@@ -1,3 +1,5 @@
+import { updateTransaction } from '@marketplaces/data-access';
+
 const SUBMIT_TX_URL = `${process.env.NEXT_PUBLIC_TRAZABILIDAD_ENDPOINT}/api/v1/transactions/sign-submit/`;
 
 async function submitTransaction(submitTx) {
@@ -14,8 +16,14 @@ async function submitTransaction(submitTx) {
 export default async function handler(req, res) {
   if (req.method === 'POST') {
     try {
-      const { wallet_id, cbor, scriptIds, redeemers_cbor, metadata_cbor } =
-        req.body;
+      const {
+        wallet_id,
+        cbor,
+        scriptIds,
+        redeemers_cbor,
+        metadata_cbor,
+        transaction_id = null,
+      } = req.body;
 
       const submitTx = {
         wallet_id,
@@ -27,6 +35,11 @@ export default async function handler(req, res) {
 
       const response = await submitTransaction(submitTx);
       const signSubmitResponse = await response.json();
+
+      // Actualizar transaccion
+      if (signSubmitResponse?.success && transaction_id) {
+        await updateTransaction({ id: transaction_id, signed: true });
+      }
 
       res.status(200).json({ txSubmit: signSubmitResponse });
     } catch (error) {

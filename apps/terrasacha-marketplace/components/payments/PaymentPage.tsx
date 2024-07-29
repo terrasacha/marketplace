@@ -523,24 +523,6 @@ export default function PaymentPage({}) {
                 parseInt(tokenAmount) * parseInt(projectInfo.token.oraclePrice), // ,
               multiAsset: [],
             },
-            /* {
-              address: spendContractFromMintProjectToken.testnetAddr,
-              lovelace: 0,
-              multiAsset: [
-                {
-                  policyid: mintProjectTokenContract.id,
-                  tokens: {
-                    [mintProjectTokenContract.token_name]:
-                      availableTokensAmount - parseInt(tokenAmount),
-                  },
-                },
-              ],
-              datum: {
-                // Consultar Wallet ID de dynamodb (unico isAdmin = true)
-                beneficiary: coreWallet.id, // Wallet ID del Administrador
-                //price: 17123288,//Math.round(adaPrice * 1000000),
-              },
-            }, */
             {
               address: walletAddress,
               lovelace: 0,
@@ -555,6 +537,11 @@ export default function PaymentPage({}) {
               ],
             },
           ],
+        },
+        transactionPayload: {
+          walletID: walletID,
+          walletAddress: walletAddress,
+          productID: projectInfo.projectID,
         },
       };
 
@@ -649,6 +636,7 @@ export default function PaymentPage({}) {
             tokenAmount: parseInt(tokenAmount),
           },
           retryPayload: build.payload,
+          transaction_id: build.buildTxResponse.transaction_id,
         });
         handleOpenSignTransactionModal();
       }

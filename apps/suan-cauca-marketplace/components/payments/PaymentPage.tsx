@@ -81,6 +81,14 @@ export default function PaymentPage({}) {
     message: '',
     visible: false,
   });
+  const isRouteChanging = useRef(false);
+
+  const router = useRouter();
+  const handleRouteChangeStart = () => {
+    isRouteChanging.current = true;
+  };
+
+  router.events.on('routeChangeStart', handleRouteChangeStart);
 
   let blockFrostKeysPreview: string;
   if (process.env.NEXT_PUBLIC_blockFrostKeysPreview) {
@@ -511,24 +519,6 @@ export default function PaymentPage({}) {
                 parseInt(tokenAmount) * parseInt(projectInfo.token.oraclePrice), // ,
               multiAsset: [],
             },
-            /* {
-              address: spendContractFromMintProjectToken.testnetAddr,
-              lovelace: 0,
-              multiAsset: [
-                {
-                  policyid: mintProjectTokenContract.id,
-                  tokens: {
-                    [mintProjectTokenContract.token_name]:
-                      availableTokensAmount - parseInt(tokenAmount),
-                  },
-                },
-              ],
-              datum: {
-                // Consultar Wallet ID de dynamodb (unico isAdmin = true)
-                beneficiary: coreWallet.id, // Wallet ID del Administrador
-                //price: 17123288,//Math.round(adaPrice * 1000000),
-              },
-            }, */
             {
               address: walletAddress,
               lovelace: 0,
@@ -544,6 +534,11 @@ export default function PaymentPage({}) {
             },
           ],
         },
+        transactionPayload: {
+          walletID: walletID,
+          walletAddress: walletAddress,
+          productID: projectInfo.projectID,
+        },
       };
 
       console.log('BuildTx Payload: ', payload);
@@ -553,6 +548,9 @@ export default function PaymentPage({}) {
       let retries = 0;
 
       while (!success && retries <= maxRetries) {
+        if (isRouteChanging.current) {
+          break; // Si la ruta está cambiando, salir del bucle
+        }
         try {
           const request = await fetch('/api/transactions/claim-tx', {
             method: 'POST',
@@ -577,10 +575,6 @@ export default function PaymentPage({}) {
           retries += 1;
           if (retries <= maxRetries) {
             await new Promise((resolve) => setTimeout(resolve, 20000));
-          } else {
-            toast.error(
-              'Algo ha salido mal, revisa las direcciones de billetera ...'
-            );
           }
         }
       }
@@ -638,12 +632,9 @@ export default function PaymentPage({}) {
             tokenAmount: parseInt(tokenAmount),
           },
           retryPayload: build.payload,
+          transaction_id: build.buildTxResponse.transaction_id,
         });
         handleOpenSignTransactionModal();
-      } else {
-        toast.error(
-          'Algo ha salido mal, revisa las direcciones de billetera ...'
-        );
       }
     }
   };
