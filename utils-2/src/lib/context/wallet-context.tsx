@@ -1,6 +1,7 @@
 import { createContext, useEffect, useMemo, useState } from 'react';
 import { getProjects } from '@marketplaces/data-access';
 import { getActualPeriod } from '../utils-2';
+import { BsWindowSidebar } from 'react-icons/bs';
 
 const WalletContext = createContext({});
 
@@ -84,7 +85,6 @@ export function WalletContextProvider({
       //     return asset;
       //   }
       // );
-      console.log(updatedWalletData, 'UpdatedWalletData');
       return updatedWalletData;
     }
     return null;
@@ -137,23 +137,57 @@ export function WalletContextProvider({
   };
 
   useEffect(() => {
-    const interval = setInterval(async () => {
-      const walletData = await fetchWalletData();
+    let intervalTime = 60000;
+    let intervalId : any;
+    if(!window.sessionStorage.getItem('checkBalance')){
+      const timestamp = Date.now()
+      window.sessionStorage.setItem('checkBalance', JSON.stringify(timestamp))
+    }
+    const startPolling = () => {
+      intervalId = setInterval(async () => {
+        const timestamp = Date.now();
+        //@ts-ignore
+        const timeToVerify = parseInt(window.sessionStorage.getItem('checkBalance')) + intervalTime;
+        if (timestamp > timeToVerify) {
+          console.log('paso el tiempo. Verificar', `timestamp actual: ${timestamp}, toVerify: ${timeToVerify}`);
+          window.sessionStorage.setItem('checkBalance', JSON.stringify(timestamp));
+          const walletData = await fetchWalletData();
 
-      if (walletData) {
-        const newBalance = walletData.balance;
-        if (prevBalance !== newBalance && prevBalance !== null) {
-          setBalanceChanged(newBalance - prevBalance);
+          if (walletData) {
+            const newBalance = walletData.balance;
+            if (prevBalance !== newBalance && prevBalance !== null) {
+              setBalanceChanged(newBalance - prevBalance);
 
-          setTimeout(() => {
-            setBalanceChanged(0);
-          }, 2000);
+              setTimeout(() => {
+                setBalanceChanged(0);
+              }, 2000);
+            }
+            setPrevBalance(newBalance);
+          }
+        } else {
+          console.log('NO paso el tiempo. NO Verificar', `timestamp actual: ${timestamp}, toVerify: ${timeToVerify}`);
         }
-        setPrevBalance(newBalance);
-      }
-    }, 60000);
+      }, 2000);
+    };
 
-    return () => clearInterval(interval);
+    const handleVisibilityChange = () => {
+      if (document.visibilityState === 'visible') {
+        startPolling();
+      } else {
+        clearInterval(intervalId);
+      }
+    };
+
+    document.addEventListener('visibilitychange', handleVisibilityChange);
+
+    if (document.visibilityState === 'visible') {
+      startPolling();
+    }
+
+    return () => {
+      clearInterval(intervalId);
+      document.removeEventListener('visibilitychange', handleVisibilityChange);
+    };
   }, [fetchWalletData]);
 
   const connected = () => {
