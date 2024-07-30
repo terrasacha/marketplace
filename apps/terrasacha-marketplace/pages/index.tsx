@@ -31,7 +31,7 @@ const LandingPage: MyPage = (props: any) => {
           if (walletData && walletData.length > 0) {
             console.log( walletData[0].stake_address, ' walletData[0].stake_address')
             const hasTokenAuthFunction = await checkTokenStakeAddress(
-              walletData[0].stake_address
+              walletData[0].address
             );
             console.log(hasTokenAuthFunction, 'hasTokenAuthFunction');
             if (hasTokenAuthFunction) {
