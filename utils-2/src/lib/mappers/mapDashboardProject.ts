@@ -29,7 +29,7 @@ const getAvailableTokens = async (
 
     console.log('spendData', responseData);
 
-    const spentWalletData = responseData[0];
+    const spentWalletData = responseData;
 
     if (!spentWalletData) {
         console.log('Parece que un error ha ocurrido ...');
