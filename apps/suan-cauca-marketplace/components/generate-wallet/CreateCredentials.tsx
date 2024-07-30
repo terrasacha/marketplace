@@ -142,6 +142,7 @@ const CreateCredentials = (props: any) => {
               value={inputValue.password}
               placeholder="Introduzca una contraseña"
               onChange={(e) => handleInputChange(e)}
+              onKeyDown={(e) => e.key === 'Enter' && e.preventDefault()}
               className={`w-full rounded-lg pl-10 bg-slate-200 text-gray-600 text-lg font-semibold border-2 ${
                 errors.password.length > 0
                   ? 'border-red-600 focus:ring-red-600 focus:border-red-600'
@@ -169,6 +170,7 @@ const CreateCredentials = (props: any) => {
               value={inputValue.passwordConfirm}
               name="passwordConfirm"
               onChange={(e) => handleInputChange(e)}
+              onKeyDown={(e) => e.key === 'Enter' && e.preventDefault()}
               className={`w-full rounded-lg pl-10 bg-slate-200 text-gray-600 text-lg font-semibold border-2 ${
                 errors.passwordConfirm.length > 0
                   ? 'border-red-600 focus:ring-red-600 focus:border-red-600'
