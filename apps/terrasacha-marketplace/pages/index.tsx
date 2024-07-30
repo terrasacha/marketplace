@@ -29,7 +29,7 @@ const LandingPage: MyPage = (props: any) => {
           console.log(walletData,'walletData')
           setWalletData(walletData[0]);
           if (walletData && walletData.length > 0) {
-            console.log( walletData[0].stake_address, ' walletData[0].stake_address')
+            console.log( walletData[0].address, ' walletData[0].address')
             const hasTokenAuthFunction = await checkTokenStakeAddress(
               walletData[0].address
             );
