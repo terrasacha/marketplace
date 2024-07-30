@@ -175,7 +175,7 @@ export default function Transactions(props: TransactionsProps) {
     setIsLoading(false);
   };
 
-  const checkTxConfirmations = async () => {
+  /* const checkTxConfirmations = async () => {
     if (pendingTransaction) {
       const pendingTransactionItemRequest = await fetch(
         '/api/helpers/tx-status',
@@ -217,13 +217,13 @@ export default function Transactions(props: TransactionsProps) {
         }
       }
     }
-  };
+  }; */
 
-  useEffect(() => {
+/*   useEffect(() => {
     if (pendingTransaction) {
       setTimeout(checkTxConfirmations, 20000);
     }
-  }, [pendingTransaction]);
+  }, [pendingTransaction]); */
 
   // Pagination
   const indexOfLastItem =
@@ -290,7 +290,6 @@ export default function Transactions(props: TransactionsProps) {
                 tx_confirmation_status={
                   pendingTransaction.tx_confirmation_status
                 }
-                tx_confirmation_n={pendingTransaction.tx_confirmation_n}
               />
             </div>
           )}

@@ -23,8 +23,8 @@ export default async function handler(req, res) {
       // Crear transaccion
       if (data?.success) {
         const newTransactionPayload = {
-          addressOrigin: payload.transactionPayload.walletAddress,
-          addressDestination: payload.payload.addresses[0].address,
+          addressOrigin: payload.payload.addresses[0].address,
+          addressDestination: JSON.stringify(payload.payload.addresses[1].address),
           walletID: payload.transactionPayload.walletID,
           txIn: JSON.stringify(data.build_tx.inputs),
           txOutput: JSON.stringify(data.build_tx.outputs),

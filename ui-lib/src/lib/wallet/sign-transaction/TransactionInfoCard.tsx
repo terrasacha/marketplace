@@ -115,9 +115,6 @@ export default function TransactionInfoCard(props: TransactionInfoCardProps) {
                         En Blockchain
                       </span>
                     )}
-                    <span className="bg-gray-100 text-gray-800 text-xs font-medium px-2.5 py-0.5 rounded  border border-gray-500">
-                      {tx_confirmation_status + ':' + tx_confirmation_n}
-                    </span>
                   </>
                 )}
               </div>
