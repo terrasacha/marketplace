@@ -101,7 +101,7 @@ export default function Transactions(props: TransactionsProps) {
       const cachedData = localStorage.getItem(cacheKey);
       if (cachedData) {
         const { data, timestamp } = JSON.parse(cachedData);
-        if (Date.now() - timestamp < 3600000 && !data?.error) {
+        if (Date.now() - timestamp < 5000 && !data?.error) {
           // Invalida después de 1 hora
           return data;
         }

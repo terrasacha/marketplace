@@ -105,35 +105,41 @@ export async function mapBuildTransactionInfo({
   buildTxResponse,
   metadata,
 }: MapBuildTransactionInfoProps) {
-
   const cbor = buildTxResponse.cbor;
   const redeemer_cbor = buildTxResponse.redeemer_cbor;
   const metadata_cbor = buildTxResponse.metadata_cbor;
   const tx_id = buildTxResponse.build_tx.tx_id;
   const tx_fee = lovelaceToAda(buildTxResponse.build_tx.fee);
   const tx_size = buildTxResponse.tx_size;
-  const input_utxo = Object.values(buildTxResponse.utxos_info).map(
-    (utxo: any) => {
-      const mappedAssetList = utxo.asset_list.map((asset: any) => {
+  const input_utxo = buildTxResponse.utxos_info.map((utxo: any) => {
+    const lovelace =
+      utxo.amount.find((a: any) => a.unit === 'lovelace')?.quantity || '0';
+
+    const mappedAssetList = utxo.amount
+      .filter((asset: any) => asset.unit !== 'lovelace')
+      .map((asset: any) => {
+        const policyId = asset.unit.substring(0, 56);
+        const name = asset.unit.substring(56);
         return {
-          asset_name: hexToText(asset.asset_name),
-          fingerprint: asset.fingerprint,
-          policy_id: asset.policy_id,
+          asset_name: hexToText(name),
+          fingerprint: asset.unit, // Asumo que no hay fingerprint en la nueva estructura
+          policy_id: policyId, // Asumo que no hay policy_id en la nueva estructura
           quantity: parseInt(asset.quantity),
         };
       });
-      const isOwnerAddress = walletAddress === utxo.address ? true : false;
-      return {
-        tx_index: utxo.tx_index,
-        tx_hash: utxo.tx_hash,
-        address: utxo.address,
-        isOwnerAddress: isOwnerAddress,
-        asset_list: mappedAssetList,
-        lovelace: parseInt(utxo.value),
-        formatedADAValue: getNumberParts(lovelaceToAda(parseInt(utxo.value))),
-      };
-    }
-  );
+
+    const isOwnerAddress = walletAddress === utxo.address ? true : false;
+
+    return {
+      tx_index: utxo.output_index,
+      tx_hash: utxo.tx_hash,
+      address: utxo.address,
+      isOwnerAddress: isOwnerAddress,
+      asset_list: mappedAssetList,
+      lovelace: parseInt(lovelace),
+      formatedADAValue: getNumberParts(lovelaceToAda(parseInt(lovelace))),
+    };
+  });
   const output_utxo = Object.values(buildTxResponse.build_tx.outputs).map(
     (utxo: any) => {
       const asset_list = getAssetList(utxo.amount.multi_asset);
@@ -265,7 +271,6 @@ export async function mapBuildTransactionInfo({
     metadata: metadata,
   };
 
-
   return tx_info;
 }
 
@@ -273,7 +278,6 @@ export async function mapAccountTxData({
   walletAddress,
   data,
 }: MapTransactionListProps) {
-
   const mappedData = data?.reverse().map((tx: any, index: number) => {
     const input_utxo = tx.inputs.map((utxo: any) => {
       const lovelace =
@@ -471,7 +475,6 @@ export async function mapTransactionListInfo({
   walletAddress,
   data,
 }: MapTransactionListProps) {
-
   const mappedData = data?.reverse().map((tx: any, index: number) => {
     const input_utxo = tx.inputs.map((utxo: any) => {
       const mappedAssetList = utxo.asset_list.map((asset: any) => {
