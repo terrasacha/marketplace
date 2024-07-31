@@ -40,6 +40,19 @@ const RedirectToHome = (props: RedirectToHomeProps) => {
   
   const router = useRouter();
 
+  const checkTokenStakeAddress = async (rewardAddresses: any) => {
+    const response = await fetch('/api/calls/backend/checkTokenStakeAddress', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify(rewardAddresses),
+    });
+    const hasTokenStakeAddress = await response.json();
+    console.log(hasTokenStakeAddress, 'checkTokenStakeAddress')
+    return hasTokenStakeAddress;
+  };
+
   useEffect(() => {
     let tokenFound = false;
     if (checkingWallet === 'hasTokenAuth') {
@@ -49,10 +62,14 @@ const RedirectToHome = (props: RedirectToHomeProps) => {
       if (!tokenFound && checkingWallet === 'alreadyClaimToken') {
         setLoading(true);
         try {
-          const balanceData = await getWalletBalanceByAddress(walletData.address);
-          const hasTokenAuth = balanceData.assets.some((asset: any) => asset.policy_id === process.env.NEXT_PUBLIC_TOKEN_AUTHORIZER &&
-              asset.asset_name === process.env.NEXT_PUBLIC_TOKEN_AUTHORIZER_NAME);
-          if (hasTokenAuth) {
+          //const balanceData = await getWalletBalanceByAddress(walletData.address);
+          const hasTokenAuthFunction = await checkTokenStakeAddress(
+            walletData.address
+          );
+          console.log(hasTokenAuthFunction, 'hasTokenAuthFunction');
+          /* const hasTokenAuth = balanceData.assets.some((asset: any) => asset.policy_id === process.env.NEXT_PUBLIC_TOKEN_AUTHORIZER &&
+              asset.asset_name === process.env.NEXT_PUBLIC_TOKEN_AUTHORIZER_NAME); */
+          if (hasTokenAuthFunction) {
             setLoading(false);
             setStatusText('Token encontrado, redirigiendo...');
             setShowButtonAccess(true);
