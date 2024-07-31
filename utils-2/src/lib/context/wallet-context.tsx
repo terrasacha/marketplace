@@ -149,7 +149,6 @@ export function WalletContextProvider({
         //@ts-ignore
         const timeToVerify = parseInt(window.sessionStorage.getItem('checkBalance')) + intervalTime;
         if (timestamp > timeToVerify) {
-          console.log('paso el tiempo. Verificar', `timestamp actual: ${timestamp}, toVerify: ${timeToVerify}`);
           window.sessionStorage.setItem('checkBalance', JSON.stringify(timestamp));
           const walletData = await fetchWalletData();
 
