@@ -434,7 +434,7 @@ export async function getAllProjects() {
   }
 }
 
-export async function getProjects(app: string) {
+export async function getProjects(app: any) {
   try {
     const response = await axios.post(
       graphqlEndpoint,
