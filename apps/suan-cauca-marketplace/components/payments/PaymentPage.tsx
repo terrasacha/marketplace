@@ -4,7 +4,7 @@ import EpaycoCheckout from '@marketplaces/ui-lib/src/lib/epayco/EpaycoCheckout';
 import { LoadingIcon } from '@marketplaces/ui-lib/src/lib/icons/LoadingIcon';
 import PendingVerificationMessage from '@marketplaces/ui-lib/src/lib/common/PendingVerificationMessage';
 import SignTransactionModal from '@marketplaces/ui-lib/src/lib/wallet/sign-transaction/SignTransactionModal';
-import { useContext, useEffect, useState } from 'react';
+import { useContext, useEffect, useRef, useState } from 'react';
 import { TokenDetailSection } from './TokenDetailSection';
 import { Button, TextInput } from 'flowbite-react';
 import { BlockChainIcon } from '../icons/BlockChainIcon';
@@ -12,7 +12,10 @@ import { useWallet } from '@meshsdk/react';
 import { coingeckoPrices } from '@cauca/utils/suan/oracle';
 import { getIpfsUrlHash } from '@cauca/utils/generic/ipfs';
 import { featureMapping } from '@cauca/utils/suan/mappings';
-import { splitLongValues, txHashLink } from '@cauca/utils/generic/conversions';
+import {
+  splitLongValues,
+  txHashLink,
+} from '@cauca/utils/generic/conversions';
 import { createMintingTransaction, sign } from '@marketplaces/data-access';
 import { BlockfrostProvider } from '@meshsdk/core';
 import Link from 'next/link';
@@ -22,6 +25,7 @@ import { toast } from 'sonner';
 import Swal from 'sweetalert2';
 import { getCurrentUser } from 'aws-amplify/auth';
 import ProjectInfoContext from '@cauca/store/projectinfo-context';
+import { useRouter } from 'next/router';
 
 const PURCHASE_STEPS = {
   BUYING: 'buying',
@@ -81,6 +85,14 @@ export default function PaymentPage({}) {
     message: '',
     visible: false,
   });
+  const isRouteChanging = useRef(false);
+
+  const router = useRouter();
+  const handleRouteChangeStart = () => {
+    isRouteChanging.current = true;
+  };
+
+  router.events.on('routeChangeStart', handleRouteChangeStart);
 
   let blockFrostKeysPreview: string;
   if (process.env.NEXT_PUBLIC_blockFrostKeysPreview) {
@@ -511,24 +523,6 @@ export default function PaymentPage({}) {
                 parseInt(tokenAmount) * parseInt(projectInfo.token.oraclePrice), // ,
               multiAsset: [],
             },
-            /* {
-              address: spendContractFromMintProjectToken.testnetAddr,
-              lovelace: 0,
-              multiAsset: [
-                {
-                  policyid: mintProjectTokenContract.id,
-                  tokens: {
-                    [mintProjectTokenContract.token_name]:
-                      availableTokensAmount - parseInt(tokenAmount),
-                  },
-                },
-              ],
-              datum: {
-                // Consultar Wallet ID de dynamodb (unico isAdmin = true)
-                beneficiary: coreWallet.id, // Wallet ID del Administrador
-                //price: 17123288,//Math.round(adaPrice * 1000000),
-              },
-            }, */
             {
               address: walletAddress,
               lovelace: 0,
@@ -544,6 +538,11 @@ export default function PaymentPage({}) {
             },
           ],
         },
+        transactionPayload: {
+          walletID: walletID,
+          walletAddress: walletAddress,
+          productID: projectInfo.projectID,
+        },
       };
 
       console.log('BuildTx Payload: ', payload);
@@ -553,6 +552,9 @@ export default function PaymentPage({}) {
       let retries = 0;
 
       while (!success && retries <= maxRetries) {
+        if (isRouteChanging.current) {
+          break; // Si la ruta está cambiando, salir del bucle
+        }
         try {
           const request = await fetch('/api/transactions/claim-tx', {
             method: 'POST',
@@ -577,10 +579,6 @@ export default function PaymentPage({}) {
           retries += 1;
           if (retries <= maxRetries) {
             await new Promise((resolve) => setTimeout(resolve, 20000));
-          } else {
-            toast.error(
-              'Algo ha salido mal, revisa las direcciones de billetera ...'
-            );
           }
         }
       }
@@ -638,12 +636,9 @@ export default function PaymentPage({}) {
             tokenAmount: parseInt(tokenAmount),
           },
           retryPayload: build.payload,
+          transaction_id: build.buildTxResponse.transaction_id,
         });
         handleOpenSignTransactionModal();
-      } else {
-        toast.error(
-          'Algo ha salido mal, revisa las direcciones de billetera ...'
-        );
       }
     }
   };

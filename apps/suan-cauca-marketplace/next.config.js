@@ -24,8 +24,7 @@ const nextConfig = {
     domains: [
       `${process.env['NEXT_PUBLIC_s3BucketName']}.s3.amazonaws.com`,
     ],
-  },
-  optimizePackageImports: ["flowbite-react"]
+  }
 };
 
 const plugins = [

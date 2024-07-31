@@ -95,7 +95,7 @@ const LoginForm = (props: LoginFormProps) => {
       >
         {errors.loginError}
       </p>
-      <form className="pt-10">
+      <form className="pt-10" onSubmit={(e) => e.preventDefault()}>
         <div className="relative z-0 w-full mb-4 group">
           <input
             type="text"
@@ -113,16 +113,17 @@ const LoginForm = (props: LoginFormProps) => {
             value={loginForm.password}
             name="password"
             onChange={handleChange}
+            onKeyDown={(e) => e.key === 'Enter' && e.preventDefault()}
             className="block py-2.5 px-0 w-full text-sm text-gray-900 bg-transparent border-0 border-b-2 border-gray-300 appearance-none dark:text-white dark:border-gray-600 dark:focus:border-blue-500 focus:outline-none focus:ring-0 focus:border-blue-600 peer"
             placeholder="password"
             required
           />
-           <button
-              className="absolute right-4 top-1/2 transform -translate-y-1/2 text-gray-500"
-              onClick={(e) => handleShowInfo(e, 'password')}
-            >
-              {showInfo.password ? <BsFillEyeFill /> : <BsFillEyeSlashFill />}
-            </button>
+          <button
+            className="absolute right-4 top-1/2 transform -translate-y-1/2 text-gray-500"
+            onClick={(e) => handleShowInfo(e, 'password')}
+          >
+            {showInfo.password ? <BsFillEyeFill /> : <BsFillEyeSlashFill />}
+          </button>
         </div>
       </form>
       <div className="flex items-center mb-4">

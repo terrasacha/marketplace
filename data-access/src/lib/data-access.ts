@@ -143,8 +143,8 @@ const instance = axios.create({
   baseURL: `/api/`,
   withCredentials: true,
 });
-let graphqlEndpoint : string
-let awsAppSyncApiKey : string
+let graphqlEndpoint: string;
+let awsAppSyncApiKey: string;
 if (process.env['NEXT_PUBLIC_API_KEY_PLATAFORMA']) {
   awsAppSyncApiKey = process.env['NEXT_PUBLIC_API_KEY_PLATAFORMA'];
 } else {
@@ -299,7 +299,6 @@ export async function getAllProjects() {
               transactions {
                 items {
                   id
-                  amountOfTokens
                 }
               }
               scripts (filter: {Active: {eq: true}}){
@@ -435,7 +434,7 @@ export async function getAllProjects() {
   }
 }
 
-export async function getProjects(app: string) {
+export async function getProjects(app: any) {
   try {
     const response = await axios.post(
       graphqlEndpoint,
@@ -481,7 +480,6 @@ export async function getProjects(app: string) {
               transactions {
                 items {
                   id
-                  amountOfTokens
                 }
               }
               scripts (filter: {Active: {eq: true}}){
@@ -663,7 +661,6 @@ export async function getProjectsFeatures() {
             transactions {
               items {
                 id
-                amountOfTokens
               }
             }
             category {
@@ -883,7 +880,6 @@ export async function getProject(projectId: string) {
           transactions {
             items {
               id
-              amountOfTokens
             }
           }
           images {
@@ -996,7 +992,6 @@ export async function getTransactions() {
               }
               addressDestination
               addressOrigin
-              amountOfTokens
               txHash
               createdAt
               id
@@ -1903,78 +1898,94 @@ export async function updateOrder(objeto: any) {
 }
 
 export async function createTransaction({
-  productID,
-  stakeAddress,
-  policyID,
   addressDestination,
   addressOrigin,
-  amountOfTokens,
-  fees,
-  network,
-  tokenName,
+  walletID,
+  txIn,
+  txOutput,
   txCborhex,
   txHash,
-  txIn,
-  txProcessed,
+  mint,
+  scriptDataHash,
+  metadataUrl,
+  fees,
+  network,
   type,
+  productID,
+  signed,
 }: any) {
-  const response = await axios.post(
-    graphqlEndpoint,
-    {
-      query: `mutation MyMutation {
-        createTransactions(input: {
-          productID: "${productID}",
-          stakeAddress:"${stakeAddress}",
-          policyID:"${policyID}",
-          addressDestination: "${addressDestination}",
-          addressOrigin: "${addressOrigin}",
-          amountOfTokens: ${amountOfTokens},
-          fees: ${fees},
-          network: "${network}",
-          tokenName: "${tokenName}",
-          txCborhex: "${txCborhex}",
-          txHash: "${txHash}",
-          txIn: "${txIn}",
-          txProcessed: ${txProcessed},
-          type: "${type}",
-        })
-        {
-          id
-        }
-      }`,
-    },
-    {
-      headers: {
-        'x-api-key': awsAppSyncApiKey,
+  try {
+    const response = await axios.post(
+      graphqlEndpoint,
+      {
+        query: `mutation MyMutation($input: CreateTransactionsInput!) {
+          createTransactions(input: $input) {
+            id
+          }
+        }`,
+        variables: {
+          input: {
+            addressOrigin,
+            addressDestination,
+            walletID,
+            txIn,
+            txOutput,
+            txCborhex,
+            txHash,
+            mint,
+            scriptDataHash,
+            metadataUrl,
+            fees,
+            network,
+            type,
+            productID,
+            signed,
+          },
+        },
       },
-    }
-  );
-  return response.data.data.createTransactions;
+      {
+        headers: {
+          'x-api-key': awsAppSyncApiKey,
+        },
+      }
+    );
+    return response.data.data.createTransactions;
+  } catch (error: any) {
+    console.error(error);
+    return error;
+  }
 }
 
-export async function updateTransaction({ id, txProcessed, fees }: any) {
-  const response = await axios.post(
-    graphqlEndpoint,
-    {
-      query: `mutation MyMutation {
-        updateTransactions(input: {
-          id: "${id}",
-          txProcessed: ${txProcessed},
-          fees: ${fees}
-        })
-        {
-          id
-        }
-      }`,
-    },
-    {
-      headers: {
-        'x-api-key': awsAppSyncApiKey,
+export async function updateTransaction({ id, signed }: any) {
+  try {
+    const response = await axios.post(
+      graphqlEndpoint,
+      {
+        query: `mutation MyMutation($input: UpdateTransactionsInput!) {
+          updateTransactions(input: $input) {
+            id
+          }
+        }`,
+        variables: {
+          input: {
+            id,
+            signed,
+          },
+        },
       },
-    }
-  );
-  return response;
+      {
+        headers: {
+          'x-api-key': awsAppSyncApiKey,
+        },
+      }
+    );
+    return response.data.data.updateTransactions;
+  } catch (error: any) {
+    console.error(error);
+    return error;
+  }
 }
+
 export async function createUser(userPayload: any) {
   const { id, username, role, email } = userPayload;
   try {
@@ -2003,9 +2014,8 @@ export async function createUser(userPayload: any) {
     return response.data.data.createUser;
   } catch (error) {
     //@ts-ignore
-    console.log(JSON.stringify(error), "ERROR DE LA QUERY")
+    console.log(JSON.stringify(error), 'ERROR DE LA QUERY');
   }
-  
 }
 
 export async function validateExternalWalletUser(userPayload: any) {

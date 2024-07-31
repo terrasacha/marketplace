@@ -13,7 +13,8 @@ const Home: MyPage = (props: any) => {
 
 export async function getServerSideProps() {
   const categories = await getCategories();
-  const projects = await getProjects('Terrasacha');
+  const projects = await getProjects(process.env['NEXT_PUBLIC_MARKETPLACE_NAME']);
+
   return {
     props: {
       categories: categories,

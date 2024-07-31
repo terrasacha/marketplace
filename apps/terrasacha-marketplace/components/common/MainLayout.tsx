@@ -77,7 +77,7 @@ const MainLayout = ({ children }: PropsWithChildren) => {
             console.log(walletData, 'walletData mainlayout');
             const walletAddress = wallet[0].address;
             const hasTokenAuthFunction = await checkTokenStakeAddress(
-              wallet[0].stake_address
+              wallet[0].address
             );
             if (hasTokenAuthFunction) {
               window.sessionStorage.setItem("hasTokenAuth", "true")

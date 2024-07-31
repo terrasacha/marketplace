@@ -26,10 +26,12 @@ const LandingPage: MyPage = (props: any) => {
             }
           );
           const walletData = await walletFetchResponse.json();
+          console.log(walletData,'walletData')
           setWalletData(walletData[0]);
           if (walletData && walletData.length > 0) {
+            console.log( walletData[0].address, ' walletData[0].address')
             const hasTokenAuthFunction = await checkTokenStakeAddress(
-              walletData[0].stake_address
+              walletData[0].address
             );
             console.log(hasTokenAuthFunction, 'hasTokenAuthFunction');
             if (hasTokenAuthFunction) {
@@ -136,6 +138,7 @@ const LandingPage: MyPage = (props: any) => {
       body: JSON.stringify(rewardAddresses),
     });
     const hasTokenStakeAddress = await response.json();
+    console.log(hasTokenStakeAddress, 'checkTokenStakeAddress')
     return hasTokenStakeAddress;
   };
   return (

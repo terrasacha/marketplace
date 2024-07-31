@@ -21,11 +21,9 @@ interface WalletDashboardProps {
 }
 
 export default function WalletDashboard(props: WalletDashboardProps) {
-  const { walletData, fetchWalletData, walletID } =
+  const { walletData } =
     useContext<any>(WalletContext);
-  console.log(walletData);
   const [showAddress, setShowAddress] = useState<boolean>(true);
-  const router = useRouter();
 
   const handleShowAddress = () => {
     setShowAddress(!showAddress);
