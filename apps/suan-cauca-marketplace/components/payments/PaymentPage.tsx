@@ -4,7 +4,7 @@ import EpaycoCheckout from '@marketplaces/ui-lib/src/lib/epayco/EpaycoCheckout';
 import { LoadingIcon } from '@marketplaces/ui-lib/src/lib/icons/LoadingIcon';
 import PendingVerificationMessage from '@marketplaces/ui-lib/src/lib/common/PendingVerificationMessage';
 import SignTransactionModal from '@marketplaces/ui-lib/src/lib/wallet/sign-transaction/SignTransactionModal';
-import { useContext, useEffect, useState } from 'react';
+import { useContext, useEffect, useRef, useState } from 'react';
 import { TokenDetailSection } from './TokenDetailSection';
 import { Button, TextInput } from 'flowbite-react';
 import { BlockChainIcon } from '../icons/BlockChainIcon';
@@ -12,7 +12,10 @@ import { useWallet } from '@meshsdk/react';
 import { coingeckoPrices } from '@cauca/utils/suan/oracle';
 import { getIpfsUrlHash } from '@cauca/utils/generic/ipfs';
 import { featureMapping } from '@cauca/utils/suan/mappings';
-import { splitLongValues, txHashLink } from '@cauca/utils/generic/conversions';
+import {
+  splitLongValues,
+  txHashLink,
+} from '@cauca/utils/generic/conversions';
 import { createMintingTransaction, sign } from '@marketplaces/data-access';
 import { BlockfrostProvider } from '@meshsdk/core';
 import Link from 'next/link';
@@ -22,6 +25,7 @@ import { toast } from 'sonner';
 import Swal from 'sweetalert2';
 import { getCurrentUser } from 'aws-amplify/auth';
 import ProjectInfoContext from '@cauca/store/projectinfo-context';
+import { useRouter } from 'next/router';
 
 const PURCHASE_STEPS = {
   BUYING: 'buying',
