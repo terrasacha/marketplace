@@ -80,6 +80,7 @@ export default function Transactions(props: TransactionsProps) {
         }
       });
     };
+    
 
     if (balanceChanged !== 0) {
       // Limpiar todas las caches
