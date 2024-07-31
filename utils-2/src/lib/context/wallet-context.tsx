@@ -164,8 +164,6 @@ export function WalletContextProvider({
             }
             setPrevBalance(newBalance);
           }
-        } else {
-          console.log('NO paso el tiempo. NO Verificar', `timestamp actual: ${timestamp}, toVerify: ${timeToVerify}`);
         }
       }, 2000);
     };

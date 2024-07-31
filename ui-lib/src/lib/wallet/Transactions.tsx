@@ -19,9 +19,9 @@ interface TransactionsProps {
 export default function Transactions(props: TransactionsProps) {
   const { txPerPage } = props;
   const {
-    walletStakeAddress,
     walletData,
     walletID,
+    walletAddress,
     fetchWalletData,
     balanceChanged,
   } = useContext<any>(WalletContext);
@@ -29,7 +29,7 @@ export default function Transactions(props: TransactionsProps) {
   const [isLoading, setIsLoading] = useState<boolean>(false);
 
   const [paginationMetadata, setPaginationMetadata] = useState<any>({
-    currentPage: 0,
+    currentPage: 1,
     pageSize: 0,
     totalItems: 0,
   });
@@ -129,16 +129,19 @@ export default function Transactions(props: TransactionsProps) {
     invalidateCache: boolean = false
   ) => {
     setIsLoading(true);
+    if (!walletAddress) {
+      return;
+    }
 
     const payload = {
-      stake: walletStakeAddress,
-      skip: page * txPerPage - txPerPage,
+      address: walletAddress,
+      page_number: page,
       limit: txPerPage,
-      all: false,
     };
+    console.log(payload);
 
     const responseData = await fetchWithCache(
-      '/api/transactions/account-tx',
+      '/api/transactions/address-tx',
       payload,
       invalidateCache
     );
@@ -149,8 +152,8 @@ export default function Transactions(props: TransactionsProps) {
     }
 
     if (pendingTransaction) {
-      const isPendingTxOk = responseData?.data.find(
-        (tx: any) => tx.tx_hash === pendingTransaction.tx_id
+      const isPendingTxOk = responseData?.find(
+        (tx: any) => tx.hash === pendingTransaction.tx_id
       );
 
       if (isPendingTxOk) {
@@ -160,14 +163,18 @@ export default function Transactions(props: TransactionsProps) {
     }
 
     const paginationMetadataItem = {
-      currentPage: responseData.current_page,
-      pageSize: responseData.page_size,
-      totalItems: responseData.total_count,
+      currentPage: page,
+      pageSize: 0,
+      totalItems: 0,
     };
+
+    console.log('responseData', responseData)
     const mappedTransactionListData = await mapAccountTxData({
       walletAddress: walletData?.address,
-      data: responseData?.data,
+      data: responseData,
     });
+
+    console.log('mappedTransactionListData', mappedTransactionListData);
 
     //getPendingTransaction(mappedTransactionListData);
     setTransactionsList(mappedTransactionListData);
@@ -219,23 +226,23 @@ export default function Transactions(props: TransactionsProps) {
     }
   }; */
 
-/*   useEffect(() => {
+  /*   useEffect(() => {
     if (pendingTransaction) {
       setTimeout(checkTxConfirmations, 20000);
     }
   }, [pendingTransaction]); */
 
   // Pagination
-  const indexOfLastItem =
+  /* const indexOfLastItem =
     paginationMetadata.currentPage * paginationMetadata.pageSize;
-  const indexOfFirstItem = indexOfLastItem - paginationMetadata.pageSize;
+  const indexOfFirstItem = indexOfLastItem - paginationMetadata.pageSize; */
   // const currentItems = transactionsList.slice(
   //   indexOfFirstItem,
   //   indexOfLastItem
   // );
 
   const canShowPrevious = paginationMetadata.currentPage > 1;
-  const canShowNext = indexOfLastItem < paginationMetadata.totalItems;
+  const canShowNext = true;
 
   const changePage = async (changeValue: number) => {
     setIsLoading(true);
@@ -331,7 +338,7 @@ export default function Transactions(props: TransactionsProps) {
         </div>
 
         <div className="flex flex-col items-center mt-5">
-          <span className="text-sm text-gray-700 dark:text-gray-400">
+          {/* <span className="text-sm text-gray-700 dark:text-gray-400">
             Mostrando de{' '}
             <span className="font-semibold text-gray-900 dark:text-white">
               {indexOfFirstItem + 1}
@@ -345,7 +352,7 @@ export default function Transactions(props: TransactionsProps) {
               {paginationMetadata.totalItems}
             </span>{' '}
             Transacciones
-          </span>
+          </span> */}
           <div className="inline-flex mt-2 xs:mt-0">
             <button
               className={`flex items-center justify-center px-3 h-8 text-sm font-medium text-white bg-custom-dark rounded-s hover:bg-custom-dark-hover ${
@@ -373,6 +380,9 @@ export default function Transactions(props: TransactionsProps) {
                 Prev
               </>
             </button>
+            <div className='flex items-center justify-center px-3 h-8 text-sm font-medium text-white border-0 border-s border-gray-700 bg-custom-dark hover:bg-custom-dark-hover'>
+              {paginationMetadata.currentPage}
+            </div>
             <button
               className={`flex items-center justify-center px-3 h-8 text-sm font-medium text-white bg-custom-dark border-0 border-s border-gray-700 rounded-e hover:bg-custom-dark-hover ${
                 isLoading && 'cursor-progress'

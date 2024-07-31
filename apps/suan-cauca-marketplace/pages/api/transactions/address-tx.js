@@ -3,7 +3,7 @@ export default async function handler(req, res) {
     try {
       const payload = req.body; // Utiliza req.body en lugar de req.query para obtener datos del cuerpo de la solicitud
       const url =
-        `${process.env.NEXT_PUBLIC_TRAZABILIDAD_ENDPOINT}/api/v1/wallet/account-tx/`;
+        `${process.env.NEXT_PUBLIC_TRAZABILIDAD_ENDPOINT}/api/v1/wallet/address-tx/`;
       
       const queryParams = new URLSearchParams(payload)
       

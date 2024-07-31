@@ -275,7 +275,7 @@ export async function mapAccountTxData({
 }: MapTransactionListProps) {
 
   const mappedData = data?.reverse().map((tx: any, index: number) => {
-    const input_utxo = Object.values(tx.inputs).map((utxo: any) => {
+    const input_utxo = tx.inputs.map((utxo: any) => {
       const lovelace =
         utxo.amount.find((a: any) => a.unit === 'lovelace')?.quantity || '0';
 
@@ -305,7 +305,7 @@ export async function mapAccountTxData({
       };
     });
 
-    const output_utxo = Object.values(tx.outputs).map((utxo: any) => {
+    const output_utxo = tx.outputs.map((utxo: any) => {
       const lovelace =
         utxo.amount.find((a: any) => a.unit === 'lovelace')?.quantity || '0';
 
@@ -446,7 +446,7 @@ export async function mapAccountTxData({
       tx_type: tx_type,
       title: title,
       subtitle: subtitle,
-      tx_id: tx.tx_hash,
+      tx_id: tx.hash,
       block: tx.block_height,
       tx_size: tx_size,
       tx_value: formatADAsToString(tx_value),
@@ -455,7 +455,7 @@ export async function mapAccountTxData({
       inputUTxOs: input_utxo,
       outputUTxOs: output_utxo,
       tx_time_live: getTimeLive(tx.block_time),
-      metadata: [], // No hay metadata en la nueva estructura
+      metadata: tx.metadata, // No hay metadata en la nueva estructura
     };
     return tx_info;
   });
