@@ -68,6 +68,7 @@ export default function Transactions(props: TransactionsProps) {
     }
   }, [router.query]);
 
+  
   useEffect(() => {
     getTransactionsData(1, false);
   }, [router]);
