@@ -1,4 +1,34 @@
 {
+  "prod": {
+    "awscloudformation": {
+      "AuthRoleName": "amplify-suancaucamarketplace-prod-433fc-authRole",
+      "UnauthRoleArn": "arn:aws:iam::036134507423:role/amplify-suancaucamarketplace-prod-433fc-unauthRole",
+      "AuthRoleArn": "arn:aws:iam::036134507423:role/amplify-suancaucamarketplace-prod-433fc-authRole",
+      "Region": "us-east-1",
+      "DeploymentBucketName": "amplify-suancaucamarketplace-prod-433fc-deployment",
+      "UnauthRoleName": "amplify-suancaucamarketplace-prod-433fc-unauthRole",
+      "StackName": "amplify-suancaucamarketplace-prod-433fc",
+      "StackId": "arn:aws:cloudformation:us-east-1:036134507423:stack/amplify-suancaucamarketplace-prod-433fc/5e3ed4a0-4a80-11ef-9e8c-0affed32e8f9",
+      "AmplifyAppId": "dhlm27xwysypn"
+    },
+    "categories": {
+      "auth": {
+        "suancaucamarketplace8ab8b79a": {
+          "allowUnauthenticatedIdentities": true,
+          "authRoleArn": "arn:aws:iam::036134507423:role/amplify-kiosuanbcrjsapp-prod-150248-authRole",
+          "authRoleName": "amplify-kiosuanbcrjsapp-prod-150248-authRole",
+          "identityPoolId": "us-east-1:f44bbe32-a608-4347-a91f-5cd08f19025e",
+          "identityPoolName": "kiosuanbcrjsappa6accc93_identitypool_a6accc93__prod",
+          "nativeClientId": "45icep84p2eatavasp99rv36qq",
+          "unauthRoleArn": "arn:aws:iam::036134507423:role/amplify-kiosuanbcrjsapp-prod-150248-unauthRole",
+          "unauthRoleName": "amplify-kiosuanbcrjsapp-prod-150248-unauthRole",
+          "userPoolId": "us-east-1_GkPDCjB4C",
+          "userPoolName": "kiosuanbcrjsappa6accc93_userpool_a6accc93-prod",
+          "webClientId": "38ek9t163kigfcp5mshd5ce03h"
+        }
+      }
+    }
+  },
   "dev": {
     "awscloudformation": {
       "AuthRoleName": "amplify-suancaucamarketplace-dev-d4dee-authRole",
