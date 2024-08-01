@@ -52,11 +52,11 @@ const WelcomeCard = (props: WelcomeCardProps) => {
       <p className="text-sm text-center">
           Para operar en la aplicación necesita una billetera virtual que contenga el token de acceso 
           proporcionado por nuestra organización en su portfolio. Puede crear su billetera directamente en nuestra plataforma, 
-          para lo cual deberá crear primero un usuario, o conectar cualquier billetera externa oficial, recomendamos la utilización de "Eternl". 
-          Si desea obtener más detalles sobre cómo crear una billetera en "Eternl", visite este {' '} 
+          para lo cual deberá crear primero un usuario.{/* , o conectar cualquier billetera externa oficial, recomendamos la utilización de "Eternl". 
+          Si desea obtener más detalles sobre cómo crear una billetera en "Eternl", visite este
           <a href="https://suan-1.gitbook.io/documentacion-suan-sandbox"
               target="_blank"
-              className="text-[#50A4FF]">enlace</a>.
+              className="text-[#50A4FF]">enlace</a>. */}
       </p>}
 
       <p
@@ -91,17 +91,12 @@ const WelcomeCard = (props: WelcomeCardProps) => {
           Ingresar 
         </button>
       </Link>}
-      {userData?
+      {userData &&
         <Link href="/restore-wallet">
           <button className="flex h-10 w-full items-center justify-center p-0.5 font-normal focus:z-10 focus:outline-none text-gray-900 border border-gray-300 enabled:hover:bg-gray-100 focus:ring-cyan-300 :bg-gray-600 dark:text-white dark:border-gray-600 dark:enabled:hover:bg-gray-700 dark:enabled:hover:border-gray-700 dark:focus:ring-gray-700 rounded-lg focus:ring-2 mt-2">
             Recuperar billetera
           </button>
         </Link>
-        :
-        <CardanoWalletGeneric
-          text="Acceder con billetera externa"
-          checkingWallet={checkingWallet}
-        />
       }
       {userData && 
       <button className="flex h-10 w-full text-sm items-center justify-center p-0.5 font-normal focus:z-10 focus:outline-none text-red-400 enabled:hover:bg-red-100 focus:ring-red-600 :bg-red-400 dark:text-white dark:enabled:hover:bg-red-600  dark:focus:ring-gray-600 rounded-lg focus:ring-2 mt-6"
