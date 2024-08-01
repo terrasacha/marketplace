@@ -10,10 +10,12 @@ interface OrderBookCardProps {
   itemsPerPage: number;
   walletId: string;
   walletAddress: string;
+  spendSwapId: string;
 }
 
 export default function OrderBookCard(props: OrderBookCardProps) {
-  const { orderList, walletId, walletAddress, itemsPerPage } = props;
+  const { orderList, walletId, walletAddress, itemsPerPage, spendSwapId } =
+    props;
 
   const [newTransactionBuild, setNewTransactionBuild] = useState<any>(null);
   const [signTransactionModal, setSignTransactionModal] = useState(false);
@@ -48,8 +50,7 @@ export default function OrderBookCard(props: OrderBookCardProps) {
       order_side: 'Unlist',
       payload: {
         wallet_id: walletId,
-        orderPolicyId:
-          '22c96d953d493748149c83ae1a1395c194feb1e72be9b8ce7d652534',
+        orderPolicyId: spendSwapId,
         utxo: {
           transaction_id: actualOrder.utxos,
           index: 0,
@@ -101,7 +102,7 @@ export default function OrderBookCard(props: OrderBookCardProps) {
       setNewTransactionBuild({
         ...mappedTransactionData,
         postDistributionPayload,
-        scriptId: '22c96d953d493748149c83ae1a1395c194feb1e72be9b8ce7d652534',
+        scriptId: spendSwapId,
       });
       handleOpenSignTransactionModal();
     } else {
@@ -120,8 +121,7 @@ export default function OrderBookCard(props: OrderBookCardProps) {
       order_side: 'Buy',
       payload: {
         wallet_id: walletId,
-        orderPolicyId:
-          '22c96d953d493748149c83ae1a1395c194feb1e72be9b8ce7d652534',
+        orderPolicyId: spendSwapId,
         utxo: {
           transaction_id: actualOrder.utxos,
           index: 0,
@@ -196,7 +196,7 @@ export default function OrderBookCard(props: OrderBookCardProps) {
       setNewTransactionBuild({
         ...mappedTransactionData,
         postDistributionPayload,
-        scriptId: '22c96d953d493748149c83ae1a1395c194feb1e72be9b8ce7d652534',
+        scriptId: spendSwapId,
       });
       handleOpenSignTransactionModal();
     } else {
@@ -255,7 +255,9 @@ export default function OrderBookCard(props: OrderBookCardProps) {
                         <p>{order.tokenAmount}</p>
                       </div>
                       <div className="w-full md:w-1/5 text-center">
-                        <p className="md:hidden text-gray-400">Precio Unitario (ADA)</p>
+                        <p className="md:hidden text-gray-400">
+                          Precio Unitario (ADA)
+                        </p>
                         <p>t₳ {order.value / 1000000}</p>
                       </div>
                       <div className="w-full md:w-1/5 text-center">

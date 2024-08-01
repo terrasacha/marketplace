@@ -40,7 +40,7 @@ export function BillingCard({
   const [selectedMethod, setSelectedMethod] = useState<string | null>(null);
   const [openModal, setOpenModal] = useState<string | undefined>();
   const [exchangeRate, setExchangeRate] = useState<number>(0);
-  const [userBalance, setUserBalance] = useState<number>(0);
+  const [userBalance, setUserBalance] = useState<any>(0);
   const [transactionStatusMessage, setTransactionStatusMessage] =
     useState<string>('En curso ...');
   const [txHash, setTxHash] = useState<string>('');

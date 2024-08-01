@@ -9,10 +9,12 @@ interface OrderHistoryCardProps {
   itemsPerPage: number;
   walletId: string;
   walletAddress: string;
+  spendSwapId: string;
 }
 
 export default function TradeCard(props: OrderHistoryCardProps) {
-  const { userOrderList, walletId, walletAddress, itemsPerPage } = props;
+  const { userOrderList, walletId, walletAddress, itemsPerPage, spendSwapId } =
+    props;
 
   const [newTransactionBuild, setNewTransactionBuild] = useState<any>(null);
   const [signTransactionModal, setSignTransactionModal] = useState(false);
@@ -53,8 +55,7 @@ export default function TradeCard(props: OrderHistoryCardProps) {
       order_side: 'Unlist',
       payload: {
         wallet_id: walletId,
-        orderPolicyId:
-          '22c96d953d493748149c83ae1a1395c194feb1e72be9b8ce7d652534',
+        orderPolicyId: spendSwapId,
         utxo: {
           transaction_id: actualOrder.utxos,
           index: 0,
@@ -106,7 +107,7 @@ export default function TradeCard(props: OrderHistoryCardProps) {
       setNewTransactionBuild({
         ...mappedTransactionData,
         postDistributionPayload,
-        scriptId: '22c96d953d493748149c83ae1a1395c194feb1e72be9b8ce7d652534',
+        scriptId: spendSwapId,
       });
       handleOpenSignTransactionModal();
     } else {
@@ -189,16 +190,22 @@ export default function TradeCard(props: OrderHistoryCardProps) {
                             <p>{order.tokenAmount}</p>
                           </div>
                           <div className="w-full md:w-1/5 text-center">
-                            <p className="md:hidden text-gray-400">Precio Unitario (ADA)</p>
+                            <p className="md:hidden text-gray-400">
+                              Precio Unitario (ADA)
+                            </p>
                             <p>t₳ {order.value / 1000000}</p>
                           </div>
                           <div className="w-full md:w-1/5 text-center">
                             <p className="md:hidden text-gray-400">Total</p>
-                            <p>t₳ {(order.value / 1000000) * order.tokenAmount}</p>
+                            <p>
+                              t₳ {(order.value / 1000000) * order.tokenAmount}
+                            </p>
                           </div>
                           <div className="w-full md:w-1/5 text-center">
                             <p className="md:hidden text-gray-400">Estado</p>
-                            <p>{statusMapper[order.statusCode] || 'Sin estado'}</p>
+                            <p>
+                              {statusMapper[order.statusCode] || 'Sin estado'}
+                            </p>
                           </div>
                           <div className="w-full md:w-1/5 text-center mt-2 md:mt-0">
                             {order.statusCode === 'listed' && (
