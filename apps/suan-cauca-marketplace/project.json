@@ -9,7 +9,8 @@
       "outputs": ["{options.outputPath}"],
       "defaultConfiguration": "production",
       "options": {
-        "outputPath": "dist/apps/suan-cauca-marketplace"
+        "outputPath": "dist/apps/suan-cauca-marketplace",
+        "postcssConfig": "apps/suan-cauca-marketplace/postcss.config.js"
       },
       "configurations": {
         "development": {
@@ -23,7 +24,9 @@
       "defaultConfiguration": "development",
       "options": {
         "buildTarget": "suan-cauca-marketplace:build",
-        "dev": true
+        "postcssConfig": "apps/suan-marketplace/postcss.config.js",
+        "dev": true,
+        "port": 4100
       },
       "configurations": {
         "development": {
@@ -50,7 +53,8 @@
       }
     },
     "lint": {
-      "executor": "@nx/eslint:lint"
+      "executor": "@nx/eslint:lint",
+      "outputs": ["{options.outputFile}"]
     }
   },
   "tags": []
