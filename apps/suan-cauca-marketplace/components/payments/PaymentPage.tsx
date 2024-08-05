@@ -16,8 +16,8 @@ import {
   splitLongValues,
   txHashLink,
 } from '@cauca/utils/generic/conversions';
-import { createMintingTransaction, sign } from '@marketplaces/data-access';
-import { BlockfrostProvider } from '@meshsdk/core';
+/* import { createMintingTransaction, sign } from '@marketplaces/data-access'; */
+/* import { BlockfrostProvider } from '@meshsdk/core'; */
 import Link from 'next/link';
 import { cardanoscan } from '@cauca/backend/mint';
 import { WalletContext, mapBuildTransactionInfo } from '@marketplaces/utils-2';
@@ -102,7 +102,7 @@ export default function PaymentPage({}) {
       `Parameter ${process.env['blockFrostKeysPreview']} not found`
     );
   }
-  const blockfrostProvider = new BlockfrostProvider(blockFrostKeysPreview);
+  /* const blockfrostProvider = new BlockfrostProvider(blockFrostKeysPreview); */
   console.log('projectInfo', projectInfo);
   // const IPFSUrlHash = getIpfsUrlHash(projectInfo.categoryID);
   const IPFSUrlHash = getIpfsUrlHash('REDD+');
