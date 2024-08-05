@@ -1,4 +1,4 @@
-'use client';
+/* 'use client';
 
 import { useContext } from 'react';
 import { Button, Card, Spinner } from 'flowbite-react';
@@ -492,3 +492,4 @@ export function BillingCard({
     </Card>
   );
 }
+ */
