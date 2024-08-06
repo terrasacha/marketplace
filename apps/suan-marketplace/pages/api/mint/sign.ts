@@ -1,5 +1,5 @@
 import type { NextApiRequest, NextApiResponse } from "next";
-import { AppWallet, BlockfrostProvider, Transaction } from "@meshsdk/core";
+/* import { AppWallet, BlockfrostProvider, Transaction } from "@meshsdk/core";
 
 export default async function handler(
   req: NextApiRequest,
@@ -56,3 +56,4 @@ export default async function handler(
     }
   }
 }
+ */

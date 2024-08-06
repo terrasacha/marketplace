@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import Modal from '@terrasacha/components/wallet/modal';
 import dynamic from 'next/dynamic';
-import { useWallet } from '@meshsdk/react';
+/* import { useWallet } from '@meshsdk/react'; */
 // Importar el componente Modal
 const ProjectDataModal = dynamic(
   () => import('@terrasacha/components/modals/ProjectDataModal')
@@ -16,7 +16,7 @@ interface Token {
   // Agrega cualquier otra propiedad que tenga tu token
 }
 const WalletDashboard = () => {
-  const { wallet, connected } = useWallet();
+/*   const { wallet, connected } = useWallet(); */
 
   const [isModalOpen, setModalOpen] = useState(false);
   const [selectedToken, setSelectedToken] = useState<Token | null>(null);
@@ -25,9 +25,9 @@ const WalletDashboard = () => {
   const [walletData, setWalletData] = useState<any>(null);
   const [transactionAddr, setTransactionAddr] = useState<any>(null);
   useEffect(() => {
-    loadUserData();
+    /* loadUserData(); */
   }, []);
-  async function loadUserData() {
+  /* async function loadUserData() {
     const usedAddresses = await wallet.getUsedAddresses();
     const changeAddress = await wallet.getChangeAddress();
     try {
@@ -54,7 +54,7 @@ const WalletDashboard = () => {
     } catch (error) {
       console.error('Error en la solicitud:', error);
     }
-  }
+  } */
   /*  const tokensData = {
     yourTokens: [
       {

@@ -6,7 +6,7 @@ import React, {
 } from 'react';
 import Sidebar from '@marketplaces/ui-lib/src/lib/layout/Sidebar';
 import Navbar from '@marketplaces/ui-lib/src/lib/layout/Navbar';
-import { useWallet, useAddress, useLovelace } from '@meshsdk/react';
+/* import { useWallet, useAddress, useLovelace } from '@meshsdk/react'; */
 import { useRouter } from 'next/router';
 import { getCurrentUser } from 'aws-amplify/auth';
 import WalletContext from '@marketplaces/utils-2/src/lib/context/wallet-context';
@@ -29,7 +29,7 @@ const initialStatewalletInfo = {
   externalWallet: false,
 };
 const MainLayout = ({ children }: PropsWithChildren) => {
-  const { connect, connected, disconnect, name, wallet } = useWallet();
+/*   const { connect, connected, disconnect, name, wallet } = useWallet(); */
   const { walletData } = useContext<any>(WalletContext);
   const [allowAccess, setAllowAccess] = useState<boolean>(false);
   const [user, setUser] = useState<any>(null);
@@ -96,7 +96,7 @@ const MainLayout = ({ children }: PropsWithChildren) => {
               access = true;
             } else {
               sessionStorage.removeItem('preferredWalletSuan');
-              disconnect();
+              /* disconnect(); */
               return router.push('/');
             }
           }
@@ -105,7 +105,7 @@ const MainLayout = ({ children }: PropsWithChildren) => {
         if (!access) {
           let walletName: any = sessionStorage.getItem('preferredWalletSuan');
           if (walletName) {
-            connect(walletName);
+            /* connect(walletName); */
           } else {
             sessionStorage.removeItem('preferredWalletSuan');
             router.push('/');
@@ -119,7 +119,7 @@ const MainLayout = ({ children }: PropsWithChildren) => {
     fetchData();
   }, []);
 
-  useEffect(() => {
+  /* useEffect(() => {
     if (connected) {
       if(window.sessionStorage.getItem("hasTokenAuth") === 'true'){
         setAllowAccess(true)
@@ -155,7 +155,7 @@ const MainLayout = ({ children }: PropsWithChildren) => {
       };
       fetchData();
     }
-  }, [connected]);
+  }, [connected]); */
 
   const checkTokenStakeAddress = async (rewardAddresses: any) => {
     let tokenAuthOnSessionStorage = window.sessionStorage.getItem("hasTokenAuth")
