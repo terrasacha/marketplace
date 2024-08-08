@@ -32,7 +32,7 @@
       }
     },
     "@nx/next:build": {
-      "cache": true,
+      "cache": false,
       "dependsOn": [],
       "inputs": ["production", "^production"]
     }
