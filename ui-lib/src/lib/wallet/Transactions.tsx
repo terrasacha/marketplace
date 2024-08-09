@@ -68,8 +68,10 @@ export default function Transactions(props: TransactionsProps) {
     }
   }, [router.query]);
   useEffect(() => {
-    getTransactionsData(1, false);
-  }, [router]);
+    if (walletAddress) {
+      getTransactionsData(1, false);
+    }
+  }, [router, walletAddress]);
 
   useEffect(() => {
     const clearAllCaches = () => {
@@ -100,7 +102,7 @@ export default function Transactions(props: TransactionsProps) {
       const cachedData = localStorage.getItem(cacheKey);
       if (cachedData) {
         const { data, timestamp } = JSON.parse(cachedData);
-        if (Date.now() - timestamp < (60 * 60 * 1000) && !data?.error) {
+        if (Date.now() - timestamp < 60 * 60 * 1000 && !data?.error) {
           // Invalida después de 1 hora
           return data;
         }
@@ -128,9 +130,6 @@ export default function Transactions(props: TransactionsProps) {
     invalidateCache: boolean = false
   ) => {
     setIsLoading(true);
-    if (!walletAddress) {
-      return;
-    }
 
     const payload = {
       address: walletAddress,
@@ -167,7 +166,7 @@ export default function Transactions(props: TransactionsProps) {
       totalItems: 0,
     };
 
-    console.log('responseData', responseData)
+    console.log('responseData', responseData);
     const mappedTransactionListData = await mapAccountTxData({
       walletAddress: walletData?.address,
       data: responseData,
@@ -379,7 +378,7 @@ export default function Transactions(props: TransactionsProps) {
                 Prev
               </>
             </button>
-            <div className='flex items-center justify-center px-3 h-8 text-sm font-medium text-white border-0 border-s border-gray-700 bg-custom-dark hover:bg-custom-dark-hover'>
+            <div className="flex items-center justify-center px-3 h-8 text-sm font-medium text-white border-0 border-s border-gray-700 bg-custom-dark hover:bg-custom-dark-hover">
               {paginationMetadata.currentPage}
             </div>
             <button
