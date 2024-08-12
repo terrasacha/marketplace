@@ -1,6 +1,7 @@
-import { NextApiRequest, NextApiResponse } from 'next';
 
-import {
+ import { NextApiRequest, NextApiResponse } from 'next';
+
+/*import {
   BlockfrostProvider,
   UTxO,
   AppWallet,
@@ -15,7 +16,6 @@ import {
 import type { NativeScript } from '@meshsdk/core';
 
 import { bankWalletAddress } from '@cauca//backend/mint';
-/* import { integer } from "aws-sdk/clients/cloudfront"; */
 
 const validateMinimumAdaValue = async (
   recipientAddress: string,
@@ -189,3 +189,4 @@ export default async function handler(
     res.status(200).json({ message: 'This is response of the api' });
   }
 }
+ */

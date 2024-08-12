@@ -17,12 +17,35 @@ export default function TradeCard(props: any) {
   );
   const [userOrderList, setUserOrderList] = useState<Array<any>>([]);
   const [suanUserTokens, setSuanUserTokens] = useState<Array<any>>([]);
+  const [spendSwapId, setSpendSwapId] = useState<string>('');
 
   const paginationLimit = 1;
 
   const handleSetActiveTab = (tab: string) => {
     setActiveTab(tab);
   };
+
+  useEffect(() => {
+    const getSpendSwapId = async () => {
+      const request = await fetch('/api/contracts/get-scripts', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+      });
+
+      const scriptList = await request.json();
+
+      const spendSwapId = scriptList.find(
+        (script: any) => script.script_type === 'spendSwap'
+      ).id || '';
+      console.log('spendSwap', spendSwapId);
+
+      setSpendSwapId(spendSwapId);
+    };
+
+    getSpendSwapId();
+  }, []);
 
   const getOrderList = async (nextToken = '') => {
     const params = {
@@ -96,6 +119,7 @@ export default function TradeCard(props: any) {
           walletAddress={walletData?.address}
           walletStakeAddress={walletData?.stake_address}
           getOrderList={getOrderList}
+          spendSwapId={spendSwapId}
         />
       </div>
       <div className="col-span-3 xl:col-span-2">
@@ -104,6 +128,7 @@ export default function TradeCard(props: any) {
           walletId={walletID}
           orderList={orderList}
           itemsPerPage={5}
+          spendSwapId={spendSwapId}
         />
       </div>
       <div className="col-span-3">
@@ -112,6 +137,7 @@ export default function TradeCard(props: any) {
           itemsPerPage={1}
           walletAddress={walletData?.address}
           walletId={walletID}
+          spendSwapId={spendSwapId}
         />
       </div>
     </div>

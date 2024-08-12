@@ -1,4 +1,4 @@
-import { UTxO } from '@meshsdk/core';
+/* import { UTxO } from '@meshsdk/core'; */
 import axios from 'axios';
 import { Category } from 'myTypes';
 import { Amplify } from 'aws-amplify';
@@ -161,7 +161,7 @@ export function post(route: string, body = {}) {
 // The following section is to work with Cardano to build, sign and submit transactions
 ///////////////////////////////////////////////////////
 
-export async function createMintingTransaction(
+/* export async function createMintingTransaction(
   endpoint: string,
   recipientAddress: string,
   utxos: UTxO[],
@@ -176,7 +176,7 @@ export async function createMintingTransaction(
     assetMetadata,
     price,
   });
-}
+} */
 
 export async function sign(
   endpoint: string,

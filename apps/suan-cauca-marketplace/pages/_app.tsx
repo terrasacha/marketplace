@@ -1,5 +1,5 @@
 import '@cauca//styles/globals.css';
-import { MeshProvider } from '@meshsdk/react';
+/* import { MeshProvider } from '@meshsdk/react'; */
 import { useEffect } from 'react';
 import { useRouter } from 'next/router';
 import Head from 'next/head';
@@ -27,7 +27,7 @@ function MyApp({ Component, pageProps }: MyAppProps) {
   useEffect(() => {}, [router.pathname]);
 
   return (
-    <MeshProvider>
+    <>
       <Head>
         <title>Cuadro de mando Inversionista - Suan</title>
         <meta
@@ -60,7 +60,7 @@ function MyApp({ Component, pageProps }: MyAppProps) {
           </WalletContextProvider>
         </NotificationContextProvider>
       </LoginFromContextProvider>
-    </MeshProvider>
+      </>
   );
 }
 export default MyApp;

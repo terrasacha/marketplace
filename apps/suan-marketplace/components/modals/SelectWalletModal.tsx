@@ -1,4 +1,4 @@
-import { useWallet, useWalletList } from "@meshsdk/react";
+/* import { useWallet, useWalletList } from "@meshsdk/react"; */
 import { Modal, Spinner } from "flowbite-react";
 import Image from "next/image";
 import { useEffect, useState } from "react";
@@ -12,7 +12,7 @@ const WALLET_ICONS: any = {
 };
 
 export default function SelectWalletModal({ openModal, setOpenModal }: any) {
-  const { connected, connect, connecting, error } = useWallet();
+  /* const { connected, connect, connecting, error } = useWallet(); */
   const [walletSelected, setWalletSelected] = useState<string | undefined>(
     undefined
   );
@@ -29,14 +29,14 @@ export default function SelectWalletModal({ openModal, setOpenModal }: any) {
     visible: false,
   });
 
-  const wallets = useWalletList();
-  useEffect(() => {
+  /* const wallets = useWalletList(); */
+  /* useEffect(() => {
     if (connected) {
       setOpenModal(undefined);
     }
-  }, [connected]);
+  }, [connected]); */
 
-  useEffect(() => {
+  /* useEffect(() => {
     if (error) {
       setShowError(true);
       setAlertMessage({
@@ -56,7 +56,7 @@ export default function SelectWalletModal({ openModal, setOpenModal }: any) {
         });
       }, 8000);
     }
-  }, [error]);
+  }, [error]); */
 
   function capitalizeFirstLetter(str: string) {
     return str.charAt(0).toUpperCase() + str.slice(1);
@@ -79,7 +79,7 @@ export default function SelectWalletModal({ openModal, setOpenModal }: any) {
       size="md"
     >
       <Modal.Header className="py-3">Conectar Billetera</Modal.Header>
-      <Modal.Body className="p-6">
+      {/* <Modal.Body className="p-6">
         <p className="text-sm font-normal text-gray-500 dark:text-gray-400">
           { wallets.length > 0 ? "Conecta tú billetera con alguno de nuestros proveedores disponibles." : "No encontramos ninguna wallet instalada en tu navegador."}
         </p>
@@ -135,7 +135,7 @@ export default function SelectWalletModal({ openModal, setOpenModal }: any) {
             ¿Cómo creo mi billetera?
           </Link>
         </div>
-      </Modal.Body>
+      </Modal.Body> */}
     </Modal>
   );
 }

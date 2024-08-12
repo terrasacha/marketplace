@@ -1,4 +1,4 @@
-import { useWallet } from '@meshsdk/react';
+/* import { useWallet } from '@meshsdk/react'; */
 import { useEffect, useState, useRef, useContext } from 'react';
 import Image from 'next/image';
 import Link from 'next/link';
@@ -52,7 +52,7 @@ export default function Sidebar(props: SidebarProps) {
   const { walletAdmin, isLoading, lastSyncDate, balanceChanged } =
     useContext<any>(WalletContext);
   const router = useRouter();
-  const { wallet, connected } = useWallet();
+  /* const { wallet, connected } = useWallet(); */
   const [walletStakeID, setWalletStakeID] = useState<any>(undefined);
   const [copied, setCopied] = useState(false);
   const sidebarRef = useRef<HTMLDivElement | null>(null);
@@ -84,13 +84,13 @@ export default function Sidebar(props: SidebarProps) {
     };
   }, [isOpen, onClose]);
 
-  useEffect(() => {
+  /* useEffect(() => {
     if (connected) {
       loadUserData();
     } else {
       resetComponentState();
     }
-  }, [connected]);
+  }, [connected]); */
 
   useEffect(() => {
     const playCashRegister = () => {
@@ -130,14 +130,14 @@ export default function Sidebar(props: SidebarProps) {
     // Limpiar el intervalo cuando el componente se desmonte
     return () => clearInterval(intervalo);
   }, [lastSyncDate]);
-  async function loadUserData() {
+ /*  async function loadUserData() {
     const addresses = await wallet.getRewardAddresses();
     setWalletStakeID(addresses[0]);
   }
 
   function resetComponentState() {
     setWalletStakeID(undefined);
-  }
+  } */
 
   return (
     <aside
@@ -227,7 +227,7 @@ export default function Sidebar(props: SidebarProps) {
             <span className="ml-3">CoreWallet</span>
           </Link>
         </li>
-        <li className={connected ? 'hidden' : ''}>
+        <li /* className={connected ? 'hidden' : ''} */>
           <button
             className="flex w-full items-center p-2 text-black rounded-lg hover:bg-custom-dark hover:text-white transition duration-150 ease-linear"
             onClick={() => setDisplayWalletOptions(!displayWalletOptions)}
@@ -295,7 +295,7 @@ export default function Sidebar(props: SidebarProps) {
           </Link>
         </li>
 
-        <li className={connected ? 'hidden' : ''}>
+        <li /* className={connected ? 'hidden' : ''} */>
           <Link
             onClick={onClose}
             href="/trade"

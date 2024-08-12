@@ -9,6 +9,7 @@ interface CreateOrderCardProps {
   walletId: string;
   walletAddress: string;
   walletStakeAddress: string;
+  spendSwapId: string;
   getOrderList: () => void;
 }
 
@@ -24,6 +25,7 @@ export default function CreateOrderCard(props: CreateOrderCardProps) {
     userAssetList,
     walletId,
     walletAddress,
+    spendSwapId,
     walletStakeAddress,
     getOrderList,
   } = props;
@@ -133,8 +135,7 @@ export default function CreateOrderCard(props: CreateOrderCardProps) {
       order_side: 'Buy',
       payload: {
         wallet_id: walletId,
-        orderPolicyId:
-          '22c96d953d493748149c83ae1a1395c194feb1e72be9b8ce7d652534',
+        orderPolicyId: spendSwapId,
         tokenA: {
           policy_id: newOrder.assetPolicyId,
           token_name: newOrder.asset,
@@ -171,7 +172,7 @@ export default function CreateOrderCard(props: CreateOrderCardProps) {
       const postDistributionPayload = {
         createOrder: {
           walletID: walletId,
-          scriptID: '22c96d953d493748149c83ae1a1395c194feb1e72be9b8ce7d652534',
+          scriptID: spendSwapId,
           utxos: buildTxResponse.build_tx.tx_id,
           tokenPolicyId: newOrder.assetPolicyId,
           tokenName: newOrder.asset,

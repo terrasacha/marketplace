@@ -1,5 +1,5 @@
 import { useState, useContext } from 'react';
-import { useWallet } from '@meshsdk/react';
+/* import { useWallet } from '@meshsdk/react'; */
 import { WalletContext } from '@marketplaces/utils-2';
 
 import WalletIcon  from '../icons/WalletIcon';
@@ -9,14 +9,14 @@ import dynamic from 'next/dynamic';
 const SelectWalletModal = dynamic(() => import('../modals/SelectWalletModal'));
 
 export default function CardanoWallet() {
-  const { connected, disconnect } = useWallet();
+  /* const { connected, disconnect } = useWallet(); */
   const router = useRouter();
   const [openModal, setOpenModal] = useState<string | undefined>();
   const { handleClearData } = useContext<any>(WalletContext);
 
   return (
     <>
-      {!connected ? (
+     {/*  {!connected ? (
         //#2596be
         <button
           className="relative w-full flex font-normal focus:z-10 focus:outline-none text-white bg-cyan-700 border border-transparent enabled:hover:bg-cyan-800 focus:ring-cyan-300 dark:bg-cyan-600 dark:enabled:hover:bg-cyan-700 dark:focus:ring-cyan-800 rounded-lg focus:ring-2 px-8 py-2"
@@ -39,7 +39,7 @@ export default function CardanoWallet() {
           Desconectar
         </button>
       )}
-      <SelectWalletModal openModal={openModal} setOpenModal={setOpenModal} />
+      <SelectWalletModal openModal={openModal} setOpenModal={setOpenModal} /> */}
     </>
   );
 }

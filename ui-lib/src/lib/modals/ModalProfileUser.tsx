@@ -6,7 +6,7 @@ import colorByLetter from '@marketplaces/utils-2/src/lib/dicc';
 import CardanoWallet from '../cardano-wallet/CardanoWallet';
 import { WalletOffIcon } from '../icons/WalletOffIcon';
 import WalletContext from '@marketplaces/utils-2/src/lib/context/wallet-context';
-import { useWallet } from '@meshsdk/react';
+/* import { useWallet } from '@meshsdk/react'; */
 interface ModalProfileUserProps {
   closeModal: () => void;
   openDeleteModal: () => void;
@@ -14,7 +14,7 @@ interface ModalProfileUserProps {
 }
 const ModalProfileUser = (props: ModalProfileUserProps) => {
   const { handleClearData, walletID } = useContext<any>(WalletContext);
-  const { disconnect } = useWallet();
+  /* const { disconnect } = useWallet(); */
 
   const { closeModal, walletInfo, openDeleteModal } = props;
   const { Canvas } = useQRCode();

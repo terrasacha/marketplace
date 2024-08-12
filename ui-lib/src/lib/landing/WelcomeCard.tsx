@@ -3,7 +3,7 @@ import React, { useState, useEffect } from 'react';
 import Link from 'next/link';
 import { getCurrentUser, signOut } from 'aws-amplify/auth';
 import Image from 'next/image';
-import { useWallet } from '@meshsdk/react';
+/* import { useWallet } from '@meshsdk/react'; */
 import { useRouter } from 'next/router';
 import CardanoWalletGeneric from '../cardano-wallet/CardanoWalletGenericButton';
 interface WelcomeCardProps {
@@ -15,7 +15,7 @@ interface WelcomeCardProps {
 const WelcomeCard = (props: WelcomeCardProps) => {
   const { poweredby, appName, checkingWallet, handleSetCheckingWallet } = props;
   const [userData, setUserData] = useState(null) as any;
-  const { disconnect } = useWallet();
+  /* const { disconnect } = useWallet(); */
   const router = useRouter();
   useEffect(() => {
     currentAuthenticatedUser().then((res) => {
@@ -25,7 +25,7 @@ const WelcomeCard = (props: WelcomeCardProps) => {
   useEffect(() => {
     if (checkingWallet === 'unauthorized') {
       setTimeout(() => {
-        disconnect();
+        /* disconnect(); */
         handleSetCheckingWallet('uncheck');
       }, 1500);
     }

@@ -1,31 +1,26 @@
-'use client';
-
-import { useContext } from 'react';
+/* import { useContext } from 'react';
 import { Button, Card, Spinner } from 'flowbite-react';
 import { OrderDetailSection } from './OrderDetailSection';
 import { SelectPaymentMethodSection } from './SelectPaymentMethodSection';
 import { useWallet } from '@meshsdk/react';
 import { useEffect, useState } from 'react';
-import { coingeckoPrices } from '@terrasacha/utils/suan/oracle';
-import { featureMapping } from '@terrasacha/utils/suan/mappings';
-import { getIpfsUrlHash } from '@terrasacha/utils/generic/ipfs';
-import {
-  splitLongValues,
-  txHashLink,
-} from '@terrasacha/utils/generic/conversions';
-import ProjectInfoContext from '@terrasacha/store/projectinfo-context';
+import { coingeckoPrices } from '@terrasacha//utils/suan/oracle';
+import { featureMapping } from '@terrasacha//utils/suan/mappings';
+import { getIpfsUrlHash } from '@terrasacha//utils/generic/ipfs';
+import { splitLongValues, txHashLink } from '@terrasacha//utils/generic/conversions';
+import ProjectInfoContext from '@terrasacha//store/projectinfo-context';
 import AlertMessage from '../common/AlertMessage';
-import { createMintingTransaction, sign } from '@marketplaces/data-access';
-import { cardanoscan } from '@terrasacha/backend/mint';
+import { cardanoscan } from '@terrasacha//backend/mint';
 import { BlockfrostProvider } from '@meshsdk/core';
 import Link from 'next/link';
+import { createMintingTransaction, sign } from '@marketplaces/data-access';
 
 const PURCHASING_STEPS = {
   STARTING: 'starting',
   PROCESSING: 'processing',
   FINISHED: 'finished',
   ERROR: 'error',
-};
+}; */
 
 export function BillingCard({
   tokenAmount,
@@ -34,18 +29,19 @@ export function BillingCard({
   tokenAmount: string;
   setValidationError: (data: any) => void;
 }) {
-  const [step, setStep] = useState<string>(PURCHASING_STEPS.STARTING);
+ /*  const [step, setStep] = useState<string>(PURCHASING_STEPS.STARTING);
   const { wallet, connected } = useWallet();
   const { projectInfo } = useContext<any>(ProjectInfoContext);
   const [selectedMethod, setSelectedMethod] = useState<string | null>(null);
   const [openModal, setOpenModal] = useState<string | undefined>();
   const [exchangeRate, setExchangeRate] = useState<number>(0);
-  const [userBalance, setUserBalance] = useState<number>(0);
+  const [userBalance, setUserBalance] = useState<any>(0);
   const [transactionStatusMessage, setTransactionStatusMessage] =
     useState<string>('En curso ...');
   const [txHash, setTxHash] = useState<string>('');
   const [tokensBuyed, setTokensBuyed] = useState<string>('');
 
+  console.log('projectInfo', projectInfo);
   let blockFrostKeysPreview: string;
   if (process.env.NEXT_PUBLIC_blockFrostKeysPreview) {
     blockFrostKeysPreview = process.env.NEXT_PUBLIC_blockFrostKeysPreview;
@@ -492,5 +488,6 @@ export function BillingCard({
         </div>
       )}
     </Card>
-  );
+  ); */
+  return <></>
 }
