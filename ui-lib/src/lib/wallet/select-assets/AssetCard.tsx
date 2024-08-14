@@ -3,7 +3,7 @@ import { useEffect, useState } from 'react';
 interface AssetCardProps {
   fingerprint: string;
   assetName: string;
-  policy_id: string
+  policy_id: string;
   availableSupplyValue: string;
   recipientID: number;
   selectedSupplyValue: string;
@@ -30,10 +30,8 @@ export default function AssetCard(props: AssetCardProps) {
     handleAssetQuantityValue,
   } = props;
 
-  const [selectedSupply, setSelectedSupply] =
-    useState<string>(selectedSupplyValue);
-  const [availableSupply, setAvailableSupply] =
-    useState<string>(selectedSupplyValue);
+  const [selectedSupply, setSelectedSupply] = useState<string>(selectedSupplyValue);
+  const [availableSupply, setAvailableSupply] = useState<string>(availableSupplyValue);
   const [checked, setChecked] = useState<boolean>(isChecked);
   const [error, setError] = useState<boolean>(false);
 
@@ -72,41 +70,27 @@ export default function AssetCard(props: AssetCardProps) {
 
     if (checked) {
       setChecked(false);
-      // Remove item from checkedAssetsList
-      handleRemoveCheckedAsset(
-        checkedAsset.fingerprint,
-        checkedAsset.recipientID
-      );
+      handleRemoveCheckedAsset(checkedAsset.fingerprint, checkedAsset.recipientID);
       setSelectedSupply('');
+      console.log("Asset removed:", checkedAsset);
     } else {
       setChecked(true);
-      // Add item to checked AssetList
       if (availableSupply === '1') {
         checkedAsset.selectedSupply = '1';
         setSelectedSupply('1');
       }
-      // handleAssetQuantityValue(
-      //   checkedAsset.fingerprint,
-      //   String(
-      //     parseInt(availableSupply) - parseInt(checkedAsset.selectedSupply)
-      //   )
-      // );
       handleAddCheckedAsset(checkedAsset);
-      // funcion para restar availableSupply
+      console.log("Asset added:", checkedAsset);
     }
-
   };
 
-  const totalAssets = String(
-    parseInt(availableSupply) + parseInt(selectedSupply || '0')
-  );
+  const totalAssets = String(parseInt(availableSupply) + parseInt(selectedSupply || '0'));
 
   return (
     <>
       {(checked || parseInt(availableSupply || "0") > 0) && (
         <div className="border w-full p-3">
           <div className="flex items-center space-x-3">
-            {/* Logo */}
             <div className="flex-none">
               <div className="relative inline-flex items-center justify-center w-16 h-16 overflow-hidden bg-red-200 rounded-full dark:bg-gray-600">
                 <span className="font-medium text-gray-600 dark:text-gray-300">
@@ -114,25 +98,18 @@ export default function AssetCard(props: AssetCardProps) {
                 </span>
               </div>
             </div>
-            {/* Nombre token y cantidad */}
             <div className="w-full">
               <p className='text-wrap break-all'>{assetName}</p>
-              <p>
-                {checked
-                  ? selectedSupply + ' / ' + totalAssets
-                  : availableSupply}
-              </p>
+              <p>{checked ? selectedSupply + ' / ' + totalAssets : availableSupply}</p>
             </div>
           </div>
-          {/* Agregar */}
           <div className="flex space-x-2 mt-3 justify-end">
             {parseInt(availableSupply) > 1 && !checked && (
               <div className="relative w-full">
                 <input
                   type="text"
                   className={`block w-full p-2.5 ps-3 text-sm text-gray-900 border border-gray-300 rounded-lg bg-gray-50 focus:ring-blue-500 focus:border-blue-500 ${
-                    error &&
-                    'border-red-500 focus:ring-red-500 focus:border-red-500'
+                    error && 'border-red-500 focus:ring-red-500 focus:border-red-500'
                   }`}
                   placeholder="0"
                   value={selectedSupply}

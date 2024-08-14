@@ -2175,6 +2175,9 @@ export async function listTokens() {
             policyID
             tokenName
             oraclePrice
+            product {
+              showOn
+            }
           }
         }
       }`,
@@ -2185,10 +2188,15 @@ export async function listTokens() {
       },
     }
   );
+
+  
   const suanTokens = response.data.data.listTokens.items;
 
   return suanTokens;
+
 }
+
+
 
 export async function getOrdersList(
   filterByWalletId: string | null = null,

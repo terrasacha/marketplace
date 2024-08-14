@@ -20,6 +20,11 @@ interface WalletDashboardProps {
   // Agrega cualquier otra propiedad que tenga tu token
 }
 
+const truncateAddress = (address: string, startLength: number, endLength: number) => {
+  if (address.length <= startLength + endLength) return address;
+  return `${address.substring(0, startLength)}...${address.substring(address.length - endLength)}`;
+};
+
 export default function WalletDashboard(props: WalletDashboardProps) {
   const { walletData } =
     useContext<any>(WalletContext);
@@ -48,8 +53,8 @@ export default function WalletDashboard(props: WalletDashboardProps) {
                   <div className="flex-1 w-64 text-white">
                     <p className="text-lg">Mi billetera</p>
                     <div className="flex items-center gap-2">
-                      <p className="text-sm truncate w-52">
-                        {walletData ? walletData?.address : 'loading ...'}
+                    <p className="text-sm truncate w-52">
+                        {walletData ? truncateAddress(walletData?.address, 10, 6) : 'loading ...'}
                       </p>
                       <CopyToClipboard
                         iconClassName="h-5 w-5"
@@ -65,12 +70,12 @@ export default function WalletDashboard(props: WalletDashboardProps) {
                         }
                       />
                     </div>
-                    <div className="flex items-center gap-2">
+                    <div className="flex flex-wrap items-center gap-2 mt-2">
                       <p className="text-xl text-amber-400">
                         {showAddress ? (
                           <>
                             {walletData
-                              ? parseInt(walletData?.balance) / 1000000
+                              ? (parseInt(walletData?.balance) / 1000000).toFixed(4)
                               : '0'}{' '}
                             ADA
                           </>

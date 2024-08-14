@@ -1,6 +1,6 @@
 import { useContext, useEffect, useState } from 'react';
 import AssetCard from '../../wallet/select-assets/AssetCard';
-import Modal from '../../common/Modal'
+import Modal from '../../common/Modal';
 import { WalletContext } from '@marketplaces/utils-2';
 
 interface SelectTokensModalProps {
@@ -49,11 +49,9 @@ export default function SelectTokensModal(props: SelectTokensModalProps) {
   const [assetsList, setAssetsList] = useState<Array<any>>(walletData.assets);
 
   useEffect(() => {
-    //const checkedAssets = selectTokensModal.data;
     if (checkedAssetList.length > 0) {
       setAssetsList((prevState) => {
         return prevState.map((asset) => {
-          // Calcular el availableSupplyValue, en caso de ser del mismo recipiente no restar las cantidades
           const originalAvailableSupply = walletData.assets.find(
             (originalAsset: any) =>
               originalAsset.fingerprint === asset.fingerprint
@@ -81,7 +79,6 @@ export default function SelectTokensModal(props: SelectTokensModalProps) {
             );
 
           if (checkedAsset) {
-            // El objeto existe en assetListChecked, actualiza los valores
             return {
               ...asset,
               quantity: availableSupply,
@@ -90,7 +87,6 @@ export default function SelectTokensModal(props: SelectTokensModalProps) {
             };
           }
 
-          // Si el objeto no está en assetListChecked, simplemente devuelve el objeto original
           return {
             ...asset,
             quantity: availableSupply,
@@ -99,96 +95,10 @@ export default function SelectTokensModal(props: SelectTokensModalProps) {
           };
         });
       });
+    } else {
+      setAssetsList(walletData.assets);
     }
   }, [walletData.assets, checkedAssetList, selectTokensModal]);
-
-  // useEffect(() => {
-  //   const findFingerprintInRecipients = (
-  //     assets: any,
-  //     fingerprintToFind: any
-  //   ) => {
-  //     for (const asset of assets) {
-  //       const foundAsset = asset.selectedAssets.find(
-  //         (found: any) => found.fingerprint === fingerprintToFind
-  //       );
-
-  //       if (foundAsset) {
-  //         return foundAsset;
-  //       }
-  //     }
-
-  //     return null; // Si no se encuentra el fingerprint
-  //   };
-  //   const mapGlobalRecipientsAssets = newTransactionGroup.recipients.map(
-  //     (recipient: any, index: number) => {
-  //       return {
-  //         recipient: index,
-  //         selectedAssets: recipient.selectedAssets,
-  //       };
-  //     }
-  //   );
-
-  //   setAssetsList((prevState) => {
-  //     return prevState.map((asset) => {
-  //       const selectedAssetFromOtherRecipients = mapGlobalRecipientsAssets
-  //         .flat()
-  //         .filter((assetFromOtherRecipient: any) => {
-  //           return (
-  //             assetFromOtherRecipient.recipient !==
-  //             selectTokensModal.recipientID
-  //           );
-  //         });
-
-  //       const selectedAsset = findFingerprintInRecipients(
-  //         selectedAssetFromOtherRecipients,
-  //         asset.fingerprint
-  //       );
-
-  //       const checkedAsset = selectTokensModal.data.find(
-  //         (checkedAsset: any) => checkedAsset.fingerprint === asset.fingerprint
-  //       );
-
-  //       let availableSupply;
-  //       if (selectedAsset) {
-  //         availableSupply =
-  //           asset.availableSupply - parseInt(selectedAsset.selectedSupply);
-  //       } else {
-  //         availableSupply = asset.availableSupply;
-  //       }
-
-  //       let selectedSupply;
-  //       if (checkedAsset) {
-  //         selectedSupply = checkedAsset.selectedSupply;
-  //       } else {
-  //         selectedSupply = asset.selectedSupply;
-  //       }
-
-  //       const data = {
-  //         ...asset,
-  //         availableSupply: availableSupply,
-  //         selectedSupply: selectedSupply,
-  //         checked: checkedAsset ? checkedAsset.checked : asset.checked,
-  //       };
-  //       console.log('data', data);
-  //       return data;
-  //     });
-  //   });
-  // }, [selectTokensModal.data, newTransactionGroup.recipients]);
-
-  // Funcion para actualizar la cantidad de assets seleccionados del mismo tipo para enviar
-  // const handleAssetSelectedChange = (
-  //   fingerprint: string,
-  //   property: string,
-  //   value: string | boolean | number
-  // ) => {
-  //   setAssetsList((prevAssetsList) =>
-  //     prevAssetsList.map((asset) =>
-  //       asset.fingerprint === fingerprint
-  //         ? { ...asset, [property]: value }
-  //         : asset
-  //     )
-  //   );
-  // };
 
   const handleFilterInputChange = (field: string, value: string) => {
     setAssetsFilter((prevState) => ({
@@ -202,7 +112,6 @@ export default function SelectTokensModal(props: SelectTokensModalProps) {
       (asset) => asset.recipientID === selectTokensModal.recipientID
     );
 
-    //handleSetSelectedTokensToSelectTokensModal(selectedAssets);
     handleAddRecipientSelectedAssets(
       selectTokensModal.recipientID,
       selectedAssets
@@ -237,10 +146,6 @@ export default function SelectTokensModal(props: SelectTokensModalProps) {
         Selecciona Assets
       </Modal.Header>
       <Modal.Body>
-        {/* <AssetsFilter
-          assetsFilter={assetsFilter}
-          handleInputChange={handleFilterInputChange}
-        /> */}
         <div>
           {assetsList.length > 0 ? (
             <>
