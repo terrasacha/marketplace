@@ -799,6 +799,7 @@ export async function getPendingTokensForClaiming(userId: string) {
             tokenName
             tokenAmount
             statusCode
+            productID
             product {
               scripts {
                 items {
