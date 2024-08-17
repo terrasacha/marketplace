@@ -19,7 +19,8 @@ interface ProjectContractsProps {
 }
 
 export default function Projects(props: any) {
-  const { walletID, walletAddress } = useContext<any>(WalletContext);
+  const { walletID, walletAddress, walletData } =
+    useContext<any>(WalletContext);
   const [projectList, setProjectList] = useState<any>(null);
   const [projectListFiltered, setProjectListFiltered] = useState<any>(null);
   const [activeTab, setActiveTab] = useState<string>('Distribuidos');
@@ -28,7 +29,7 @@ export default function Projects(props: any) {
   const [isLoading, setIsLoading] = useState<boolean>(false);
 
   async function fetchProjects() {
-    const projects = await getAllProjects();
+    const projects = await getAllProjects(process.env['NEXT_PUBLIC_MARKETPLACE_NAME']);
     console.log('projects', projects);
     setProjectList(projects);
   }
@@ -513,6 +514,11 @@ export default function Projects(props: any) {
           '721': truncated_metadata,
         },
       },
+      transactionPayload: {
+        walletID: walletID,
+        walletAddress: walletAddress,
+        productID: project.id,
+      },
     };
 
     console.log('payload', payload);
@@ -547,7 +553,7 @@ export default function Projects(props: any) {
           policyID: mintContract.id,
           oraclePrice: 0,
         },
-        createOracleDatum: {
+        /* createOracleDatum: {
           action: 'Update',
           master_wallet_id:
             '575a7f01272dd95a9ba2696e9e3d4895fe39b12350f7fa88a301b3ad',
@@ -562,13 +568,14 @@ export default function Projects(props: any) {
             ],
             validity: 86400000,
           },
-        },
+        }, */
       };
 
       setNewTransactionBuild({
         ...mappedTransactionData,
         scriptId: mintContract.id,
         postDistributionPayload,
+        transaction_id: buildTxResponse.transaction_id,
       });
       handleOpenSignTransactionModal();
     } else {
@@ -597,6 +604,99 @@ export default function Projects(props: any) {
     await tokenMintAndDistribution(projectContracts, project, tokenName);
 
     setIsLoading(false);
+  };
+
+  const handleSendTokensToOwner = async (project: any) => {
+    const ownerWallet = checkOwnerWallet(project);
+    const stakeHoldersDistribution = getProjectTokenDistribution(project);
+
+    console.log(stakeHoldersDistribution);
+    const ownerAmountOfTokens =
+      parseInt(
+        stakeHoldersDistribution.find(
+          (stakeHolderDis: any) =>
+            stakeHolderDis.CONCEPTO.toLowerCase() === 'propietario'
+        )?.CANTIDAD
+      ) || null;
+
+    const mintContract =
+      project.scripts.items.find(
+        (script: any) =>
+          script.script_type === 'mintProjectToken' && script.Active === true
+      ) || null;
+
+    if (!mintContract) {
+      toast.error('No se ha encontrado contrato MINT');
+      return;
+    }
+
+    if (!ownerAmountOfTokens) {
+      toast.error('El participante del proyecto no esta definido');
+      return;
+    }
+    if (!ownerWallet) {
+      toast.error(
+        'El propietario del proyecto no posee una billetera asociada a su cuenta'
+      );
+      return;
+    }
+
+    const payload = {
+      payload: {
+        wallet_id: walletID,
+        addresses: [
+          {
+            address: ownerWallet, // Address billetera Owner
+            lovelace: 0,
+            multiAsset: [
+              {
+                policyid: mintContract.id,
+                tokens: {
+                  [mintContract.token_name]: ownerAmountOfTokens,
+                },
+              },
+            ],
+          },
+        ],
+        metadata: {},
+      },
+      transactionPayload: {
+        walletID: walletID,
+        walletAddress: walletAddress,
+      },
+    };
+    if (walletData) {
+      console.log('BuildTx Payload: ', payload);
+
+      const request = await fetch('/api/transactions/build-tx', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(payload),
+      });
+      const buildTxResponse = await request.json();
+      console.log('BuildTx Response: ', buildTxResponse);
+
+      if (buildTxResponse?.success) {
+        const mappedTransactionData = await mapBuildTransactionInfo({
+          tx_type: 'preview',
+          walletAddress: walletData.address,
+          buildTxResponse: buildTxResponse,
+          metadata: {},
+        });
+
+        setNewTransactionBuild({
+          ...mappedTransactionData,
+          transaction_id: buildTxResponse.transaction_id,
+        });
+        handleOpenSignTransactionModal();
+      } else {
+        toast.error(
+          'Algo ha salido mal, revisa las direcciones de billetera ...'
+        );
+      }
+    }
   };
 
   return (
@@ -638,6 +738,8 @@ export default function Projects(props: any) {
                   project={project}
                   key={project.id}
                   handleDistributeTokens={handleDistributeTokens}
+                  handleSendTokensToOwner={handleSendTokensToOwner}
+                  checkOwnerWallet={checkOwnerWallet}
                 />
               ))
             ) : (

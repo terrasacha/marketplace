@@ -47,7 +47,8 @@ export default function SignTransaction(props: SignTransactionProps) {
       cbor: pendingTx.cbor,
       scriptIds: [pendingTx.scriptId],
       metadata_cbor: pendingTx.metadata_cbor,
-      redeemers_cbor: [pendingTx.redeemer_cbor]
+      redeemers_cbor: [pendingTx.redeemer_cbor],
+      transaction_id: pendingTx.transaction_id
     };
     const response = await fetch('/api/transactions/sign-submit', {
       method: 'POST',
@@ -143,6 +144,7 @@ export default function SignTransaction(props: SignTransactionProps) {
       scriptIds: [],
       metadata_cbor: pendingTx.metadata_cbor,
       redeemers_cbor: [],
+      transaction_id: pendingTx.transaction_id
     };
     const response = await fetch('/api/transactions/sign-submit', {
       method: 'POST',
@@ -163,6 +165,7 @@ export default function SignTransaction(props: SignTransactionProps) {
       scriptIds: [],
       metadata_cbor: pendingTx.metadata_cbor,
       redeemers_cbor: [],
+      transaction_id: pendingTx.transaction_id
     };
     const response = await fetch('/api/transactions/sign-submit', {
       method: 'POST',
@@ -206,6 +209,7 @@ export default function SignTransaction(props: SignTransactionProps) {
       scriptIds: [pendingTx.scriptId],
       metadata_cbor: pendingTx.metadata_cbor,
       redeemers_cbor: [pendingTx.redeemer_cbor],
+      transaction_id: pendingTx.transaction_id
     };
     const response = await fetch('/api/transactions/sign-submit', {
       method: 'POST',

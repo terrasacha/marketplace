@@ -16,8 +16,10 @@ export default function TradeCard(props: any) {
     null
   );
   const [userOrderList, setUserOrderList] = useState<Array<any>>([]);
+  const [purchaseList, setPurchaseList] = useState<Array<any>>([]);
   const [suanUserTokens, setSuanUserTokens] = useState<Array<any>>([]);
   const [spendSwapId, setSpendSwapId] = useState<string>('');
+  const [spendSwapAddress, setSpendSwapAddress] = useState<string>('');
 
   const paginationLimit = 1;
 
@@ -36,12 +38,17 @@ export default function TradeCard(props: any) {
 
       const scriptList = await request.json();
 
-      const spendSwapId = scriptList.find(
-        (script: any) => script.script_type === 'spendSwap'
-      ).id || '';
+      const spendSwapId =
+        scriptList.find((script: any) => script.script_type === 'spendSwap')
+          .id || '';
+
+      const spendSwapAddress =
+        scriptList.find((script: any) => script.script_type === 'spendSwap')
+          .testnetAddr || '';
       console.log('spendSwap', spendSwapId);
 
       setSpendSwapId(spendSwapId);
+      setSpendSwapAddress(spendSwapAddress);
     };
 
     getSpendSwapId();
@@ -77,6 +84,25 @@ export default function TradeCard(props: any) {
     setUserOrderList(ordersHistory.items);
   };
 
+  const getPurchaseList = async () => {
+    const params = {
+      walletId: '',
+      paginationLimit: String(paginationLimit),
+      filterByStatusCode: 'claimed',
+      nextToken: '',
+    };
+    const queryParams = new URLSearchParams(params).toString();
+    console.log(`/api/calls/getOrders?${queryParams}`);
+    const request = await fetch(`/api/calls/getOrders?${queryParams}`);
+
+    const purchaseHistory = await request.json();
+    console.log('purchaseHistory', purchaseHistory)
+    const purchaseHistoryFiltered = purchaseHistory.items.filter(
+      (purchase: any) => purchase.walletBuyerID === walletID
+    );
+    setPurchaseList(purchaseHistoryFiltered);
+  };
+
   const getSuanTokens = async () => {
     const request = await fetch(`/api/calls/backend/listTokens`);
     const suanTokens = await request.json();
@@ -105,10 +131,13 @@ export default function TradeCard(props: any) {
   };
 
   useEffect(() => {
-    getOrderList();
-    getUserOrderList();
-    getSuanTokens();
-  }, []);
+    if (walletData) {
+      getOrderList();
+      getUserOrderList();
+      getPurchaseList();
+      getSuanTokens();
+    }
+  }, [walletData]);
 
   return (
     <div className="grid grid-cols-3 gap-5">
@@ -120,6 +149,7 @@ export default function TradeCard(props: any) {
           walletStakeAddress={walletData?.stake_address}
           getOrderList={getOrderList}
           spendSwapId={spendSwapId}
+          spendSwapAddress={spendSwapAddress}
         />
       </div>
       <div className="col-span-3 xl:col-span-2">
@@ -129,15 +159,18 @@ export default function TradeCard(props: any) {
           orderList={orderList}
           itemsPerPage={5}
           spendSwapId={spendSwapId}
+          spendSwapAddress={spendSwapAddress}
         />
       </div>
       <div className="col-span-3">
         <OrderHistoryCard
           userOrderList={userOrderList}
+          purchaseList={purchaseList}
           itemsPerPage={1}
           walletAddress={walletData?.address}
           walletId={walletID}
           spendSwapId={spendSwapId}
+          spendSwapAddress={spendSwapAddress}
         />
       </div>
     </div>

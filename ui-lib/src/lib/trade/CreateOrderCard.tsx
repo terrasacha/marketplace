@@ -11,6 +11,7 @@ interface CreateOrderCardProps {
   walletStakeAddress: string;
   spendSwapId: string;
   getOrderList: () => void;
+  spendSwapAddress: string
 }
 
 interface NewOrderProps {
@@ -18,6 +19,7 @@ interface NewOrderProps {
   assetPolicyId: string;
   quantity: string;
   value: string;
+  productId: string;
 }
 
 export default function CreateOrderCard(props: CreateOrderCardProps) {
@@ -28,6 +30,7 @@ export default function CreateOrderCard(props: CreateOrderCardProps) {
     spendSwapId,
     walletStakeAddress,
     getOrderList,
+    spendSwapAddress
   } = props;
 
   const [newOrder, setNewOrder] = useState<NewOrderProps>({
@@ -35,8 +38,10 @@ export default function CreateOrderCard(props: CreateOrderCardProps) {
     assetPolicyId: '',
     quantity: '',
     value: '',
+    productId: '',
   });
   console.log(newOrder);
+  console.log('userAssetList', userAssetList);
 
   const [error, setError] = useState<any>({
     assetError: false,
@@ -96,10 +101,11 @@ export default function CreateOrderCard(props: CreateOrderCardProps) {
         const asset = userAssetList?.find(
           (asset: any) => asset.policy_id === parsedValue
         );
-        setSelectedAssetAmount(asset.quantity)
+        setSelectedAssetAmount(asset.quantity);
         return {
           ...prevState,
           [key]: asset.asset_name,
+          productId: asset.productID,
           assetPolicyId: parsedValue,
           quantity: '',
           value: '',
@@ -146,8 +152,14 @@ export default function CreateOrderCard(props: CreateOrderCardProps) {
           policy_id: '',
           token_name: '',
         },
+        metadata: {},
       },
-      metadata: {},
+      transactionPayload: {
+        walletID: walletId,
+        walletAddress: walletAddress,
+        productID: newOrder.productId,
+        spendSwapAddress: spendSwapAddress
+      },
     };
 
     console.log('createOracleOrderPayload', createOracleOrderPayload);
@@ -177,7 +189,7 @@ export default function CreateOrderCard(props: CreateOrderCardProps) {
           tokenPolicyId: newOrder.assetPolicyId,
           tokenName: newOrder.asset,
           tokenAmount: parseInt(newOrder.quantity),
-          statusCode: "listed",
+          statusCode: 'listed',
           value: parseFloat(newOrder.value) * 1000000,
         },
       };
@@ -185,6 +197,7 @@ export default function CreateOrderCard(props: CreateOrderCardProps) {
       setNewTransactionBuild({
         ...mappedTransactionData,
         postDistributionPayload,
+        transaction_id: buildTxResponse.transaction_id,
       });
       handleOpenSignTransactionModal();
     } else {
@@ -216,7 +229,7 @@ export default function CreateOrderCard(props: CreateOrderCardProps) {
               <select
                 className="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:focus:ring-blue-500 dark:focus:border-blue-500"
                 onChange={(e) => handleSetNewOrder('asset', e.target.value)}
-                value={newOrder.asset}
+                value={newOrder.assetPolicyId}
               >
                 <option disabled value=""></option>
                 {userAssetList &&
@@ -238,9 +251,10 @@ export default function CreateOrderCard(props: CreateOrderCardProps) {
                   id="adas"
                   type="text"
                   aria-invalid="false"
-                  className={`bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded focus:ring-blue-500 focus:border-blue-500 block w-full pr-16 p-2.5 ${error.quantityError &&
+                  className={`bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded focus:ring-blue-500 focus:border-blue-500 block w-full pr-16 p-2.5 ${
+                    error.quantityError &&
                     'border-red-500 focus:ring-red-500 focus:border-red-500'
-                    }`}
+                  }`}
                   autoComplete="off"
                   placeholder="0"
                   value={newOrder.quantity}
@@ -249,13 +263,11 @@ export default function CreateOrderCard(props: CreateOrderCardProps) {
                   }
                   required
                 />
-                {
-                  newOrder.asset && (
-                    <div className="absolute inset-y-0 end-0 flex items-center pe-3.5 pointer-events-none">
-                      Máx: {selectedAssetAmount}
-                    </div>
-                  )
-                }
+                {newOrder.asset && (
+                  <div className="absolute inset-y-0 end-0 flex items-center pe-3.5 pointer-events-none">
+                    Máx: {selectedAssetAmount}
+                  </div>
+                )}
               </div>
               {error.quantityError && (
                 <div className="flex justify-end">
