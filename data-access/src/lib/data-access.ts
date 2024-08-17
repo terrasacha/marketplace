@@ -237,7 +237,7 @@ export async function getCategories() {
   return filteredObj;
 }
 
-export async function getAllProjects() {
+export async function getAllProjects(app: string | undefined) {
   try {
     const response = await axios.post(
       graphqlEndpoint,
@@ -255,6 +255,7 @@ export async function getAllProjects() {
               name
               status
               tokenGenesis
+              tokenClaimedByOwner
               updatedAt
               createdAt
               userProducts {
@@ -1388,6 +1389,7 @@ export async function getScriptsList() {
               pbk
               productID
               product {
+                id
                 tokenGenesis
               }
               script_category
@@ -1864,7 +1866,7 @@ export async function createOrder(objeto: any) {
 }
 
 export async function updateOrder(objeto: any) {
-  const { id, statusCode } = objeto;
+  const { id, statusCode, walletBuyerID } = objeto;
   try {
     const response = await axios.post(
       graphqlEndpoint,
@@ -1880,6 +1882,7 @@ export async function updateOrder(objeto: any) {
           input: {
             id: id,
             statusCode: statusCode,
+            walletBuyerID: walletBuyerID,
           },
         },
       },
@@ -1908,6 +1911,7 @@ export async function createTransaction({
   mint,
   scriptDataHash,
   metadataUrl,
+  redeemer = '',
   fees,
   network,
   type,
@@ -1935,6 +1939,7 @@ export async function createTransaction({
             mint,
             scriptDataHash,
             metadataUrl,
+            redeemer,
             fees,
             network,
             type,
@@ -1949,9 +1954,9 @@ export async function createTransaction({
         },
       }
     );
+    console.log(response.data);
     return response.data.data.createTransactions;
   } catch (error: any) {
-    console.error(error);
     return error;
   }
 }
@@ -2175,6 +2180,7 @@ export async function listTokens() {
             policyID
             tokenName
             oraclePrice
+            productID
           }
         }
       }`,
@@ -2224,9 +2230,11 @@ export async function getOrdersList(
           statusCode
           utxos
           walletID
+          walletBuyerID
           wallet {
             address
           }
+          productID
           scriptID
           value
         }

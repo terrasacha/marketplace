@@ -8,7 +8,8 @@ import { toast } from 'sonner';
 import { LoadingIcon } from '../ui-lib';
 
 export default function CoreWallet(props: any) {
-  const { walletID, walletData } = useContext<any>(WalletContext);
+  const { walletID, walletAddress, walletData } =
+    useContext<any>(WalletContext);
   const [oracleWalletLovelaceBalance, setOracleWalletLovelaceBalance] =
     useState<number | null>(null);
   const [newTransactionBuild, setNewTransactionBuild] = useState<any>(null);
@@ -70,19 +71,22 @@ export default function CoreWallet(props: any) {
     }
 
     const payload = {
-      wallet_id: walletID,
-      addresses: [
-        {
-          address:
-            'addr_test1vrvyzwdky7hf7rqsnc3v69lr604tprdp3uyvkc0wqmrwmgqsgss8y',
-          lovelace: parseFloat(adaToSend) * 1000000,
-          multiAsset: [],
-          // datum: {
-          //   beneficiary: 'string',
-          // },
-        },
-      ],
-      metadata: {},
+      payload: {
+        wallet_id: walletID,
+        addresses: [
+          {
+            address:
+              'addr_test1vrvyzwdky7hf7rqsnc3v69lr604tprdp3uyvkc0wqmrwmgqsgss8y', // Remplazar por billetera oraculo del marketplace
+            lovelace: parseFloat(adaToSend) * 1000000,
+            multiAsset: [],
+          },
+        ],
+        metadata: {},
+      },
+      transactionPayload: {
+        walletID: walletID,
+        walletAddress: walletAddress,
+      },
     };
     if (walletData) {
       console.log('BuildTx Payload: ', payload);
@@ -105,7 +109,10 @@ export default function CoreWallet(props: any) {
           metadata: {},
         });
 
-        setNewTransactionBuild(mappedTransactionData);
+        setNewTransactionBuild({
+          ...mappedTransactionData,
+          transaction_id: buildTxResponse.transaction_id,
+        });
         handleOpenSignTransactionModal();
       } else {
         toast.error(

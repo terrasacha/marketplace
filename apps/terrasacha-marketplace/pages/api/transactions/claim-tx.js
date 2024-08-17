@@ -22,9 +22,12 @@ export default async function handler(req, res) {
 
       // Crear transaccion
       if (data?.success) {
-        const newTransactionPayload = {
-          addressOrigin: payload.payload.addresses[0].address,
-          addressDestination: JSON.stringify(payload.payload.addresses[1].address),
+        // Si es claim / Compra, adderss origin es del contrato
+        // En caso de compra addressdestination wallet conectada
+        
+        let newTransactionPayload = {
+          addressOrigin: '',
+          addressDestination: JSON.stringify(''),
           walletID: payload.transactionPayload.walletID,
           txIn: JSON.stringify(data.build_tx.inputs),
           txOutput: JSON.stringify(data.build_tx.outputs),
@@ -33,12 +36,18 @@ export default async function handler(req, res) {
           mint: JSON.stringify(data.build_tx.mint),
           scriptDataHash: data.build_tx.script_data_hash,
           metadataUrl: data.metadata_cbor,
+          redeemer: claim_redeemer,
           fees: data.build_tx.fee,
           network: 'testnet',
           type: 'buyTokens',
           productID: payload.transactionPayload.productID,
           signed: false,
         };
+
+        if(claim_redeemer === 'Buy') {
+          newTransactionPayload.addressOrigin = payload.transactionPayload.contractAddressOrigin
+          newTransactionPayload.addressDestination = JSON.stringify(payload.transactionPayload.walletAddress)
+        }
 
         const newTransaction = await createTransaction(newTransactionPayload);
 

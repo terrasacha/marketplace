@@ -542,6 +542,7 @@ export default function PaymentPage({}) {
           walletID: walletID,
           walletAddress: walletAddress,
           productID: projectInfo.projectID,
+          contractAddressOrigin: spendContractFromMintProjectToken.testnetAddr
         },
       };
 

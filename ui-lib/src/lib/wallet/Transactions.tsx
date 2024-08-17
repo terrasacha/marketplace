@@ -76,7 +76,7 @@ export default function Transactions(props: TransactionsProps) {
   useEffect(() => {
     const clearAllCaches = () => {
       Object.keys(localStorage).forEach((key) => {
-        if (key.startsWith('/api/transactions/account-tx')) {
+        if (key.startsWith('/api/transactions/address-tx')) {
           localStorage.removeItem(key);
         }
       });
