@@ -47,7 +47,12 @@ const LoginForm = (props: LoginFormProps) => {
     setLoading(true);
     try {
       const data = await signInAuth(loginForm);
-      if (data) {
+      console.log(data, "loginform")
+      if(data.nextStep.signInStep === 'CONFIRM_SIGN_IN_WITH_NEW_PASSWORD_REQUIRED'){
+        return router.push(`/auth/new-password-required?username=${loginForm.username}`);
+      }
+      if (data.isSignedIn) {
+        console.log(data, "loginform")
         const isFromGenerateWallet = router.query.fromGenerateWallet === 'true';
         if (isFromGenerateWallet) return router.push('/generate-wallet');
         return router.push('/');
