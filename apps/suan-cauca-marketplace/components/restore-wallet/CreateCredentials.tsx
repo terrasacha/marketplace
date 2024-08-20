@@ -5,6 +5,7 @@ import { BsFillEyeFill, BsFillEyeSlashFill } from 'react-icons/bs';
 import RestoreWalletContext  from '@marketplaces/ui-lib/src/lib/store/restore-wallet-context';
 import { TailSpin } from 'react-loader-spinner';
 import { toast } from 'sonner';
+import { fetchUserAttributes } from 'aws-amplify/auth';
 
 const deafultState = {
   walletname: '',
@@ -21,7 +22,17 @@ const CreateCredentials = (props: any) => {
   const [showInfo, setShowInfo] = useState(deafultStateShowInfo) as any[];
   const [errors, setErrors] = useState(deafultState) as any[];
   const [loading, setLoading] = useState(false) as any[];
+  const [userIsAdmin, serUserIsAdmin] = useState(false)
 
+  useEffect(() =>{
+    fetchUserAttributes().then((data) =>{
+      if(data['custom:role'] === 'marketplace_admin' && data){
+        serUserIsAdmin(true)
+      }
+    }).catch((error) =>{
+      console.log('error obteniendo data del usuario', error)
+    })
+  },[])
   useEffect(() => {
     if (errors.mnemonics !== '') {
       toast.error(errors.mnemonics);
@@ -108,6 +119,7 @@ const CreateCredentials = (props: any) => {
             id: data.data.wallet_id,
             name: inputValue.walletname,
             passphrase: inputValue.password,
+            isAdmin: userIsAdmin
           }),
         });
         const data2 = response2.json();

@@ -1460,6 +1460,7 @@ export async function updateWallet({
   name,
   passphrase,
   claimed_token,
+  isAdmin
 }: any) {
   const hash = await encryptPassword(passphrase);
   const response = await axios.post(
@@ -1476,7 +1477,7 @@ export async function updateWallet({
       variables: {
         input: {
           id: id,
-          isAdmin: false,
+          isAdmin,
           status: 'active',
           isSelected: false,
           password: hash,
