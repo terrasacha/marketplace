@@ -8,7 +8,7 @@ import { useContext, useEffect, useRef, useState } from 'react';
 import { TokenDetailSection } from './TokenDetailSection';
 import { Button, TextInput } from 'flowbite-react';
 import { BlockChainIcon } from '../icons/BlockChainIcon';
-import { useWallet } from '@meshsdk/react';
+/* import { useWallet } from '@meshsdk/react'; */
 import { coingeckoPrices } from '@cauca/utils/suan/oracle';
 import { getIpfsUrlHash } from '@cauca/utils/generic/ipfs';
 import { featureMapping } from '@cauca/utils/suan/mappings';
@@ -16,8 +16,8 @@ import {
   splitLongValues,
   txHashLink,
 } from '@cauca/utils/generic/conversions';
-import { createMintingTransaction, sign } from '@marketplaces/data-access';
-import { BlockfrostProvider } from '@meshsdk/core';
+/* import { createMintingTransaction, sign } from '@marketplaces/data-access'; */
+/* import { BlockfrostProvider } from '@meshsdk/core'; */
 import Link from 'next/link';
 import { cardanoscan } from '@cauca/backend/mint';
 import { WalletContext, mapBuildTransactionInfo } from '@marketplaces/utils-2';
@@ -41,7 +41,7 @@ const PAYING_STEPS = {
 };
 
 export default function PaymentPage({}) {
-  const { wallet, connected } = useWallet();
+  /* const { wallet, connected } = useWallet(); */
   const [tokenAmount, setTokenAmount] = useState<string>('');
   const [txHash, setTxHash] = useState<string>('');
   const [validationError, setValidationError] = useState<any>('');
@@ -102,7 +102,7 @@ export default function PaymentPage({}) {
       `Parameter ${process.env['blockFrostKeysPreview']} not found`
     );
   }
-  const blockfrostProvider = new BlockfrostProvider(blockFrostKeysPreview);
+  /* const blockfrostProvider = new BlockfrostProvider(blockFrostKeysPreview); */
   console.log('projectInfo', projectInfo);
   // const IPFSUrlHash = getIpfsUrlHash(projectInfo.categoryID);
   const IPFSUrlHash = getIpfsUrlHash('REDD+');
@@ -542,6 +542,7 @@ export default function PaymentPage({}) {
           walletID: walletID,
           walletAddress: walletAddress,
           productID: projectInfo.projectID,
+          contractAddressOrigin: spendContractFromMintProjectToken.testnetAddr
         },
       };
 
@@ -606,7 +607,7 @@ export default function PaymentPage({}) {
 
     if (!walletBySuan) {
       // En caso de que se pague con billetera externa
-      await startMinting();
+      /* await startMinting(); */
     } else {
       // En caso de que se pague con billetera interna
       setTxHash('');
@@ -663,7 +664,7 @@ export default function PaymentPage({}) {
         return { [propertyKey]: item.value };
       }
     });
-  const startMinting = async () => {
+  /* const startMinting = async () => {
     // Inicio de compra
 
     try {
@@ -827,7 +828,7 @@ export default function PaymentPage({}) {
     } catch (error: any) {
       setPayingStep(PAYING_STEPS.ERROR);
     }
-  };
+  }; */
 
   const resetSteps = () => {
     setPurchaseStep(PURCHASE_STEPS.BUYING);

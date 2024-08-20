@@ -1,6 +1,4 @@
-'use client';
-
-import { useContext } from 'react';
+/* import { useContext } from 'react';
 import { Button, Card, Spinner } from 'flowbite-react';
 import { OrderDetailSection } from './OrderDetailSection';
 import { SelectPaymentMethodSection } from './SelectPaymentMethodSection';
@@ -22,7 +20,7 @@ const PURCHASING_STEPS = {
   PROCESSING: 'processing',
   FINISHED: 'finished',
   ERROR: 'error',
-};
+}; */
 
 export function BillingCard({
   tokenAmount,
@@ -31,7 +29,7 @@ export function BillingCard({
   tokenAmount: string;
   setValidationError: (data: any) => void;
 }) {
-  const [step, setStep] = useState<string>(PURCHASING_STEPS.STARTING);
+ /*  const [step, setStep] = useState<string>(PURCHASING_STEPS.STARTING);
   const { wallet, connected } = useWallet();
   const { projectInfo } = useContext<any>(ProjectInfoContext);
   const [selectedMethod, setSelectedMethod] = useState<string | null>(null);
@@ -490,5 +488,6 @@ export function BillingCard({
         </div>
       )}
     </Card>
-  );
+  ); */
+  return <></>
 }

@@ -18,6 +18,7 @@ export default async function handler(req, res) {
         const tokenAccess = validateTokenAccess(data);
         res.status(200).json(tokenAccess);
       } catch (error) {
+        console.log(error)
         res.status(500).json(false);
       }
     } else {

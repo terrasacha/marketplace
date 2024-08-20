@@ -1,6 +1,6 @@
 import { useState, useContext } from 'react';
 import { toast } from 'sonner';
-import { useWallet } from '@meshsdk/react';
+/* import { useWallet } from '@meshsdk/react'; */
 import { signOut } from 'aws-amplify/auth';
 import WalletContext from '@marketplaces/utils-2/src/lib/context/wallet-context';
 import { useRouter } from 'next/router';
@@ -104,7 +104,7 @@ const ModalStep1 = (props: any) => {
 
 const ModalStep2 = (props: any) => {
   const { handleClearData, walletID } = useContext<any>(WalletContext);
-  const { disconnect } = useWallet();
+  /* const { disconnect } = useWallet(); */
   const [copied, setCopied] = useState<boolean>(false);
   const router = useRouter();
   const { walletInfo, closeDeleteModal } = props;
@@ -125,7 +125,7 @@ const ModalStep2 = (props: any) => {
       setLoading(false);
       await signOut();
       await handleClearData();
-      disconnect();
+      /* disconnect(); */
       return router.push('/');
     } catch (error) {
       toast.error('No se pudo eliminar la billetera');

@@ -16,7 +16,8 @@ interface AccountProps {
 }
 
 export default function WalletSend(props: AccountProps) {
-  const { walletID, walletData } = useContext<any>(WalletContext);
+  const { walletID, walletAddress, walletData } =
+    useContext<any>(WalletContext);
   const [checkedAssetList, setCheckedAssetList] = useState<Array<any>>([]);
 
   const handleAddCheckedAsset = (checkedAsset: any) => {
@@ -306,9 +307,15 @@ export default function WalletSend(props: AccountProps) {
         .filter((elemento) => elemento !== '');
 
       const payload = {
-        wallet_id: walletID,
-        addresses: addresses,
-        metadata: { '634': { msg: messageArray } },
+        payload: {
+          wallet_id: walletID,
+          addresses: addresses,
+          metadata: { '634': { msg: messageArray } },
+        },
+        transactionPayload: {
+          walletID: walletID,
+          walletAddress: walletAddress,
+        },
       };
       console.log('BuildTx Payload: ', payload);
 
@@ -330,7 +337,10 @@ export default function WalletSend(props: AccountProps) {
           metadata: { '634': { msg: messageArray } },
         });
 
-        setNewTransactionBuild(mappedTransactionData);
+        setNewTransactionBuild({
+          ...mappedTransactionData,
+          transaction_id: buildTxResponse.transaction_id,
+        });
         handleOpenSignTransactionModal();
       } else {
         toast.error(

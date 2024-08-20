@@ -1,4 +1,4 @@
-import { CardanoWallet } from "@meshsdk/react";
+/* import { CardanoWallet } from "@meshsdk/react"; */
 
 export default function UserRegister() {
   return (

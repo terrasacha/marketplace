@@ -1,6 +1,6 @@
 import React, { useState, useCallback } from 'react';
-import countries from '@terrasacha/lib/countries.json';
-import { validarString } from '@terrasacha/lib/util';
+import countries from '@terrasacha//lib/countries.json';
+import { validarString } from '@terrasacha//lib/util';
 import { error } from 'console';
 //import { CardanoWallet } from "@meshsdk/react";
 import CardanoWallet from '../cardano-wallet/CardanoWallet';
@@ -627,7 +627,7 @@ const AddNewPaymentMethodForm: React.FC<FuncProps> = (props: any) => {
                 name="email"
                 value={data.email}
                 onChange={(e) => handleOnChangeInputForm(e)}
-                placeholder="contact@terrasacha.global"
+                placeholder="contact@suan.global"
                 required
                 className="bg-gray-50 w-full border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500"
               />

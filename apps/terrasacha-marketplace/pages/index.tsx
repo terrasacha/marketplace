@@ -3,11 +3,11 @@ import React, { useEffect, useState } from 'react';
 import dynamic from 'next/dynamic';
 import Landing from '@terrasacha/components/landing/Landing';
 
-import { useWallet } from '@meshsdk/react';
+/* import { useWallet } from '@meshsdk/react'; */
 import { MyPage } from '@terrasacha/components/common/types';
 import { getCurrentUser } from 'aws-amplify/auth';
 const LandingPage: MyPage = (props: any) => {
-  const { connected, wallet } = useWallet();
+/*   const { connected, wallet } = useWallet(); */
   const [checkingWallet, setCheckingWallet] = useState<string>('uncheck');
   const [loading, setLoading] = useState<boolean>(true);
   const [walletcount, setWalletcount] = useState<number>(0);
@@ -66,7 +66,7 @@ const LandingPage: MyPage = (props: any) => {
   const handleSetCheckingWallet = (data: string) => {
     setCheckingWallet(data);
   };
-  useEffect(() => {
+  /* useEffect(() => {
     const fetchData = async () => {
       if (connected) {
         setCheckingWallet('checking');
@@ -100,7 +100,7 @@ const LandingPage: MyPage = (props: any) => {
       }
     };
     fetchData();
-  }, [connected]);
+  }, [connected]); */
 
   const checkIfWalletExist = async (
     address: string,

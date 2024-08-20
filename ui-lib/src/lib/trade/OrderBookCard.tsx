@@ -11,10 +11,11 @@ interface OrderBookCardProps {
   walletId: string;
   walletAddress: string;
   spendSwapId: string;
+  spendSwapAddress: string
 }
 
 export default function OrderBookCard(props: OrderBookCardProps) {
-  const { orderList, walletId, walletAddress, itemsPerPage, spendSwapId } =
+  const { orderList, walletId, walletAddress, itemsPerPage, spendSwapId, spendSwapAddress } =
     props;
 
   const [newTransactionBuild, setNewTransactionBuild] = useState<any>(null);
@@ -28,6 +29,7 @@ export default function OrderBookCard(props: OrderBookCardProps) {
   const totalItems = orderList.length;
   const canShowPrevious = currentPage > 1;
   const canShowNext = indexOfLastItem < totalItems;
+  console.log('orderList', orderList);
 
   const nextPage = () => {
     setCurrentPage((prevPage) => prevPage + 1);
@@ -71,6 +73,12 @@ export default function OrderBookCard(props: OrderBookCardProps) {
         ],
         metadata: {},
       },
+      transactionPayload: {
+        walletID: walletId,
+        walletAddress: walletAddress,
+        productID: actualOrder.productID,
+        spendSwapAddress: spendSwapAddress
+      },
     };
 
     console.log('unlockOracleOrderPayload', unlockOracleOrderPayload);
@@ -103,6 +111,7 @@ export default function OrderBookCard(props: OrderBookCardProps) {
         ...mappedTransactionData,
         postDistributionPayload,
         scriptId: spendSwapId,
+        transaction_id: buildTxResponse.transaction_id,
       });
       handleOpenSignTransactionModal();
     } else {
@@ -145,8 +154,14 @@ export default function OrderBookCard(props: OrderBookCardProps) {
               parseInt(actualOrder.value) * parseInt(actualOrder.tokenAmount),
           },
         ],
+        metadata: {},
       },
-      metadata: {},
+      transactionPayload: {
+        walletID: walletId,
+        walletAddress: walletAddress,
+        productID: actualOrder.productID,
+        spendSwapAddress: spendSwapAddress
+      },
     };
 
     console.log('unlockOracleOrderPayload', unlockOracleOrderPayload);
@@ -172,6 +187,7 @@ export default function OrderBookCard(props: OrderBookCardProps) {
         updateOrder: {
           id: actualOrder.id,
           statusCode: 'claimed',
+          walletBuyerID: walletId
         },
         // createTransaction: {
         //   productID: projectInfo.projectID,
@@ -197,6 +213,7 @@ export default function OrderBookCard(props: OrderBookCardProps) {
         ...mappedTransactionData,
         postDistributionPayload,
         scriptId: spendSwapId,
+        transaction_id: buildTxResponse.transaction_id,
       });
       handleOpenSignTransactionModal();
     } else {

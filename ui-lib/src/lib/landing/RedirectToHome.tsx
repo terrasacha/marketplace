@@ -4,7 +4,7 @@ import Image from 'next/image';
 import { useEffect } from 'react';
 import { TailSpin } from 'react-loader-spinner';
 import { useRouter } from 'next/router';
-import { useAssets } from '@meshsdk/react'
+/* import { useAssets } from '@meshsdk/react' */
 import { event }from '../common/event';
 import { toast } from 'sonner';
 interface RedirectToHomeProps {
@@ -36,8 +36,8 @@ const RedirectToHome = (props: RedirectToHomeProps) => {
   const [claimed, setClaimed] = useState<boolean>(false)
   const [tryAgainAccessToken, setTryAgainAccessToken] = useState<boolean>(false)
   
-  const assets = useAssets() as Array<{ [key: string]: any }>
-  
+ /*  const assets = useAssets() as Array<{ [key: string]: any }>
+   */
   const router = useRouter();
 
   const checkTokenStakeAddress = async (rewardAddresses: any) => {

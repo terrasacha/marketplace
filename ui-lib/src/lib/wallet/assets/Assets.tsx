@@ -32,8 +32,9 @@ export default function Assets(props: AssetsProps) {
 
       setExchangeRate(parseFloat(dataFormatted[`ADArateUSD`]));
     };
-
-    getRates();
+    if (exchangeRate === 0) {
+      getRates();
+    }
   }, []);
 
   useEffect(() => {
@@ -41,7 +42,8 @@ export default function Assets(props: AssetsProps) {
       const request = await fetch(`/api/calls/backend/listTokens`);
       const suanTokens = await request.json();
 
-      const mappedAssetsData = assetsData?.filter((asset: any) => {
+      const mappedAssetsData = assetsData
+        ?.filter((asset: any) => {
           return suanTokens.some(
             (item2: any) =>
               asset.policy_id === item2.policyID &&
@@ -67,6 +69,7 @@ export default function Assets(props: AssetsProps) {
             total: (assetPriceUSD * assetQuantity).toLocaleString('es-CO'),
           };
         });
+      console.log('assets mapeados', mappedAssetsData);
       setTableMappedAssetsData(mappedAssetsData);
     };
 
@@ -96,10 +99,10 @@ export default function Assets(props: AssetsProps) {
       setTableMappedAssetsData(mappedAssetsData);
     }; */
 
-    if (exchangeRate) {
+    if (exchangeRate && assetsData) {
       getSuanTokens();
     }
-  }, [exchangeRate]);
+  }, [exchangeRate, assetsData]);
 
   const data = tableMappedAssetsData?.map((asset: any) => {
     return {
