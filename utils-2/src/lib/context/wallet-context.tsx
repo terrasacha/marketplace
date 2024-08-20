@@ -124,7 +124,7 @@ export function WalletContextProvider({
       if (prevBalance === null) {
         setPrevBalance(responseData.balance);
       }
-
+      console.log(responseData)
       setWalletData(responseData);
       setIsLoading(false);
       setLastSyncDate(Date.now());
