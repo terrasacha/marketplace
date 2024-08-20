@@ -3,7 +3,7 @@ import dynamic from 'next/dynamic';
 import Landing from '@cauca/components/landing/Landing';
 /* import { useWallet } from '@meshsdk/react'; */
 import { MyPage } from '@cauca/components/common/types';
-import { getCurrentUser } from 'aws-amplify/auth';
+import { getCurrentUser, fetchUserAttributes} from 'aws-amplify/auth';
 const LandingPage: MyPage = (props: any) => {
 /*   const { connected, wallet } = useWallet(); */
   const [checkingWallet, setCheckingWallet] = useState<string>('uncheck');
@@ -27,6 +27,11 @@ const LandingPage: MyPage = (props: any) => {
           const walletData = await walletFetchResponse.json();
           setWalletData(walletData[0]);
           if (walletData && walletData.length > 0) {
+            const userData = await fetchUserAttributes()
+            if(userData['custom:role'] === 'marketplace_admin' && userData['custom:subrole'] === process.env.NEXT_PUBLIC_MARKETPLACE_NAME?.toLowerCase()){
+              setWalletcount(walletData.length)
+              return setCheckingWallet('hasTokenAuth')
+            }
             const hasTokenAuthFunction = await checkTokenStakeAddress(
               walletData[0].address
             );
@@ -36,7 +41,7 @@ const LandingPage: MyPage = (props: any) => {
             } else {
               walletData[0].claimed_token
                 ? setCheckingWallet('alreadyClaimToken')
-                : setCheckingWallet('alreadyClaimToken'); //requestToken. cambio para hacer la solicitud del token automaticamente
+                : setCheckingWallet('requestToken'); //requestToken. cambio para hacer la solicitud del token automaticamente
             }
             setWalletcount(walletData.length);
           }
