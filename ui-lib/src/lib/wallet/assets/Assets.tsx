@@ -122,7 +122,7 @@ export default function Assets(props: AssetsProps) {
   console.log('External Wallet Data for Pie Chart:', externalWalletData);
 
 
-  if ((myWalletAssets.length === 0 && externalWalletAssets.length === 0) || !assetsData || assetsData.length === 0) {
+  if ((myWalletAssets?.length === 0 && externalWalletAssets.length === 0) || !assetsData || assetsData.length === 0) {
     return <EmptyState message="No hay activos para mostrar en este momento." />;
   }
 

@@ -110,6 +110,10 @@ export default function ClaimTokens() {
 
     // Función para solicitar tokens a endpoint de Luis
     console.log("order", order)
+    console.log("Token Name:", mintProjectTokenContract.token_name);
+    console.log("Available Tokens Amount:", availableTokensAmount);
+    console.log("Order Token Amount:", parseInt(order.tokenAmount));
+    
     const unlockOracleOrderPayload = {
       claim_redeemer: 'Unlist',
       payload: {
@@ -146,7 +150,11 @@ export default function ClaimTokens() {
           }
         ]
       }
+    
     }
+
+    console.log("payload", unlockOracleOrderPayload)
+    debugger
     const request = await fetch('/api/transactions/claim-tx', {
       method: 'POST',
       headers: {

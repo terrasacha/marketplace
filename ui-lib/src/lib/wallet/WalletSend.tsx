@@ -20,25 +20,30 @@ export default function WalletSend(props: AccountProps) {
   const [checkedAssetList, setCheckedAssetList] = useState<Array<any>>([]);
 
   const handleAddCheckedAsset = (checkedAsset: any) => {
+    console.log('Adding checked asset:', checkedAsset);
     setCheckedAssetList((prevState: any) => {
       const existingAssetIndex = prevState.findIndex(
         (asset: any) =>
           asset.fingerprint === checkedAsset.fingerprint &&
           asset.recipientID === checkedAsset.recipientID
       );
-
+  
       if (existingAssetIndex !== -1) {
         // Actualizar el selectedSupply si el objeto ya existe
         const updatedAssetList = [...prevState];
         updatedAssetList[existingAssetIndex].selectedSupply =
           checkedAsset.selectedSupply;
+        console.log('Updated asset list:', updatedAssetList);
         return updatedAssetList;
       } else {
         // Agregar el nuevo objeto al array si no existe
-        return [...prevState, checkedAsset];
+        const newAssetList = [...prevState, checkedAsset];
+        console.log('New asset list:', newAssetList);
+        return newAssetList;
       }
     });
   };
+  
 
   const handleRemoveCheckedAsset = (
     fingerprintToRemove: string,

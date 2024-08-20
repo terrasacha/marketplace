@@ -20,7 +20,6 @@ const fechaAAwsTimestamp = (fechaStr) => {
 
   // Obtener el Unix timestamp en segundos
   const awstimestamp = Math.floor(fecha.getTime() / 1000);
-
   return awstimestamp;
 }
 

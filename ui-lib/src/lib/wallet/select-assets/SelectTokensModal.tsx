@@ -38,6 +38,8 @@ export default function SelectTokensModal(props: SelectTokensModalProps) {
 
   const { walletData } = useContext<any>(WalletContext);
 
+  console.log('walletData.assets:', walletData.assets);
+
   const [assetsFilter, setAssetsFilter] = useState<{
     search: string;
     type: string;
@@ -50,6 +52,8 @@ export default function SelectTokensModal(props: SelectTokensModalProps) {
 
   useEffect(() => {
     if (checkedAssetList.length > 0) {
+      console.log('walletData.assets:', walletData.assets);
+  
       setAssetsList((prevState) => {
         return prevState.map((asset) => {
           const originalAvailableSupply = walletData.assets.find(
@@ -79,6 +83,7 @@ export default function SelectTokensModal(props: SelectTokensModalProps) {
             );
 
           if (checkedAsset) {
+            console.log('Checked asset found:', checkedAsset);
             return {
               ...asset,
               quantity: availableSupply,
@@ -98,7 +103,12 @@ export default function SelectTokensModal(props: SelectTokensModalProps) {
     } else {
       setAssetsList(walletData.assets);
     }
+    console.log('Assets List after update:', assetsList);
   }, [walletData.assets, checkedAssetList, selectTokensModal]);
+
+  useEffect(()=>{
+    console.log(assetsList,'assetsList')
+  },[assetsList])
 
   const handleFilterInputChange = (field: string, value: string) => {
     setAssetsFilter((prevState) => ({
@@ -111,6 +121,7 @@ export default function SelectTokensModal(props: SelectTokensModalProps) {
     const selectedAssets = checkedAssetList.filter(
       (asset) => asset.recipientID === selectTokensModal.recipientID
     );
+    console.log('Selected assets before adding to recipient:', selectedAssets);
 
     handleAddRecipientSelectedAssets(
       selectTokensModal.recipientID,
@@ -167,7 +178,9 @@ export default function SelectTokensModal(props: SelectTokensModalProps) {
                       handleAssetQuantityValue={handleAssetQuantityValue}
                     />
                   );
+             
                 })}
+                
               </div>
             </>
           ) : (

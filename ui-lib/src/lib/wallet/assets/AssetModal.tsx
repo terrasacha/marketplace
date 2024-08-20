@@ -174,8 +174,8 @@ export default function AssetModal(props: AssetModalProps) {
                   <td>{assetData.quantity}</td>
                   <td>En circulación: </td>
                   <td>
-                    {assetInfo.total_supply
-                      ? assetInfo.total_supply
+                    {assetInfo?.total_supply
+                      ? assetInfo?.total_supply
                       : 'Loading ...'}
                   </td>
                 </tr>
@@ -203,13 +203,13 @@ export default function AssetModal(props: AssetModalProps) {
                     <td>Fingerprint:</td>
                     <td className="flex">
                       <div className="truncate w-[60%]">
-                        {assetInfo.fingerprint
-                          ? assetInfo.fingerprint
+                        {assetInfo?.fingerprint
+                          ? assetInfo?.fingerprint
                           : 'Loading ...'}
                       </div>
                       <CopyToClipboard
                         iconClassName="h-5 w-5 ml-2"
-                        copyValue={assetInfo.fingerprint}
+                        copyValue={assetInfo?.fingerprint}
                         tooltipLabel="Copiar !"
                       />
                     </td>
@@ -217,16 +217,16 @@ export default function AssetModal(props: AssetModalProps) {
                   <tr>
                     <td>Nombre del activo:</td>
                     <td>
-                      {assetInfo.asset_name_ascii
-                        ? assetInfo.asset_name_ascii
+                      {assetInfo?.asset_name_ascii
+                        ? assetInfo?.asset_name_ascii
                         : 'Loading ...'}
                     </td>
                   </tr>
                   <tr className="bg-gray-600">
                     <td>Fecha de creación:</td>
                     <td>
-                      {assetInfo.creation_time
-                        ? getDateFromTimeStamp(assetInfo.creation_time)
+                      {assetInfo?.creation_time
+                        ? getDateFromTimeStamp(assetInfo?.creation_time)
                         : 'Loading ...'}
                     </td>
                   </tr>

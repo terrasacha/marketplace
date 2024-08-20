@@ -181,6 +181,16 @@ export default function Transactions(props: TransactionsProps) {
     setIsLoading(false);
   };
 
+  function formatWalletAddress(address: string): string {
+    if (address.length > 10) {
+      const start = address.substring(0, 10); // Primeros 10 caracteres
+      const end = address.substring(address.length - 6); // Últimos 6 caracteres
+      return `${start}...${end}`;
+    }
+    return address; // Si la dirección es más corta de lo esperado
+  }
+
+  
   /* const checkTxConfirmations = async () => {
     if (pendingTransaction) {
       const pendingTransactionItemRequest = await fetch(
@@ -255,6 +265,9 @@ export default function Transactions(props: TransactionsProps) {
     await fetchWalletData();
     setIsLoading(false);
   };
+
+
+  const formattedWalletAddress = formatWalletAddress(walletAddress);
   return (
     <Card className="col-span-2 h-fit">
       <Card.Header

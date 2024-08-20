@@ -36,6 +36,15 @@ interface TransactionInfoCardProps {
   tx_confirmation_n?: number;
 }
 
+function formatWalletAddress(address: string): string {
+  if (address.length > 10) {
+    const start = address.substring(0, 10); // Primeros 10 caracteres
+    const end = address.substring(address.length - 6); // Últimos 6 caracteres
+    return `${start}...${end}`;
+  }
+  return address; // Si la dirección es más corta de lo esperado
+}
+
 export default function TransactionInfoCard(props: TransactionInfoCardProps) {
   const {
     tx_id,
@@ -63,6 +72,7 @@ export default function TransactionInfoCard(props: TransactionInfoCardProps) {
     setCollapsed(true);
   }, [tx_id]);
 
+  
   const toggleCollapse = () => {
     setCollapsed(!collapsed);
   };

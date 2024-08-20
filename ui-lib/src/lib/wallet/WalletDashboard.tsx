@@ -1,7 +1,6 @@
-import React, { useContext, useEffect, useState } from 'react';
+import React, { useContext, useState } from 'react';
 import { EyeOffIcon } from '../icons/EyeOffIcon';
 import { EyeIcon } from '../icons/EyeIcon';
-import Assets from '../wallet/assets/Assets';
 import ClaimTokens from '../wallet/ClaimTokens';
 import Card from '../common/Card';
 import CopyToClipboard from '../common/CopyToClipboard';
@@ -9,15 +8,12 @@ import ExternalLink from '../common/ExternalLink';
 import Tooltip from '../common/Tooltip';
 import Transactions from '../wallet/Transactions';
 import { WalletContext } from '@marketplaces/utils-2';
-import { useRouter } from 'next/router';
-import { getCurrentUser } from 'aws-amplify/auth';
-// Definir el tipo de 'token'
+
 interface WalletDashboardProps {
   userWalletData: any;
   address: string;
   ada: number;
   img_url: string;
-  // Agrega cualquier otra propiedad que tenga tu token
 }
 
 const truncateAddress = (address: string, startLength: number, endLength: number) => {
@@ -26,34 +22,32 @@ const truncateAddress = (address: string, startLength: number, endLength: number
 };
 
 export default function WalletDashboard(props: WalletDashboardProps) {
-  const { walletData } =
-    useContext<any>(WalletContext);
+  const { walletData } = useContext<any>(WalletContext);
   const [showAddress, setShowAddress] = useState<boolean>(true);
 
   const handleShowAddress = () => {
     setShowAddress(!showAddress);
   };
 
-  console.log(props.userWalletData);
   return (
     <>
       <ClaimTokens />
-      <div className="grid grid-cols-1 2xl:grid-cols-5 2xl:space-x-5">
-        <div className="flex-col col-span-3 space-y-5">
-          <Card className="h-fit">
+      <div className="grid grid-cols-1 w-full space-x-5">
+        <div className="flex-col space-y-5 w-full">
+          <Card className="h-fit w-full">
             <Card.Header title="Cuenta" />
             <Card.Body>
               <div className="w-full rounded-lg bg-custom-dark p-3">
-                <div className="flex gap-3 items-center">
+                <div className="flex gap-3 items-center w-full">
                   <div className="flex-none">
                     <div className="relative inline-flex items-center justify-center w-16 h-16 overflow-hidden bg-white rounded-lg">
                       <span className="font-medium text-custom-dark">NS</span>
                     </div>
                   </div>
-                  <div className="flex-1 w-64 text-white">
+                  <div className="flex-1 w-full text-white">
                     <p className="text-lg">Mi billetera</p>
-                    <div className="flex items-center gap-2">
-                    <p className="text-sm truncate w-52">
+                    <div className="flex items-center gap-2 w-full">
+                      <p className="text-sm truncate w-full max-w-[200px]">
                         {walletData ? truncateAddress(walletData?.address, 10, 6) : 'loading ...'}
                       </p>
                       <CopyToClipboard
@@ -65,8 +59,7 @@ export default function WalletDashboard(props: WalletDashboardProps) {
                         iconClassName="h-5 w-5"
                         tooltipLabel="Consultar en CardanoScan Preview"
                         externalURL={
-                          'https://preview.cardanoscan.io/address/' +
-                          walletData?.address
+                          'https://preview.cardanoscan.io/address/' + walletData?.address
                         }
                       />
                     </div>
@@ -83,9 +76,7 @@ export default function WalletDashboard(props: WalletDashboardProps) {
                           <>********</>
                         )}
                       </p>
-                      <Tooltip
-                        text={showAddress ? 'Ocultar Saldo' : 'Mostrar Saldo'}
-                      >
+                      <Tooltip text={showAddress ? 'Ocultar Saldo' : 'Mostrar Saldo'}>
                         <div onClick={handleShowAddress}>
                           {showAddress ? (
                             <EyeIcon className="h-6 w-6 cursor-pointer" />
@@ -100,17 +91,9 @@ export default function WalletDashboard(props: WalletDashboardProps) {
               </div>
             </Card.Body>
           </Card>
-          <div className="h-fit">
+          <div className="h-fit w-full">
             <Transactions txPerPage={8} />
           </div>
-        </div>
-        <div className="flex-col col-span-2 space-y-5 mt-5 2xl:mt-0">
-          <Assets
-            assetsData={walletData && walletData.assets}
-            chartActive={true}
-            tableActive={true}
-            tableItemsPerPage={5}
-          />
         </div>
       </div>
     </>
