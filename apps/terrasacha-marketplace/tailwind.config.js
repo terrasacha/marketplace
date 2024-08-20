@@ -13,6 +13,16 @@ export default {
   ],
   theme: {
     extend: {
+      fontFamily: {
+        'champane': ['Champane & Limousines', 'sans-serif'],
+        'champaneBold': ['Champane & Limousines Bold', 'sans-serif'],
+        'futura': ['Futura', 'sans-serif'],
+        'futuraBold': ['Futura Bold', 'sans-serif'],
+        'typegraphic': ['Typegraphica', 'sans-serif'],
+        'jostRegular': ['Jost Regular', 'sans-serif'],
+        'jostBold': ['Jost Bold', 'sans-serif'],
+        'jostItalic': ['Jost Italic', 'sans-serif'],
+     },
       height: {
         '300': '300px',
       },
@@ -25,7 +35,10 @@ export default {
         'custom-dark-hover': '#212121',
         'custom-hover': '#4aa3df',
         'custom-hover-invert': '#95e9fb',
+        'custom-marca-boton': '#849b50',
+        'custom-marca-boton-variante': '#6e6c35'
       },
+
       blur: {
         xs: '2px',
       },

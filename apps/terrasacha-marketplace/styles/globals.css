@@ -2,6 +2,97 @@
 @tailwind components;
 @tailwind utilities;
 
+
+
+/*inicio-fuente*/
+/*Champagne & Limousines*/
+@font-face {
+    font-family: 'Champagne & Limousines';
+    src: url('/fonts/Champagne & Limousines.ttf') format('truetype');
+    font-weight: normal;
+    font-style: normal;
+}
+
+@font-face {
+    font-family: 'Champagne & Limousines Bold';
+    src: url('/fonts/Champagne & Limousines Bold.ttf') format('truetype');
+    font-weight: normal;
+    font-style: normal;
+}
+/*Futura */
+@font-face {
+    font-family: 'Futura';
+    src: url('/fonts/futurr.ttf') format('truetype');
+    font-weight: normal;
+    font-style: normal;
+}
+
+@font-face {
+    font-family: 'Futura Bold';
+    src: url('/fonts/Futura Bold font.ttf') format('truetype');
+    font-weight: normal;
+    font-style: normal;
+}
+/*  Typegraphica*/
+@font-face {
+    font-family: 'Typographica';
+    src: url('/fonts/typographica.ttf') format('truetype');
+    font-weight: normal;
+    font-style: normal;
+}
+
+/*  Jost*/
+@font-face {
+    font-family: 'Jost Regular';
+    src: url('/fonts/Jost-Regular.ttf') format('truetype');
+    font-weight: normal;
+    font-style: normal;
+}
+@font-face {
+    font-family: 'Jost Bold';
+    src: url('/fonts/Jost-Bold.ttf') format('truetype');
+    font-weight: normal;
+    font-style: normal;
+}
+@font-face {
+    font-family: 'Jost Italic';
+    src: url('/fonts/Jost-Italic.ttf') format('truetype');
+    font-weight: normal;
+    font-style: normal;
+}
+
+/* Apodo */
+.font-champagne {
+  font-family: 'Champagne & Limousines', sans-serif; /* Nombre de la fuente con comillas */
+}
+
+.font-champagneBold {
+  font-family: 'Champagne & Limousines Bold', sans-serif; /* Nombre de la fuente con comillas */
+}
+.font-futura {
+  font-family: 'Futura', sans-serif; /* Nombre de la fuente con comillas */
+}
+
+.font-futuraBold {
+  font-family: 'Futura Bold', sans-serif; /* Nombre de la fuente con comillas */
+}
+
+
+.font-typegraphica {
+  font-family: 'Typegraphica', sans-serif; /* Nombre de la fuente con comillas */
+}
+.font-jostRegular {
+  font-family: 'Jost Regular', sans-serif; /* Nombre de la fuente con comillas */
+}
+.font-jostBold {
+  font-family: 'Jost Bold', sans-serif; /* Nombre de la fuente con comillas */
+}
+.font-jostItalic {
+  font-family: 'Jost Italic', sans-serif; /* Nombre de la fuente con comillas */
+}
+
+/*fin-fuente*/
+
 @layer utilities {
 
   .no-scrollbar::-webkit-scrollbar {

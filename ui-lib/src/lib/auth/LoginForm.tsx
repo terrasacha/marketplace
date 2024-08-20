@@ -65,10 +65,16 @@ const LoginForm = (props: LoginFormProps) => {
           loginError: 'Contraseña inválida',
         }));
       }
+      else if (error.name === 'EmptySignInUsername'){
+        setErrors((preForm: any) => ({
+          ...preForm,
+          loginError: 'Debe ingresar datos',
+        }));
+      }
       else{
       setErrors((preForm: any) => ({
         ...preForm,
-        loginError: error.name,
+        loginError: 'error.name',
       }));
     }
     } finally {
@@ -86,23 +92,23 @@ const LoginForm = (props: LoginFormProps) => {
           alt={`${appName} Logo`}
         />
       </div>
-      <h2 className="text-3xl font-normal pb-2">Bienvenido a {appName}</h2>
-      <h4 className="text-1xl font-normal">Ingrese sus datos</h4>
+      <h2 className="font-jostBold text-3xl font-jostBold pb-3 flex justify-center text-center">¡Bienvenido al Marketplace de {appName}!</h2>
+      <h4 className="font-jostRegular text-1xl font-jostRegular">Ingrese sus datos:</h4>
       <p
         className={`${
           errors.loginError === '' && 'hidden'
-        } text-red-400 text-xs`}
+        } font-jostRegular text-red-400 text-xs`}
       >
         {errors.loginError}
       </p>
-      <form className="pt-10" onSubmit={(e) => e.preventDefault()}>
+      <form className= "pt-10" onSubmit={(e) => e.preventDefault()}>
         <div className="relative z-0 w-full mb-4 group">
           <input
             type="text"
             value={loginForm.username}
             name="username"
             onChange={handleChange}
-            className="block py-2.5 px-0 w-full text-sm text-gray-900 bg-transparent border-0 border-b-2 border-gray-300 appearance-none dark:text-white dark:border-gray-600 dark:focus:border-blue-400 focus:outline-none focus:ring-0 focus:border-blue-400 peer"
+            className="font-jostRegular block py-2.5 px-0 w-full text-sm text-gray-900 bg-transparent border-0 border-b-2 border-gray-300 appearance-none dark:text-white dark:border-gray-600 dark:focus:border-blue-400 focus:outline-none focus:ring-0 focus:border-blue-400 peer"
             placeholder="username"
             required
           />
@@ -114,16 +120,17 @@ const LoginForm = (props: LoginFormProps) => {
             name="password"
             onChange={handleChange}
             onKeyDown={(e) => e.key === 'Enter' && e.preventDefault()}
-            className="block py-2.5 px-0 w-full text-sm text-gray-900 bg-transparent border-0 border-b-2 border-gray-300 appearance-none dark:text-white dark:border-gray-600 dark:focus:border-blue-500 focus:outline-none focus:ring-0 focus:border-blue-600 peer"
+            className="font-jostRegular block py-2.5 px-0 w-full text-sm text-gray-900 bg-transparent border-0 border-b-2 border-gray-300 appearance-none dark:text-white dark:border-gray-600 dark:focus:border-blue-500 focus:outline-none focus:ring-0 focus:border-blue-600 peer"
             placeholder="password"
             required
           />
           <button
-            className="absolute right-4 top-1/2 transform -translate-y-1/2 text-gray-500"
+            className="font-jostRegular absolute right-4 top-1/2 transform -translate-y-1/2 text-gray-500"
             onClick={(e) => handleShowInfo(e, 'password')}
           >
             {showInfo.password ? <BsFillEyeFill /> : <BsFillEyeSlashFill />}
           </button>
+          
         </div>
       </form>
       <div className="flex items-center mb-4">
@@ -132,14 +139,14 @@ const LoginForm = (props: LoginFormProps) => {
           value=""
           className="w-4 h-4 text-blue-600 bg-gray-100 border-gray-300 rounded focus:ring-blue-500 dark:focus:ring-blue-600 dark:ring-offset-gray-800 focus:ring-2 dark:bg-gray-700 dark:border-gray-600"
         />
-        <label className="ml-2 text-sm font-light text-gray-900 dark:text-gray-300">
+        <label className="font-jostItalic ml-2 text-sm font-light text-gray-900 dark:text-gray-300">
           Mantener sesión iniciada
         </label>
       </div>
       <button
         type="button"
         onClick={() => submitForm()}
-        className={`relative flex justify-center items-center h-10 overflow-hidden text-white bg-gray-800 hover:bg-gray-900 focus:outline-none focus:ring-4 focus:ring-gray-300 font-medium rounded-md text-sm px-5 py-3 mb-2 dark:bg-gray-800 dark:hover:bg-gray-700 dark:focus:ring-gray-700 dark:border-gray-700 w-full mt-4`}
+        className={`relative w-full flex items-center justify-center font-jostBold focus:z-10 focus:outline-none text-white bg-custom-marca-boton border border-transparent enabled:hover:bg-custom-marca-boton-variante focus:ring-cyan-300 dark:bg-cyan-600 dark:enabled:hover:bg-cyan-700 dark:focus:ring-cyan-800 rounded-lg focus:ring-2 px-8 py-2`}
       >
         {loading ? (
           <TailSpin
@@ -151,7 +158,7 @@ const LoginForm = (props: LoginFormProps) => {
           'Ingresar'
         )}
       </button>
-      <p className="text-sm pt-5">
+      <p className="font-jostRegular text-sm pt-5">
         ¿No tienes una cuenta? {' '}
         <Link
           href={
@@ -164,13 +171,13 @@ const LoginForm = (props: LoginFormProps) => {
           Ingresa aquí
         </Link>
       </p>
-      <p className="text-[#50A4FF] text-sm pt-2">
+      <p className="font-jostRegular text-[#50A4FF] text-sm pt-2">
         <Link href={'/auth/forgot-password'} className="text-[#50A4FF] text-sm">
           ¿Olvidaste tu contraseña?
         </Link>
       </p>
       {poweredby && (
-        <div className="flex items-center justify-center mt-4 text-xs">
+        <div className="font-jostRegular flex items-center justify-center mt-4 text-xs">
           Powered by
           <Image
             src="/images/home-page/suan_logo.png"

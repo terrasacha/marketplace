@@ -1,6 +1,7 @@
+
 import React, { useEffect, useState } from 'react';
 import dynamic from 'next/dynamic';
-import Landing from '@suan/components/landing/Landing';
+import Landing from '@terrasacha/components/landing/Landing';
 
 import { useWallet } from '@meshsdk/react';
 import { MyPage } from '@terrasacha/components/common/types';

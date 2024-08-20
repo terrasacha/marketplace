@@ -6,6 +6,7 @@
   "private": true,
   "dependencies": {
     "@circle-fin/circle-sdk": "^2.0.0",
+    "@fontsource/jost": "^5.0.18",
     "@headlessui/react": "^1.7.15",
     "@heroicons/react": "^2.0.16",
     "@meshsdk/core": "^1.5.10",
