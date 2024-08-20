@@ -14,7 +14,7 @@ const ConfirmCodePage: MyPage = (props: any) => {
     <div className="w-full min-h-screen flex justify-center items-center bg-slate-200">
       <Image
         priority={true}
-       src="/v2/bg3.vif"
+       src="/v2/bg3.avif"
         alt="landing-suan-image"
         fill
         style={{ objectFit: 'cover', objectPosition: 'center', zIndex: '0' }}
