@@ -247,6 +247,10 @@ export async function getAllProjects(app: string | undefined) {
             nextToken
             items {
               id
+              showOn
+              marketplace {
+                name
+              }
               description
               categoryID 
               category {
@@ -358,7 +362,11 @@ export async function getAllProjects(app: string | undefined) {
     );
     console.log(awsAppSyncApiKey, 'awsAppSyncApiKey');
     console.log(graphqlEndpoint, 'graphqlEndpoint');
-    let validProducts = response.data.data.listProducts.items.filter(
+
+    const marketplaceProducts = response.data.data.listProducts.items.filter((product: any) => product.marketplace.name === app)
+    console.log('marketplaceProducts', marketplaceProducts)
+
+    let validProducts = marketplaceProducts.filter(
       (product: any) => {
         let countFeatures = product.productFeatures.items.reduce(
           (count: number, pf: any) => {
@@ -441,13 +449,17 @@ export async function getProjects(app: any) {
       graphqlEndpoint,
       {
         query: `query getProjects {
-          listProducts(filter: {isActive: {eq: true}, showOn: {eq: "${app}"}}) {
+          listProducts(filter: {isActive: {eq: true}}) {
             nextToken
             items {
               id
               description
+              showOn
               categoryID 
               category {
+                name
+              }
+              marketplace {
                 name
               }
               name
@@ -583,7 +595,7 @@ export async function getProjects(app: any) {
           },
           0
         );
-        return countFeatures === 5;
+        return countFeatures === 5 && product.marketplace.name === app;
       }
     );
 
@@ -1371,7 +1383,7 @@ export async function getWalletByStakeAddress(stake_address: string) {
   }
 }
 
-export async function getScriptsList() {
+export async function getScriptsList(app: string) {
   try {
     const response = await axios.post(
       graphqlEndpoint, // Make sure you have 'graphqlEndpoint' defined
@@ -1392,6 +1404,11 @@ export async function getScriptsList() {
               product {
                 id
                 tokenGenesis
+                showOn
+                marketplaceID
+                marketplace {
+                  name
+                }
               }
               script_category
               scriptParentID
@@ -1417,8 +1434,9 @@ export async function getScriptsList() {
     );
 
     const data = response.data.data.listScripts.items;
+    const marketplaceScripts = data.filter((script: any) => script.product === null || script.product.marketplace.name === app)
 
-    const sortedData = data.sort((a: any, b: any) => {
+    const sortedData = marketplaceScripts.sort((a: any, b: any) => {
       const dateA = new Date(a.createdAt);
       const dateB = new Date(b.createdAt);
       return dateB.getTime() - dateA.getTime(); // Ordenar en orden ascendente (más antiguo al más reciente)
