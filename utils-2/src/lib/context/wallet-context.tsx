@@ -3,6 +3,7 @@ import { getProjects } from '@marketplaces/data-access';
 import { getActualPeriod } from '../utils-2';
 import { BsWindowSidebar } from 'react-icons/bs';
 
+
 const WalletContext = createContext({});
 
 export function WalletContextProvider({
@@ -119,12 +120,20 @@ export function WalletContextProvider({
           body: JSON.stringify(wallet_address),
         }
       );
-      const responseData = await response.json();
-
+      let responseData = await response.json();
+      if(responseData.error){
+        responseData = {
+          address: wallet_address,
+          stake_address: '',
+          script_address: false,
+          balance: '0',
+          assets: []
+        }
+      }
       if (prevBalance === null) {
         setPrevBalance(responseData.balance);
       }
-      console.log(responseData)
+      console.log(responseData, 'responseData')
       setWalletData(responseData);
       setIsLoading(false);
       setLastSyncDate(Date.now());
