@@ -74,7 +74,6 @@ const MainLayout = ({ children }: PropsWithChildren) => {
               isWalletBySuan: true,
               isWalletAdmin: wallet[0].isAdmin,
             });
-            console.log(walletData, 'walletData mainlayout');
             const walletAddress = wallet[0].address;
             const hasTokenAuthFunction = await checkTokenStakeAddress(
               wallet[0].address
