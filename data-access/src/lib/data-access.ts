@@ -249,6 +249,7 @@ export async function getAllProjects(app: string | undefined) {
               id
               showOn
               marketplace {
+                id
                 name
               }
               description
