@@ -6,6 +6,7 @@ import NewWalletContext from '@terrasacha/store/generate-new-wallet-context';
 import axios from 'axios';
 import { TailSpin } from 'react-loader-spinner';
 import { encryptPassword, updateWallet } from '@marketplaces/data-access';
+import { fetchUserAttributes } from 'aws-amplify/auth';
 
 const deafultState = { walletname: '', password: '', passwordConfirm: '' };
 const deafultStateShowInfo = { password: false, passwordConfirm: false };
@@ -16,7 +17,17 @@ const CreateCredentials = (props: any) => {
   const [showInfo, setShowInfo] = useState(deafultStateShowInfo) as any[];
   const [errors, setErrors] = useState(deafultState) as any[];
   const [loading, setLoading] = useState(false) as any[];
+  const [userIsAdmin, serUserIsAdmin] = useState(false)
 
+  useEffect(() =>{
+    fetchUserAttributes().then((data) =>{
+      if(data['custom:role'] === 'marketplace_admin' && data){
+        serUserIsAdmin(true)
+      }
+    }).catch((error) =>{
+      console.log('error obteniendo data del usuario', error)
+    })
+  },[])
   const handleInputChange = (event: React.ChangeEvent<HTMLInputElement>) => {
     setErrors(deafultState);
     setInputValue({
@@ -91,6 +102,7 @@ const CreateCredentials = (props: any) => {
           id: data.data.wallet_id,
           name: inputValue.walletname,
           passphrase: inputValue.password,
+          isAdmin: userIsAdmin
         }),
       });
       setCurrentSection(4);

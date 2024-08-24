@@ -6,6 +6,7 @@ import SignTransactionModal from '../wallet/sign-transaction/SignTransactionModa
 import { WalletContext, mapBuildTransactionInfo } from '@marketplaces/utils-2';
 import { toast } from 'sonner';
 import { LoadingIcon } from '../ui-lib';
+import { WarningIcon } from '../icons/WarningIcon'
 
 export default function CoreWallet(props: any) {
   const { walletID, walletAddress, walletData } =
@@ -128,7 +129,26 @@ export default function CoreWallet(props: any) {
 
   return (
     <>
-      <div className="grid grid-cols-2 gap-5">
+      <div className="grid grid-cols-2">
+        {walletData.balance !== 0 &&
+          <div
+            id="alert-additional-content-3"
+            className="col-span-2 p-4 mb-5 space-y-4 text-amber-800 border border-amber-300 rounded-lg bg-amber-50 dark:bg-gray-800 dark:text-amber-400 dark:border-amber-800"
+            role="alert"
+          >
+            <div className="flex flex-col space-y-4">
+              <div className="space-y-4">
+                <h3 className="text-lg font-medium flex gap-x-2 items-center">
+                  <WarningIcon /> Envia fondos a tu billetera para poder generar el token de acceso
+                </h3>
+                <div className="text-md">
+                  Este paso es indispensable para que los usuarios puedan ingresar
+                  y operar dentro de la aplicación
+                </div>
+              </div>
+            </div>
+          </div>
+        }
         <div className="col-span-2">
           <Card>
             <Card.Header title="Billetera Oráculo" />

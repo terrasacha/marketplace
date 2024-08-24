@@ -24,7 +24,7 @@ export default async function handler(req, res) {
       if (data?.success) {
         // Si es claim / Compra, adderss origin es del contrato
         // En caso de compra addressdestination wallet conectada
-        
+
         let newTransactionPayload = {
           addressOrigin: '',
           addressDestination: JSON.stringify(''),
@@ -44,18 +44,23 @@ export default async function handler(req, res) {
           signed: false,
         };
 
-        if(claim_redeemer === 'Buy') {
-          newTransactionPayload.addressOrigin = payload.transactionPayload.contractAddressOrigin
-          newTransactionPayload.addressDestination = JSON.stringify(payload.transactionPayload.walletAddress)
+        if (claim_redeemer === 'Buy' || claim_redeemer === 'Unlist') {
+          newTransactionPayload.addressOrigin =
+            payload.transactionPayload.contractAddressOrigin;
+          newTransactionPayload.addressDestination = JSON.stringify(
+            payload.transactionPayload.walletAddress
+          );
         }
 
         const newTransaction = await createTransaction(newTransactionPayload);
+        console.log('newTransaction', newTransaction);
 
         res.status(200).json({ ...data, transaction_id: newTransaction.id });
       } else {
         res.status(200).json(data);
       }
     } catch (error) {
+      console.log(error);
       res.status(500).json({ error: 'Error al procesar la solicitud' });
     }
   } else {
