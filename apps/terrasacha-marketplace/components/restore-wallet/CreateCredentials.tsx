@@ -6,6 +6,7 @@ import RestoreWalletContext from '@marketplaces/ui-lib/src/lib/store/restore-wal
 import { TailSpin } from 'react-loader-spinner';
 import { toast } from 'sonner';
 import { fetchUserAttributes } from 'aws-amplify/auth';
+import Image from 'next/image'; // Importa Image de Next.js
 const deafultState = {
   walletname: '',
   password: '',
@@ -139,8 +140,16 @@ const CreateCredentials = (props: any) => {
   };
   return (
     <div>
+            <section className="flex flex-col items-center pb-2">
+        <Image
+          src="/v2/logo.svg"
+          alt="Logo"
+          width={500} // Ajusta el tamaño según sea necesario
+          height={500} // Ajusta el tamaño según sea necesario
+          className="mb-4" // Margen inferior para separar la imagen del texto
+        /> </section>
       <section className="flex justify-between pb-2">
-        <h2 className="text-2xl font-semibold text-center w-full">
+        <h2 className="text-3xl font-JostBold text-center w-full">
           Crea tu billetera de Cardano
         </h2>
       </section>

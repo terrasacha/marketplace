@@ -3,7 +3,7 @@ import { Checkbox, Label, Button, Radio } from 'flowbite-react';
 import NewWalletContext from '@terrasacha/store/generate-new-wallet-context';
 import WordsContainer from './WordsContainer';
 import { useRouter } from 'next/router';
-
+import Image from 'next/image'; // Importa Image de Next.js
 const options = [
   { id: 'twentyfour', value: 24, name: 'Veinticuatro' },
   { id: 'twentyone', value: 21, name: 'Veintiuno' },
@@ -40,28 +40,36 @@ const GenerateWordsStep = (props: any) => {
 
   return (
     <div>
+      <section className="flex flex-col items-center pb-2">
+        <Image
+          src="/v2/logo.svg"
+          alt="Logo"
+          width={500} // Ajusta el tamaño según sea necesario
+          height={500} // Ajusta el tamaño según sea necesario
+          className="mb-4" // Margen inferior para separar la imagen del texto
+        /> </section>
       <section className="flex justify-between pb-2">
-        <h2 className="text-2xl font-semibold text-center w-full">
+        <h2 className="text-2xl font-jostBold text-center w-full">
           Palabras de Recuperación
         </h2>
       </section>
-      <p className="pb-4 text-gray-500 text-sm">
+      <p className="pb-4 font-jostItalic text-sm">
         Las palabras que aparecen a continuación se denominan frase de
         recuperación. Le permiten restaurar y acceder a sus fondos en cualquier
         monedero Cardano. Por favor, escríbalas en papel en el en el orden
         indicado, y no las almacene en un servicio en línea.
       </p>
       <section className="flex justify-between pb-2">
-        <h2 className="text- font-normal">Cantidad de palabras</h2>
+        <h2 className="text- font-jostBold">Cantidad de palabras</h2>
       </section>
-      <p className="pb-4 text-gray-500 text-sm">
+      <p className="pb-4 font-jostRegular text-sm">
         Selecciona la cantidad de palabras que deseas generar para recuperar tu
         billetera
       </p>
       {words === null && <fieldset className="flex gap-2 mb-4">
         {options.map((option, index) => {
           return (
-            <div className="flex items-center gap-2" key={index}>
+            <div className="flex items-center gap-2 font-jostRegular" key={index}>
               <Radio
                 id={option.id}
                 name="words"
@@ -80,9 +88,9 @@ const GenerateWordsStep = (props: any) => {
         loading={loading}
       />
       {words === null && (
-        <div className="flex w-full justify-end mt-3 ">
+        <div className="flex w-full justify-end mt-3 font-jostBold">
           <Button
-            className="px-8 ml-4"
+           className="group flex h-min items-center justify-center p-1 text-center font-medium focus:z-10 focus:outline-none text-white bg-custom-marca-boton-alterno  enabled:hover:bg-custom-marca-boton-alterno2 border border-transparent focus:ring-cyan-300 dark:bg-cyan-600 dark:enabled:hover:bg-cyan-700 dark:focus:ring-cyan-800 rounded-lg focus:ring-2 px-8 ml-4"
             onClick={() =>{ setCurrentSection(1); router.push('/')}}
             color="gray"
           >
@@ -123,7 +131,7 @@ const GenerateWordsStep = (props: any) => {
           </div>
           <div className="flex w-full justify-end mt-3">
             <Button
-              className="group flex h-min items-center justify-center p-1 text-center font-medium focus:z-10 focus:outline-none text-white bg-cyan-700 border border-transparent enabled:hover:bg-cyan-800 focus:ring-cyan-300 dark:bg-cyan-600 dark:enabled:hover:bg-cyan-700 dark:focus:ring-cyan-800 rounded-lg focus:ring-2 px-8 ml-4"
+             className="group flex h-min items-center justify-center p-1 text-center font-medium focus:z-10 focus:outline-none text-white bg-custom-marca-boton  enabled:hover:bg-custom-marca-boton-variante border border-transparent focus:ring-cyan-300 dark:bg-cyan-600 dark:enabled:hover:bg-cyan-700 dark:focus:ring-cyan-800 rounded-lg focus:ring-2 px-8 ml-4"
               disabled={!isChecked}
               onClick={() => setCurrentSection(2)}
             >
