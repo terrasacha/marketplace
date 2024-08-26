@@ -2345,3 +2345,34 @@ export async function listTokensDashboard(productID: string) {
     return false;
   }
 }
+
+
+export async function getScriptTokenAccess(marketplace: string){
+  try {
+    const response = await axios.post(
+      graphqlEndpoint,
+      {
+        query: `query listScripts {
+          listScripts(filter: {marketplaceID: {eq: "${marketplace}"}}) {
+            items {
+              id
+              marketplaceID
+              name
+              pbk
+              token_name
+            }
+          }
+        }`,
+      },
+      {
+        headers: {
+          'x-api-key': awsAppSyncApiKey,
+        },
+      }
+    );
+    return response.data;
+  } catch (error) {
+    console.log(error);
+    return false;
+  }
+}

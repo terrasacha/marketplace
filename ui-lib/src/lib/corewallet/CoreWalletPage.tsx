@@ -1,4 +1,4 @@
-import React, { useContext, useState } from 'react';
+import React, { useContext, useState, useEffect } from 'react';
 import Projects from './scripts/Projects';
 import Scripts from './scripts/Scripts';
 import Card from '../common/Card';
@@ -7,7 +7,10 @@ import { WalletContext, mapBuildTransactionInfo } from '@marketplaces/utils-2';
 import { toast } from 'sonner';
 import { LoadingIcon } from '../ui-lib';
 import { WarningIcon } from '../icons/WarningIcon'
-
+import { InfoIcon } from '../icons/InfoIcon';
+import { TailSpin } from 'react-loader-spinner';
+import { TrophyIcon } from '../icons/TrophyIcon';
+import { getScriptTokenAccess } from '@marketplaces/data-access'
 export default function CoreWallet(props: any) {
   const { walletID, walletAddress, walletData } =
     useContext<any>(WalletContext);
@@ -20,6 +23,20 @@ export default function CoreWallet(props: any) {
   });
   const [signTransactionModal, setSignTransactionModal] = useState(false);
   const [adaToSend, setAdaToSend] = useState<string>('');
+  const [loadingSendTokenAccess ,setLoadingSendTokenAccess] = useState(false)
+  const [sendTokenAcces, setSendTokenAccess] = useState(false)
+  const [hasTokenAcces, setHasTokenAccess] = useState(false)
+
+  useEffect(() =>{
+    if(!hasTokenAcces && walletData){
+      const hasAsset = walletData.assets.some((asset : any) => asset.asset_name === 'SandboxSuanAccess1')
+
+      if(hasAsset){
+        setSendTokenAccess(false)
+        setHasTokenAccess(true)
+      }
+    }
+  },[walletData])
 
   const getWalletBalanceByAddress = async (address: any) => {
     const balanceFetchResponse = await fetch(
@@ -36,6 +53,32 @@ export default function CoreWallet(props: any) {
     const balanceData = await balanceFetchResponse.json();
     return balanceData.balance;
   };
+
+  const generateTokenAccess = async () =>{
+    const url = `${process.env.NEXT_PUBLIC_TRAZABILIDAD_ENDPOINT}/api/v1/helpers/send-access-token/?wallet_id=${walletID}&destinAddress=${walletAddress}&marketplace_id=${process.env.NEXT_PUBLIC_MARKETPLACE_NAME?.toLocaleLowerCase()}&save_flag=true`
+    setLoadingSendTokenAccess(true)
+    try {
+      const response = await fetch(url, {
+          method: 'GET',
+          headers: {
+              'Content-Type': 'application/json',
+              'x-api-key': process.env.NEXT_PUBLIC_API_KEY_ENDPOINT || ''
+          },
+      });
+      if (!response.ok) {
+          throw new Error(`HTTP error! Status: ${response.status}`);
+      }
+      const data = await response.json();
+      console.log('data received', data);
+      setSendTokenAccess(true)
+      return data;
+  } catch (error) {
+      console.error('Error fetching token access:', error);
+      throw error; 
+  } finally {
+    setLoadingSendTokenAccess(false)
+  }
+  }
 
   const handleGetOracleWalletLovelaceBalance = async () => {
     setIsLoading((prevState: any) => ({
@@ -126,11 +169,68 @@ export default function CoreWallet(props: any) {
       transfer: false,
     }));
   };
-
+  if(!walletData) return null
   return (
     <>
-      <div className="grid grid-cols-2">
-        {walletData.balance !== 0 &&
+    {sendTokenAcces? 
+    <div className="grid grid-cols-2">
+    <div
+      id="alert-additional-content-3"
+      className="col-span-2 p-4 mb-5 space-y-4 text-gray-600 border border-gray-200 rounded-lg bg-gray-100 dark:bg-gray-700 dark:text-gray-300 dark:border-gray-700"
+      role="alert"
+    >
+      <div className="flex flex-col space-y-4">
+          <h3 className="text-lg font-medium flex gap-x-2 items-center">
+            <InfoIcon /> Aguarda mientras verificamos el token de acceso
+          </h3>
+      </div>
+    </div>
+  </div>
+    :
+    hasTokenAcces ? <div className="grid grid-cols-2">
+          <div
+            id="alert-additional-content-3"
+            className="col-span-2 p-4 mb-5 space-y-4 text-green-600 border border-green-200 rounded-lg bg-green-100 dark:bg-gray-700 dark:text-green-300 dark:border-green-700"
+            role="alert"
+          >
+            <div className="flex flex-col space-y-4">
+                <h3 className="text-lg font-medium flex gap-x-2 items-center">
+                  <TrophyIcon /> Tu marketplace está configurado correctamente
+                </h3>
+            </div>
+          </div>
+        </div>
+        :
+        walletData.balance !== "0"?
+          <div
+            id="alert-additional-content-3"
+            className="col-span-2 p-4 mb-5 space-y-4 text-blue-700 border border-blue-200 rounded-lg bg-blue-50 dark:bg-gray-700 dark:text-blue-300 dark:border-blue-700"
+            role="alert"
+          >
+            <div className="flex flex-col space-y-4">
+              <div className="space-y-4">
+                <h3 className="text-lg font-medium flex gap-x-2 items-center">
+                  <WarningIcon /> Creación del token de acceso
+                </h3>
+                <div className="text-md">
+                  Este paso es indispensable para que los usuarios puedan ingresar
+                  y operar dentro de la aplicación
+                </div>
+                <button onClick={() => generateTokenAccess()} disabled={loadingSendTokenAccess} className=' relative py-2 px-6 rounded-md bg-blue-300 font-medium text-sm hover:bg-blue-400 hover:text-blue-800 min-h-10 min-w-40'>
+                {loadingSendTokenAccess ? (
+                    <TailSpin
+                      width="20"
+                      color="blue"
+                      wrapperClass="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2"
+                    />
+                  ) : (
+                    'Enviar token de acceso'
+                  )}
+                  </button>
+              </div>
+            </div>
+          </div>
+          :
           <div
             id="alert-additional-content-3"
             className="col-span-2 p-4 mb-5 space-y-4 text-amber-800 border border-amber-300 rounded-lg bg-amber-50 dark:bg-gray-800 dark:text-amber-400 dark:border-amber-800"
@@ -139,16 +239,16 @@ export default function CoreWallet(props: any) {
             <div className="flex flex-col space-y-4">
               <div className="space-y-4">
                 <h3 className="text-lg font-medium flex gap-x-2 items-center">
-                  <WarningIcon /> Envia fondos a tu billetera para poder generar el token de acceso
+                  < InfoIcon/> Envia fondos a tu billetera para finalizar la configuración del marketplace 
                 </h3>
                 <div className="text-md">
-                  Este paso es indispensable para que los usuarios puedan ingresar
-                  y operar dentro de la aplicación
+                  Con esto tendrás fondos para poder generar el token de acceso a tu marketplace
                 </div>
               </div>
             </div>
           </div>
-        }
+      }
+      <div className="grid grid-cols-2">
         <div className="col-span-2">
           <Card>
             <Card.Header title="Billetera Oráculo" />

@@ -85,7 +85,7 @@ const NewPasswordRequired = (props: ConfirmCodeProps) => {
           </div>
           <div className="relative z-0 w-full mb-6 group">
             <input
-              type="text"
+              type="password"
               value={confirmationCode.challengeResponse}
               name="challengeResponse"
               onChange={handleChange}
@@ -116,7 +116,7 @@ const NewPasswordRequired = (props: ConfirmCodeProps) => {
               wrapperClass="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2"
             />
           ) : (
-            'Confirmar código'
+            'Confirmar contraseña'
           )}
         </button>
       </>

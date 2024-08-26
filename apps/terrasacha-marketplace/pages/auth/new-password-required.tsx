@@ -23,9 +23,9 @@ const NewPasswordRequiredPage: MyPage = (props: any) => {
         <Title />
 
         <NewPasswordRequired
-          logo="/images/home-page/terrasacha_logo_vertical.png"
-          widthLogo={180}
-          heightLogo={60}
+          logo="/v2/logo.svg"
+          widthLogo={250}
+          heightLogo={100}
           appName="Suan"
           confirmSignInAuth={confirmSignInAuth}
         />
