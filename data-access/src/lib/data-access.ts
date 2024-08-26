@@ -2223,7 +2223,7 @@ export async function listTokens() {
       },
     }
   );
-  
+
   const appTokens = response.data.data.listTokens.items.filter(
     (token: any) =>
       token.product.marketplace.name ===
