@@ -27,7 +27,7 @@ export default function Assets(props: AssetsProps) {
       let dataFormatted: any = {};
       data.map((item: any) => {
         let obj = `ADArate${item.currency}`;
-        dataFormatted[obj] = item.value.toFixed(4);
+        dataFormatted[obj] = item.value;
       });
 
       setExchangeRate(parseFloat(dataFormatted[`ADArateUSD`]));
@@ -39,6 +39,7 @@ export default function Assets(props: AssetsProps) {
 
   useEffect(() => {
     const getSuanTokens = async () => {
+      console.log(exchangeRate);
       const request = await fetch(`/api/calls/backend/listTokens`);
       const suanTokens = await request.json();
 
@@ -60,13 +61,31 @@ export default function Assets(props: AssetsProps) {
           const assetPriceUSD = match
             ? (parseInt(match.oraclePrice) / 1000000) * exchangeRate
             : 0;
+
+          console.log(`${asset.asset_name}: ${assetPriceUSD}`);
+          console.log(
+            `${asset.asset_name}: ${assetPriceUSD.toLocaleString('es-CO')}`
+          );
+          console.log(
+            `${asset.asset_name}: ${assetPriceUSD.toLocaleString('es-CO', {
+              minimumFractionDigits: 2,
+              maximumFractionDigits: 2,
+            })}`
+          );
+          console.log(`${asset.asset_name}: ${1.155}`);
           const assetQuantity = parseInt(asset.quantity);
 
           return {
             ...asset,
             quantity: assetQuantity.toLocaleString('es-CO'),
-            price: assetPriceUSD.toLocaleString('es-CO'),
-            total: (assetPriceUSD * assetQuantity).toLocaleString('es-CO'),
+            price: assetPriceUSD.toLocaleString('es-CO', {
+              minimumFractionDigits: 2,
+              maximumFractionDigits: 2,
+            }),
+            total: (assetPriceUSD * assetQuantity).toLocaleString('es-CO', {
+              minimumFractionDigits: 2,
+              maximumFractionDigits: 2,
+            }),
           };
         });
       console.log('assets mapeados', mappedAssetsData);
