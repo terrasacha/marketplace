@@ -39,14 +39,14 @@ const WordsContainer = (props: any) => {
     <div className="w-full  h-24 rounded-xl flex justify-center items-center palabras">
       <p>
         <Button
-          className="relative flex items-center justify-center h-10 px-4 py-2 bg-[#0e7490] rounded-md text-sm text-white w-48"
+          className="group flex h-min items-center justify-center p-1 text-center font-medium focus:z-10 focus:outline-none text-white bg-custom-marca-boton  enabled:hover:bg-custom-marca-boton-variante border border-transparent focus:ring-cyan-300 dark:bg-cyan-600 dark:enabled:hover:bg-cyan-700 dark:focus:ring-cyan-800 rounded-lg focus:ring-2 px-8 ml-4"
           onClick={() => generateWords()}
         >
           {loading ? (
             <TailSpin
               width="20"
               color="#fff"
-              wrapperClass="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2"
+              wrapperClass="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 "
             />
           ) : (
             'Generar palabras'

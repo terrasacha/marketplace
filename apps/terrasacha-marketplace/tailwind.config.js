@@ -35,8 +35,11 @@ export default {
         'custom-dark-hover': '#212121',
         'custom-hover': '#4aa3df',
         'custom-hover-invert': '#95e9fb',
-        'custom-marca-boton': '#849b50',
-        'custom-marca-boton-variante': '#6e6c35'
+        'custom-marca-boton': '#6e6c35',
+        'custom-marca-boton-variante': '#44482c',
+        'custom-marca-boton-variante2': '#849b50',
+        'custom-marca-boton-alterno':'#b1c181',
+        'custom-marca-boton-alterno2':'#e8d79a',
       },
 
       blur: {
