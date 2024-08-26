@@ -11,12 +11,19 @@ interface OrderHistoryCardProps {
   walletId: string;
   walletAddress: string;
   spendSwapId: string;
-  spendSwapAddress: string
+  spendSwapAddress: string;
 }
 
 export default function OrderHistoryCard(props: OrderHistoryCardProps) {
-  const { userOrderList, purchaseList, walletId, walletAddress, itemsPerPage, spendSwapId, spendSwapAddress } =
-    props;
+  const {
+    userOrderList,
+    purchaseList,
+    walletId,
+    walletAddress,
+    itemsPerPage,
+    spendSwapId,
+    spendSwapAddress,
+  } = props;
 
   const [newTransactionBuild, setNewTransactionBuild] = useState<any>(null);
   const [signTransactionModal, setSignTransactionModal] = useState(false);
@@ -49,6 +56,9 @@ export default function OrderHistoryCard(props: OrderHistoryCardProps) {
   const totalItems2 = purchaseList.length;
   const canShowPrevious2 = currentPage2 > 1;
   const canShowNext2 = indexOfLastItem2 < totalItems2;
+
+  console.log('userOrderList', userOrderList);
+  console.log('purchaseList', purchaseList);
 
   const nextPage2 = () => {
     setCurrentPage2((prevPage) => prevPage + 1);
@@ -100,7 +110,7 @@ export default function OrderHistoryCard(props: OrderHistoryCardProps) {
         walletID: walletId,
         walletAddress: walletAddress,
         productID: actualOrder.productID,
-        spendSwapAddress: spendSwapAddress
+        spendSwapAddress: spendSwapAddress,
       },
     };
 
@@ -147,7 +157,7 @@ export default function OrderHistoryCard(props: OrderHistoryCardProps) {
   const statusMapper: any = {
     unlisted: 'Retirado',
     listed: 'En Venta',
-    claimed: 'Adquirido',
+    claimed: 'Vendido',
   };
 
   console.log(userOrderList);
@@ -173,10 +183,11 @@ export default function OrderHistoryCard(props: OrderHistoryCardProps) {
             <li className="me-2">
               <a
                 href="#"
-                className={`inline-block p-4 border-b-2 rounded-t-lg ${activeTab === 'my_orders_history'
-                  ? 'text-blue-600 border-blue-600'
-                  : 'border-transparent hover:text-gray-600 hover:border-gray-300'
-                  }`}
+                className={`inline-block p-4 border-b-2 rounded-t-lg ${
+                  activeTab === 'my_orders_history'
+                    ? 'text-blue-600 border-blue-600'
+                    : 'border-transparent hover:text-gray-600 hover:border-gray-300'
+                }`}
                 aria-current="page"
                 onClick={() => handleSetActiveTab('my_orders_history')}
               >
@@ -362,9 +373,7 @@ export default function OrderHistoryCard(props: OrderHistoryCardProps) {
                           </div>
                           <div className="w-full md:w-1/5 text-center">
                             <p className="md:hidden text-gray-400">Estado</p>
-                            <p>
-                              {statusMapper[order.statusCode] || 'Sin estado'}
-                            </p>
+                            <p>Adquirido</p>
                           </div>
                           <div className="w-full md:w-1/5 text-center mt-2 md:mt-0">
                             {order.statusCode === 'listed' && (

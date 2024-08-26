@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react';
 import Card from '../common/Card';
-import { SignTransactionModal } from '../ui-lib';
+import { LoadingIcon, SignTransactionModal } from '../ui-lib';
 import { mapBuildTransactionInfo } from '@marketplaces/utils-2';
 import { toast } from 'sonner';
 
@@ -11,7 +11,7 @@ interface CreateOrderCardProps {
   walletStakeAddress: string;
   spendSwapId: string;
   getOrderList: () => void;
-  spendSwapAddress: string
+  spendSwapAddress: string;
 }
 
 interface NewOrderProps {
@@ -30,7 +30,7 @@ export default function CreateOrderCard(props: CreateOrderCardProps) {
     spendSwapId,
     walletStakeAddress,
     getOrderList,
-    spendSwapAddress
+    spendSwapAddress,
   } = props;
 
   const [newOrder, setNewOrder] = useState<NewOrderProps>({
@@ -40,6 +40,7 @@ export default function CreateOrderCard(props: CreateOrderCardProps) {
     value: '',
     productId: '',
   });
+  const [isLoading, setIsLoading] = useState<boolean>(false);
   console.log(newOrder);
   console.log('userAssetList', userAssetList);
 
@@ -136,6 +137,8 @@ export default function CreateOrderCard(props: CreateOrderCardProps) {
   const handleCreateOrder = async () => {
     // Realizar proceso de envio de assets a billetera SUAN para holdearlos
 
+    setIsLoading(true);
+
     // Creación de orden en endpoint Trazabilidad
     const createOracleOrderPayload = {
       order_side: 'Buy',
@@ -158,7 +161,7 @@ export default function CreateOrderCard(props: CreateOrderCardProps) {
         walletID: walletId,
         walletAddress: walletAddress,
         productID: newOrder.productId,
-        spendSwapAddress: spendSwapAddress
+        spendSwapAddress: spendSwapAddress,
       },
     };
 
@@ -173,6 +176,8 @@ export default function CreateOrderCard(props: CreateOrderCardProps) {
     });
     const buildTxResponse = await response.json();
 
+    setIsLoading(false);
+
     if (buildTxResponse?.success) {
       const mappedTransactionData = await mapBuildTransactionInfo({
         tx_type: 'preview',
@@ -186,6 +191,7 @@ export default function CreateOrderCard(props: CreateOrderCardProps) {
           walletID: walletId,
           scriptID: spendSwapId,
           utxos: buildTxResponse.build_tx.tx_id,
+          productID: newOrder.productId,
           tokenPolicyId: newOrder.assetPolicyId,
           tokenName: newOrder.asset,
           tokenAmount: parseInt(newOrder.quantity),
@@ -324,7 +330,7 @@ export default function CreateOrderCard(props: CreateOrderCardProps) {
               className="flex justify-center w-full text-white bg-custom-dark hover:bg-custom-dark-hover focus:outline-none focus:ring-4 focus:ring-gray-300 font-semibold rounded text-lg px-3 py-3"
               onClick={() => handleCreateOrder()}
             >
-              Crear orden
+              {isLoading ? <LoadingIcon className="w-4 h-4" /> : 'Crear orden'}
             </button>
           </div>
         </Card.Body>

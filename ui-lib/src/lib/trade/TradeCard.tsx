@@ -67,7 +67,7 @@ export default function TradeCard(props: any) {
     const orders = await request.json();
 
     console.log('orders', orders);
-    setOrderList(orders.items);
+    setOrderList(orders);
   };
 
   const getUserOrderList = async () => {
@@ -81,7 +81,7 @@ export default function TradeCard(props: any) {
     const request = await fetch(`/api/calls/getOrders?${queryParams}`);
 
     const ordersHistory = await request.json();
-    setUserOrderList(ordersHistory.items);
+    setUserOrderList(ordersHistory);
   };
 
   const getPurchaseList = async () => {
@@ -96,8 +96,7 @@ export default function TradeCard(props: any) {
     const request = await fetch(`/api/calls/getOrders?${queryParams}`);
 
     const purchaseHistory = await request.json();
-    console.log('purchaseHistory', purchaseHistory)
-    const purchaseHistoryFiltered = purchaseHistory.items.filter(
+    const purchaseHistoryFiltered = purchaseHistory.filter(
       (purchase: any) => purchase.walletBuyerID === walletID
     );
     setPurchaseList(purchaseHistoryFiltered);
@@ -166,7 +165,7 @@ export default function TradeCard(props: any) {
         <OrderHistoryCard
           userOrderList={userOrderList}
           purchaseList={purchaseList}
-          itemsPerPage={1}
+          itemsPerPage={5}
           walletAddress={walletData?.address}
           walletId={walletID}
           spendSwapId={spendSwapId}

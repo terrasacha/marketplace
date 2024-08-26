@@ -39,7 +39,7 @@ export default async function handler(req, res) {
           signed: false,
         };
 
-        if(claim_redeemer === 'Buy') {
+        if(order_side === 'Buy') {
           newTransactionPayload.addressOrigin = payload.transactionPayload.walletAddress
           newTransactionPayload.addressDestination = JSON.stringify(payload.transactionPayload.spendSwapAddress)
         }
