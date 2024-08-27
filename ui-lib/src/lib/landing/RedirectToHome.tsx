@@ -1,5 +1,6 @@
-import { useState } from 'react';
+import { useState, useContext } from 'react';
 import { signOut, getCurrentUser } from 'aws-amplify/auth';
+import { WalletContext } from '@marketplaces/utils-2';
 import Image from 'next/image';
 import { useEffect } from 'react';
 import { TailSpin } from 'react-loader-spinner';
@@ -30,6 +31,9 @@ const optionsToDisplay : any = {
   }
 }
 const RedirectToHome = (props: RedirectToHomeProps) => {
+  const {
+    walletID,
+  } = useContext<any>(WalletContext);
   const { poweredby, appName, checkingWallet, walletData , handleSetCheckingWallet } = props;
   const [loading, setLoading] = useState<boolean>(false)
   const [statusText, setStatusText] = useState<string>('Validando token en billetera')
@@ -119,7 +123,7 @@ const RedirectToHome = (props: RedirectToHomeProps) => {
         const retryInterval = 30000;
         const tryRequest = async () => {
           try {
-            const response = await fetch(`api/helpers/requestAccessToken?destinAddress=${payload}`, {
+            const response = await fetch(`api/helpers/requestAccessToken?destinAddress=${payload}&walletID=${walletData.id}`, {
               method: 'GET',
             });
     
@@ -226,7 +230,7 @@ const RedirectToHome = (props: RedirectToHomeProps) => {
           <TailSpin width="30" color="#0e7490" wrapperClass="" />
         </div>
         }
-      {(checkingWallet === 'requestToken' && !walletData.claimed_token) &&  
+      {(checkingWallet === 'requestToken') &&  
                 <button onClick={() => requestToken()} disabled={ claimed } className="group flex h-min items-center justify-center p-1 text-center font-medium focus:z-10 focus:outline-none text-white bg-custom-marca-boton  enabled:hover:bg-custom-marca-boton-variante border border-transparent focus:ring-cyan-300 dark:bg-cyan-600 dark:enabled:hover:bg-cyan-700 dark:focus:ring-cyan-800 rounded-lg focus:ring-2 px-8 ml-4">
                   {loading ? (
                       <TailSpin

@@ -1253,6 +1253,12 @@ export async function getWalletByUser(userId: string): Promise<any> {
                 stake_address
                 name
                 isAdmin
+                claimedToken {
+                  items {
+                    marketplaceID
+                    id
+                  }
+                }
               }
             }
           }
@@ -2374,5 +2380,74 @@ export async function getScriptTokenAccess(marketplace: string){
   } catch (error) {
     console.log(error);
     return false;
+  }
+}
+
+export async function createClaimedToken(
+  marketplaceID : string, walletID: string ) {
+  try {
+    const response = await axios.post(
+      graphqlEndpoint,
+      {
+        query: `
+        mutation CreateClaimedToken(
+          $input: CreateClaimedTokenInput!
+          $condition: ModelClaimedTokenConditionInput
+        ) {
+          createClaimedToken(input: $input, condition: $condition) {
+            id
+          }
+        }
+      `,
+        variables: {
+          input: {
+            marketplaceID: marketplaceID,
+            walletID: walletID
+
+          },
+        },
+      },
+      {
+        headers: {
+          'x-api-key': awsAppSyncApiKey,
+        },
+      }
+    );
+
+    return response.data;
+  } catch (error) {
+    console.error('Error creating token: ', error);
+    return false;
+  }
+}
+
+export async function checkClaimedToken(marketplaceID: string, walletID: string) {
+  try {
+    const response = await axios.post(
+      graphqlEndpoint,
+      {
+        query: `
+          query listClaimedTokens {
+            listClaimedTokens(filter: {and: {marketplaceID: {eq: "${marketplaceID}"}, walletID: {eq: "${walletID}"}}}) {
+              items {
+                id
+              }
+            }
+          }
+        `,
+      },
+      {
+        headers: {
+          'x-api-key': awsAppSyncApiKey,
+        },
+      }
+    );
+    if (response.data.data.listClaimedTokens.items.length > 0) {
+      return true
+    }
+    return false
+  } catch (error) {
+    console.log(error);
+    return false
   }
 }
