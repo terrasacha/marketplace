@@ -237,7 +237,7 @@ export async function getCategories() {
   return filteredObj;
 }
 
-export async function getAllProjects() {
+export async function getAllProjects(app: string | undefined) {
   try {
     const response = await axios.post(
       graphqlEndpoint,
@@ -247,6 +247,11 @@ export async function getAllProjects() {
             nextToken
             items {
               id
+              showOn
+              marketplace {
+                id
+                name
+              }
               description
               categoryID 
               category {
@@ -255,6 +260,7 @@ export async function getAllProjects() {
               name
               status
               tokenGenesis
+              tokenClaimedByOwner
               updatedAt
               createdAt
               userProducts {
@@ -357,54 +363,58 @@ export async function getAllProjects() {
     );
     console.log(awsAppSyncApiKey, 'awsAppSyncApiKey');
     console.log(graphqlEndpoint, 'graphqlEndpoint');
-    let validProducts = response.data.data.listProducts.items.filter(
-      (product: any) => {
-        let countFeatures = product.productFeatures.items.reduce(
-          (count: number, pf: any) => {
-            // Condicion 1: Tener periodos de precios y cantidad de tokens
-            if (pf.featureID === 'GLOBAL_TOKEN_HISTORICAL_DATA') {
-              let data = JSON.parse(pf.value);
-              let todaysDate = Date.now();
-              if (data.some((date: any) => Date.parse(date.date) > todaysDate))
-                return count + 1;
-            }
-            // Condicion 2: Tener titulares diligenciados
-            /* if (pf.featureID === 'B_owners') {
+
+    const marketplaceProducts = response.data.data.listProducts.items.filter(
+      (product: any) => product.marketplace.name === app
+    );
+    console.log('marketplaceProducts', marketplaceProducts);
+
+    let validProducts = marketplaceProducts.filter((product: any) => {
+      let countFeatures = product.productFeatures.items.reduce(
+        (count: number, pf: any) => {
+          // Condicion 1: Tener periodos de precios y cantidad de tokens
+          if (pf.featureID === 'GLOBAL_TOKEN_HISTORICAL_DATA') {
+            let data = JSON.parse(pf.value);
+            let todaysDate = Date.now();
+            if (data.some((date: any) => Date.parse(date.date) > todaysDate))
+              return count + 1;
+          }
+          // Condicion 2: Tener titulares diligenciados
+          /* if (pf.featureID === 'B_owners') {
               let data = JSON.parse(pf.value || '[]');
               if (Object.keys(data).length !== 0) return count + 1;
             } */
-            // Condicion 3: Validador ha oficializado la información financiera
-            if (
-              pf.featureID === 'GLOBAL_VALIDATOR_SET_FINANCIAL_CONDITIONS' &&
-              pf.value === 'true'
-            ) {
-              return count + 1;
-            }
-            // Condicion 4: Validador ha oficializado la información tecnica
-            if (
-              pf.featureID === 'GLOBAL_VALIDATOR_SET_TECHNICAL_CONDITIONS' &&
-              pf.value === 'true'
-            ) {
-              return count + 1;
-            }
-            // Condicion 5: Postulante ha aceptado las condiciones
-            if (
-              pf.featureID === 'GLOBAL_OWNER_ACCEPTS_CONDITIONS' &&
-              pf.value === 'true'
-            ) {
-              return count + 1;
-            }
-            // Condicion 6: Postulante ha ingresado
-            if (pf.featureID === 'C_ubicacion') {
-              return count + 1;
-            }
-            return count;
-          },
-          0
-        );
-        return countFeatures === 5;
-      }
-    );
+          // Condicion 3: Validador ha oficializado la información financiera
+          if (
+            pf.featureID === 'GLOBAL_VALIDATOR_SET_FINANCIAL_CONDITIONS' &&
+            pf.value === 'true'
+          ) {
+            return count + 1;
+          }
+          // Condicion 4: Validador ha oficializado la información tecnica
+          if (
+            pf.featureID === 'GLOBAL_VALIDATOR_SET_TECHNICAL_CONDITIONS' &&
+            pf.value === 'true'
+          ) {
+            return count + 1;
+          }
+          // Condicion 5: Postulante ha aceptado las condiciones
+          if (
+            pf.featureID === 'GLOBAL_OWNER_ACCEPTS_CONDITIONS' &&
+            pf.value === 'true'
+          ) {
+            return count + 1;
+          }
+          // Condicion 6: Postulante ha ingresado
+          if (pf.featureID === 'C_ubicacion') {
+            return count + 1;
+          }
+          return count;
+        },
+        0
+      );
+      return countFeatures === 5;
+    });
 
     // Condicion 7: Todos los archivos deben estar validados
     validProducts = validProducts.filter((product: any) => {
@@ -440,13 +450,17 @@ export async function getProjects(app: any) {
       graphqlEndpoint,
       {
         query: `query getProjects {
-          listProducts(filter: {isActive: {eq: true}, showOn: {eq: "${app}"}}) {
+          listProducts(filter: {isActive: {eq: true}}) {
             nextToken
             items {
               id
               description
+              showOn
               categoryID 
               category {
+                name
+              }
+              marketplace {
                 name
               }
               name
@@ -582,7 +596,7 @@ export async function getProjects(app: any) {
           },
           0
         );
-        return countFeatures === 5;
+        return countFeatures === 5 && product.marketplace.name === app;
       }
     );
 
@@ -798,6 +812,7 @@ export async function getPendingTokensForClaiming(userId: string) {
             tokenName
             tokenAmount
             statusCode
+            productID
             product {
               scripts {
                 items {
@@ -1238,6 +1253,12 @@ export async function getWalletByUser(userId: string): Promise<any> {
                 stake_address
                 name
                 isAdmin
+                claimedToken {
+                  items {
+                    marketplaceID
+                    id
+                  }
+                }
               }
             }
           }
@@ -1369,7 +1390,7 @@ export async function getWalletByStakeAddress(stake_address: string) {
   }
 }
 
-export async function getScriptsList() {
+export async function getScriptsList(app: string) {
   try {
     const response = await axios.post(
       graphqlEndpoint, // Make sure you have 'graphqlEndpoint' defined
@@ -1388,7 +1409,13 @@ export async function getScriptsList() {
               pbk
               productID
               product {
+                id
                 tokenGenesis
+                showOn
+                marketplaceID
+                marketplace {
+                  name
+                }
               }
               script_category
               scriptParentID
@@ -1414,8 +1441,12 @@ export async function getScriptsList() {
     );
 
     const data = response.data.data.listScripts.items;
+    const marketplaceScripts = data.filter(
+      (script: any) =>
+        script.product === null || script.product.marketplace.name === app
+    );
 
-    const sortedData = data.sort((a: any, b: any) => {
+    const sortedData = marketplaceScripts.sort((a: any, b: any) => {
       const dateA = new Date(a.createdAt);
       const dateB = new Date(b.createdAt);
       return dateB.getTime() - dateA.getTime(); // Ordenar en orden ascendente (más antiguo al más reciente)
@@ -1457,6 +1488,7 @@ export async function updateWallet({
   name,
   passphrase,
   claimed_token,
+  isAdmin,
 }: any) {
   const hash = await encryptPassword(passphrase);
   const response = await axios.post(
@@ -1473,7 +1505,7 @@ export async function updateWallet({
       variables: {
         input: {
           id: id,
-          isAdmin: false,
+          isAdmin,
           status: 'active',
           isSelected: false,
           password: hash,
@@ -1834,12 +1866,14 @@ export async function createOrder(objeto: any) {
     value,
     utxos,
     statusCode,
+    productID,
   } = objeto;
   const response = await axios.post(
     graphqlEndpoint,
     {
       query: `mutation MyMutation {
           createOrder(input: {
+            productID: "${productID}".
             tokenPolicyId: "${tokenPolicyId}",
             tokenName:"${tokenName}",
             tokenAmount: ${tokenAmount},
@@ -1864,7 +1898,7 @@ export async function createOrder(objeto: any) {
 }
 
 export async function updateOrder(objeto: any) {
-  const { id, statusCode } = objeto;
+  const { id, statusCode, walletBuyerID } = objeto;
   try {
     const response = await axios.post(
       graphqlEndpoint,
@@ -1880,6 +1914,7 @@ export async function updateOrder(objeto: any) {
           input: {
             id: id,
             statusCode: statusCode,
+            walletBuyerID: walletBuyerID,
           },
         },
       },
@@ -1908,6 +1943,7 @@ export async function createTransaction({
   mint,
   scriptDataHash,
   metadataUrl,
+  redeemer = '',
   fees,
   network,
   type,
@@ -1935,6 +1971,7 @@ export async function createTransaction({
             mint,
             scriptDataHash,
             metadataUrl,
+            redeemer,
             fees,
             network,
             type,
@@ -1949,9 +1986,9 @@ export async function createTransaction({
         },
       }
     );
+    console.log(response.data);
     return response.data.data.createTransactions;
   } catch (error: any) {
-    console.error(error);
     return error;
   }
 }
@@ -2175,6 +2212,13 @@ export async function listTokens() {
             policyID
             tokenName
             oraclePrice
+            productID
+            product {
+              marketplace {
+                name
+                id
+              }
+            }
           }
         }
       }`,
@@ -2185,9 +2229,14 @@ export async function listTokens() {
       },
     }
   );
-  const suanTokens = response.data.data.listTokens.items;
 
-  return suanTokens;
+  const appTokens = response.data.data.listTokens.items.filter(
+    (token: any) =>
+      token.product.marketplace.name ===
+      process.env['NEXT_PUBLIC_MARKETPLACE_NAME']
+  );
+
+  return appTokens;
 }
 
 export async function getOrdersList(
@@ -2224,8 +2273,16 @@ export async function getOrdersList(
           statusCode
           utxos
           walletID
+          walletBuyerID
           wallet {
             address
+          }
+          productID
+          product {
+            marketplace {
+              id
+              name
+            }
           }
           scriptID
           value
@@ -2244,9 +2301,13 @@ export async function getOrdersList(
       }
     );
 
-    const { items, nextToken: newNextToken } = response.data.data.listOrders;
+    const data = response.data.data.listOrders.items.filter(
+      (order: any) =>
+        order.product.marketplace.name ===
+        process.env['NEXT_PUBLIC_MARKETPLACE_NAME']
+    );
 
-    return { items, nextToken: newNextToken };
+    return data;
   } catch (error) {
     console.error('Error getting Orders List:', error);
     return false;
@@ -2288,5 +2349,105 @@ export async function listTokensDashboard(productID: string) {
   } catch (error) {
     console.log(error);
     return false;
+  }
+}
+
+
+export async function getScriptTokenAccess(marketplace: string){
+  try {
+    const response = await axios.post(
+      graphqlEndpoint,
+      {
+        query: `query listScripts {
+          listScripts(filter: {marketplaceID: {eq: "${marketplace}"}}) {
+            items {
+              id
+              marketplaceID
+              name
+              pbk
+              token_name
+            }
+          }
+        }`,
+      },
+      {
+        headers: {
+          'x-api-key': awsAppSyncApiKey,
+        },
+      }
+    );
+    return response.data;
+  } catch (error) {
+    console.log(error);
+    return false;
+  }
+}
+
+export async function createClaimedToken(
+  marketplaceID : string, walletID: string ) {
+  try {
+    const response = await axios.post(
+      graphqlEndpoint,
+      {
+        query: `
+        mutation CreateClaimedToken(
+          $input: CreateClaimedTokenInput!
+          $condition: ModelClaimedTokenConditionInput
+        ) {
+          createClaimedToken(input: $input, condition: $condition) {
+            id
+          }
+        }
+      `,
+        variables: {
+          input: {
+            marketplaceID: marketplaceID,
+            walletID: walletID
+
+          },
+        },
+      },
+      {
+        headers: {
+          'x-api-key': awsAppSyncApiKey,
+        },
+      }
+    );
+
+    return response.data;
+  } catch (error) {
+    console.error('Error creating token: ', error);
+    return false;
+  }
+}
+
+export async function checkClaimedToken(marketplaceID: string, walletID: string) {
+  try {
+    const response = await axios.post(
+      graphqlEndpoint,
+      {
+        query: `
+          query listClaimedTokens {
+            listClaimedTokens(filter: {and: {marketplaceID: {eq: "${marketplaceID}"}, walletID: {eq: "${walletID}"}}}) {
+              items {
+                id
+              }
+            }
+          }
+        `,
+      },
+      {
+        headers: {
+          'x-api-key': awsAppSyncApiKey,
+        },
+      }
+    );
+    if (response.data.data.listClaimedTokens.items.length > 0) {
+      return true
+    }
+    return false
+  } catch (error) {
+    console.log(error);
+    return false
   }
 }

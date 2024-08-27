@@ -3,6 +3,7 @@ import { Button } from 'flowbite-react';
 import { FaPen } from 'react-icons/fa';
 import { BsFillEyeFill, BsFillEyeSlashFill } from 'react-icons/bs';
 import NewWalletContext from '@cauca/store/generate-new-wallet-context';
+import { fetchUserAttributes } from 'aws-amplify/auth';
 import axios from 'axios';
 import { TailSpin } from 'react-loader-spinner';
 import { encryptPassword, updateWallet } from '@marketplaces/data-access';
@@ -16,7 +17,17 @@ const CreateCredentials = (props: any) => {
   const [showInfo, setShowInfo] = useState(deafultStateShowInfo) as any[];
   const [errors, setErrors] = useState(deafultState) as any[];
   const [loading, setLoading] = useState(false) as any[];
+  const [userIsAdmin, serUserIsAdmin] = useState(false)
 
+  useEffect(() =>{
+    fetchUserAttributes().then((data) =>{
+      if(data['custom:role'] === 'marketplace_admin' && data){
+        serUserIsAdmin(true)
+      }
+    }).catch((error) =>{
+      console.log('error obteniendo data del usuario', error)
+    })
+  },[])
   const handleInputChange = (event: React.ChangeEvent<HTMLInputElement>) => {
     setErrors(deafultState);
     setInputValue({
@@ -91,6 +102,7 @@ const CreateCredentials = (props: any) => {
           id: data.data.wallet_id,
           name: inputValue.walletname,
           passphrase: inputValue.password,
+          isAdmin: userIsAdmin
         }),
       });
       setCurrentSection(4);
@@ -202,7 +214,7 @@ const CreateCredentials = (props: any) => {
           Limpiar todos los campos
         </Button>
         <button
-          className="relative flex h-10 items-center justify-center p-2 font-medium focus:z-10 focus:outline-none text-white bg-cyan-700 border border-transparent enabled:hover:bg-cyan-800 focus:ring-cyan-300 dark:bg-cyan-600 dark:enabled:hover:bg-cyan-700 dark:focus:ring-cyan-800 rounded-lg focus:ring-2 px-8 ml-4"
+          className="relative flex h-10 min-w-14 items-center justify-center p-2 font-medium focus:z-10 focus:outline-none text-white bg-cyan-700 border border-transparent enabled:hover:bg-cyan-800  dark:bg-cyan-600 dark:enabled:hover:bg-cyan-700  rounded-lg focus:ring-2 px-8 ml-4"
           onClick={() => handleContinue()}
         >
           {loading ? (

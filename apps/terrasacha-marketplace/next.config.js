@@ -12,7 +12,7 @@ const nextConfig = {
     // See: https://github.com/gregberge/svgr
     svgr: false,
   },
-  reactStrictMode: true,
+  reactStrictMode: false,
   webpack: function (config, options) {
     config.experiments = {
       asyncWebAssembly: true,

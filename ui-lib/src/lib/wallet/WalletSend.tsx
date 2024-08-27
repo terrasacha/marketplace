@@ -16,16 +16,19 @@ interface AccountProps {
 }
 
 export default function WalletSend(props: AccountProps) {
-  const { walletID, walletData } = useContext<any>(WalletContext);
+  const { walletID, walletAddress, walletData } =
+    useContext<any>(WalletContext);
   const [checkedAssetList, setCheckedAssetList] = useState<Array<any>>([]);
 
   const handleAddCheckedAsset = (checkedAsset: any) => {
+    console.log('Adding checked asset: ', checkedAsset);
     setCheckedAssetList((prevState: any) => {
       const existingAssetIndex = prevState.findIndex(
         (asset: any) =>
           asset.fingerprint === checkedAsset.fingerprint &&
           asset.recipientID === checkedAsset.recipientID
       );
+      console.log('Existing asset index:', existingAssetIndex);
 
       if (existingAssetIndex !== -1) {
         // Actualizar el selectedSupply si el objeto ya existe
@@ -44,6 +47,7 @@ export default function WalletSend(props: AccountProps) {
     fingerprintToRemove: string,
     recipientIDToRemove: number
   ) => {
+    console.log('Removing checked asset: ', fingerprintToRemove, recipientIDToRemove);
     setCheckedAssetList((prevState: any) => {
       const updatedAssetList = prevState.filter(
         (asset: any) =>
@@ -81,6 +85,7 @@ export default function WalletSend(props: AccountProps) {
   const [newTransactionBuild, setNewTransactionBuild] = useState<any>(null);
 
   const handleOpenSelectTokensModal = (recipientID: number = 0) => {
+    console.log('Opening SelectTokensModal for recipientID:', recipientID);
     setSelectTokensModal((prevState) => ({
       ...prevState,
       visible: !selectTokensModal.visible,
@@ -95,6 +100,7 @@ export default function WalletSend(props: AccountProps) {
   const handleSetSelectedTokensToSelectTokensModal = (
     selectedTokensData: any
   ) => {
+    console.log('Setting selected tokens:', selectedTokensData);
     setSelectTokensModal((prevState) => ({
       ...prevState,
       data: selectedTokensData,
@@ -102,6 +108,7 @@ export default function WalletSend(props: AccountProps) {
   };
 
   const handleAddRecipientSelectedAssets = async (index: number, data: any) => {
+    console.log('Adding recipient selected assets for index:', index, data);
     const payloadMultiAsset = data.map((asset: any) => {
       return {
         policyid: asset.policy_id,
@@ -306,9 +313,15 @@ export default function WalletSend(props: AccountProps) {
         .filter((elemento) => elemento !== '');
 
       const payload = {
-        wallet_id: walletID,
-        addresses: addresses,
-        metadata: { '634': { msg: messageArray } },
+        payload: {
+          wallet_id: walletID,
+          addresses: addresses,
+          metadata: { '634': { msg: messageArray } },
+        },
+        transactionPayload: {
+          walletID: walletID,
+          walletAddress: walletAddress,
+        },
       };
       console.log('BuildTx Payload: ', payload);
 
@@ -330,7 +343,10 @@ export default function WalletSend(props: AccountProps) {
           metadata: { '634': { msg: messageArray } },
         });
 
-        setNewTransactionBuild(mappedTransactionData);
+        setNewTransactionBuild({
+          ...mappedTransactionData,
+          transaction_id: buildTxResponse.transaction_id,
+        });
         handleOpenSignTransactionModal();
       } else {
         toast.error(

@@ -73,11 +73,11 @@ const SignUpForm = (props: SignUpFormProps) => {
         action: 'sign_up',
         category: 'marketplace',
         label: 'New user created',
-        value: signupForm.username,
+        value: signupForm.username
       });
       router.push('/auth/confirm-code');
     } catch (error: any) {
-      console.log(error.name)
+      console.log(error.name);
       if (error.message === 'Las contraseñas no coinciden') {
         setErrors((preForm: any) => ({
           ...preForm,
@@ -93,19 +93,19 @@ const SignUpForm = (props: SignUpFormProps) => {
           ...preForm,
           confirmPassword: 'La contraseña debe tener al menos 8 caracteres',
         }));
-      }
-      else if (error.name === 'InvalidParameterException') {
+      } else if (error.name === 'InvalidParameterException') {
         setErrors((preForm: any) => ({
           ...preForm,
-          createUserError: 'El nombre de usuario no satisface las condiciones requeridas',
+          createUserError:
+            'El nombre de usuario no satisface las condiciones requeridas',
         }));
       }
     } finally {
       setLoading(false);
     }
   };
-  const handleShowInfo = (e : any, name: string) => {
-    e.preventDefault()
+  const handleShowInfo = (e: any, name: string) => {
+    e.preventDefault();
     setShowInfo({
       ...showInfo,
       [name]: !showInfo[name],
@@ -121,12 +121,16 @@ const SignUpForm = (props: SignUpFormProps) => {
           alt={`${appName} logo`}
         />
       </div>
-      <h2 className="text-3xl font-normal pb-2 flex">
-        Regístrate 
-{/*         <a className='' data-tooltip-id="my-tooltip" data-tooltip-content={"Consideraciones: El nombre de usuario no puede contener espacios. La contraseña debe tener más de 8 caracteres y poseer al menos un valor numérico"}> <svg  xmlns="http://www.w3.org/2000/svg"  width="20"  height="20"  viewBox="0 0 24 24"  fill="none"  stroke="currentColor"  stroke-width="2"  stroke-linecap="round"  stroke-linejoin="round"  className="icon icon-tabler icons-tabler-outline icon-tabler-info-circle"><path stroke="none" d="M0 0h24v24H0z" fill="none"/><path d="M3 12a9 9 0 1 0 18 0a9 9 0 0 0 -18 0" /><path d="M12 9h.01" /><path d="M11 12h1v4h1" /></svg>
+      <h2 className="font-jostBold text-3xl font-normal pb-2 flex">
+        Regístrate
+        {/*         <a className='' data-tooltip-id="my-tooltip" data-tooltip-content={"Consideraciones: El nombre de usuario no puede contener espacios. La contraseña debe tener más de 8 caracteres y poseer al menos un valor numérico"}> <svg  xmlns="http://www.w3.org/2000/svg"  width="20"  height="20"  viewBox="0 0 24 24"  fill="none"  stroke="currentColor"  stroke-width="2"  stroke-linecap="round"  stroke-linejoin="round"  className="icon icon-tabler icons-tabler-outline icon-tabler-info-circle"><path stroke="none" d="M0 0h24v24H0z" fill="none"/><path d="M3 12a9 9 0 1 0 18 0a9 9 0 0 0 -18 0" /><path d="M12 9h.01" /><path d="M11 12h1v4h1" /></svg>
         </a> */}
       </h2>
-      <p className='text-xs'>Consideraciones: El nombre de usuario no puede contener espacios ni caracteres especiales. La contraseña debe tener más de 8 caracteres y poseer al menos un valor numérico</p>
+      <p className="font-jostItalic text-xs">
+        Consideraciones: El nombre de usuario no puede contener espacios ni
+        caracteres especiales. La contraseña debe tener más de 8 caracteres y
+        poseer al menos un valor numérico
+      </p>
       <form className="pt-10 pb-5">
         <div className="relative z-0 w-full mb-4 group">
           <input
@@ -134,7 +138,7 @@ const SignUpForm = (props: SignUpFormProps) => {
             value={signupForm.username}
             name="username"
             onChange={handleChange}
-            className={`block py-2.5 px-0 w-full text-sm text-gray-900 bg-transparent border-0 border-b-2 ${
+            className={`font-jostRegular block py-2.5 px-0 w-full text-sm text-gray-900 bg-transparent border-0 border-b-2 ${
               errors.createUserError !== ''
                 ? 'border-red-400'
                 : 'border-gray-300'
@@ -145,12 +149,17 @@ const SignUpForm = (props: SignUpFormProps) => {
           <p
             className={`${
               errors.createUserError === '' && 'hidden'
-            } text-red-400 text-xs`}
+            } Font-JostRegular text-red-400 text-xs`}
           >
-            {errors.createUserError}
+            {/* Otro contenido */}
+            {errors.createUserError && (
+              <p style={{ fontFamily: 'Jost, sans-serif', color: '#f87171' }}>
+                {errors.createUserError}
+              </p>
+            )}
           </p>
         </div>
-        <div className="relative z-0 w-full mb-4 group">
+        <div className="font-jostRegular relative z-0 w-full mb-4 group">
           <input
             type="email"
             value={signupForm.email}
@@ -161,25 +170,25 @@ const SignUpForm = (props: SignUpFormProps) => {
             required
           />
         </div>
-        <div className="relative z-0 w-full mb-4 group">
+        <div className="font-jostRegular relative z-0 w-full mb-4 group">
           <input
             type={showInfo.password ? 'text' : 'password'}
             value={signupForm.password}
             name="password"
             onChange={handleChange}
             onKeyDown={(e) => e.key === 'Enter' && e.preventDefault()}
-            className="block py-2.5 px-0 w-full text-sm text-gray-900 bg-transparent border-0 border-b-2 border-gray-300 appearance-none dark:text-white dark:border-gray-600 dark:focus:border-blue-500 focus:outline-none focus:ring-0 focus:border-blue-600 peer"
+            className="font-jostRegular block py-2.5 px-0 w-full text-sm text-gray-900 bg-transparent border-0 border-b-2 border-gray-300 appearance-none dark:text-white dark:border-gray-600 dark:focus:border-blue-500 focus:outline-none focus:ring-0 focus:border-blue-600 peer"
             placeholder="Contraseña"
             required
           />
           <button
-              className="absolute right-4 top-1/2 transform -translate-y-1/2 text-gray-500"
-              onClick={(e) => handleShowInfo(e,'password')}
-            >
-              {showInfo.password ? <BsFillEyeFill /> : <BsFillEyeSlashFill />}
-            </button>
+            className="font-jostRegular absolute right-4 top-1/2 transform -translate-y-1/2 text-gray-500"
+            onClick={(e) => handleShowInfo(e, 'password')}
+          >
+            {showInfo.password ? <BsFillEyeFill /> : <BsFillEyeSlashFill />}
+          </button>
         </div>
-        <div className="relative z-0 w-full mb-2 group">
+        <div className="font-jostRegular relative z-0 w-full mb-2 group">
           <input
             type={showInfo.passwordConfirm ? 'text' : 'password'}
             value={extraForm.confirmPassword}
@@ -191,56 +200,65 @@ const SignUpForm = (props: SignUpFormProps) => {
             required
           />
           <button
-              className="absolute right-4 top-1/2 transform -translate-y-1/2 text-gray-500"
-              onClick={(e) => handleShowInfo(e,'passwordConfirm')}
-            >
-              {showInfo.passwordConfirm ? (
-                <BsFillEyeFill />
-              ) : (
-                <BsFillEyeSlashFill />
-              )}
-            </button>
+            className="font-jostBold absolute right-4 top-1/2 transform -translate-y-1/2 text-gray-500"
+            onClick={(e) => handleShowInfo(e, 'passwordConfirm')}
+          >
+            {showInfo.passwordConfirm ? (
+              <BsFillEyeFill />
+            ) : (
+              <BsFillEyeSlashFill />
+            )}
+          </button>
           <p className="text-xs text-red-400">{errors.confirmPasswordError}</p>
         </div>
         <div className="max-w-md mb-2">
           <div className="mb-2 block">
-            <Label className="font-normal" value="Tipo de usuario" />
+            <Label className="font-jostRegular " value="Tipo de usuario:" />
           </div>
-          <Select name="role" value={signupForm.role} onChange={handleChange}>
+          <Select
+            name="role"
+            value={signupForm.role}
+            onChange={handleChange}
+            className="font-jostRegular rounded-sm" // Estilo aplicado al select
+          >
             <option value="investor">Inversionista</option>
             <option value="constructor">Propietario</option>
           </Select>
         </div>
       </form>
 
-      <div className="flex items-center mb-4">
+      <div className="font-jostRegular  flex items-center mb-4">
         <input
           type="checkbox"
           checked={termsAccepted}
           onChange={() => setTermsAccepted(!termsAccepted)}
-          className="w-3 h-3 text-blue-600 bg-gray-100 border-gray-300 rounded focus:ring-blue-500 dark:focus:ring-blue-600 dark:ring-offset-gray-800 focus:ring-2 dark:bg-gray-700 dark:border-gray-600"
+          className="font-jostRegular  w-3 h-3 text-blue-600 bg-gray-100 border-gray-300 rounded focus:ring-blue-500 dark:focus:ring-blue-600 dark:ring-offset-gray-800 focus:ring-2 dark:bg-gray-700 dark:border-gray-600"
         />
-        <label className="ml-2 text-xs font-light text-gray-900 dark:text-gray-300">
+        <label className="font-jostRegular  ml-2 text-xs font-light text-gray-900 dark:text-gray-300">
           Acepto los{' '}
-          <span className="text-blue-600">términos y condiciones</span>
+          <span className="font-jostRegular  text-blue-600">
+            términos y condiciones
+          </span>
         </label>
       </div>
-      <div className="flex items-center mb-4">
+      <div className="font-jostRegular flex items-center mb-4">
         <input
           type="checkbox"
           checked={privacyAccepted}
           onChange={() => setPrivacyAccepted(!privacyAccepted)}
-          className="w-3 h-3 text-blue-600 bg-gray-100 border-gray-300 rounded focus:ring-blue-500 dark:focus:ring-blue-600 dark:ring-offset-gray-800 focus:ring-2 dark:bg-gray-700 dark:border-gray-600"
+          className="font-jostRegular w-3 h-3 text-blue-600 bg-gray-100 border-gray-300 rounded focus:ring-blue-500 dark:focus:ring-blue-600 dark:ring-offset-gray-800 focus:ring-2 dark:bg-gray-700 dark:border-gray-600"
         />
-        <label className="ml-2 text-xs font-light text-gray-900 dark:text-gray-300">
+        <label className="font-jostRegular ml-2 text-xs font-light text-gray-900 dark:text-gray-300">
           Acepto la{' '}
-          <span className="text-blue-600">política de privacidad de datos</span>
+          <span className="font-jostRegular text-blue-600">
+            política de privacidad de datos
+          </span>
         </label>
       </div>
       <button
         type="button"
         onClick={() => submitForm()}
-        className={`relative flex items-center justify-center h-10 text-white bg-gray-800 hover:bg-gray-900 focus:outline-none focus:ring-4 focus:ring-gray-300 font-medium rounded-md text-sm px-5 py-3 mb-2 dark:bg-gray-800 dark:hover:bg-gray-700 dark:focus:ring-gray-700 dark:border-gray-700 w-full mt-4`}
+        className={`relative w-full flex items-center justify-center h-10 font-jostBold focus:z-10 focus:outline-none text-white bg-custom-marca-boton border border-transparent enabled:hover:bg-custom-marca-boton-variante  dark:bg-cyan-600 dark:enabled:hover:bg-cyan-700  rounded-lg focus:ring-2 px-8 py-2`}
         disabled={
           signupForm.password.length === 0 ||
           signupForm.username.length === 0 ||
@@ -254,27 +272,27 @@ const SignUpForm = (props: SignUpFormProps) => {
           <TailSpin
             width="20"
             color="#fff"
-            wrapperClass="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2"
+            wrapperClass="font-jostRegular absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2"
           />
         ) : (
           'Regístrarse'
         )}
       </button>
-      <p className="text-sm pt-1 w-full text-center">
-        ¿Ya tienes una cuenta {' '}?
+      <p className="font-jostRegular text-sm pt-1 w-full text-center">
+        ¿Ya tienes una cuenta?
         <Link
           href={
             router.query.fromGenerateWallet === 'true'
               ? '/auth/login?fromGenerateWallet=true'
               : '/auth/login'
           }
-          className="text-[#50A4FF] text-sm"
+          className="font-jostRegular text-[#50A4FF] text-sm pl-1"
         >
           Ingresa aquí
         </Link>
       </p>
       {poweredby && (
-        <div className="flex items-center justify-center mt-4 text-xs">
+        <div className="font-jostRegular flex items-center justify-center mt-4 text-xs">
           Powered by
           <Image
             src="/images/home-page/suan_logo.png"

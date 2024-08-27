@@ -2,7 +2,7 @@ import { useEffect, useState } from 'react';
 import { SearchIcon } from '../icons/SearchIcon';
 import Card from '../common/Card';
 import { mapBuildTransactionInfo } from '@marketplaces/utils-2';
-import { SignTransactionModal } from '../ui-lib';
+import { LoadingIcon, SignTransactionModal } from '../ui-lib';
 import { toast } from 'sonner';
 
 interface OrderBookCardProps {
@@ -11,14 +11,16 @@ interface OrderBookCardProps {
   walletId: string;
   walletAddress: string;
   spendSwapId: string;
+  spendSwapAddress: string
 }
 
 export default function OrderBookCard(props: OrderBookCardProps) {
-  const { orderList, walletId, walletAddress, itemsPerPage, spendSwapId } =
+  const { orderList, walletId, walletAddress, itemsPerPage, spendSwapId, spendSwapAddress } =
     props;
 
   const [newTransactionBuild, setNewTransactionBuild] = useState<any>(null);
   const [signTransactionModal, setSignTransactionModal] = useState(false);
+  const [loadingStates, setLoadingStates] = useState<{ [key: string]: boolean }>({});
 
   const [currentPage, setCurrentPage] = useState(1);
 
@@ -28,6 +30,7 @@ export default function OrderBookCard(props: OrderBookCardProps) {
   const totalItems = orderList.length;
   const canShowPrevious = currentPage > 1;
   const canShowNext = indexOfLastItem < totalItems;
+  console.log('orderList', orderList);
 
   const nextPage = () => {
     setCurrentPage((prevPage) => prevPage + 1);
@@ -71,6 +74,12 @@ export default function OrderBookCard(props: OrderBookCardProps) {
         ],
         metadata: {},
       },
+      transactionPayload: {
+        walletID: walletId,
+        walletAddress: walletAddress,
+        productID: actualOrder.productID,
+        spendSwapAddress: spendSwapAddress
+      },
     };
 
     console.log('unlockOracleOrderPayload', unlockOracleOrderPayload);
@@ -103,6 +112,7 @@ export default function OrderBookCard(props: OrderBookCardProps) {
         ...mappedTransactionData,
         postDistributionPayload,
         scriptId: spendSwapId,
+        transaction_id: buildTxResponse.transaction_id,
       });
       handleOpenSignTransactionModal();
     } else {
@@ -113,6 +123,94 @@ export default function OrderBookCard(props: OrderBookCardProps) {
   };
 
   const handleBuyOrder = async (orderId: string) => {
+    setLoadingStates((prevState) => ({ ...prevState, [orderId]: true }));
+    
+    try {
+      const actualOrder: any = orderList?.find((order: any) => order.id === orderId);
+      console.log('actualOrder', actualOrder);
+  
+      const unlockOracleOrderPayload = {
+        order_side: 'Buy',
+        payload: {
+          wallet_id: walletId,
+          orderPolicyId: spendSwapId,
+          utxo: {
+            transaction_id: actualOrder.utxos,
+            index: 0,
+          },
+          addresses: [
+            {
+              address: walletAddress,
+              lovelace: 0,
+              multiAsset: [
+                {
+                  policyid: actualOrder.tokenPolicyId,
+                  tokens: {
+                    [actualOrder.tokenName]: parseInt(actualOrder.tokenAmount),
+                  },
+                },
+              ],
+            },
+            {
+              address: actualOrder.wallet.address,
+              lovelace:
+                parseInt(actualOrder.value) * parseInt(actualOrder.tokenAmount),
+            },
+          ],
+          metadata: {},
+        },
+        transactionPayload: {
+          walletID: walletId,
+          walletAddress: walletAddress,
+          productID: actualOrder.productID,
+          spendSwapAddress: spendSwapAddress
+        },
+      };
+  
+      const response = await fetch('/api/transactions/unlock-order', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(unlockOracleOrderPayload),
+      });
+  
+      const buildTxResponse = await response.json();
+  
+      if (buildTxResponse?.success) {
+        const mappedTransactionData = await mapBuildTransactionInfo({
+          tx_type: 'preview',
+          walletAddress: walletAddress,
+          buildTxResponse: buildTxResponse,
+          metadata: {},
+        });
+  
+        const postDistributionPayload = {
+          updateOrder: {
+            id: actualOrder.id,
+            statusCode: 'claimed',
+            walletBuyerID: walletId
+          },
+        };
+  
+        setNewTransactionBuild({
+          ...mappedTransactionData,
+          postDistributionPayload,
+          scriptId: spendSwapId,
+          transaction_id: buildTxResponse.transaction_id,
+        });
+        handleOpenSignTransactionModal();
+      } else {
+        toast.error('Algo ha salido mal, revisa las direcciones de billetera ...');
+      }
+    } catch (error) {
+      toast.error('Ocurrió un error inesperado');
+    } finally {
+      setLoadingStates((prevState) => ({ ...prevState, [orderId]: false }));
+    }
+  };
+
+  /* const handleBuyOrder = async (orderId: string) => {
     const actualOrder: any = orderList?.find(
       (order: any) => order.id === orderId
     );
@@ -145,8 +243,14 @@ export default function OrderBookCard(props: OrderBookCardProps) {
               parseInt(actualOrder.value) * parseInt(actualOrder.tokenAmount),
           },
         ],
+        metadata: {},
       },
-      metadata: {},
+      transactionPayload: {
+        walletID: walletId,
+        walletAddress: walletAddress,
+        productID: actualOrder.productID,
+        spendSwapAddress: spendSwapAddress
+      },
     };
 
     console.log('unlockOracleOrderPayload', unlockOracleOrderPayload);
@@ -172,6 +276,7 @@ export default function OrderBookCard(props: OrderBookCardProps) {
         updateOrder: {
           id: actualOrder.id,
           statusCode: 'claimed',
+          walletBuyerID: walletId
         },
         // createTransaction: {
         //   productID: projectInfo.projectID,
@@ -197,6 +302,7 @@ export default function OrderBookCard(props: OrderBookCardProps) {
         ...mappedTransactionData,
         postDistributionPayload,
         scriptId: spendSwapId,
+        transaction_id: buildTxResponse.transaction_id,
       });
       handleOpenSignTransactionModal();
     } else {
@@ -205,7 +311,7 @@ export default function OrderBookCard(props: OrderBookCardProps) {
       );
     }
   };
-
+ */
   return (
     <>
       <Card>
@@ -268,18 +374,18 @@ export default function OrderBookCard(props: OrderBookCardProps) {
                         {order.walletID === walletId ? (
                           <button
                             type="button"
-                            className="text-red-300 w-full hover:text-white border border-red-300 hover:bg-red-400 focus:outline-none focus:ring-4 focus:ring-red-300 font-medium rounded text-sm px-5 py-2.5"
+                            className="flex justify-center text-red-300 w-full hover:text-white border border-red-300 hover:bg-red-400 focus:outline-none focus:ring-4 focus:ring-red-300 font-medium rounded text-sm px-5 py-2.5"
                             onClick={() => handleRemoveOrder(order.id)}
                           >
-                            Retirar
+                            {loadingStates[order.id] ? <LoadingIcon className="w-4 h-4" /> : 'Retirar'}
                           </button>
                         ) : (
                           <button
                             type="button"
-                            className="text-yellow-300 w-full hover:text-white border border-yellow-300 hover:bg-yellow-400 focus:outline-none focus:ring-4 focus:ring-yellow-300 font-medium rounded text-sm px-5 py-2.5"
+                            className="flex justify-center text-yellow-300 w-full hover:text-white border border-yellow-300 hover:bg-yellow-400 focus:outline-none focus:ring-4 focus:ring-yellow-300 font-medium rounded text-sm px-5 py-2.5"
                             onClick={() => handleBuyOrder(order.id)}
                           >
-                            Comprar
+                            {loadingStates[order.id] ? <LoadingIcon className="w-4 h-4" /> : 'Comprar'}
                           </button>
                         )}
                       </div>

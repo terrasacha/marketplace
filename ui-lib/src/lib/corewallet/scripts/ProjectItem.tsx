@@ -16,10 +16,17 @@ interface Traducciones {
 interface ProjectItemProps {
   project: any;
   handleDistributeTokens: (project: any, tokenName: string) => void;
+  handleSendTokensToOwner: (project: any) => void;
+  checkOwnerWallet: (project: any) => boolean | string;
 }
 
 export default function ProjectItem(props: ProjectItemProps) {
-  const { project, handleDistributeTokens } = props;
+  const {
+    project,
+    handleDistributeTokens,
+    handleSendTokensToOwner,
+    checkOwnerWallet,
+  } = props;
   const [newChartData, setChartData] = useState<ChartDataItem[]>([]);
   const [globalTokenAmount, setGlobalTokenAmount] = useState<number>(0);
   const [mintProjectToken, setMintProjectToken] = useState<any>(null);
@@ -182,15 +189,19 @@ export default function ProjectItem(props: ProjectItemProps) {
             </div>
           </div>
           <div className="flex-none">
-            {project.tokenGenesis ? (
+            {project.tokenGenesis && !project.tokenClaimedByOwner && (
               <button
                 type="button"
-                className="text-custom-dark bg-white hover:gray-300 focus:outline-none focus:ring-4 focus:ring-gray-300 font-medium rounded text-sm p-2.5 "
-                onClick={() => {}}
+                className={`disabled:opacity-50 text-custom-dark bg-white hover:gray-300 focus:outline-none focus:ring-4 focus:ring-gray-300 font-medium rounded text-sm p-2.5 `}
+                disabled={checkOwnerWallet(project) ? false : true}
+                onClick={() => {
+                  handleSendTokensToOwner(project);
+                }}
               >
                 Enviar tokens a propietario
               </button>
-            ) : (
+            )}
+            {!project.tokenGenesis && (
               <>
                 <button
                   id={`clickable${project.id}`}

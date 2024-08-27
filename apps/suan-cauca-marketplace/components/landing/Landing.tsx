@@ -3,7 +3,7 @@ import RedirectToHome from '@marketplaces/ui-lib/src/lib/landing/RedirectToHome'
 import WelcomeCard from '@marketplaces/ui-lib/src/lib/landing/WelcomeCard';
 import { useState, useEffect } from 'react';
 import Image from 'next/image';
-import { getCurrentUser, signOut } from 'aws-amplify/auth';
+import { getCurrentUser, signOut, fetchUserAttributes} from 'aws-amplify/auth';
 import { Hub } from 'aws-amplify/utils';
 const Login = (props: any) => {
   const { loading, walletcount, checkingWallet, walletData } = props;
@@ -15,6 +15,8 @@ const Login = (props: any) => {
   async function currentAuthenticatedUser() {
     try {
       const user = await getCurrentUser();
+      const userData = await fetchUserAttributes()
+      console.log(userData, 'user')
       setUser(user);
     } catch (err) {
       console.log(err);
@@ -49,6 +51,8 @@ const Login = (props: any) => {
         ) : (
           checkingWallet !== 'checking' && (
             <RedirectToHome
+              width_image={90}
+              image={'/images/home-page/suan_logo.png'}
               poweredby={false}
               appName={'Suan'}
               checkingWallet={checkingWallet}

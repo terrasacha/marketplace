@@ -30,6 +30,9 @@ export default function Recipient(props: RecipientProps) {
     handleSetSelectedTokensToSelectTokensModal,
   } = props;
 
+  // Expresión regular para validar el formato de la dirección de billetera
+  const isValidWalletAddress = /^addr_[a-z0-9]+$/i.test(walletAddress.trim());
+
   return (
     <div className="grid grid-col-4 gap-2">
       {/* Flex */}
@@ -51,8 +54,10 @@ export default function Recipient(props: RecipientProps) {
       <textarea
         id="message"
         rows={4}
-        className="block col-span-4 p-2.5 w-full text-sm text-gray-900 bg-gray-50 rounded border border-gray-300 focus:ring-blue-500 focus:border-blue-500 "
-        placeholder="Ingresa la dirección de billetera"
+        className={`block col-span-4 p-2.5 w-full text-sm text-gray-900 bg-gray-50 rounded border ${
+          isValidWalletAddress ? 'border-gray-300' : 'border-red-500'
+        } focus:ring-blue-500 focus:border-blue-500`}
+        placeholder="Ingresa una dirección de billetera valida"
         autoComplete="off"
         required
         value={walletAddress}
@@ -84,11 +89,18 @@ export default function Recipient(props: RecipientProps) {
       {/* Token to send */}
       <button
         type="button"
-        className="col-span-4 sm:col-span-1 text-white bg-custom-dark hover:bg-custom-dark-hover focus:outline-none focus:ring-4 focus:ring-gray-300 font-medium rounded text-sm px-5 py-2.5 "
+        className={`col-span-4 sm:col-span-1 text-white ${
+          isValidWalletAddress
+            ? 'bg-custom-dark hover:bg-custom-dark-hover'
+            : 'bg-gray-400 cursor-not-allowed'
+        } focus:outline-none focus:ring-4 focus:ring-gray-300 font-medium rounded text-sm px-5 py-2.5 `}
         onClick={() => {
-          handleSetSelectedTokensToSelectTokensModal(selectedAssets);
-          handleOpenSelectTokensModal(index);
+          if (isValidWalletAddress) {
+            handleSetSelectedTokensToSelectTokensModal(selectedAssets);
+            handleOpenSelectTokensModal(index);
+          }
         }}
+        disabled={!isValidWalletAddress}
       >
         Agregar Assets{' '}
         {selectedAssets.length > 0 && '(' + selectedAssets.length + ')'}

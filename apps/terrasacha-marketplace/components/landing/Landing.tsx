@@ -31,14 +31,14 @@ const Login = (props: any) => {
     <div className="w-full h-screen flex justify-center items-center bg-slate-200">
       <Image
         priority={true}
-        src="/images/home-page/fondo_login.avif"
+         src="/v2/bg3.avif"
         alt="landing-terrasacha-image"
         fill
         style={{ objectFit: 'cover', objectPosition: 'center', zIndex: '0' }}
       />
-      <div className="h-auto w-[90%] lg:w-[90%] 2xl:w-[80%] 3xl:w-[70%] flex justify-center z-10">
+      <div className="font-jostItalic h-auto w-[90%] lg:w-[90%] 2xl:w-[80%] 3xl:w-[70%] flex justify-center z-10">
         {loading ? (
-          <LoadingPage message="Consultando información del usuario" />
+          <LoadingPage message="Consultando la información del usuario" />
         ) : walletcount === 0 ? (
           <WelcomeCard
             checkingWallet={checkingWallet}
@@ -49,6 +49,8 @@ const Login = (props: any) => {
         ) : (
           checkingWallet !== 'checking' && (
             <RedirectToHome
+              width_image={400}
+              image={'/v2/logo.svg'}
               poweredby={true}
               appName={'Terrasacha'}
               checkingWallet={checkingWallet}

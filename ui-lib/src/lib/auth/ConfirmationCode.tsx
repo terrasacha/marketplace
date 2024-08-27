@@ -86,8 +86,8 @@ const ConfirmCode = (props: ConfirmCodeProps) => {
         />
       </div>
       <>
-        <h2 className="text-3xl font-normal pb-2">Código de confirmación</h2>
-        <h4 className="text-1xl font-normal">Ingrese código de confirmación</h4>
+        <h2 className="font-jostBold text-3xl font-normal pb-2">Código de confirmación</h2>
+        <h4 className="font-jostRegular text-1xl font-normal">Ingrese código de confirmación</h4>
         <p
           className={`${
             errors.loginError === '' && 'hidden'
@@ -102,11 +102,11 @@ const ConfirmCode = (props: ConfirmCodeProps) => {
               value={confirmationCode.username}
               name="username"
               onChange={handleChange}
-              className="block py-2.5 px-0 w-full text-sm text-gray-900 bg-transparent border-0 border-b-2 border-gray-300 appearance-none dark:text-white dark:border-gray-600 dark:focus:border-blue-500 focus:outline-none focus:ring-0 focus:border-blue-600 peer"
+              className="font-jostRegular block py-2.5 px-0 w-full text-sm text-gray-900 bg-transparent border-0 border-b-2 border-gray-300 appearance-none dark:text-white dark:border-gray-600 dark:focus:border-blue-500 focus:outline-none focus:ring-0 focus:border-blue-600 peer"
               placeholder=" "
               required
             />
-            <label className="peer-focus:font-medium absolute text-sm text-gray-500 dark:text-gray-400 duration-300 transform -translate-y-6 scale-75 top-3 -z-10 origin-[0] peer-focus:left-0 peer-focus:text-blue-600 peer-focus:dark:text-blue-500 peer-placeholder-shown:scale-100 peer-placeholder-shown:translate-y-0 peer-focus:scale-75 peer-focus:-translate-y-6">
+            <label className="font-jostRegular peer-focus:font-medium absolute text-sm text-gray-500 dark:text-gray-400 duration-300 transform -translate-y-6 scale-75 top-3 -z-10 origin-[0] peer-focus:left-0 peer-focus:text-blue-600 peer-focus:dark:text-blue-500 peer-placeholder-shown:scale-100 peer-placeholder-shown:translate-y-0 peer-focus:scale-75 peer-focus:-translate-y-6">
               Username
             </label>
           </div>
@@ -117,11 +117,11 @@ const ConfirmCode = (props: ConfirmCodeProps) => {
               value={confirmationCode.confirmationCode}
               name="confirmationCode"
               onChange={handleChange}
-              className="block py-2.5 px-0 w-full text-sm text-gray-900 bg-transparent border-0 border-b-2 border-gray-300 appearance-none dark:text-white dark:border-gray-600 dark:focus:border-blue-500 focus:outline-none focus:ring-0 focus:border-blue-600 peer"
+              className="font-jostRegular block py-2.5 px-0 w-full text-sm text-gray-900 bg-transparent border-0 border-b-2 border-gray-300 appearance-none dark:text-white dark:border-gray-600 dark:focus:border-blue-500 focus:outline-none focus:ring-0 focus:border-blue-600 peer"
               placeholder=" "
               required
             />
-            <label className="peer-focus:font-medium absolute text-sm text-gray-500 dark:text-gray-400 duration-300 transform -translate-y-6 scale-75 top-3 -z-10 origin-[0] peer-focus:left-0 peer-focus:text-blue-600 peer-focus:dark:text-blue-500 peer-placeholder-shown:scale-100 peer-placeholder-shown:translate-y-0 peer-focus:scale-75 peer-focus:-translate-y-6">
+            <label className="font-jostRegular peer-focus:font-medium absolute text-sm text-gray-500 dark:text-gray-400 duration-300 transform -translate-y-6 scale-75 top-3 -z-10 origin-[0] peer-focus:left-0 peer-focus:text-blue-600 peer-focus:dark:text-blue-500 peer-placeholder-shown:scale-100 peer-placeholder-shown:translate-y-0 peer-focus:scale-75 peer-focus:-translate-y-6">
               Código
             </label>
           </div>
@@ -130,24 +130,24 @@ const ConfirmCode = (props: ConfirmCodeProps) => {
         <button
           type="button"
           onClick={(e) => submitFromConfirmationCode(e)}
-          className={`relative flex items-center justify-center h-10 text-white ${
+          className={`font-jostBold relative flex items-center justify-center h-10 text-white ${
             loginForm.username.length > 0
-              ? 'bg-gray-800 hover:bg-gray-900'
-              : 'bg-gray-500 hover:bg-gray-600'
+              ? 'bg-custom-marca-boton  hover:bg-custom-marca-boton-variante'
+              : 'bg-custom-marca-boton  hover:bg-custom-marca-boton-variante'
           } focus:outline-none focus:ring-4 focus:ring-gray-300 font-medium rounded-md text-sm px-5 py-3 mb-2 dark:bg-gray-800 dark:hover:bg-gray-700 dark:focus:ring-gray-700 dark:border-gray-700 w-full mt-4`}
         >
           {loading ? (
             <TailSpin
               width="20"
               color="#fff"
-              wrapperClass="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2"
+              wrapperClass="font-jostRegular absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2"
             />
           ) : (
             'Confirmar código'
           )}
         </button>
         <button
-          className="w-full text-center text-xs mt-1 cursor-pointer hover:text-blue-500"
+       className={`relative w-full flex items-center justify-center font-jostBold focus:z-10 focus:outline-none text-white bg-custom-marca-boton border border-transparent enabled:hover:bg-custom-marca-boton-variante  dark:bg-cyan-600 dark:enabled:hover:bg-cyan-700  rounded-lg focus:ring-2 px-8 py-2`}
           onClick={() => resendCode()}
         >
           Reenviar código

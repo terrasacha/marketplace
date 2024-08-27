@@ -1,4 +1,5 @@
 // components/LoginForm.tsx
+
 import React, { useState, useEffect } from 'react';
 import Link from 'next/link';
 import { getCurrentUser, signOut } from 'aws-amplify/auth';
@@ -41,23 +42,41 @@ const WelcomeCard = (props: WelcomeCardProps) => {
   }
   return (
     <div className="bg-white rounded-2xl w-[40rem] max-w-[35rem] 2xl:w-[45%] py-10 px-10 sm:px-10 h-auto flex flex-col justify-center">
-      <h2 className="text-3xl font-normal pb-4 flex justify-center text-center">
-        {userData ? "Crea tu billetera o utiliza una preexistente" : "¡Bienvenido!"}
-      </h2>
-      {userData? <p className="text-sm text-center">
-        {`El siguiente paso es crear tu billetera virtual o utilizar una que hayas creado con anterioridad (asegurese de contar con las mnemonics). 
+      {appName === 'Terrasacha' && (
+        <div className='flex justify-center'>
+        <Image
+          src="/v2/logo.svg"
+          width={400}
+          height={80}
+          alt="Logotipo de Terrasacha"
+        />
+        </div>
+      )}
+
+<h2 className="font-jostBold text-3xl  pb-4 flex justify-center text-center mt-8"
+>
+      {userData
+        ? 'Crea tu billetera o utiliza una preexistente'
+        : '¡Bienvenido a nuestro Marketplace!'}
+    </h2>
+      {userData ? (
+        <p className="font-jostRegular text-sm text-center">
+          {`El siguiente paso es crear tu billetera virtual o utilizar una que hayas creado con anterioridad (asegurese de contar con las mnemonics). 
         Para ello haz click en "Crear billetera" o "Recuperar billetera", allí deberás seguir los requerimientos 
         para luego poder solicitar tu token de acceso y así ingresar al Marketplace.`}
-      </p>: 
-      <p className="text-sm text-center">
-          Para operar en la aplicación necesita una billetera virtual que contenga el token de acceso 
-          proporcionado por nuestra organización en su portfolio. Puede crear su billetera directamente en nuestra plataforma, 
-          para lo cual deberá crear primero un usuario.{/* , o conectar cualquier billetera externa oficial, recomendamos la utilización de "Eternl". 
+        </p>
+      ) : (
+        <p className="text-sm pb-2 text-center font-jostRegular">
+     Para comenzar a usar la aplicación, necesitas una billetera virtual con el token de acceso
+     de nuestra organización. 
+     Puedes crear tu billetera y usuario directamente en nuestra plataforma.
+          {/* , o conectar cualquier billetera externa oficial, recomendamos la utilización de "Eternl". 
           Si desea obtener más detalles sobre cómo crear una billetera en "Eternl", visite este
           <a href="https://suan-1.gitbook.io/documentacion-suan-sandbox"
               target="_blank"
               className="text-[#50A4FF]">enlace</a>. */}
-      </p>}
+        </p>
+      )}
 
       <p
         className={`h-16 flex justify-center items-center text-sm ${
@@ -71,43 +90,41 @@ const WelcomeCard = (props: WelcomeCardProps) => {
           : ''}
         {checkingWallet === 'unauthorized' ? 'Billetera no autorizada.' : ''}
       </p>
-      {userData? 
-      <Link
-        href={
-          '/generate-wallet'
-        }
-      >
-        <button className="relative w-full flex items-center justify-center font-normal focus:z-10 focus:outline-none text-white bg-cyan-700 border border-transparent enabled:hover:bg-cyan-800 focus:ring-cyan-300 dark:bg-cyan-600 dark:enabled:hover:bg-cyan-700 dark:focus:ring-cyan-800 rounded-lg focus:ring-2 px-8 py-2">
-          Crear billetera
+      {userData ? (
+        <Link href={'/generate-wallet'}>
+          <button className="font-jostBold relative w-full flex items-center justify-center font-jostBold focus:z-10 focus:outline-none text-white bg-custom-marca-boton border border-transparent enabled:hover:bg-custom-marca-boton-variante  dark:bg-cyan-600 dark:enabled:hover:bg-cyan-700  rounded-lg focus:ring-2 px-8 py-2">
+
+            Crear billetera
+          </button>
+        </Link>
+      ) : (
+        <Link href={'/auth/login'}>
+        <button className="font-jostBold relative w-full flex items-center justify-center font-jostBold focus:z-10 focus:outline-none text-white bg-custom-marca-boton border border-transparent enabled:hover:bg-custom-marca-boton-variante  dark:bg-cyan-600 dark:enabled:hover:bg-cyan-700  rounded-lg focus:ring-2 px-8 py-2">
+          Ingresar
         </button>
       </Link>
-      : 
-      <Link
-        href={
-          '/auth/login'
-        }
-      >
-        <button className="relative w-full flex items-center justify-center font-normal focus:z-10 focus:outline-none text-white bg-cyan-700 border border-transparent enabled:hover:bg-cyan-800 focus:ring-cyan-300 dark:bg-cyan-600 dark:enabled:hover:bg-cyan-700 dark:focus:ring-cyan-800 rounded-lg focus:ring-2 px-8 py-2">
-          Ingresar 
-        </button>
-      </Link>}
-      {userData &&
+      )
+      }
+      {userData && (
         <Link href="/restore-wallet">
-          <button className="flex h-10 w-full items-center justify-center p-0.5 font-normal focus:z-10 focus:outline-none text-gray-900 border border-gray-300 enabled:hover:bg-gray-100 focus:ring-cyan-300 :bg-gray-600 dark:text-white dark:border-gray-600 dark:enabled:hover:bg-gray-700 dark:enabled:hover:border-gray-700 dark:focus:ring-gray-700 rounded-lg focus:ring-2 mt-2">
+      <button className="font-jostBold relative w-full flex items-center justify-center font-jostBold focus:z-10 focus:outline-none text-white bg-custom-marca-boton border border-transparent enabled:hover:bg-custom-marca-boton-variante  dark:bg-cyan-600 dark:enabled:hover:bg-cyan-700  rounded-lg focus:ring-2 px-8 py-2 mt-4">
+
             Recuperar billetera
           </button>
         </Link>
-      }
-      {userData && 
-      <button className="flex h-10 w-full text-sm items-center justify-center p-0.5 font-normal focus:z-10 focus:outline-none text-red-400 enabled:hover:bg-red-100 focus:ring-red-600 :bg-red-400 dark:text-white dark:enabled:hover:bg-red-600  dark:focus:ring-gray-600 rounded-lg focus:ring-2 mt-6"
-      onClick={() => {
-        signOut().then(() => router.reload());
-      }}
-    >
-      Cerrar sesión como {userData.username}
-    </button>}
+      )}
+      {userData && (
+        <button className="font-jostBold relative w-full flex items-center justify-center font-jostBold focus:z-10 focus:outline-none text-custom-marca-boton-variante2 bg-transparent enabled:hover:bg-custom-marca-boton-alterno2  dark:bg-cyan-600 dark:enabled:hover:bg-cyan-700  rounded-lg focus:ring-2 px-8 py-2 mt-4"
+
+          onClick={() => {
+            signOut().then(() => router.reload());
+          }}
+        >
+          Cerrar sesión como {userData.username}
+        </button>
+      )}
       {poweredby && (
-        <div className="flex items-center justify-center mt-4 text-xs">
+        <div className="flex items-center justify-center mt-4 text-xs font-jostRegular">
           Powered by
           <Image
             src="/images/home-page/suan_logo.png"
