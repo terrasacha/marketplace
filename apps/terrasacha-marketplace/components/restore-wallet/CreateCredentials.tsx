@@ -239,15 +239,15 @@ const CreateCredentials = (props: any) => {
         </div>
       </div>
       <div className="flex w-full justify-end mt-6 ">
-        <Button
-          className="px-8"
+        <button
+          className="relative flex h-10 min-w-16 items-center justify-center p-4 bg-custom-marca-boton-variante2 hover:bg-custom-marca-boton-alterno  font-medium focus:z-10 focus:outline-none text-white  border border-transparent   rounded-lg focus:ring-2 px-8 ml-4"
           color="gray"
           onClick={() => setCurrentSection(1)}
         >
           Volver
-        </Button>
+        </button>
         <button
-          className="relative flex h-10 items-center justify-center p-2 font-medium focus:z-10 focus:outline-none text-white bg-cyan-700 border border-transparent enabled:hover:bg-cyan-800 focus:ring-cyan-300 dark:bg-cyan-600 dark:enabled:hover:bg-cyan-700 dark:focus:ring-cyan-800 rounded-lg focus:ring-2 px-8 ml-4"
+          className="relative flex h-10 min-w-16 items-center justify-center p-4 bg-custom-marca-boton hover:bg-custom-marca-boton-variante font-medium focus:z-10 focus:outline-none text-white  border border-transparent   rounded-lg focus:ring-2 px-8 ml-4"
           onClick={() => handleContinue()}
           disabled={errors.mnemonics}
         >

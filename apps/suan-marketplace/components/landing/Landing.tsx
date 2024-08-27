@@ -49,6 +49,8 @@ const Login = (props: any) => {
         ) : (
           checkingWallet !== 'checking' && (
             <RedirectToHome
+              width_image={90}
+              image={'/images/home-page/suan_logo.png'}
               poweredby={false}
               appName={'Suan'}
               checkingWallet={checkingWallet}

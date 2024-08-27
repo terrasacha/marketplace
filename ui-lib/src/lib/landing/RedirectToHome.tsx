@@ -10,6 +10,8 @@ import { event }from '../common/event';
 import { toast } from 'sonner';
 interface RedirectToHomeProps {
   poweredby: boolean;
+  image: string;
+  width_image: number;
   appName: string;
   checkingWallet: string
   walletData: any
@@ -34,7 +36,7 @@ const RedirectToHome = (props: RedirectToHomeProps) => {
   const {
     walletID,
   } = useContext<any>(WalletContext);
-  const { poweredby, appName, checkingWallet, walletData , handleSetCheckingWallet } = props;
+  const { poweredby, appName, checkingWallet, walletData , handleSetCheckingWallet, image, width_image} = props;
   const [loading, setLoading] = useState<boolean>(false)
   const [statusText, setStatusText] = useState<string>('Validando token en billetera')
   const [showButtonAccess, setShowButtonAccess] = useState<boolean>(false)
@@ -193,10 +195,10 @@ const RedirectToHome = (props: RedirectToHomeProps) => {
   } */
     return (
     <div className="bg-white rounded-2xl w-[40rem] max-w-[35rem] 2xl:w-[45%] py-10 px-10 sm:px-10 h-auto flex flex-col justify-center">
-        <div className='flex justify-center'>
+        <div className='flex justify-center mb-8'>
         <Image
-          src="/v2/logo.svg"
-          width={400}
+          src={image}
+          width={width_image}
           height={80}
           alt="Logotipo de Terrasacha"
         />
@@ -215,12 +217,12 @@ const RedirectToHome = (props: RedirectToHomeProps) => {
       </div>
       }
       {/* {tryAgainAccessToken &&
-        <button onClick={() => retryAccessToken()} className="relative w-full h-10 flex items-center justify-center font-normal focus:z-10 focus:outline-none text-white bg-cyan-700 border border-transparent enabled:hover:bg-cyan-800 focus:ring-cyan-300 dark:bg-cyan-600 dark:enabled:hover:bg-cyan-700 dark:focus:ring-cyan-800 rounded-lg focus:ring-2 px-8 py-2">
+        <button onClick={() => retryAccessToken()} className="relative w-full h-10 flex items-center justify-center font-normal focus:z-10 focus:outline-none text-white bg-cyan-700 border border-transparent enabled:hover:bg-cyan-800  dark:bg-cyan-600 dark:enabled:hover:bg-cyan-700  rounded-lg focus:ring-2 px-8 py-2">
             Reintentar envío
       </button>
       } */}
       {showButtonAccess &&
-          <button onClick={() =>router.push('/home')} className="relative w-full h-10 mt-4 flex items-center justify-center font-normal focus:z-10 focus:outline-none text-white bg-cyan-700 border border-transparent enabled:hover:bg-cyan-800 focus:ring-cyan-300 dark:bg-cyan-600 dark:enabled:hover:bg-cyan-700 dark:focus:ring-cyan-800 rounded-lg focus:ring-2 px-8 py-2">
+          <button onClick={() =>router.push('/home')} className="relative w-full h-10 mt-4 flex items-center justify-center font-normal focus:z-10 focus:outline-none text-white bg-custom-marca-boton  enabled:hover:bg-custom-marca-boton-variante border border-transparent  dark:bg-cyan-600 dark:enabled:hover:bg-cyan-700  rounded-lg focus:ring-2 px-8 py-2">
             Acceder
           </button>
       }
@@ -231,7 +233,7 @@ const RedirectToHome = (props: RedirectToHomeProps) => {
         </div>
         }
       {(checkingWallet === 'requestToken') &&  
-                <button onClick={() => requestToken()} disabled={ claimed } className="group flex h-min items-center justify-center p-1 text-center font-medium focus:z-10 focus:outline-none text-white bg-custom-marca-boton  enabled:hover:bg-custom-marca-boton-variante border border-transparent focus:ring-cyan-300 dark:bg-cyan-600 dark:enabled:hover:bg-cyan-700 dark:focus:ring-cyan-800 rounded-lg focus:ring-2 px-8 ml-4">
+                <button onClick={() => requestToken()} disabled={ claimed } className="relative group flex h-10 items-center justify-center p-2 text-center font-medium focus:z-10 focus:outline-none text-white bg-custom-marca-boton  enabled:hover:bg-custom-marca-boton-variante border border-transparent  dark:bg-cyan-600 dark:enabled:hover:bg-cyan-700  rounded-lg focus:ring-2 px-8">
                   {loading ? (
                       <TailSpin
                         width="20"
@@ -244,7 +246,7 @@ const RedirectToHome = (props: RedirectToHomeProps) => {
                 </button>
         }
 
-      {checkingWallet !== 'hasTokenAuth' &&<button className="group flex h-min items-center justify-center p-1 text-center font-medium focus:z-10 focus:outline-none text-white bg-custom-marca-boton-alterno  enabled:hover:bg-custom-marca-boton-alterno2 border border-transparent focus:ring-cyan-300 dark:bg-cyan-600 dark:enabled:hover:bg-cyan-700 dark:focus:ring-cyan-800 rounded-lg focus:ring-2 px-8 ml-4"
+      {checkingWallet !== 'hasTokenAuth' &&<button className="group flex h-min items-center justify-center p-2 mt-2 text-center font-medium focus:z-10 focus:outline-none text-custom-marca-boton-alterno   enabled:hover:bg-custom-marca-boton-alterno hover:text-white border border-transparent  dark:bg-cyan-600 dark:enabled:hover:bg-cyan-700  rounded-lg focus:ring-2 px-8"
       onClick={() => {
         signOut().then(() => router.reload());
       }}

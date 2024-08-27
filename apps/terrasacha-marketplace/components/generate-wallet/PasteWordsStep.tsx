@@ -108,7 +108,7 @@ const PasteWordsStep = (props: any) => {
           Palabras de Recuperación
         </h2>
       </section>
-      <div className="flex gap-2 mt-1 words_write">
+      <div className="flex items-center gap-2 mt-1 p-8 rounded-md bg-custom-marca-boton-alterno">
         <svg
           xmlns="http://www.w3.org/2000/svg"
           height="25"
@@ -117,7 +117,7 @@ const PasteWordsStep = (props: any) => {
         >
           <path d="M440-440h80v-200h-80v200Zm40 120q17 0 28.5-11.5T520-360q0-17-11.5-28.5T480-400q-17 0-28.5 11.5T440-360q0 17 11.5 28.5T480-320ZM160-200v-80h80v-280q0-83 50-147.5T420-792v-28q0-25 17.5-42.5T480-880q25 0 42.5 17.5T540-820v28q80 20 130 84.5T720-560v280h80v80H160Zm320-300Zm0 420q-33 0-56.5-23.5T400-160h160q0 33-23.5 56.5T480-80ZM320-280h320v-280q0-66-47-113t-113-47q-66 0-113 47t-47 113v280Z" />
         </svg>
-        <p className="text-sm text-black-500 font-jostRegular  ">
+        <p className="ml-2 text-sm text-black-500 font-jostRegular  ">
           Ahora escribe tus palabras en el mismo orden, asegúrate de que nadie
           mira tu pantalla.
         </p>
@@ -162,13 +162,13 @@ const PasteWordsStep = (props: any) => {
       </div>
       <div className="flex w-full justify-end mt-6">
       <Button
-   className="group flex h-min items-center justify-center p-1 text-center font-medium focus:z-10 focus:outline-none text-white bg-custom-marca-boton-alterno  enabled:hover:bg-custom-marca-boton-alterno2 border border-transparent focus:ring-cyan-300 dark:bg-cyan-600 dark:enabled:hover:bg-cyan-700 dark:focus:ring-cyan-800 rounded-lg focus:ring-2 px-8 ml-4"
+   className="group flex h-min items-center justify-center p-1 text-center font-medium focus:z-10 focus:outline-none text-white bg-custom-marca-boton-alterno  enabled:hover:bg-custom-marca-boton-alterno2 border border-transparent  dark:bg-cyan-600 dark:enabled:hover:bg-cyan-700  rounded-lg focus:ring-2 px-8 ml-4"
   onClick={() => setCurrentSection(1)}
 >
   Volver
 </Button>
 <button
-  className="font-jostBold group flex items-center justify-center h-12 px-8 text-center font-medium focus:z-10 focus:outline-none text-white bg-custom-marca-boton hover:bg-custom-marca-boton-variante border border-transparent focus:ring-cyan-300 dark:bg-cyan-600 dark:hover:bg-cyan-700 dark:focus:ring-cyan-800 rounded-lg focus:ring-2 ml-4"
+  className="font-jostBold group flex items-center justify-center h-12 px-8 text-center font-medium focus:z-10 focus:outline-none text-white bg-custom-marca-boton hover:bg-custom-marca-boton-variante border border-transparent  dark:bg-cyan-600 dark:hover:bg-cyan-700  rounded-lg focus:ring-2 ml-4"
   onClick={() => setCurrentSection(3)}
 >
   Continuar

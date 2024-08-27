@@ -219,7 +219,7 @@ const SignUpForm = (props: SignUpFormProps) => {
             name="role"
             value={signupForm.role}
             onChange={handleChange}
-            className="font-jostRegular border rounded p-2" // Estilo aplicado al select
+            className="font-jostRegular rounded-sm" // Estilo aplicado al select
           >
             <option value="investor">Inversionista</option>
             <option value="constructor">Propietario</option>
@@ -258,7 +258,7 @@ const SignUpForm = (props: SignUpFormProps) => {
       <button
         type="button"
         onClick={() => submitForm()}
-        className={`relative w-full flex items-center justify-center font-jostBold focus:z-10 focus:outline-none text-white bg-custom-marca-boton border border-transparent enabled:hover:bg-custom-marca-boton-variante focus:ring-cyan-300 dark:bg-cyan-600 dark:enabled:hover:bg-cyan-700 dark:focus:ring-cyan-800 rounded-lg focus:ring-2 px-8 py-2`}
+        className={`relative w-full flex items-center justify-center h-10 font-jostBold focus:z-10 focus:outline-none text-white bg-custom-marca-boton border border-transparent enabled:hover:bg-custom-marca-boton-variante  dark:bg-cyan-600 dark:enabled:hover:bg-cyan-700  rounded-lg focus:ring-2 px-8 py-2`}
         disabled={
           signupForm.password.length === 0 ||
           signupForm.username.length === 0 ||
@@ -279,14 +279,14 @@ const SignUpForm = (props: SignUpFormProps) => {
         )}
       </button>
       <p className="font-jostRegular text-sm pt-1 w-full text-center">
-        ¿Ya tienes una cuenta ?
+        ¿Ya tienes una cuenta?
         <Link
           href={
             router.query.fromGenerateWallet === 'true'
               ? '/auth/login?fromGenerateWallet=true'
               : '/auth/login'
           }
-          className="font-jostRegular text-[#50A4FF] text-sm"
+          className="font-jostRegular text-[#50A4FF] text-sm pl-1"
         >
           Ingresa aquí
         </Link>

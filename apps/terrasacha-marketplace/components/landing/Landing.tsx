@@ -49,6 +49,8 @@ const Login = (props: any) => {
         ) : (
           checkingWallet !== 'checking' && (
             <RedirectToHome
+              width_image={400}
+              image={'/v2/logo.svg'}
               poweredby={true}
               appName={'Terrasacha'}
               checkingWallet={checkingWallet}

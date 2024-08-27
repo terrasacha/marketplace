@@ -92,14 +92,14 @@ const WelcomeCard = (props: WelcomeCardProps) => {
       </p>
       {userData ? (
         <Link href={'/generate-wallet'}>
-          <button className="font-jostBold relative w-full flex items-center justify-center font-jostBold focus:z-10 focus:outline-none text-white bg-custom-marca-boton border border-transparent enabled:hover:bg-custom-marca-boton-variante focus:ring-cyan-300 dark:bg-cyan-600 dark:enabled:hover:bg-cyan-700 dark:focus:ring-cyan-800 rounded-lg focus:ring-2 px-8 py-2">
+          <button className="font-jostBold relative w-full flex items-center justify-center font-jostBold focus:z-10 focus:outline-none text-white bg-custom-marca-boton border border-transparent enabled:hover:bg-custom-marca-boton-variante  dark:bg-cyan-600 dark:enabled:hover:bg-cyan-700  rounded-lg focus:ring-2 px-8 py-2">
 
             Crear billetera
           </button>
         </Link>
       ) : (
         <Link href={'/auth/login'}>
-        <button className="font-jostBold relative w-full flex items-center justify-center font-jostBold focus:z-10 focus:outline-none text-white bg-custom-marca-boton border border-transparent enabled:hover:bg-custom-marca-boton-variante focus:ring-cyan-300 dark:bg-cyan-600 dark:enabled:hover:bg-cyan-700 dark:focus:ring-cyan-800 rounded-lg focus:ring-2 px-8 py-2">
+        <button className="font-jostBold relative w-full flex items-center justify-center font-jostBold focus:z-10 focus:outline-none text-white bg-custom-marca-boton border border-transparent enabled:hover:bg-custom-marca-boton-variante  dark:bg-cyan-600 dark:enabled:hover:bg-cyan-700  rounded-lg focus:ring-2 px-8 py-2">
           Ingresar
         </button>
       </Link>
@@ -107,14 +107,14 @@ const WelcomeCard = (props: WelcomeCardProps) => {
       }
       {userData && (
         <Link href="/restore-wallet">
-      <button className="font-jostBold relative w-full flex items-center justify-center font-jostBold focus:z-10 focus:outline-none text-white bg-custom-marca-boton-alterno border border-transparent enabled:hover:bg-custom-marca-boton-alterno2 focus:ring-cyan-300 dark:bg-cyan-600 dark:enabled:hover:bg-cyan-700 dark:focus:ring-cyan-800 rounded-lg focus:ring-2 px-8 py-2 mt-4">
+      <button className="font-jostBold relative w-full flex items-center justify-center font-jostBold focus:z-10 focus:outline-none text-white bg-custom-marca-boton border border-transparent enabled:hover:bg-custom-marca-boton-variante  dark:bg-cyan-600 dark:enabled:hover:bg-cyan-700  rounded-lg focus:ring-2 px-8 py-2 mt-4">
 
             Recuperar billetera
           </button>
         </Link>
       )}
       {userData && (
-              <button className="font-jostBold relative w-full flex items-center justify-center font-jostBold focus:z-10 focus:outline-none text-white bg-custom-marca-boton-variante2 border border-transparent enabled:hover:bg-custom-marca-boton-alterno2 focus:ring-cyan-300 dark:bg-cyan-600 dark:enabled:hover:bg-cyan-700 dark:focus:ring-cyan-800 rounded-lg focus:ring-2 px-8 py-2 mt-4"
+        <button className="font-jostBold relative w-full flex items-center justify-center font-jostBold focus:z-10 focus:outline-none text-custom-marca-boton-variante2 bg-transparent enabled:hover:bg-custom-marca-boton-alterno2  dark:bg-cyan-600 dark:enabled:hover:bg-cyan-700  rounded-lg focus:ring-2 px-8 py-2 mt-4"
 
           onClick={() => {
             signOut().then(() => router.reload());

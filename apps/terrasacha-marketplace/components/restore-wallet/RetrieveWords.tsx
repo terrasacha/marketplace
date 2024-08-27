@@ -186,7 +186,7 @@ Los monederos de la era Byron no están soportados actualmente. Si necesita recu
       </div>
       <div className="flex w-full justify-end mt-6  ">
       <Button
-  className="group flex items-center justify-center h-12 px-8 text-center font-medium focus:z-10 focus:outline-none text-white bg-custom-marca-boton-alterno hover:bg-custom-marca-boton-alterno2 border border-transparent focus:ring-cyan-300 dark:bg-cyan-600 dark:hover:bg-cyan-700 dark:focus:ring-cyan-800 rounded-lg focus:ring-2 ml-4"
+  className="group flex items-center justify-center h-12 px-8 text-center font-medium focus:z-10 focus:outline-none text-white bg-custom-marca-boton-alterno hover:bg-custom-marca-boton-alterno2 border border-transparent  dark:bg-cyan-600 dark:hover:bg-cyan-700  rounded-lg focus:ring-2 ml-4"
   onClick={() => { setCurrentSection(1); router.push('/') }}
   color="gray"
 >
@@ -194,7 +194,7 @@ Los monederos de la era Byron no están soportados actualmente. Si necesita recu
 </Button>
 
 <button
-  className="group flex items-center justify-center h-12 px-8 text-center font-medium focus:z-10 focus:outline-none text-white bg-custom-marca-boton hover:bg-custom-marca-boton-variante border border-transparent focus:ring-cyan-300 dark:bg-cyan-600 dark:hover:bg-cyan-700 dark:focus:ring-cyan-800 rounded-lg focus:ring-2 ml-4"
+  className="group flex items-center justify-center h-12 px-8 text-center font-medium focus:z-10 focus:outline-none text-white bg-custom-marca-boton hover:bg-custom-marca-boton-variante border border-transparent  dark:bg-cyan-600 dark:hover:bg-cyan-700  rounded-lg focus:ring-2 ml-4"
   disabled={recoveryWords.includes("")}
   onClick={() => setCurrentSection(2)}
 >

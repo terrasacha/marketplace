@@ -216,19 +216,26 @@ const CreateCredentials = (props: any) => {
       <div className="flex w-full justify-end mt-6 ">
 
 
-<Button
-  className="group flex items-center justify-center h-12 px-4 text-center font-medium focus:z-10 focus:outline-none text-white bg-custom-marca-boton-alterno hover:bg-custom-marca-boton-alterno2 border border-transparent focus:ring-cyan-300 dark:bg-cyan-600 dark:hover:bg-cyan-700 dark:focus:ring-cyan-800 rounded-lg focus:ring-2 ml-4"
-  color="gray"
+<button
+  className="group flex items-center justify-center h-12 px-4 text-center font-medium focus:z-10 focus:outline-none text-white bg-custom-marca-boton-variante2 hover:bg-custom-marca-boton-alterno border border-transparent rounded-lg focus:ring-2 ml-4"
   onClick={() => setInputValue(deafultState)}
 >
   Limpiar campos
-</Button>
+</button>
 
 <button
-  className="group flex items-center justify-center h-12 px-4 text-center font-medium focus:z-10 focus:outline-none text-white bg-custom-marca-boton-variante hover:bg-custom-marca-boton-variante2 border border-transparent focus:ring-cyan-300 dark:bg-cyan-600 dark:hover:bg-cyan-700 dark:focus:ring-cyan-800 rounded-lg focus:ring-2 ml-4"
+  className="relative group flex items-center justify-center h-12 min-w-16 px-4 text-center font-medium focus:z-10 focus:outline-none text-white bg-custom-marca-boton-variante hover:bg-custom-marca-boton-variante2 border border-transparent   rounded-lg focus:ring-2 ml-4"
   onClick={() => handleContinue()}
 >
-  Continuar
+{loading ? (
+            <TailSpin
+              width="20"
+              color="#fff"
+              wrapperClass="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 "
+            />
+          ) : (
+            'Continuar'
+          )}{' '}
 </button>
       </div>
     </div>

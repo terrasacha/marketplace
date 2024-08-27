@@ -16,7 +16,7 @@ export default function CardanoWalletGeneric(props: CardanoWalletProps) {
   return (
     <div>
       {/* <button
-        className="relative flex h-10 w-full items-center justify-center p-0.5 text-sm font-normal focus:z-10 focus:outline-none text-gray-900 border border-gray-300 enabled:hover:bg-gray-100 focus:ring-cyan-300 :bg-gray-600 dark:text-white dark:border-gray-600 dark:enabled:hover:bg-gray-700 dark:enabled:hover:border-gray-700 dark:focus:ring-gray-700 rounded-lg focus:ring-2 mt-2"
+        className="relative flex h-10 w-full items-center justify-center p-0.5 text-sm font-normal focus:z-10 focus:outline-none text-gray-900 border border-gray-300 enabled:hover:bg-gray-100  :bg-gray-600 dark:text-white dark:border-gray-600 dark:enabled:hover:bg-gray-700 dark:enabled:hover:border-gray-700 dark:focus:ring-gray-700 rounded-lg focus:ring-2 mt-2"
         onClick={() => setOpenModal('selectWalletModal')}
       >
         {!connected || checkingWallet === 'unauthorized' ? (
