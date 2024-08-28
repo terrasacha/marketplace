@@ -96,7 +96,7 @@ export default function Projects(props: any) {
     let dataFormatted: any = {};
     data.map((item: any) => {
       let obj = `ADArate${item.currency}`;
-      dataFormatted[obj] = item.value.toFixed(4);
+      dataFormatted[obj] = item.value;
     });
     return dataFormatted;
   };
