@@ -7,7 +7,7 @@ import axios from 'axios';
 import { TailSpin } from 'react-loader-spinner';
 import { encryptPassword, updateWallet } from '@marketplaces/data-access';
 import { fetchUserAttributes } from 'aws-amplify/auth';
-
+import Image from 'next/image'; // Importa Image de Next.js
 const deafultState = { walletname: '', password: '', passwordConfirm: '' };
 const deafultStateShowInfo = { password: false, passwordConfirm: false };
 const CreateCredentials = (props: any) => {
@@ -115,12 +115,20 @@ const CreateCredentials = (props: any) => {
 
   return (
     <div>
+            <section className="flex flex-col items-center pb-2">
+        <Image
+          src="/v2/logo.svg"
+          alt="Logo"
+          width={500} // Ajusta el tamaño según sea necesario
+          height={500} // Ajusta el tamaño según sea necesario
+          className="mb-4" // Margen inferior para separar la imagen del texto
+        /> </section>
       <section className="flex justify-between pb-2">
-        <h2 className="text-2xl font-semibold text-center w-full">
+        <h2 className="text-3xl font-jostBlod text-center w-full">
           Crea tu billetera de Cardano
         </h2>
       </section>
-      <label className="font-semibold text-slate-600">
+      <label className="font-jostBold text-slate-600">
         Nombre de la billetera{' '}
         <span className="font-light text-xs text-red-500">
           {errors.walletname}
@@ -143,7 +151,7 @@ const CreateCredentials = (props: any) => {
       </div>
       <div className="grid grid-cols-2 gap-x-4 mt-6">
         <div>
-          <label className="font-semibold text-slate-600">
+          <label className="font-jostBold text-slate-600">
             Introduzca la nueva contraseña
           </label>
           <div className="relative w-full mt-2">
@@ -162,7 +170,7 @@ const CreateCredentials = (props: any) => {
               }`}
             />
             <button
-              className="absolute right-4 top-1/2 transform -translate-y-1/2 text-gray-500"
+              className="font-JostBold absolute right-4 top-1/2 transform -translate-y-1/2 text-gray-500"
               onClick={() => handleShowInfo('password')}
             >
               {showInfo.password ? <BsFillEyeFill /> : <BsFillEyeSlashFill />}
@@ -171,7 +179,7 @@ const CreateCredentials = (props: any) => {
           <p className="font-light text-red-500 text-sm">{errors.password}</p>
         </div>
         <div>
-          <label className="font-semibold text-slate-600">
+          <label className="font-jostBold text-slate-600">
             Repita la nueva contraseña
           </label>
           <div className="relative w-full mt-2">
@@ -206,27 +214,29 @@ const CreateCredentials = (props: any) => {
         </div>
       </div>
       <div className="flex w-full justify-end mt-6 ">
-        <Button
-          className="px-8"
-          color="gray"
-          onClick={() => setInputValue(deafultState)}
-        >
-          Limpiar todos los campos
-        </Button>
-        <button
-          className="relative flex h-10 items-center justify-center p-2 font-medium focus:z-10 focus:outline-none text-white bg-cyan-700 border border-transparent enabled:hover:bg-cyan-800 focus:ring-cyan-300 dark:bg-cyan-600 dark:enabled:hover:bg-cyan-700 dark:focus:ring-cyan-800 rounded-lg focus:ring-2 px-8 ml-4"
-          onClick={() => handleContinue()}
-        >
-          {loading ? (
+
+
+<button
+  className="group flex items-center justify-center h-12 px-4 text-center font-medium focus:z-10 focus:outline-none text-white bg-custom-marca-boton-variante2 hover:bg-custom-marca-boton-alterno border border-transparent rounded-lg focus:ring-2 ml-4"
+  onClick={() => setInputValue(deafultState)}
+>
+  Limpiar campos
+</button>
+
+<button
+  className="relative group flex items-center justify-center h-12 min-w-16 px-4 text-center font-medium focus:z-10 focus:outline-none text-white bg-custom-marca-boton-variante hover:bg-custom-marca-boton-variante2 border border-transparent   rounded-lg focus:ring-2 ml-4"
+  onClick={() => handleContinue()}
+>
+{loading ? (
             <TailSpin
               width="20"
               color="#fff"
-              wrapperClass="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2"
+              wrapperClass="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 "
             />
           ) : (
             'Continuar'
-          )}
-        </button>
+          )}{' '}
+</button>
       </div>
     </div>
   );

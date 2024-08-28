@@ -42,7 +42,9 @@ const LandingPage: MyPage = (props: any) => {
             if (hasTokenAuthFunction) {
               setCheckingWallet('hasTokenAuth');
             } else {
-              walletData[0].claimed_token
+              const claimedTokenMarketplace = walletData[0].claimedToken?.items?.some((item : any) => item.marketplaceID === process.env.NEXT_PUBLIC_MARKETPLACE_NAME?.toLocaleLowerCase())
+              console.log('claimedTokenMarketplace', claimedTokenMarketplace)
+              claimedTokenMarketplace
                 ? setCheckingWallet('alreadyClaimToken')
                 : setCheckingWallet('requestToken'); //requestToken. cambio para hacer la solicitud del token automaticamente
             }

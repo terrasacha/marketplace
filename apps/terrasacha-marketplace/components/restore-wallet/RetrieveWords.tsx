@@ -11,7 +11,7 @@ const options = [
   { id: 'fifteen', value: 15, name: 'Quince' },
   { id: 'twelve', value: 12, name: 'Doce' },
 ];
-
+import Image from 'next/image'; // Importa Image de Next.js
 const PasteWordsStep = (props: any) => {
   const {
     recoveryWords,
@@ -111,18 +111,30 @@ const PasteWordsStep = (props: any) => {
   }
   return (
     <div>
-      <section className="flex justify-between pb-2">
-        <h2 className="w-full text-2xl font-semibold pb-2">
+      <section className="flex flex-col items-center pb-2">
+        <Image
+          src="/v2/logo.svg"
+          alt="Logo"
+          width={500} // Ajusta el tamaño según sea necesario
+          height={500} // Ajusta el tamaño según sea necesario
+          className="mb-4" // Margen inferior para separar la imagen del texto
+        /> </section>
+       <section className="flex flex-col items-center pb-2">
+      <div className='flex justify-center'>
+        <h2 className="w-full text-2xl font-semibold pb-2 font-jostBold">
           Palabras de Recuperación
         </h2>
+      </div>
       </section>
-      <h4 className='w-full text-md font-normal'>¿Qué tipo de billetera le gustaría restaurar?</h4>
-      <p className='w-5/6 text-sm py-6'>Daedalus, Yoroi y Eternl utilizan frases de recuperación de 15 o 24 palabras. También son comunes las de 12 palabras. 
+      <h4 className='w-full text-md font-jostRegular'>¿Qué tipo de billetera le gustaría restaurar?</h4>
+  
+      <p className='w-5/6 text-sm py-2 font-jostItalic'>Nota: De las billeteras existentes Daedalus, Yoroi y Eternl utilizan frases de recuperación de 15 o 24 palabras. También son comunes las de 12 palabras. 
 Los monederos de la era Byron no están soportados actualmente. Si necesita recuperar un monedero anterior a agosto de 2020, utilice Yoroi.</p>
-      <fieldset className="flex gap-2 mb-4">
+
+      <fieldset className="flex gap-2 mb-2 bg-cu">
         {options.map((option, index) => {
           return (
-            <div className="flex items-center gap-2" key={index}>
+            <div className="flex items-center gap-2 bg-cu" key={index}>
               <Radio
                 id={option.id}
                 name="words"
@@ -136,25 +148,25 @@ Los monederos de la era Byron no están soportados actualmente. Si necesita recu
         })}
       </fieldset>
       <WordsContainer useCase="recovery" />
-      <p className="w-full rounded-lg p-3 bg-slate-600 text-white  text-md font-semibold  py-2">
-        Empieza a escribir para ver sugerecias de palabras.
+      <p className="w-full rounded-lg p-3 bg-custom-marca-boton-variante text-white  text-md   py-2 font-jostRegular">
+        Empieza a escribir para ver sugerencias de palabras.
       </p>
-      <div className="relative w-full mt-2">
-        <FaPen className="absolute left-4 top-1/2 transform -translate-y-1/2 text-gray-500" />
+      <div className="relative w-full mt-2 bg-cu">
+        <FaPen className="absolute left-4 top-1/2 transform -translate-y-1/2  text-black " />
         <input
           type="text"
           value={inputValue}
           disabled={nextRecoveryWordIndex === -1}
           onChange={(e) => setInputValue(e.target.value)}
           onKeyDown={(e) => handleKeyDown(e, nextRecoveryWordIndex, inputValue)}
-          className={`w-full rounded-lg pl-10 bg-slate-200 text-gray-600 text-lg font-semibold border-2 ${
+          className={`w-full rounded-lg pl-10 bg-slate-200 text-gray-600 text-lg font-jostBold border-2 ${
             errorInput && inputValue.length > 0
               ? 'border-red-600 focus:ring-red-600 focus:border-red-600'
               : 'border-gray-300 focus:ring-gray-500 focus:border-gray-500'
           } `}
         />
       </div>
-      <div className="grid grid-cols-5 gap-x-2 gap-y-2 py-4">
+      <div className="grid grid-cols-5 gap-x-2 gap-y-2 py-4 font-jostItalic">
         {inputValue.length > 2 &&
           dictionary
             .filter((word: string) => word.includes(inputValue))
@@ -162,7 +174,7 @@ Los monederos de la era Byron no están soportados actualmente. Si necesita recu
               return (
                 <button
                   key={index}
-                  className="border border-slate-200 py-2 px-5 rounded-lg bg-slate-200 text-gray-600 font-semibold hover:border-gray-500"
+                  className="border border-slate-200 py-2 px-5 rounded-lg bg-slate-200 text-gray-600 font hover:border-gray-500"
                   onClick={() =>
                     updateRecoveryWords(nextRecoveryWordIndex, word, 'button')
                   }
@@ -172,21 +184,22 @@ Los monederos de la era Byron no están soportados actualmente. Si necesita recu
               );
             })}
       </div>
-      <div className="flex w-full justify-end mt-6">
-        <Button
-          className="px-8"
-          color="gray"
-          onClick={() => {setCurrentSection(1); router.push('/')}}
-        >
-          Volver
-        </Button>
-        <button
-          className="group flex h-min items-center justify-center p-2 text-center font-medium focus:z-10 focus:outline-none text-white bg-cyan-700 border border-transparent enabled:hover:bg-cyan-800 focus:ring-cyan-300 dark:bg-cyan-600 dark:enabled:hover:bg-cyan-700 dark:focus:ring-cyan-800 rounded-lg focus:ring-2 px-8 ml-4"
-          disabled={recoveryWords.includes("")}
-          onClick={() => setCurrentSection(2)}
-        >
-          Continuar
-        </button>
+      <div className="flex w-full justify-end mt-6  ">
+      <Button
+  className="group flex items-center justify-center h-12 px-8 text-center font-medium focus:z-10 focus:outline-none text-white bg-custom-marca-boton-alterno hover:bg-custom-marca-boton-alterno2 border border-transparent  dark:bg-cyan-600 dark:hover:bg-cyan-700  rounded-lg focus:ring-2 ml-4"
+  onClick={() => { setCurrentSection(1); router.push('/') }}
+  color="gray"
+>
+  Volver
+</Button>
+
+<button
+  className="group flex items-center justify-center h-12 px-8 text-center font-medium focus:z-10 focus:outline-none text-white bg-custom-marca-boton hover:bg-custom-marca-boton-variante border border-transparent  dark:bg-cyan-600 dark:hover:bg-cyan-700  rounded-lg focus:ring-2 ml-4"
+  disabled={recoveryWords.includes("")}
+  onClick={() => setCurrentSection(2)}
+>
+  Continuar
+</button>
       </div>
     </div>
   );

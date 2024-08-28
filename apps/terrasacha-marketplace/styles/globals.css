@@ -256,21 +256,21 @@ input[type=range] {
   padding: 13px;
 }
 
-.important_words {
+/* .important_words {
   background: #EFB8B8;
   border-radius: 10px;
   padding: 1rem;
   color: #000000;
-}
+} */
 
 .palabras>div {
   background-color: #edeaea;
   border-radius: 10px;
   box-shadow: none;
 
-  p {
+  /* p {
     color: #2e7d96;
-  }
+  } */
 }
 
 .azul {

@@ -56,7 +56,7 @@ const RestoreWalletPage: MyPage = (props: any) => {
     <div className="w-full min-h-screen h-auto flex bg-slate-200 justify-center">
       <Image
         priority={true}
-        src="/images/home-page/fondo_login.avif"
+        src="/v2/bg3.avif"
         alt="landing-suan-image"
         fill
         sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
