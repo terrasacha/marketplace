@@ -190,16 +190,24 @@ export default function ProjectItem(props: ProjectItemProps) {
           </div>
           <div className="flex-none">
             {project.tokenGenesis && !project.tokenClaimedByOwner && (
-              <button
-                type="button"
-                className={`disabled:opacity-50 text-custom-dark bg-white hover:gray-300 focus:outline-none focus:ring-4 focus:ring-gray-300 font-medium rounded text-sm p-2.5 `}
-                disabled={checkOwnerWallet(project) ? false : true}
-                onClick={() => {
-                  handleSendTokensToOwner(project);
-                }}
-              >
-                Enviar tokens a propietario
-              </button>
+              <>
+                <button
+                  type="button"
+                  id={`hint${project.id}`}
+                  className={`disabled:opacity-50 text-custom-dark bg-white hover:gray-300 focus:outline-none focus:ring-4 focus:ring-gray-300 font-medium rounded text-sm p-2.5 `}
+                  disabled={checkOwnerWallet(project) ? false : true}
+                  onClick={() => {
+                    handleSendTokensToOwner(project);
+                  }}
+                >
+                  Enviar tokens a propietario
+                </button>
+                {(checkOwnerWallet(project) ? false : true) && (
+                  <Tooltip anchorSelect={`#hint${project.id}`} place="top">
+                    El propietario del proyecto no cuenta con una billetera
+                  </Tooltip>
+                )}
+              </>
             )}
             {!project.tokenGenesis && (
               <>
