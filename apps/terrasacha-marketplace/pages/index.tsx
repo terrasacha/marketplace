@@ -54,7 +54,7 @@ const LandingPage: MyPage = (props: any) => {
       } catch (error) {
         console.log(error);
       } finally {
-        setLoading(false);
+        
       }
     };
 
@@ -154,6 +154,7 @@ const LandingPage: MyPage = (props: any) => {
         checkingWallet={checkingWallet}
         handleSetCheckingWallet={handleSetCheckingWallet}
         loading={loading}
+        setLoading={setLoading}
         walletcount={walletcount}
         walletData={walletData}
       />
