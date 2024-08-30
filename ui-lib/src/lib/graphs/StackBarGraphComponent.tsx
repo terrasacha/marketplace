@@ -75,9 +75,28 @@ export default function StackBarGraphComponent(props: any) {
     labels,
     datasets,
   };
-
+  const marketplaceName = process.env.NEXT_PUBLIC_MARKETPLACE_NAME || 'Marketplace';
+  const marketplaceColors: Record<string, { bgColor: string; hoverBgColor: string;bgColorAlternativo:string;fuente:string;fuenteAlterna:string;}> = {
+    Terrasacha: {
+      bgColor: 'bg-custom-marca-boton',
+      hoverBgColor: 'hover:bg-custom-marca-boton-variante',
+      bgColorAlternativo: 'bg-custom-marca-boton-alterno2',
+      fuente:'font-jostBold',
+      fuenteAlterna:'font-jostRegular',
+    },
+  
+    // Agrega más marketplaces y colores aquí
+  };
+  const colors = marketplaceColors[marketplaceName] || {
+    bgColor:  'bg-custom-dark' ,
+    hoverBgColor: 'hover:bg-custom-dark-hover',
+    bgColorAlternativo: 'bg-amber-400',
+    fuente:'font-semibold',
+    fuenteAlterna:'font-medium',
+  };
+  
   return (
-    <Card className="h-fit !bg-custom-dark-hover text-white">
+    <Card className={`h-fit !bg-custom-dark-hover text-white ${colors.fuente}`}>
       <Card.Header
         title={`Tabla de redención`}
         subtitle={`Al finalizar cada periodo la siguiente cantidad de tokens podrán ser intercambiados por SUANCO2`}

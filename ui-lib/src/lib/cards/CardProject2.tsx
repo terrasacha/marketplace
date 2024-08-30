@@ -10,12 +10,32 @@ interface CardProject {
   title: string;
   description: string;
   availableTokens: string;
+
 }
 
 interface ProductFeature {
   featureID: string;
   value: any;
 }
+const marketplaceName = process.env.NEXT_PUBLIC_MARKETPLACE_NAME || 'Marketplace';
+const marketplaceColors: Record<string, { bgColor: string; hoverBgColor: string;bgColorAlternativo:string;fuente:string;fuenteAlterna:string;}> = {
+  Terrasacha: {
+    bgColor: 'bg-custom-marca-boton',
+    hoverBgColor: 'hover:bg-custom-marca-boton-variante',
+    bgColorAlternativo: 'bg-custom-marca-boton-alterno2',
+    fuente:'font-jostBold',
+    fuenteAlterna:'font-jostRegular',
+  },
+
+  // Agrega más marketplaces y colores aquí
+};
+const colors = marketplaceColors[marketplaceName] || {
+  bgColor:  'bg-custom-dark' ,
+  hoverBgColor: 'hover:bg-custom-dark-hover',
+  bgColorAlternativo: 'bg-amber-400',
+  fuente:'font-semibold',
+  fuenteAlterna:'font-medium',
+};
 
 const projectStatusMapper: any = {
   draft: 'En borrador',
@@ -192,10 +212,10 @@ export default function CardProject(props: any) {
             }}
           />
           <div className="absolute p-6 flex w-full justify-between">
-            <span className="bg-custom-dark text-custom-fondo text-sm font-medium px-2.5 py-0.5 rounded  border border-custom-fondo">
+            <span className={`${colors.fuenteAlterna} ${colors.bgColor} text-custom-fondo text-sm  px-2.5 py-0.5 rounded  border border-custom-fondo`}>
               {relevantInfo.status}
             </span>
-            <span className="bg-amber-400 text-sm font-medium px-2.5 py-0.5 rounded border border-custom-dark">
+            <span className={`${colors.bgColorAlternativo} bg-amber-400 ${colors.fuenteAlterna}  text-sm  px-2.5 py-0.5 rounded border border-custom-dark`}>
               {relevantInfo.tokenValue
                 ? `${parseFloat(relevantInfo.tokenValue).toLocaleString(
                     'es-CO'
@@ -209,21 +229,21 @@ export default function CardProject(props: any) {
         <div className="space-y-2">
           {/* Orden */}
           <div className="flex">
-            <p className="font-semibold text-xl">{relevantInfo.name}</p>
+            <p className={`${colors.fuente} text-xl`}>{relevantInfo.name}</p>
           </div>
           {/* Orden */}
           <div className="flex space-x-2">
-            <span className="bg-gray-100 text-gray-800 text-xs font-medium px-2.5 py-0.5 rounded  border border-gray-500">
+            <span className={` text-gray-800 text-xs ${colors.fuenteAlterna}  px-2.5 py-0.5 rounded  border border-gray-500`}>
               {relevantInfo.category}
             </span>
-            <span className="bg-gray-100 text-gray-800 text-xs font-medium px-2.5 py-0.5 rounded border border-gray-500">
+            <span className={` text-gray-800 text-xs ${colors.fuenteAlterna} px-2.5 py-0.5 rounded border border-gray-500`}>
               {relevantInfo.dateOfInscription}
             </span>
           </div>
           <div className="flex h-50">
-            <p className="text-xs line-clamp-4 ">{project.description}</p>
+            <p className={`${colors.fuenteAlterna} text-xs line-clamp-4 `}>{project.description}</p>
           </div>
-          <div className="flex justify-center bg-amber-400 text-xs px-2.5 py-0.5 rounded border border-custom-dark">
+          <div className={`bg-amber-400 ${colors.fuente} flex justify-center ${colors.bgColorAlternativo} text-xs px-2.5 py-0.5 rounded border border-custom-dark`}>
             <p>
               Tokens disponibles para comprar:{' '}
               <span className="font-semibold">
@@ -234,10 +254,12 @@ export default function CardProject(props: any) {
             </p>
           </div>
           <Link
-            className="flex justify-center w-full text-white bg-custom-dark hover:bg-custom-dark-hover focus:outline-none focus:ring-4 focus:ring-gray-300 font-medium rounded text-sm px-5 py-2.5 "
+            className=
+            {`flex justify-center w-full text-white ${colors.bgColor} ${colors.hoverBgColor}  focus:outline-none focus:ring-4 focus:ring-gray-300 font-medium rounded text-sm px-5 py-2.5 `}
             href={`/projects/${project.id}`}
           >
-            Ver Más
+            Ver Más de {project.name} 
+            
           </Link>
         </div>
       </Card.Body>
