@@ -1,6 +1,7 @@
 /* import { useWallet } from '@meshsdk/react'; */
 import { useEffect, useState, useRef, useContext } from 'react';
 import Image from 'next/image';
+import { Tooltip } from 'react-tooltip';
 import Link from 'next/link';
 import { useRouter } from 'next/router';
 import { BookIcon } from '../icons/BookIcon';
@@ -62,7 +63,11 @@ export default function Sidebar(props: SidebarProps) {
   const [balanceChangeUSD, setBalanceChangeUSD] = useState<number>(0)
   const [changeOnBalanceDetected, setChangeOnBalanceDetected] =
     useState<boolean>(false);
-
+  const [env, setEnv] = useState('')
+  useEffect(() =>{
+    const env = process.env.NEXT_PUBLIC_HOST?.includes('test')? 'TEST' : 'PRODUCTION'
+    setEnv(env)
+  },[])
   useEffect(() => {
     const handleClickOutside = (event: MouseEvent) => {
       if (
@@ -214,9 +219,14 @@ export default function Sidebar(props: SidebarProps) {
         <SideBarBalanceSkeleton />
       )}
 
-      <div className="pt-4 mt-4 border-t border-gray-200"></div>
-
+      <div className="pt-4 mt-2 border-t border-gray-200"></div>
       <ul className="space-y-4">
+        <li>
+        <div data-tooltip-id="my-tooltip" data-tooltip-content={`Ambiente de desarrollo: ${env}`} className='relative py-1 px-12 bg-blue-400 rounded-sm text-white text-xs w-full text-center'>
+          {env}
+        </div>
+        <Tooltip id="my-tooltip" />
+        </li>
         <li className={walletAdmin ? '' : 'hidden'}>
           <Link
             onClick={onClose}
