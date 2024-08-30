@@ -8,9 +8,11 @@
   ],
   "passwordPolicyMinLength": 8,
   "passwordPolicyCharacters": [],
-  "mfaConfiguration": "OFF",
+  "mfaConfiguration": "OPTIONAL",
   "autoVerifiedAttributes": [
     "email"
   ],
-  "mfaTypes": []
+  "mfaTypes": [
+    "TOTP"
+  ]
 }
