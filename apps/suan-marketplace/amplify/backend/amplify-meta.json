@@ -37,13 +37,15 @@
           "passwordPolicyMinLength": 8,
           "passwordPolicyCharacters": []
         },
-        "mfaConfiguration": "OFF",
-        "mfaTypes": [],
+        "mfaConfiguration": "OPTIONAL",
+        "mfaTypes": [
+          "TOTP"
+        ],
         "verificationMechanisms": [
           "EMAIL"
         ]
       },
-      "lastPushTimeStamp": "2024-07-15T20:32:58.035Z"
+      "lastPushTimeStamp": "2024-08-02T17:08:04.371Z"
     }
   }
 }
