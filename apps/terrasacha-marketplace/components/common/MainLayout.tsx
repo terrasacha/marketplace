@@ -242,9 +242,9 @@ const MainLayout = ({ children }: PropsWithChildren) => {
             //image="/images/home-page/suan_logo.png"
             //heightLogo={120}
             //widthLogo={60}
-            image="/images/home-page/terrasacha_logo_vertical.png"
-            heightLogo={60}
-            widthLogo={120}
+            image="/v2/logoterrasacha.svg"
+            heightLogo={150}
+            widthLogo={300}
             poweredBy={true}
             //poweredBy={false}
           />

@@ -222,7 +222,7 @@ const RedirectToHome = (props: RedirectToHomeProps) => {
       </button>
       } */}
       {showButtonAccess &&
-          <button onClick={() =>router.push('/home')} className="relative w-full h-10 mt-4 flex items-center justify-center font-normal focus:z-10 focus:outline-none text-white bg-custom-marca-boton  enabled:hover:bg-custom-marca-boton-variante border border-transparent  dark:bg-cyan-600 dark:enabled:hover:bg-cyan-700  rounded-lg focus:ring-2 px-8 py-2">
+          <button onClick={() =>router.push('/home')} className="w-full group flex h-min items-center justify-center p-1 text-center font-medium focus:z-10 focus:outline-none text-white bg-custom-marca-boton  enabled:hover:bg-custom-marca-boton-variante border border-transparent focus:ring-cyan-300 dark:bg-cyan-600 dark:enabled:hover:bg-cyan-700 dark:focus:ring-cyan-800 rounded-lg focus:ring-2 px-8 ml-4">
             Acceder
           </button>
       }
@@ -246,7 +246,7 @@ const RedirectToHome = (props: RedirectToHomeProps) => {
                 </button>
         }
 
-      {checkingWallet !== 'hasTokenAuth' &&<button className="group flex h-min items-center justify-center p-2 mt-2 text-center font-medium focus:z-10 focus:outline-none text-custom-marca-boton-alterno   enabled:hover:bg-custom-marca-boton-alterno hover:text-white border border-transparent  dark:bg-cyan-600 dark:enabled:hover:bg-cyan-700  rounded-lg focus:ring-2 px-8"
+      {checkingWallet !== 'hasTokenAuth' &&<button className="w-full group flex h-min items-center justify-center p-1 text-center font-medium focus:z-10 focus:outline-none text-white bg-custom-marca-boton-alterno  enabled:hover:bg-custom-marca-boton-alterno2 border border-transparent focus:ring-cyan-300 dark:bg-cyan-600 dark:enabled:hover:bg-cyan-700 dark:focus:ring-cyan-800 rounded-lg focus:ring-2 px-8 ml-4"
       onClick={() => {
         signOut().then(() => router.reload());
       }}
