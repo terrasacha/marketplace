@@ -224,10 +224,7 @@ const Product: MyPage = (props: any) => {
   const tabComponents = [TabsComponents, TabsComponents, TabsComponents]; // Importa tus componentes
   const tabProps = [
     {
-      title: 
-      (<span className={` ${colors.fuente} `}>
-       Indicadores Financieros
-        </span>)
+      title: "Indicadores Financieros"
     ,
       description:
         'Esta sección proporciona una visión integral de la evaluación financiera del proyecto, indicadores esenciales para tomar decisiones informadas sobre la viabilidad y el éxito del proyecto, proporcionando una base sólida para la toma de decisiones estratégicas.',
@@ -241,11 +238,7 @@ const Product: MyPage = (props: any) => {
       ),
     },
     {
-      title:
-      (<span className={` ${colors.fuente} `}>
-        Ingresos por producto
-        </span>)
-
+      title: "Ingresos por producto"
      ,
       description:
         'Esta sección proporciona una visión integral de la evaluación financiera del proyecto, indicadores esenciales para tomar decisiones informadas sobre la viabilidad y el éxito del proyecto, proporcionando una base sólida para la toma de decisiones estratégicas.',
@@ -256,12 +249,7 @@ const Product: MyPage = (props: any) => {
       ),
     },
     {
-      title: 
-      (<span className={` ${colors.fuente} `}>
-        Proyección por proyecto
-        </span>)
-      
-      ,
+      title: "Proyección por proyecto",
       description:
         'Esta sección proporciona una visión integral de la evaluación financiera del proyecto, indicadores esenciales para tomar decisiones informadas sobre la viabilidad y el éxito del proyecto, proporcionando una base sólida para la toma de decisiones estratégicas.',
       content: <ProjectionsTab projectionData={project} />,

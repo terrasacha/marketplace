@@ -13,7 +13,7 @@ import WalletIcon from '../icons/WalletIcon';
 import { WalletContext } from '@marketplaces/utils-2';
 import { LoadingIcon, SquareArrowUpIcon } from '../ui-lib';
 import SideBarBalanceSkeleton from '../common/skeleton/SideBarBalanceSkeleton';
-
+import { fetchUserAttributes } from 'aws-amplify/auth';
 interface SidebarProps {
   isOpen: boolean;
   onClose: () => void;
@@ -56,6 +56,7 @@ export default function Sidebar(props: SidebarProps) {
   /* const { wallet, connected } = useWallet(); */
   const [walletStakeID, setWalletStakeID] = useState<any>(undefined);
   const [copied, setCopied] = useState(false);
+  const [allowAccessCW, setAllowAccessCW] = useState(false)
   const sidebarRef = useRef<HTMLDivElement | null>(null);
   const [displayWalletOptions, setDisplayWalletOptions] = useState(false);
   const [displayMarketOptions, setDisplayMarketOptions] = useState(false);
@@ -67,6 +68,11 @@ export default function Sidebar(props: SidebarProps) {
   useEffect(() =>{
     const env = process.env.NEXT_PUBLIC_HOST?.includes('test')? 'TEST' : 'PRODUCTION'
     setEnv(env)
+    fetchUserAttributes().then((data :any)=>{
+      if(data['custom:role'] === 'marketplace_admin' && data['custom:subrole'] === process.env.NEXT_PUBLIC_MARKETPLACE_NAME?.toLocaleLowerCase()){
+        setAllowAccessCW(true)
+      }
+    })
   },[])
   useEffect(() => {
     const handleClickOutside = (event: MouseEvent) => {
@@ -227,7 +233,7 @@ export default function Sidebar(props: SidebarProps) {
         </div>
         <Tooltip id="my-tooltip" />
         </li>
-        <li className={walletAdmin ? '' : 'hidden'}>
+        <li className={allowAccessCW ? '' : 'hidden'}>
           <Link
             onClick={onClose}
             href="/corewallet"

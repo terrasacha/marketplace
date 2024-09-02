@@ -4,6 +4,7 @@ import { getCurrentUser, setUpTOTP, updateUserAttribute, verifyTOTPSetup, update
 import { TailSpin } from 'react-loader-spinner';
 import { useRouter } from 'next/router';
 import { toast } from 'sonner';
+import { signOut } from 'aws-amplify/auth';
 const EnableMFA = (props : any) =>{
   const router = useRouter()
   const { Canvas } = useQRCode();
@@ -110,6 +111,12 @@ const EnableMFA = (props : any) =>{
                   wrapperClass="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2"
                 /> :
                 'Guardar'}
+              </button>
+              <button className="relative w-full mt-6 flex items-center h-10 justify-center font-jostBold focus:z-10 focus:outline-none border border-custom-marca-boton text-custom-marca-boton  dark:bg-cyan-600 dark:enabled:hover:bg-cyan-700  rounded-lg focus:ring-2 px-8 py-2"
+              onClick={() => {
+                signOut().then(() => router.reload());
+              }}>
+                Cerrar sesión
               </button>
           </div>
           </div>

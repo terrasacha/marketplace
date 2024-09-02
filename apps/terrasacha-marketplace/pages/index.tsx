@@ -154,7 +154,6 @@ const LandingPage: MyPage = (props: any) => {
         checkingWallet={checkingWallet}
         handleSetCheckingWallet={handleSetCheckingWallet}
         loading={loading}
-        setLoading={setLoading}
         walletcount={walletcount}
         walletData={walletData}
       />

@@ -20,8 +20,9 @@ const VerifyCodeMFA = (props: any) => {
             return router.replace('/')
         } catch (error) {
             toast.error('Código inválido')
+            setCode('')
         } finally {
-          /* setLoading(false) */
+          setLoading(false)
         }
     }
     return (

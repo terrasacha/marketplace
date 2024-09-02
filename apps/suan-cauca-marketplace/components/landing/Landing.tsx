@@ -7,7 +7,7 @@ import Image from 'next/image';
 import { getCurrentUser, signOut, fetchUserAttributes } from 'aws-amplify/auth';
 import { Hub } from 'aws-amplify/utils';
 const Login = (props: any) => {
-  const { loading, walletcount, checkingWallet, walletData, setLoading } = props;
+  const { loading, walletcount, checkingWallet, walletData } = props;
   const [user, setUser] = useState<any>(null);
   const [setupMFA, setSetupMFA] = useState(false)
   useEffect(() => {
@@ -29,7 +29,6 @@ const Login = (props: any) => {
     } catch (err) {
       console.log(err);
     } finally {
-      setLoading(false)
     }
   }
   Hub.listen('auth', ({ payload }) => {
