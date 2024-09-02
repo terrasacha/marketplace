@@ -1,5 +1,4 @@
 import dynamic from 'next/dynamic';
-import { signInAuth } from '@terrasacha/backend';
 import Image from 'next/image';
 import Title from '@marketplaces/ui-lib/src/lib/auth/Title';
 import EnableMFA from '@marketplaces/ui-lib/src/lib/auth/EnableMFA';

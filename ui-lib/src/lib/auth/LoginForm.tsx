@@ -21,7 +21,7 @@ const VerifyCodeMFA = (props: any) => {
         } catch (error) {
             toast.error('Código inválido')
         } finally {
-          setLoading(false)
+          /* setLoading(false) */
         }
     }
     return (
@@ -43,7 +43,7 @@ const VerifyCodeMFA = (props: any) => {
                   color="#fff"
                   wrapperClass="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2"
                 /> :
-                'Guardar'}
+                'Enviar'}
              </button>
         </div>
     );

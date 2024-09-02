@@ -54,7 +54,7 @@ const LandingPage: MyPage = (props: any) => {
       } catch (error) {
         console.log(error);
       } finally {
-        
+        setLoading(false)
       }
     };
 

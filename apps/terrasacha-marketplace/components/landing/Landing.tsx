@@ -29,7 +29,7 @@ const Login = (props: any) => {
     } catch (err) {
       console.log(err);
     } finally {
-      setLoading(false)
+      /* setLoading(false) */
     }
   }
   Hub.listen('auth', ({ payload }) => {
