@@ -1,8 +1,8 @@
 import React, { useState } from 'react';
 import NewPasswordRequired from '@marketplaces/ui-lib/src/lib/auth/NewPasswordRequired';
 import Title from '@marketplaces/ui-lib/src/lib/auth/Title'
-import { confirmSignInAuth } from '@suan/backend';
-import { MyPage } from '@suan/components/common/types';
+import { confirmSignInAuth } from '@cauca/backend';
+import { MyPage } from '@cauca/components/common/types';
 import Image from 'next/image';
 
 const NewPasswordRequiredPage: MyPage = (props: any) => {

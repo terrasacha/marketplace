@@ -4,6 +4,51 @@ import Image from 'next/image';
 import { useRouter } from 'next/router';
 import { TailSpin } from 'react-loader-spinner';
 import { BsFillEyeFill, BsFillEyeSlashFill } from 'react-icons/bs';
+import { confirmSignIn, verifyTOTPSetup, ConfirmSignInInput } from "aws-amplify/auth"
+import { toast } from 'sonner';
+const VerifyCodeMFA = (props: any) => {
+    const [code, setCode] = useState<string>('');
+    const [loading, setLoading] = useState(false)
+    const router = useRouter()
+    const handleInputChange = (event: React.ChangeEvent<HTMLInputElement>) => {
+        setCode(event.target.value);
+    };
+    const verifyMFA = async (codeMFA: string) =>{
+      setLoading(true)
+        try {
+            const result2 = await confirmSignIn({ challengeResponse: codeMFA})
+            return router.replace('/')
+        } catch (error) {
+            toast.error('Código inválido')
+            setCode('')
+        } finally {
+          setLoading(false)
+        }
+    }
+    return (
+        <div>
+            <h1 className="font-jostBold text-3xl font-jostBold pb-3">Multi-factor Authentication</h1>
+            <p className='pb-1 text-sm'>Enter an MFA code to complete sign-in.</p>
+            <input
+                type="text"
+                className='text-sm border border-gray-200 w-full p-4 rounded-md'
+                value={code}
+                onChange={handleInputChange}
+                placeholder="Ingresa el código MFA"
+            />
+            <button className="relative w-full mt-6 flex items-center h-10 justify-center font-jostBold focus:z-10 focus:outline-none text-white bg-custom-marca-boton border border-transparent enabled:hover:bg-custom-marca-boton-variante  dark:bg-cyan-600 dark:enabled:hover:bg-cyan-700  rounded-lg focus:ring-2 px-8 py-2"
+             onClick={() => verifyMFA(code)}>
+              {loading?
+                <TailSpin 
+                  width="20"
+                  color="#fff"
+                  wrapperClass="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2"
+                /> :
+                'Enviar'}
+             </button>
+        </div>
+    );
+};
 
 const initialStateErrors = { loginError: '' };
 
@@ -16,6 +61,7 @@ export interface LoginFormProps {
   appName: string;
 }
 const deafultStateShowInfo = { password: false };
+
 const LoginForm = (props: LoginFormProps) => {
   const { logo, widthLogo, heightLogo, appName, poweredby } = props;
   const { signInAuth } = props;
@@ -27,6 +73,7 @@ const LoginForm = (props: LoginFormProps) => {
   const [showInfo, setShowInfo] = useState(deafultStateShowInfo) as any[];
   const [loading, setLoading] = useState(false);
   const [errors, setErrors] = useState<any>(initialStateErrors);
+  const [showMFA, setShowMFA] = useState(false)
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     setErrors(initialStateErrors);
@@ -47,43 +94,48 @@ const LoginForm = (props: LoginFormProps) => {
     setLoading(true);
     try {
       const data = await signInAuth(loginForm);
-      console.log(data, "loginform")
-      if(data.nextStep.signInStep === 'CONFIRM_SIGN_IN_WITH_NEW_PASSWORD_REQUIRED'){
-        return router.push(`/auth/new-password-required?username=${loginForm.username}`);
-      }
-      if (data.isSignedIn) {
-        console.log(data, "loginform")
-        const isFromGenerateWallet = router.query.fromGenerateWallet === 'true';
-        if (isFromGenerateWallet) return router.push('/generate-wallet');
-        return router.push('/');
+  
+      switch (data.nextStep.signInStep) {
+        case 'CONFIRM_SIGN_IN_WITH_NEW_PASSWORD_REQUIRED':
+          return router.push(`/auth/new-password-required?username=${loginForm.username}`);
+  
+        case 'CONFIRM_SIGN_IN_WITH_TOTP_CODE':
+          setShowMFA(true)
+          break;
+  
+        default:
+          if (data.isSignedIn) {
+            const isFromGenerateWallet = router.query.fromGenerateWallet === 'true';
+            if (isFromGenerateWallet) {
+              return router.push('/generate-wallet');
+            }
+            return router.push('/');
+          }
       }
     } catch (error: any) {
-      console.log(error.name)
-      if (error.name === 'UserNotFoundException') {
-        setErrors((preForm: any) => ({
-          ...preForm,
-          loginError: 'El usuario no existe',
-        }));
-      } else if (error.name === 'NotAuthorizedException'){
-        setErrors((preForm: any) => ({
-          ...preForm,
-          loginError: 'Contraseña inválida',
-        }));
+      console.log(error.name);
+      let errorMessage = 'error.name';
+  
+      switch (error.name) {
+        case 'UserNotFoundException':
+          errorMessage = 'El usuario no existe';
+          break;
+        case 'NotAuthorizedException':
+          errorMessage = 'Contraseña inválida';
+          break;
+        case 'EmptySignInUsername':
+          errorMessage = 'Debe ingresar datos';
+          break;
+        default:
+          errorMessage = 'Error desconocido';
       }
-      else if (error.name === 'EmptySignInUsername'){
-        setErrors((preForm: any) => ({
-          ...preForm,
-          loginError: 'Debe ingresar datos',
-        }));
-      }
-      else{
+  
       setErrors((preForm: any) => ({
         ...preForm,
-        loginError: 'error.name',
+        loginError: errorMessage,
       }));
-    }
     } finally {
-      setLoading(false); // Se asegura de que setLoading(false) se ejecute, independientemente de si la promesa se resuelve o se rechaza.
+      setLoading(false);
     }
   };
 
@@ -97,7 +149,8 @@ const LoginForm = (props: LoginFormProps) => {
           alt={`${appName} Logo`}
         />
       </div>
-      <h2 className="font-jostBold text-3xl font-jostBold pb-3 flex justify-center text-center">¡Bienvenido al Marketplace de {appName}!</h2>
+      { !showMFA ?
+      <><h2 className="font-jostBold text-3xl font-jostBold pb-3 flex justify-center text-center">¡Bienvenido al Marketplace de {appName}!</h2>
       <h4 className="font-jostRegular text-1xl font-jostRegular">Ingrese sus datos:</h4>
       <p
         className={`${
@@ -181,6 +234,11 @@ const LoginForm = (props: LoginFormProps) => {
           ¿Olvidaste tu contraseña?
         </Link>
       </p>
+      </>
+      :
+      <VerifyCodeMFA />
+      }
+      
       {poweredby && (
         <div className="font-jostRegular flex items-center justify-center mt-4 text-xs">
           Powered by

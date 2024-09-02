@@ -1,6 +1,7 @@
 /* import { useWallet } from '@meshsdk/react'; */
 import { useEffect, useState, useRef, useContext } from 'react';
 import Image from 'next/image';
+import { Tooltip } from 'react-tooltip';
 import Link from 'next/link';
 import { useRouter } from 'next/router';
 import { BookIcon } from '../icons/BookIcon';
@@ -12,7 +13,7 @@ import WalletIcon from '../icons/WalletIcon';
 import { WalletContext } from '@marketplaces/utils-2';
 import { LoadingIcon, SquareArrowUpIcon } from '../ui-lib';
 import SideBarBalanceSkeleton from '../common/skeleton/SideBarBalanceSkeleton';
-
+import { fetchUserAttributes } from 'aws-amplify/auth';
 interface SidebarProps {
   isOpen: boolean;
   onClose: () => void;
@@ -55,6 +56,7 @@ export default function Sidebar(props: SidebarProps) {
   /* const { wallet, connected } = useWallet(); */
   const [walletStakeID, setWalletStakeID] = useState<any>(undefined);
   const [copied, setCopied] = useState(false);
+  const [allowAccessCW, setAllowAccessCW] = useState(false)
   const sidebarRef = useRef<HTMLDivElement | null>(null);
   const [displayWalletOptions, setDisplayWalletOptions] = useState(false);
   const [displayMarketOptions, setDisplayMarketOptions] = useState(false);
@@ -62,7 +64,16 @@ export default function Sidebar(props: SidebarProps) {
   const [balanceChangeUSD, setBalanceChangeUSD] = useState<number>(0)
   const [changeOnBalanceDetected, setChangeOnBalanceDetected] =
     useState<boolean>(false);
-
+  const [env, setEnv] = useState('')
+  useEffect(() =>{
+    const env = process.env.NEXT_PUBLIC_HOST?.includes('test')? 'TEST' : 'PRODUCTION'
+    setEnv(env)
+    fetchUserAttributes().then((data :any)=>{
+      if(data['custom:role'] === 'marketplace_admin' && data['custom:subrole'] === process.env.NEXT_PUBLIC_MARKETPLACE_NAME?.toLocaleLowerCase()){
+        setAllowAccessCW(true)
+      }
+    })
+  },[])
   useEffect(() => {
     const handleClickOutside = (event: MouseEvent) => {
       if (
@@ -214,10 +225,15 @@ export default function Sidebar(props: SidebarProps) {
         <SideBarBalanceSkeleton />
       )}
 
-      <div className="pt-4 mt-4 border-t border-gray-200"></div>
-
+      <div className="pt-4 mt-2 border-t border-gray-200"></div>
       <ul className="space-y-4">
-        <li className={walletAdmin ? '' : 'hidden'}>
+        <li>
+        <div data-tooltip-id="my-tooltip" data-tooltip-content={`Ambiente de desarrollo: ${env}`} className='relative py-1 px-12 bg-blue-400 rounded-sm text-white text-xs w-full text-center'>
+          {env}
+        </div>
+        <Tooltip id="my-tooltip" />
+        </li>
+        <li className={allowAccessCW ? '' : 'hidden'}>
           <Link
             onClick={onClose}
             href="/corewallet"

@@ -179,7 +179,25 @@ const Product: MyPage = (props: any) => {
     (parseInt(totalTokensSold) * 100) / tokenUnits;
   const createdAt: any = new Date(project.createdAt);
   const updatedAt: any = new Date(project.updatedAt);
-
+  const marketplaceName = process.env.NEXT_PUBLIC_MARKETPLACE_NAME || 'Marketplace';
+  const marketplaceColors: Record<string, { bgColor: string; hoverBgColor: string;bgColorAlternativo:string;fuente:string;fuenteAlterna:string;}> = {
+    Terrasacha: {
+      bgColor: 'bg-custom-marca-boton',
+      hoverBgColor: 'hover:bg-custom-marca-boton-variante',
+      bgColorAlternativo: 'bg-custom-marca-boton-alterno2',
+      fuente:'font-jostBold',
+      fuenteAlterna:'font-jostRegular',
+    },
+  
+    // Agrega más marketplaces y colores aquí
+  };
+  const colors = marketplaceColors[marketplaceName] || {
+    bgColor:  'bg-custom-dark' ,
+    hoverBgColor: 'hover:bg-custom-dark-hover',
+    bgColorAlternativo: 'bg-amber-400',
+    fuente:'font-semibold',
+    fuenteAlterna:'font-medium',
+  };
   let relevantInfo = {
     name: project.name,
     dateOfInscription: project.createdAt.split('-')[0],
@@ -206,7 +224,8 @@ const Product: MyPage = (props: any) => {
   const tabComponents = [TabsComponents, TabsComponents, TabsComponents]; // Importa tus componentes
   const tabProps = [
     {
-      title: 'Indicadores Financieros',
+      title: "Indicadores Financieros"
+    ,
       description:
         'Esta sección proporciona una visión integral de la evaluación financiera del proyecto, indicadores esenciales para tomar decisiones informadas sobre la viabilidad y el éxito del proyecto, proporcionando una base sólida para la toma de decisiones estratégicas.',
       content: (
@@ -219,7 +238,8 @@ const Product: MyPage = (props: any) => {
       ),
     },
     {
-      title: 'Ingresos por producto',
+      title: "Ingresos por producto"
+     ,
       description:
         'Esta sección proporciona una visión integral de la evaluación financiera del proyecto, indicadores esenciales para tomar decisiones informadas sobre la viabilidad y el éxito del proyecto, proporcionando una base sólida para la toma de decisiones estratégicas.',
       content: (
@@ -229,7 +249,7 @@ const Product: MyPage = (props: any) => {
       ),
     },
     {
-      title: 'Proyección por proyecto',
+      title: "Proyección por proyecto",
       description:
         'Esta sección proporciona una visión integral de la evaluación financiera del proyecto, indicadores esenciales para tomar decisiones informadas sobre la viabilidad y el éxito del proyecto, proporcionando una base sólida para la toma de decisiones estratégicas.',
       content: <ProjectionsTab projectionData={project} />,
@@ -302,13 +322,13 @@ const Product: MyPage = (props: any) => {
                 </div>
 
                 <button
-                  className="flex w-full justify-center text-gray-900 hover:text-white border border-gray-800 hover:bg-gray-900 focus:ring-4 focus:outline-none focus:ring-gray-300 font-medium rounded-lg text-sm px-5 py-2.5 text-center mt-5"
+                  className={`font-jostBold ${colors.bgColor}    flex w-full justify-center text-gray-900 hover:text-white border border-gray-800 ${colors.hoverBgColor}  focus:ring-4 focus:outline-none focus:ring-gray-300 font-medium rounded-lg text-sm px-5 py-2.5 text-center mt-5`}
                   onClick={() => setOpenModal('projectDataModal')}
                 >
                   Detalles del proyecto
                 </button>
                 <button
-                  className="flex w-full justify-center text-gray-900 hover:text-white border border-gray-800 hover:bg-gray-900 focus:ring-4 focus:outline-none focus:ring-gray-300 font-medium rounded-lg text-sm px-5 py-2.5 text-center mt-5"
+                  className={`font-jostBold ${colors.bgColor}  flex w-full justify-center text-gray-900 hover:text-white border border-gray-800 ${colors.hoverBgColor} focus:ring-4 focus:outline-none focus:ring-gray-300 font-medium rounded-lg text-sm px-5 py-2.5 text-center mt-5`}
                   onClick={() =>
                     router.push(`/projects/${project.id}/dashboard`)
                   }
@@ -316,7 +336,7 @@ const Product: MyPage = (props: any) => {
                   Dashboard del proyecto
                 </button>
                 <div className="flex flex-col space-y-2 mt-20">
-                  <div className="flex justify-center bg-amber-400 text-sm px-2.5 py-0.5 rounded border border-custom-dark">
+                  <div className={`flex justify-center bg-amber-400  ${colors.bgColorAlternativo} ${colors.fuente} text-sm px-2.5 py-0.5 rounded border border-custom-dark`}>
                     <p>
                       Tokens disponibles para comprar:{' '}
                       <span className="font-semibold">
@@ -329,7 +349,7 @@ const Product: MyPage = (props: any) => {
                     </p>
                   </div>
                   <Link
-                    className=" buy-button flex justify-center w-full text-amber-400 bg-custom-dark hover:bg-custom-dark-hover focus:outline-none focus:ring-4 focus:ring-gray-300 font-medium rounded text-lg px-5 py-2.5 "
+                    className={` font-jostBold bg-custom-marca-boton  enabled: hover:bg-custom-marca-boton-variante buy-button flex justify-center w-full text-amber-400 focus:outline-none focus:ring-4 focus:ring-gray-300 font-medium rounded text-lg px-5 py-2.5 `}
                     href={`/projects/${project.id}/purchase`}
                   >
                     Ir a comprar !
@@ -440,7 +460,7 @@ const Product: MyPage = (props: any) => {
         <div className="col-span-2">
           <Card>
             <header>
-              <ul className="flex text-sm font-medium text-center rounded-t-lg border-b">
+              <ul className={`flex text-sm ${colors.fuenteAlterna}  text-center rounded-t-lg border-b`}>
                 {tabs.map((tab: any, index: number) => {
                   return (
                     <li key={index} className="w-full focus-within:z-10">

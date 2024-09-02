@@ -174,20 +174,20 @@ export default function HomeContainer(props: { projects: any[]; env: any }) {
   return (
     <div className="bg-[#F4F8F9] h-auto w-full px-5 pt-6">
       <div className="p-4 border-gray-200 rounded-lg">
-        <h2 className="text-4xl lg:text-5xl font-semibold text-gray-900 dark:text-gray-500">
+        <h2 className="text-4xl lg:text-5xl font-jostBold text-gray-900 dark:text-gray-500">
           Proyectos que puedes apoyar
         </h2>
         <div className="mb-8 pr-8">
           <div className="mt-8 flex max-w-full filtros_container">
             <div className="filter-function mr-2">
               <button
-                className="flex mb-2 border border-gray-300 rounded px-6 pb-2 pt-2.5 text-s text-gray-400 leading-normal transition duration-150 ease-in-out"
+                className="font-jostBold flex mb-2 border border-gray-300 rounded px-6 pb-2 pt-2.5 text-s text-gray-400 leading-normal transition duration-150 ease-in-out"
                 onClick={() => setIsFilterExpanded(!isFilterExpanded)}
               >
                 Filtros
-                <div className="flex items-center ml-3">
+                <div className=" flex items-center ml-3">
                   <svg
-                    className="w-5 h-5 text-gray-400 dark:text-white"
+                    className=" w-5 h-5 text-gray-400 dark:text-white"
                     aria-hidden="true"
                     xmlns="http://www.w3.org/2000/svg"
                     fill="none"
@@ -204,16 +204,16 @@ export default function HomeContainer(props: { projects: any[]; env: any }) {
                 </div>
               </button>
             </div>
-            <div className="search-function mt-4 lg:mt-0">
+            <div className="search-function mt-4 lg:mt-0 font-jostRegular">
               <form onSubmit={handleSubmit}>
-                <label className="mb-2 text-sm font-medium text-gray-900 sr-only dark:text-white w-">
+                <label className="mb-2 text-sm font-jostRegular text-gray-900 sr-only dark:text-white w-">
                   Search
                 </label>
                 <div className="relative">
                   <input
                     type="search"
                     id="default-search"
-                    className="block w-full px-2 py-3 pl-5 text-sm text-gray-900 border border-gray-300 bg-gray-50 placeholder-gray-400 focus:ring-blue-500 focus:border-blue-500 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500 rounded-md"
+                    className="font-jostBold block w-full px-2 py-3 pl-5 text-sm text-gray-900 border border-gray-300 bg-gray-50 placeholder-gray-400 focus:ring-blue-500 focus:border-blue-500 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500 rounded-md"
                     placeholder="Buscar por proyectos"
                     required
                     value={searchQuery}
@@ -221,7 +221,7 @@ export default function HomeContainer(props: { projects: any[]; env: any }) {
                   />
                   <button
                     type="submit"
-                    className="absolute inset-y-0 right-0 flex items-center pr-3 pointer-events-none"
+                    className=" absolute inset-y-0 right-0 flex items-center pr-3 pointer-events-none"
                   >
                     <div className="absolute inset-y-0 right-0 flex items-center pr-3 pointer-events-none">
                       <svg
@@ -245,10 +245,10 @@ export default function HomeContainer(props: { projects: any[]; env: any }) {
               </form>
             </div>
             <div className="order-function flex sm:ml-auto">
-              <p className="lg:flex items-center  text-gray-400">
+              <p className="lg:flex items-center  text-gray-400 font-jostRegular">
                 Ordenar por:
                 <span
-                  className={` lg:flex items-center ml-2 cursor-pointer font-medium ${
+                  className={` lg:flex items-center ml-2 cursor-pointer font-jostRegular ${
                     sortOrder === 'asc' ? 'text-blue-800' : 'text-gray-400'
                   }`}
                   onClick={handleSort}
@@ -263,7 +263,7 @@ export default function HomeContainer(props: { projects: any[]; env: any }) {
           >
             <div className="filter-expandList">
               <div className="m-1 p-2 text-xs">
-                <h3 className="py-1">
+                <h3 className="py-1 font-jostRegular">
                   Rango de precio: ${selectedPriceRange[0]} - $
                   {selectedPriceRange[1]}{' '}
                 </h3>
@@ -292,7 +292,7 @@ export default function HomeContainer(props: { projects: any[]; env: any }) {
                   )}
                 />
               </div>
-              <div className="m-1 p-2 text-xs">
+              <div className="m-1 p-2 text-xs font-jostRegular">
                 <h3 className="py-1">Categorias/Años:</h3>
                 <div>
                   {uniqueYears &&
@@ -336,13 +336,13 @@ export default function HomeContainer(props: { projects: any[]; env: any }) {
                 </div>
               </div>
               <button
-                className="m-1 p-2 h-9  w-full rounded bg-[#333333] text-xs font-medium uppercase leading-normal text-white shadow-[0_4px_9px_-4px_#333] transition duration-150 ease-in-out"
+                className="font-jostBold m-1 p-2 h-9  w-full rounded bg-custom-marca-boton  enabled: hover:bg-custom-marca-boton-variante2 text-xs  uppercase leading-normal text-white shadow-[0_4px_9px_-4px_#333] transition duration-150 ease-in-out"
                 onClick={handleSearch}
               >
                 Aplicar
               </button>
               <button
-                className="m-1 p-2 h-9  w-full text-xs font-medium underline leading-normal  transition duration-150 ease-in-out"
+                className="font-jostRegular m-1 p-2 h-9  w-full text-xs font-medium underline leading-normal  transition duration-150 ease-in-out"
                 onClick={resetFilters}
               >
                 Limpiar todo
@@ -364,7 +364,7 @@ export default function HomeContainer(props: { projects: any[]; env: any }) {
           </ul>
         ) : (
           <div>
-            <p className="my-8 text-center holder-text">
+            <p className="my-8 text-center holder-text font-jostBold">
               Aún no tenemos proyectos disponibles, espéralos pronto.
               <svg
                 xmlns="http://www.w3.org/2000/svg"

@@ -18,15 +18,15 @@ const Pagination: React.FC<PaginationProps> = ({
       <button
         onClick={onPreviousPage}
         disabled={currentPage === 1}
-        className="px-4 py-2 bg-blue-500 text-white rounded-md disabled:bg-gray-400 disabled:cursor-not-allowed"
+        className="font-jostBold px-4 py-2  bg-custom-marca-boton-variante  hover:bg-custom-marca-boton-variante2 text-white rounded-md disabled:bg-custom-marca-boton-alterno2 disabled:cursor-not-allowed"
       >
         Anterior
       </button>
-      <div className="mx-4">{`${currentPage} / ${totalPages}`}</div>
+      <div className="mx-4 mt-2 font-jostBold">{`${currentPage} / ${totalPages}`}</div>
       <button
         onClick={onNextPage}
         disabled={currentPage === totalPages}
-        className="px-4 py-2 bg-blue-500 text-white rounded-md disabled:bg-gray-400 disabled:cursor-not-allowed"
+        className="font font-jostBold px-4 py-2 enabled:  bg-custom-marca-boton-variante  hover:bg-custom-marca-boton-variante2  text-white rounded-md disabled:bg-custom-marca-boton-alterno2 disabled:cursor-not-allowed"
       >
         Siguiente
       </button>
