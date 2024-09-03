@@ -215,7 +215,7 @@ export default function CardProject(props: any) {
             <span className={`${colors.fuenteAlterna} ${colors.bgColor} text-custom-fondo text-sm  px-2.5 py-0.5 rounded  border border-custom-fondo`}>
               {relevantInfo.status}
             </span>
-            <span className={`${colors.bgColorAlternativo} bg-amber-400 ${colors.fuenteAlterna}  text-sm  px-2.5 py-0.5 rounded border border-custom-dark`}>
+            <span className={`${colors.bgColor} bg-amber-400 ${colors.fuente}  text-sm  px-2.5 py-0.5 rounded border border-custom-fondo`}>
               {relevantInfo.tokenValue
                 ? `${parseFloat(relevantInfo.tokenValue).toLocaleString(
                     'es-CO'
@@ -246,7 +246,7 @@ export default function CardProject(props: any) {
           <div className={`bg-amber-400 ${colors.fuente} flex justify-center ${colors.bgColorAlternativo} text-xs px-2.5 py-0.5 rounded border border-custom-dark`}>
             <p>
               Tokens disponibles para comprar:{' '}
-              <span className="font-semibold">
+              <span className={`colors.fuente}`}>
                 {relevantInfo.tokenUnits
                   ? `${relevantInfo.tokenUnits.toLocaleString('es-CO')} `
                   : '...'}

@@ -79,7 +79,7 @@ const LoginForm = (props: LoginFormProps) => {
       else{
       setErrors((preForm: any) => ({
         ...preForm,
-        loginError: 'error.name',
+        loginError: 'Error Desconocido',//sale cuenando internet falla
       }));
     }
     } finally {

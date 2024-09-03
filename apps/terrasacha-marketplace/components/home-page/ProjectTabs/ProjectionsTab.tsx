@@ -51,7 +51,7 @@ const ProjectionsTab: React.FC<any> = ({ projectionData }) => {
       <div className="mb-4 sm:mb-0" style={{ flex: 1 }}>
         {' '}
         {/* Agregamos estilo flex: 1 para que ocupe todo el ancho */}
-        <strong className="ml-5 mb-5">Volumen</strong>
+        <strong className="font-jostBold ml-5 mb-5">Volumen</strong>
         <ResponsiveContainer width="100%" height={300}>
           <BarChart data={chartData}>
             <CartesianGrid strokeDasharray="3 3" />
@@ -88,8 +88,8 @@ const ProjectionsTab: React.FC<any> = ({ projectionData }) => {
       <div style={{ flex: 1 }}>
         {' '}
         {/* Agregamos estilo flex: 1 para que ocupe todo el ancho */}
-        <strong className="ml-5 mb-5">Valor token (usd)</strong>
-        <ResponsiveContainer width="100%" height={300}>
+        <strong className="font-jostBold ml-5 mb-5">Valor token (usd)</strong>
+        <ResponsiveContainer width="90%" height={300}>
           <BarChart data={chartData2}>
             <CartesianGrid strokeDasharray="3 3" />
             <XAxis

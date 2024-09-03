@@ -166,7 +166,7 @@ export default function TransactionInfoCard(props: TransactionInfoCardProps) {
               <div className="flex flex-col lg:flex-row justify-between">
                 <div className="flex flex-row lg:flex-col justify-between">
                   <div className="flex items-center">
-                    <p>ID de la Transacción</p>
+                    <p>ID de la Transacciónxxx</p>
                     <CopyToClipboard
                       iconClassName="h-5 w-5 ml-2 hover:text-blue-600"
                       copyValue={tx_id}

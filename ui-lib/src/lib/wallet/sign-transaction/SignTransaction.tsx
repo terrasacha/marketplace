@@ -443,27 +443,45 @@ export default function SignTransaction(props: SignTransactionProps) {
 
     setIsLoading(false);
   };
-
+  const marketplaceName = process.env.NEXT_PUBLIC_MARKETPLACE_NAME || 'Marketplace';
+  const marketplaceColors: Record<string, { bgColor: string; hoverBgColor: string;bgColorAlternativo:string;fuente:string;fuenteAlterna:string;}> = {
+    Terrasacha: {
+      bgColor: 'bg-custom-marca-boton',
+      hoverBgColor: 'hover:bg-custom-marca-boton-variante',
+      bgColorAlternativo: 'bg-custom-marca-boton-alterno2',
+      fuente:'font-jostBold',
+      fuenteAlterna:'font-jostRegular',
+    },
+  
+    // Agrega más marketplaces y colores aquí
+  };
+  const colors = marketplaceColors[marketplaceName] || {
+    bgColor:  'bg-custom-dark' ,
+    hoverBgColor: 'hover:bg-custom-dark-hover',
+    bgColorAlternativo: 'bg-amber-400',
+    fuente:'font-semibold',
+    fuenteAlterna:'font-medium',
+  };
   return (
     <div className="space-y-4">
       <div className="flex-col">
-        <p className="font-semibold">Confirmar</p>
-        <p>
+        <p className={`${colors.fuente} `}>Confirmar</p>
+        <p className={`${colors.fuenteAlterna} `} >
           Revise la transacción antes de firmar. Ingrese la contraseña de su
           billetera.
         </p>
       </div>
       <hr />
       <div className="flex-col">
-        <p className="font-semibold">Firmar</p>
+        <p className={`${colors.fuente} `}>Firmar</p>
         <div className="relative w-full">
           <div className="absolute inset-y-0 start-0 top-0 flex items-center ps-3 pointer-events-none">
-            <LockIcon className="w-5 h-5" />
+            <LockIcon className={`${colors.fuente} w-5 h-5 `}  />
           </div>
           <input
             type="password"
             aria-invalid="false"
-            className={`bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded focus:ring-blue-500 focus:border-blue-500 block w-full ps-10 p-2.5 ${
+            className={`${colors.fuenteAlterna} bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded focus:ring-blue-500 focus:border-blue-500 block w-full ps-10 p-2.5 ${
               passwordError &&
               'border-2 border-red-500 focus:ring-red-500 focus:border-red-500'
             }`}
@@ -475,21 +493,21 @@ export default function SignTransaction(props: SignTransactionProps) {
           />
         </div>
         {passwordError && (
-          <p className="text-red-500 text-xs mt-1">Contraseña incorrecta</p>
+          <p className={` ${colors.fuente} text-red-500 text-xs mt-1`}>Contraseña incorrecta</p>
         )}
       </div>
       <hr />
-      <div className="flex flex-col md:flex-row justify-between space-y-2 md:space-y-0">
+      <div className={`${colors.fuente} flex flex-col md:flex-row justify-between space-y-2 md:space-y-0`}>
         <button
           type="button"
-          className="flex justify-center w-full md:w-1/4 text-white bg-gray-800 hover:bg-gray-900 focus:outline-none focus:ring-4 focus:ring-gray-300 font-medium rounded text-sm px-5 py-2.5 "
+          className={`flex justify-center w-full md:w-1/4 text-white  ${colors.bgColor}  ${colors.hoverBgColor} focus:outline-none focus:ring-4 focus:ring-gray-300 font-medium rounded text-sm px-5 py-2.5  `}
           onClick={() => handleOpenSignTransactionModal()}
         >
           Cancelar
         </button>
         <button
           type="button"
-          className="flex justify-center w-full md:w-1/4 text-white bg-gray-800 hover:bg-gray-900 focus:outline-none focus:ring-4 focus:ring-gray-300 font-medium rounded text-sm px-5 py-2.5 "
+          className={`flex justify-center w-full md:w-1/4 text-white ${colors.bgColor}  ${colors.hoverBgColor} focus:outline-none focus:ring-4 focus:ring-gray-300 font-medium rounded text-sm px-5 py-2.5 `}
           onClick={handleSign}
         >
           {isLoading ? <LoadingIcon className="w-4 h-4" /> : 'Firmar'}
