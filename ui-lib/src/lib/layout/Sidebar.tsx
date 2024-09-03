@@ -177,7 +177,7 @@ export default function Sidebar(props: SidebarProps) {
       <div className="pt-4 border-t border-gray-200"></div>
       {balance ? (
         <div>
-          <label className="block text-sm font-semibold text-gray-400">Tu saldo</label>
+          <label className={`${colors.fuenteAlterna}  block text-sm font-semibold text-gray-400`}>Tu saldo</label>
           <div>
             <p
               className={`text-xl truncate font-semibold mb-[-.1rem] ${
@@ -189,7 +189,7 @@ export default function Sidebar(props: SidebarProps) {
               }`}
             >
               {!isLoading ? balanceUSD.toFixed(4) : <LoadingIcon className="h-5 w-5" />}{' '}
-              <span className="font-bold text-gray-400 text-base">USD</span>
+              <span className={`${colors.fuenteAlterna}  font-bold text-gray-400 text-base`}>USD</span>
               {changeOnBalanceDetected && (
                 <>
                   <span className="inline-block animate-bounce ml-2">
@@ -223,7 +223,7 @@ export default function Sidebar(props: SidebarProps) {
                 </>
               )}
             </p>
-            <label className="block text-xs font-light text-gray-500 pt-2">
+            <label className={`${colors.fuenteAlterna}  block text-xs font-light text-gray-500 pt-2`}>
               Sincronizado hace {syncedAgo} segundos
             </label>
           </div>
@@ -263,7 +263,7 @@ export default function Sidebar(props: SidebarProps) {
             <li>
               <Link
                 href="/wallet"
-                className="flex items-center w-full p-2 pl-11 group text-black rounded-lg hover:bg-custom-dark hover:text-white transition duration-150 ease-linear"
+                className={`${colors.fuenteAlterna}flex items-center w-full p-2 pl-11 group text-black rounded-lg hover:bg-custom-dark hover:text-white transition duration-150 ease-linear`}
               >
                 Cuadro de mando
               </Link>
@@ -271,7 +271,7 @@ export default function Sidebar(props: SidebarProps) {
             <li>
               <Link
                 href="/wallet/assets"
-                className="flex items-center w-full p-2 pl-11 group text-black rounded-lg hover:bg-custom-dark hover:text-white transition duration-150 ease-linear"
+                className={`${colors.fuenteAlterna} flex items-center w-full p-2 pl-11 group text-black rounded-lg hover:bg-custom-dark hover:text-white transition duration-150 ease-linear`}
               >
                 Activos
               </Link>
@@ -279,7 +279,7 @@ export default function Sidebar(props: SidebarProps) {
             <li>
               <Link
                 href="/wallet/transactions"
-                className="flex items-center w-full p-2 pl-11 group text-black rounded-lg hover:bg-custom-dark hover:text-white transition duration-150 ease-linear"
+                className={`${colors.fuenteAlterna}  flex items-center w-full p-2 pl-11 group text-black rounded-lg hover:bg-custom-dark hover:text-white transition duration-150 ease-linear`}
               >
                 Transacciones
               </Link>
@@ -287,7 +287,7 @@ export default function Sidebar(props: SidebarProps) {
             <li>
               <Link
                 href="/wallet/send"
-                className="flex items-center w-full p-2 pl-11 group text-black rounded-lg hover:bg-custom-dark hover:text-white transition duration-150 ease-linear"
+                className={`${colors.fuenteAlterna} flex items-center w-full p-2 pl-11 group text-black rounded-lg hover:bg-custom-dark hover:text-white transition duration-150 ease-linear`}
               >
                 Nueva transaccion
               </Link>
@@ -295,7 +295,7 @@ export default function Sidebar(props: SidebarProps) {
             <li>
               <Link
                 href="/wallet/achievements"
-                className="flex items-center w-full p-2 pl-11 group text-black rounded-lg hover:bg-custom-dark hover:text-white transition duration-150 ease-linear"
+                className={`${colors.fuenteAlterna}  flex items-center w-full p-2 pl-11 group text-black rounded-lg hover:bg-custom-dark hover:text-white transition duration-150 ease-linear`}
               >
                 Logros
               </Link>
@@ -309,7 +309,7 @@ export default function Sidebar(props: SidebarProps) {
             className="flex items-center p-2 text-black rounded-lg hover:bg-custom-dark hover:text-white transition duration-150 ease-linear"
           >
             <ScaleIcon />
-            <span className="flex-1 ml-3 whitespace-nowrap">Proyectos</span>
+            <span className={`${colors.fuenteAlterna} flex-1 ml-3 whitespace-nowrap`}>Proyectos</span>
           </Link>
         </li>
 
@@ -320,7 +320,7 @@ export default function Sidebar(props: SidebarProps) {
             className="flex items-center p-2 text-black rounded-lg hover:bg-custom-dark hover:text-white transition duration-150 ease-linear"
           >
             <MarketIcon />
-            <span className="flex-1 ml-3 whitespace-nowrap">Mercado P2P</span>
+            <span className={`${colors.fuenteAlterna}  flex-1 ml-3 whitespace-nowrap`}>Mercado P2P</span>
           </Link>
         </li>
       </ul>
@@ -334,12 +334,12 @@ export default function Sidebar(props: SidebarProps) {
             className="flex items-center p-2 text-black rounded-lg hover:bg-custom-dark hover:text-white transition duration-150 ease-linear"
           >
             <BookIcon />
-            <span className="flex-1 ml-3 whitespace-nowrap">Ayuda</span>
+            <span className={`${colors.fuenteAlterna} flex-1 ml-3 whitespace-nowrap`}>Ayuda</span>
           </Link>
         </li>
         <li className="pt-4 mt-4 border-t text-xs font-light border-gray-200 flex flex-col items-center justify-center text-center">
           {poweredBy && (
-            <div className="flex items-center mt-2 mb-4">
+            <div className={`${colors.fuenteAlterna} flex items-center mt-2 mb-4`}>
               Powered by
               <Image
                 src="/images/home-page/suan_logo.png"
@@ -351,9 +351,9 @@ export default function Sidebar(props: SidebarProps) {
             </div>
           )}
           <div>
-            <p>Copyright © Derechos de autor</p>
-            <p>Todos los derechos reservados</p>
-            <p>Suan 2001-2023</p>
+            <p className={`${colors.fuenteAlterna} `}>Copyright © Derechos de autor</p>
+            <p className={`${colors.fuenteAlterna} `} >Todos los derechos reservados</p>
+            <p className={`${colors.fuenteAlterna} `} >Suan 2001-2023</p>
           </div>
         </li>
       </ul>

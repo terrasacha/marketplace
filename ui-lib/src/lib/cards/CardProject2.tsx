@@ -215,7 +215,7 @@ export default function CardProject(props: any) {
             <span className={`${colors.fuenteAlterna} ${colors.bgColor} text-custom-fondo text-sm  px-2.5 py-0.5 rounded  border border-custom-fondo`}>
               {relevantInfo.status}
             </span>
-            <span className={`${colors.bgColor} bg-amber-400 ${colors.fuente}  text-sm  px-2.5 py-0.5 rounded border border-custom-fondo`}>
+            <span className={`${colors.bgColorAlternativo} bg-amber-400  text-custom-fondo text-sm  px-2.5 py-0.5 rounded border border-custom-fondo`}>
               {relevantInfo.tokenValue
                 ? `${parseFloat(relevantInfo.tokenValue).toLocaleString(
                     'es-CO'
