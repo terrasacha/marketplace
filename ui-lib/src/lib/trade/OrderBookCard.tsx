@@ -336,9 +336,7 @@ export default function OrderBookCard(props: OrderBookCardProps) {
       <Card>
         <Card.Header
             title={
-              <span className={`${colors.fuenteAlterna}`}>
-                Libro de ordenes
-              </span>
+                "Libro de ordenes"
             }
           tooltip={
             <div className="relative w-full">
