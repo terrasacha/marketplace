@@ -312,11 +312,34 @@ export default function OrderBookCard(props: OrderBookCardProps) {
     }
   };
  */
+  const marketplaceName = process.env.NEXT_PUBLIC_MARKETPLACE_NAME || 'Marketplace';
+  const marketplaceColors: Record<string, { bgColor: string; hoverBgColor: string;bgColorAlternativo:string;fuente:string;fuenteAlterna:string;}> = {
+    Terrasacha: {
+      bgColor: 'bg-custom-marca-boton',
+      hoverBgColor: 'hover:bg-custom-marca-boton-variante',
+      bgColorAlternativo: 'bg-custom-marca-boton-alterno2',
+      fuente:'font-jostBold',
+      fuenteAlterna:'font-jostRegular',
+    },
+  
+    // Agrega más marketplaces y colores aquí
+  };
+  const colors = marketplaceColors[marketplaceName] || {
+    bgColor:  'bg-custom-dark' ,
+    hoverBgColor: 'hover:bg-custom-dark-hover',
+    bgColorAlternativo: 'bg-amber-400',
+    fuente:'font-semibold',
+    fuenteAlterna:'font-medium',
+  };
   return (
     <>
       <Card>
         <Card.Header
-          title="Libro de ordenes"
+            title={
+              <span className={`${colors.fuenteAlterna}`}>
+                Libro de ordenes
+              </span>
+            }
           tooltip={
             <div className="relative w-full">
               <div className="absolute inset-y-0 start-0 top-0 flex items-center ps-3.5 pointer-events-none">
@@ -326,7 +349,7 @@ export default function OrderBookCard(props: OrderBookCardProps) {
                 id="adas"
                 type="text"
                 aria-invalid="false"
-                className="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded focus:ring-blue-500 focus:border-blue-500 block w-full ps-10 p-2.5"
+                className={`${colors.fuenteAlterna}  bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded focus:ring-blue-500 focus:border-blue-500 block w-full ps-10 p-2.5`}
                 autoComplete="off"
                 placeholder="Busca un activo"
                 required
@@ -337,12 +360,12 @@ export default function OrderBookCard(props: OrderBookCardProps) {
         <Card.Body>
           <div>
             {/* Encabezado de la tabla, oculto en pantallas pequeñas */}
-            <div className="hidden md:flex space-x-2 items-center px-3 py-2">
-              <div className="w-full text-center">Activo</div>
-              <div className="w-full text-center">Cantidad</div>
-              <div className="w-full text-center">Precio Unitario (ADA)</div>
-              <div className="w-full text-center">Total</div>
-              <div className="w-full text-center"></div>
+            <div className={`hidden md:flex space-x-2 items-center px-3 py-2`}>
+              <div className={`w-full text-center ${colors.fuenteAlterna} `}>Activo</div>
+              <div className={`w-full text-center ${colors.fuenteAlterna} `}>Cantidad</div>
+              <div className={`w-full text-center ${colors.fuenteAlterna} `}>Precio Unitario (ADA)</div>
+              <div className={`w-full text-center ${colors.fuenteAlterna} `}>Total</div>
+              <div className={`w-full text-center ${colors.fuenteAlterna} `}></div>
             </div>
             <div className="space-y-1">
               {currentItems &&
@@ -350,31 +373,31 @@ export default function OrderBookCard(props: OrderBookCardProps) {
                   return (
                     <div
                       key={index}
-                      className="flex flex-wrap justify-between items-center bg-custom-dark text-white rounded-lg px-3 py-2"
+                      className={`${colors.fuenteAlterna} flex flex-wrap justify-between items-center bg-custom-dark text-white rounded-lg px-3 py-2`}
                     >
                       <div className="w-full md:w-1/5 text-center">
-                        <p className="md:hidden text-gray-400">Activo</p>
+                        <p className={`md:hidden text-gray-400 `}>Activo</p>
                         <p>{order.tokenName}</p>
                       </div>
                       <div className="w-full md:w-1/5 text-center">
-                        <p className="md:hidden text-gray-400">Cantidad</p>
+                        <p className={`md:hidden text-gray-400   `}>Cantidad</p>
                         <p>{order.tokenAmount}</p>
                       </div>
                       <div className="w-full md:w-1/5 text-center">
-                        <p className="md:hidden text-gray-400">
+                        <p className={`md:hidden text-gray-400  `}>
                           Precio Unitario (ADA)
                         </p>
                         <p>t₳ {order.value / 1000000}</p>
                       </div>
                       <div className="w-full md:w-1/5 text-center">
-                        <p className="md:hidden text-gray-400">Total</p>
+                        <p className={`md:hidden text-gray-400  `}>Total</p>
                         <p>t₳ {(order.value / 1000000) * order.tokenAmount}</p>
                       </div>
-                      <div className="w-full md:w-1/5 text-center mt-2 md:mt-0">
+                      <div className={`${colors.fuenteAlterna}  w-full md:w-1/5 text-center mt-2 md:mt-0`}>
                         {order.walletID === walletId ? (
                           <button
                             type="button"
-                            className="flex justify-center text-red-300 w-full hover:text-white border border-red-300 hover:bg-red-400 focus:outline-none focus:ring-4 focus:ring-red-300 font-medium rounded text-sm px-5 py-2.5"
+                            className={`  flex justify-center text-red-300 w-full hover:text-white border border-red-300 hover:bg-red-400 focus:outline-none focus:ring-4 focus:ring-red-300 font-medium rounded text-sm px-5 py-2.5`}
                             onClick={() => handleRemoveOrder(order.id)}
                           >
                             {loadingStates[order.id] ? <LoadingIcon className="w-4 h-4" /> : 'Retirar'}
@@ -382,7 +405,7 @@ export default function OrderBookCard(props: OrderBookCardProps) {
                         ) : (
                           <button
                             type="button"
-                            className="flex justify-center text-yellow-300 w-full hover:text-white border border-yellow-300 hover:bg-yellow-400 focus:outline-none focus:ring-4 focus:ring-yellow-300 font-medium rounded text-sm px-5 py-2.5"
+                            className={`${colors.fuente}  flex justify-center text-yellow-300 w-full hover:text-white border border-yellow-300 hover:bg-yellow-400 focus:outline-none focus:ring-4 focus:ring-yellow-300 font-medium rounded text-sm px-5 py-2.5`}
                             onClick={() => handleBuyOrder(order.id)}
                           >
                             {loadingStates[order.id] ? <LoadingIcon className="w-4 h-4" /> : 'Comprar'}
@@ -395,24 +418,24 @@ export default function OrderBookCard(props: OrderBookCardProps) {
             </div>
 
             <div className="flex flex-col items-center mt-5">
-              <span className="text-sm text-gray-700 dark:text-gray-400">
+              <span className={`${colors.fuenteAlterna}  text-sm text-gray-700 dark:text-gray-400`}>
                 Mostrando de{' '}
-                <span className="font-semibold text-gray-900 dark:text-white">
+                <span className={`${colors.fuente}  text-gray-900 dark:text-white`}>
                   {indexOfFirstItem + 1}
                 </span>{' '}
                 a{' '}
-                <span className="font-semibold text-gray-900 dark:text-white">
+                <span className={`${colors.fuente}  text-gray-900 dark:text-white`}>
                   {Math.min(indexOfLastItem, totalItems)}
                 </span>{' '}
                 de un total de{' '}
-                <span className="font-semibold text-gray-900 dark:text-white">
+                <span className={`${colors.fuente}  text-gray-900 dark:text-white`}>
                   {totalItems}
                 </span>{' '}
                 Activos
               </span>
-              <div className="inline-flex mt-2 xs:mt-0">
+              <div className={`inline-flex mt-2 xs:mt-0`}>
                 <button
-                  className={`flex items-center justify-center px-3 h-8 text-sm font-medium text-white bg-custom-dark rounded-s hover:bg-custom-dark-hover ${
+                  className={`${colors.fuente}  flex items-center justify-center px-3 h-8 text-sm font-medium text-white bg-custom-dark rounded-s hover:bg-custom-dark-hover ${
                     !canShowPrevious && 'opacity-50 cursor-not-allowed'
                   }`}
                   onClick={prevPage}
@@ -436,7 +459,7 @@ export default function OrderBookCard(props: OrderBookCardProps) {
                   Prev
                 </button>
                 <button
-                  className={`flex items-center justify-center px-3 h-8 text-sm font-medium text-white bg-custom-dark border-0 border-s border-gray-700 rounded-e hover:bg-custom-dark-hover ${
+                  className={`${colors.fuente}  flex items-center justify-center px-3 h-8 text-sm font-medium text-white bg-custom-dark border-0 border-s border-gray-700 rounded-e hover:bg-custom-dark-hover ${
                     !canShowNext && 'opacity-50 cursor-not-allowed'
                   }`}
                   onClick={nextPage}

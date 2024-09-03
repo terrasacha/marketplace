@@ -132,7 +132,7 @@ const LoginForm = (props: LoginFormProps) => {
   
       setErrors((preForm: any) => ({
         ...preForm,
-        loginError: errorMessage,
+        loginError: 'Error Desconocido',//sale cuenando internet falla
       }));
     } finally {
       setLoading(false);
