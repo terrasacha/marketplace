@@ -114,7 +114,7 @@ const LoginForm = (props: LoginFormProps) => {
       }
     } catch (error: any) {
       console.log(error.name);
-      let errorMessage = 'error.name';
+      let errorMessage = 'Error desconocido';
   
       switch (error.name) {
         case 'UserNotFoundException':
@@ -132,7 +132,7 @@ const LoginForm = (props: LoginFormProps) => {
   
       setErrors((preForm: any) => ({
         ...preForm,
-        loginError: 'Error Desconocido',//sale cuenando internet falla
+        loginError: errorMessage ,//sale cuenando internet falla
       }));
     } finally {
       setLoading(false);
