@@ -322,13 +322,13 @@ const Product: MyPage = (props: any) => {
                 </div>
 
                 <button
-                  className={`font-jostBold ${colors.bgColor}    flex w-full justify-center text-gray-900 hover:text-white border border-gray-800 ${colors.hoverBgColor}  focus:ring-4 focus:outline-none focus:ring-gray-300 font-medium rounded-lg text-sm px-5 py-2.5 text-center mt-5`}
+                  className={`font-jostBold ${colors.bgColor}    flex w-full justify-center text-white hover:text-white border border-gray-800 ${colors.hoverBgColor}  focus:ring-4 focus:outline-none focus:ring-gray-300 font-medium rounded-lg text-sm px-5 py-2.5 text-center mt-5`}
                   onClick={() => setOpenModal('projectDataModal')}
                 >
                   Detalles del proyecto
                 </button>
                 <button
-                  className={`font-jostBold ${colors.bgColor}  flex w-full justify-center text-gray-900 hover:text-white border border-gray-800 ${colors.hoverBgColor} focus:ring-4 focus:outline-none focus:ring-gray-300 font-medium rounded-lg text-sm px-5 py-2.5 text-center mt-5`}
+                  className={`font-jostBold ${colors.bgColor}  flex w-full justify-center text-white hover:text-white border border-gray-800 ${colors.hoverBgColor} focus:ring-4 focus:outline-none focus:ring-gray-300 font-medium rounded-lg text-sm px-5 py-2.5 text-center mt-5`}
                   onClick={() =>
                     router.push(`/projects/${project.id}/dashboard`)
                   }

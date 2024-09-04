@@ -254,6 +254,7 @@ export default function Transactions(props: TransactionsProps) {
     await fetchWalletData();
     setIsLoading(false);
   };
+  
   return (
     <Card className="col-span-2 h-fit">
       <Card.Header

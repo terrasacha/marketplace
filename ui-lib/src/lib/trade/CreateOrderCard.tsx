@@ -91,6 +91,11 @@ export default function CreateOrderCard(props: CreateOrderCardProps) {
   }, [newOrder]) */
 
   const handleSetNewOrder = (key: string, value: string) => {
+   //Colores
+
+
+    
+    
     let parsedValue = value;
 
     setNewOrder((prevState: any) => {
@@ -216,12 +221,30 @@ export default function CreateOrderCard(props: CreateOrderCardProps) {
   const handleOpenSignTransactionModal = () => {
     setSignTransactionModal(!signTransactionModal);
   };
-
+  const marketplaceName = process.env.NEXT_PUBLIC_MARKETPLACE_NAME || 'Marketplace';
+  const marketplaceColors: Record<string, { bgColor: string; hoverBgColor: string;bgColorAlternativo:string;fuente:string;fuenteAlterna:string;}> = {
+    Terrasacha: {
+      bgColor: 'bg-custom-marca-boton',
+      hoverBgColor: 'hover:bg-custom-marca-boton-variante',
+      bgColorAlternativo: 'bg-custom-marca-boton-alterno2',
+      fuente:'font-jostBold',
+      fuenteAlterna:'font-jostRegular',
+    },
+  
+    // Agrega más marketplaces y colores aquí
+  };
+  const colors = marketplaceColors[marketplaceName] || {
+    bgColor:  'bg-custom-dark' ,
+    hoverBgColor: 'hover:bg-custom-dark-hover',
+    bgColorAlternativo: 'bg-amber-400',
+    fuente:'font-semibold',
+    fuenteAlterna:'font-medium',
+  };
   return (
     <>
       <Card>
-        <div className="flex justify-center bg-custom-dark py-6">
-          <p className="text-white text-2xl font-semibold">
+        <div className={`flex justify-center bg-custom-dark py-6 ${colors.bgColor}`}>
+          <p className={`text-white text-2xl font-semibold ${colors.fuente} `}>
             Crear orden de venta
           </p>
         </div>
@@ -229,11 +252,11 @@ export default function CreateOrderCard(props: CreateOrderCardProps) {
           {/* Orden */}
           <div className="flex-col space-y-2">
             <div>
-              <label htmlFor="countries" className="block mb-2 text-gray-900">
+              <label htmlFor="countries" className={`block mb-2 text-gray-900 ${colors.fuenteAlterna}`}>
                 Yo quiero vender
               </label>
               <select
-                className="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:focus:ring-blue-500 dark:focus:border-blue-500"
+                className={`${colors.fuente} bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:focus:ring-blue-500 dark:focus:border-blue-500`}
                 onChange={(e) => handleSetNewOrder('asset', e.target.value)}
                 value={newOrder.assetPolicyId}
               >
@@ -249,7 +272,7 @@ export default function CreateOrderCard(props: CreateOrderCardProps) {
               </select>
             </div>
             <div>
-              <label htmlFor="adas" className="block mb-2 text-gray-900">
+              <label htmlFor="adas" className={`block mb-2 text-gray-900 ${colors.fuenteAlterna}`}>
                 Cantidad
               </label>
               <div className="relative w-full">
@@ -257,7 +280,7 @@ export default function CreateOrderCard(props: CreateOrderCardProps) {
                   id="adas"
                   type="text"
                   aria-invalid="false"
-                  className={`bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded focus:ring-blue-500 focus:border-blue-500 block w-full pr-16 p-2.5 ${
+                  className={`${colors.fuente} bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded focus:ring-blue-500 focus:border-blue-500 block w-full pr-16 p-2.5 ${
                     error.quantityError &&
                     'border-red-500 focus:ring-red-500 focus:border-red-500'
                   }`}
@@ -270,14 +293,14 @@ export default function CreateOrderCard(props: CreateOrderCardProps) {
                   required
                 />
                 {newOrder.asset && (
-                  <div className="absolute inset-y-0 end-0 flex items-center pe-3.5 pointer-events-none">
+                  <div className={`${colors.fuenteAlterna} absolute inset-y-0 end-0 flex items-center pe-3.5 pointer-events-none`}>
                     Máx: {selectedAssetAmount}
                   </div>
                 )}
               </div>
               {error.quantityError && (
                 <div className="flex justify-end">
-                  <p className="text-red-500 text-xs mt-1">
+                  <p className={`text-red-500 text-xs mt-1 ${colors.fuente}  `}>
                     Fondos insuficientes
                   </p>
                 </div>
@@ -285,18 +308,18 @@ export default function CreateOrderCard(props: CreateOrderCardProps) {
             </div>
 
             <div>
-              <label htmlFor="countries" className="block mb-2 text-gray-900">
+              <label htmlFor="countries" className={`block mb-2 text-gray-900 ${colors.fuenteAlterna}`}>
                 Precio (Unidad)
               </label>
               <div className="relative w-full">
-                <div className="absolute inset-y-0 start-0 top-0 flex items-center ps-3.5 pointer-events-none">
+                <div className={`absolute inset-y-0 start-0 top-0 flex items-center ps-3.5 pointer-events-none ${colors.fuente}`}>
                   t₳
                 </div>
                 <input
                   id="adas"
                   type="text"
                   aria-invalid="false"
-                  className="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded focus:ring-blue-500 focus:border-blue-500 block w-full ps-10 p-2.5  "
+                  className={`${colors.fuente} bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded focus:ring-blue-500 focus:border-blue-500 block w-full ps-10 p-2.5  `}
                   autoComplete="off"
                   placeholder="0.000000"
                   value={newOrder.value}
@@ -327,7 +350,7 @@ export default function CreateOrderCard(props: CreateOrderCardProps) {
             <button
               type="button"
               disabled={error.quantityError ? true : false}
-              className="flex justify-center w-full text-white bg-custom-dark hover:bg-custom-dark-hover focus:outline-none focus:ring-4 focus:ring-gray-300 font-semibold rounded text-lg px-3 py-3"
+              className={`${colors.fuente} flex justify-center w-full text-white ${colors.bgColor} ${colors.hoverBgColor} focus:outline-none focus:ring-4 focus:ring-gray-300 font-semibold rounded text-lg px-3 py-3`}
               onClick={() => handleCreateOrder()}
             >
               {isLoading ? <LoadingIcon className="w-4 h-4" /> : 'Crear orden'}

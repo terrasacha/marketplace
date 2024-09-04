@@ -138,9 +138,27 @@ export default function BlockChainPieChart({
       },
     },
   };
-
+  const marketplaceName = process.env.NEXT_PUBLIC_MARKETPLACE_NAME || 'Marketplace';
+  const marketplaceColors: Record<string, { bgColor: string; hoverBgColor: string;bgColorAlternativo:string;fuente:string;fuenteAlterna:string;}> = {
+    Terrasacha: {
+      bgColor: 'bg-custom-marca-boton',
+      hoverBgColor: 'hover:bg-custom-marca-boton-variante',
+      bgColorAlternativo: 'bg-custom-marca-boton-alterno2',
+      fuente:'font-jostBold',
+      fuenteAlterna:'font-jostRegular',
+    },
+  
+    // Agrega más marketplaces y colores aquí
+  };
+  const colors = marketplaceColors[marketplaceName] || {
+    bgColor:  'bg-custom-dark' ,
+    hoverBgColor: 'hover:bg-custom-dark-hover',
+    bgColorAlternativo: 'bg-amber-400',
+    fuente:'font-semibold',
+    fuenteAlterna:'font-medium',
+  };
   return (
-    <Card className="h-full !bg-custom-dark-hover text-white">
+    <Card className={`${colors.fuente}  h-full !bg-custom-dark-hover text-white`}>
       <Card.Header title={`Distribución total de tokens`} subtitle={`Cantidad total de tokens disponibles para cada grupo`} />
       <Card.Body>
         <Pie data={data} options={options} />

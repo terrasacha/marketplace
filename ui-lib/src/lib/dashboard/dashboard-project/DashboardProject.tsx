@@ -144,9 +144,9 @@ export default function DashboardProject(props: any) {
           </div>
         ))}
       </div>
-      <div className="grid grid-cols-2 lg:grid-cols-2 2xl:grid-cols-4 gap-3 mt-4">
-        <div className="bg-custom-dark-hover p-4 rounded-md shadow-lg col-span-2 row-span-6 lg:col-span-2 2xl:col-span-3 lg:row-span-6 flex flex-col ">
-          <h2 className={`text-xl ${colors.fuente}  text-white`}>
+      <div className={`${colors.fuenteAlterna} grid grid-cols-2 lg:grid-cols-2 2xl:grid-cols-4 gap-3 mt-4`}>
+        <div className={`${colors.fuente} bg-custom-dark-hover p-4 rounded-md shadow-lg col-span-2 row-span-6 lg:col-span-2 2xl:col-span-3 lg:row-span-6 flex flex-col `}>
+          <h2 className={`text-xl   text-white`}>
             Evolución del precio del token
           </h2>
 
