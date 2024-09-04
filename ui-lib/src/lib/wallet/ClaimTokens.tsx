@@ -12,30 +12,32 @@ export default function ClaimTokens() {
   const [newTransactionBuild, setNewTransactionBuild] = useState<any>(null);
   const [signTransactionModal, setSignTransactionModal] = useState(false);
 
-  const {
-    walletID,
-    walletAddress,
-  } = useContext<any>(WalletContext);
+  const { walletID, walletAddress, walletBySuan } =
+    useContext<any>(WalletContext);
 
   useEffect(() => {
     const fetchData = async () => {
-      const { userId } = await getCurrentUser();
+      try {
+        const { userId } = await getCurrentUser();
 
-      const payload = {
-        userId: userId,
-      };
+        const payload = {
+          userId: userId,
+        };
 
-      const response = await fetch(
-        'api/calls/backend/getPendingTokensForClaiming',
-        {
-          method: 'POST',
-          body: JSON.stringify(payload),
-        }
-      );
+        const response = await fetch(
+          'api/calls/backend/getPendingTokensForClaiming',
+          {
+            method: 'POST',
+            body: JSON.stringify(payload),
+          }
+        );
 
-      const data = await response.json();
+        const data = await response.json();
 
-      setPendingTokensForClaiming(data);
+        setPendingTokensForClaiming(data);
+      } catch (error) {
+        toast.info('La billetera logeada no posee una cuenta asociada.');
+      }
     };
 
     fetchData();
@@ -86,7 +88,6 @@ export default function ClaimTokens() {
   };
 
   const claimTokens = async (order: any) => {
-
     // Obtener datos del Spend y mintproject
 
     const mintProjectTokenContract = order.product.scripts.items.find(
@@ -109,34 +110,36 @@ export default function ClaimTokens() {
     );
 
     // Función para solicitar tokens a endpoint de Luis
-    console.log("order", order)
+    console.log('order', order);
     const unlockOracleOrderPayload = {
       claim_redeemer: 'Unlist',
       payload: {
-        "wallet_id": "575a7f01272dd95a9ba2696e9e3d4895fe39b12350f7fa88a301b3ad", // Id Beneficiario
-        "spendPolicyId": spendContractFromMintProjectToken.id,
-        "addresses": [
+        wallet_id: '575a7f01272dd95a9ba2696e9e3d4895fe39b12350f7fa88a301b3ad', // Id Beneficiario
+        spendPolicyId: spendContractFromMintProjectToken.id,
+        addresses: [
           {
-            "address": walletAddress, // Address de usuario logeado
-            "lovelace": 0,
-            "multiAsset": [
+            address: walletAddress, // Address de usuario logeado
+            lovelace: 0,
+            multiAsset: [
               {
-                "policyid": mintProjectTokenContract.id,
-                "tokens": {
-                  [mintProjectTokenContract.token_name]: parseInt(order.tokenAmount),
-                }
-              }
-            ]
-          }
-        ]
+                policyid: mintProjectTokenContract.id,
+                tokens: {
+                  [mintProjectTokenContract.token_name]: parseInt(
+                    order.tokenAmount
+                  ),
+                },
+              },
+            ],
+          },
+        ],
       },
       transactionPayload: {
         walletID: walletID,
         walletAddress: walletAddress,
         productID: order.productID,
-        contractAddressOrigin: spendContractFromMintProjectToken.testnetAddr
+        contractAddressOrigin: spendContractFromMintProjectToken.testnetAddr,
       },
-    }
+    };
     const request = await fetch('/api/transactions/claim-tx', {
       method: 'POST',
       headers: {
@@ -145,7 +148,6 @@ export default function ClaimTokens() {
       body: JSON.stringify(unlockOracleOrderPayload),
     });
     const buildTxResponse = await request.json();
-
 
     if (buildTxResponse?.success) {
       const mappedTransactionData = await mapBuildTransactionInfo({
@@ -184,7 +186,7 @@ export default function ClaimTokens() {
         ...mappedTransactionData,
         postDistributionPayload,
         scriptId: spendContractFromMintProjectToken.id,
-        walletId: "575a7f01272dd95a9ba2696e9e3d4895fe39b12350f7fa88a301b3ad",
+        walletId: '575a7f01272dd95a9ba2696e9e3d4895fe39b12350f7fa88a301b3ad',
         transaction_id: buildTxResponse.transaction_id,
       });
       handleOpenSignTransactionModal();
@@ -193,7 +195,6 @@ export default function ClaimTokens() {
         'Algo ha salido mal, revisa las direcciones de billetera ...'
       );
     }
-
   };
 
   return (
@@ -225,7 +226,7 @@ export default function ClaimTokens() {
               pendingTokensForClaiming.map(
                 (pendingOrder: any, index: number) => {
                   return (
-                    <li key={index} className='flex space-x-4'>
+                    <li key={index} className="flex space-x-4">
                       <p>
                         - Orden <strong>{pendingOrder.id}</strong> sin reclamar:{' '}
                         <strong>{pendingOrder.tokenName}</strong> x{' '}
@@ -254,8 +255,7 @@ export default function ClaimTokens() {
                 }
               )}
           </ul>
-          <div className="flex">
-          </div>
+          <div className="flex"></div>
         </div>
       )}
       <SignTransactionModal

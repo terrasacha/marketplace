@@ -3,6 +3,7 @@ import colorByLetter from './dicc';
 import getTTLDate from './generic/getTTLDate';
 import getDateFromTimeStamp from './generic/getDateFromTimeStamp';
 import hexToText from './generic/hexToText';
+import textToHex from './generic/textToHex';
 import getTimeLive from './generic/getTimeLive';
 import assetDifference from './generic/assetDifference';
 import {
@@ -27,6 +28,7 @@ export {
   mapWalletDataDashboardInvestor,
   mapTransactionListDashboard,
   hexToText,
+  textToHex,
   getTimeLive,
   useEpayco,
   assetDifference,

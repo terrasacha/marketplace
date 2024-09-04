@@ -1,7 +1,7 @@
 import { useContext, useEffect, useState } from 'react';
 import AssetCard from '../../wallet/select-assets/AssetCard';
 import Modal from '../../common/Modal';
-import { WalletContext } from '@marketplaces/utils-2';
+import { textToHex, WalletContext } from '@marketplaces/utils-2';
 
 interface SelectTokensModalProps {
   selectTokensModal: { visible: boolean; data: any; recipientID: number };
@@ -43,17 +43,19 @@ export default function SelectTokensModal(props: SelectTokensModalProps) {
 
   // Función para generar fingerprints
   const generateFingerprint = (asset: any) => {
-    return `${asset.policy_id}-${asset.asset_name}`;
+    return `${asset.policy_id}${textToHex(asset.asset_name)}`;
   };
 
   useEffect(() => {
     // Al abrir el modal, asegurarse de que los fingerprints se calculan y se asignan correctamente
-    const assetsWithFingerprint = walletData.assets.map((asset: any) => ({
-      ...asset,
-      fingerprint: generateFingerprint(asset),
-    }));
-    setAssetsList(assetsWithFingerprint);
-  }, [walletData.assets, selectTokensModal.visible]);
+    if(walletData) {
+      const assetsWithFingerprint = walletData.assets.map((asset: any) => ({
+        ...asset,
+        fingerprint: generateFingerprint(asset),
+      }));
+      setAssetsList(assetsWithFingerprint);
+    }
+  }, [walletData?.assets, selectTokensModal.visible]);
 
   useEffect(() => {
     if (checkedAssetList.length > 0) {
@@ -109,7 +111,7 @@ export default function SelectTokensModal(props: SelectTokensModalProps) {
         });
       });
     }
-  }, [walletData.assets, checkedAssetList, selectTokensModal]);
+  }, [walletData?.assets, checkedAssetList, selectTokensModal]);
 
   const handleFilterInputChange = (field: string, value: string) => {
     setAssetsFilter((prevState) => ({

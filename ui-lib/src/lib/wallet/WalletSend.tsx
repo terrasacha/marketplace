@@ -8,6 +8,12 @@ import Recipient from '../wallet/Recipient';
 import { toast } from 'sonner';
 import { WalletContext } from '@marketplaces/utils-2';
 import { mapBuildTransactionInfo } from '@marketplaces/utils-2';
+import { useWallet } from '@meshsdk/react';
+import {
+  BlockfrostProvider,
+  MeshTxBuilder,
+  MeshTxBuilderBody,
+} from '@meshsdk/core';
 
 // Definir el tipo de 'token'
 interface AccountProps {
@@ -18,6 +24,8 @@ interface AccountProps {
 export default function WalletSend(props: AccountProps) {
   const { walletID, walletAddress, walletData } =
     useContext<any>(WalletContext);
+
+  const { wallet, connected } = useWallet();
   const [checkedAssetList, setCheckedAssetList] = useState<Array<any>>([]);
 
   const handleAddCheckedAsset = (checkedAsset: any) => {
@@ -47,7 +55,11 @@ export default function WalletSend(props: AccountProps) {
     fingerprintToRemove: string,
     recipientIDToRemove: number
   ) => {
-    console.log('Removing checked asset: ', fingerprintToRemove, recipientIDToRemove);
+    console.log(
+      'Removing checked asset: ',
+      fingerprintToRemove,
+      recipientIDToRemove
+    );
     setCheckedAssetList((prevState: any) => {
       const updatedAssetList = prevState.filter(
         (asset: any) =>
@@ -265,6 +277,92 @@ export default function WalletSend(props: AccountProps) {
     return true;
   };
 
+  const meshSign = async (cbor: string) => {
+    let blockFrostKeysPreview: string;
+    if (process.env.NEXT_PUBLIC_blockFrostKeysPreview) {
+      blockFrostKeysPreview = process.env.NEXT_PUBLIC_blockFrostKeysPreview;
+    } else {
+      throw new Error(
+        `Parameter ${process.env['blockFrostKeysPreview']} not found`
+      );
+    }
+
+    /* const blockchainProvider = new BlockfrostProvider(blockFrostKeysPreview);
+
+    const txBuilder = new MeshTxBuilder({
+      fetcher: blockchainProvider,
+      evaluator: blockchainProvider,
+    }); */
+
+    const signedTx = await wallet.signTx(cbor);
+    const txHash = await wallet.submitTx(signedTx);
+  };
+
+  const handleSendTransactionMesh = async () => {
+    console.log('Transaccion: ', newTransactionGroup);
+
+    let blockFrostKeysPreview: string;
+    if (process.env.NEXT_PUBLIC_blockFrostKeysPreview) {
+      blockFrostKeysPreview = process.env.NEXT_PUBLIC_blockFrostKeysPreview;
+    } else {
+      throw new Error(
+        `Parameter ${process.env['blockFrostKeysPreview']} not found`
+      );
+    }
+
+    const blockchainProvider = new BlockfrostProvider(blockFrostKeysPreview);
+
+    const txBuilder = new MeshTxBuilder({
+      fetcher: blockchainProvider,
+      evaluator: blockchainProvider,
+    });
+
+    const outputRecipients = newTransactionGroup.recipients;
+
+    // Mapear tx outputs
+    const outputs = outputRecipients.map((recipient: any) => {
+      const assets = recipient.selectedAssets.map((asset: any) => {
+        return {
+          unit: asset.fingerprint,
+          quantity: asset.selectedSupply,
+        };
+      });
+      return {
+        address: recipient.walletAddress,
+        amount: assets,
+      };
+    });
+
+    // Agregar lovelace como output
+    outputRecipients.forEach((recipient, index) => {
+      outputs[index].amount.push({
+        unit: 'lovelace',
+        quantity: parseFloat(recipient.adaAmount) * 1000000,
+      });
+    });
+
+    const changeAddress = await wallet.getChangeAddress();
+    const utxos = await wallet.getUtxos();
+
+    const meshTxBody: Partial<MeshTxBuilderBody> = {
+      outputs: outputs,
+      changeAddress: changeAddress,
+      extraInputs: utxos,
+      selectionConfig: {
+        threshold: '5000000',
+        strategy: 'largestFirst',
+        includeTxFees: true,
+      },
+    };
+
+    console.log('meshTxBody', meshTxBody);
+
+    const unsignedTx = await txBuilder.complete(meshTxBody);
+    console.log('unsignedTx', unsignedTx)
+    const signedTx = await wallet.signTx(unsignedTx);
+    const txHash = await wallet.submitTx(signedTx);
+  };
+
   const handleSendTransaction = async () => {
     console.log('Transaccion: ', newTransactionGroup);
     if (!validateRecipients()) {
@@ -336,7 +434,9 @@ export default function WalletSend(props: AccountProps) {
       console.log('BuildTx Response: ', buildTxResponse);
 
       if (buildTxResponse?.success) {
-        const mappedTransactionData = await mapBuildTransactionInfo({
+        await meshSign(buildTxResponse.cbor);
+        
+        /* const mappedTransactionData = await mapBuildTransactionInfo({
           tx_type: 'preview',
           walletAddress: walletData.address,
           buildTxResponse: buildTxResponse,
@@ -347,7 +447,7 @@ export default function WalletSend(props: AccountProps) {
           ...mappedTransactionData,
           transaction_id: buildTxResponse.transaction_id,
         });
-        handleOpenSignTransactionModal();
+        handleOpenSignTransactionModal(); */
       } else {
         toast.error(
           'Algo ha salido mal, revisa las direcciones de billetera ...'
@@ -437,7 +537,7 @@ export default function WalletSend(props: AccountProps) {
               <button
                 type="button"
                 className="col-span-4 sm:col-span-1 text-white bg-custom-dark hover:bg-custom-dark-hover focus:outline-none focus:ring-4 focus:ring-gray-300 font-medium rounded text-sm px-5 py-2.5 "
-                onClick={handleSendTransaction}
+                onClick={handleSendTransactionMesh}
               >
                 {isLoading ? <LoadingIcon className="w-4 h-4" /> : 'Enviar'}
               </button>
