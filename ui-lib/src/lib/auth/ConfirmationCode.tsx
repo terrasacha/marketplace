@@ -69,9 +69,13 @@ const ConfirmCode = (props: ConfirmCodeProps) => {
     }
     try {
       await handleResendCode(confirmationCode.username);
-      toast.success('Código enviado.');
+      toast.success('Código enviado.', {
+        className: 'font-custom text-lg', // Cambia 'font-custom' por la clase que desees
+      });
     } catch (error) {
-      toast.error('Error al enviar el código.');
+      toast.error('Error al enviar el código.', {
+        className: 'font-custom text-lg', // Cambia 'font-custom' por la clase que desees
+      });
     }
   };
 
@@ -87,7 +91,7 @@ const ConfirmCode = (props: ConfirmCodeProps) => {
       </div>
       <>
         <h2 className="font-jostBold text-3xl font-normal pb-2">Código de confirmación</h2>
-        <h4 className="font-jostRegular text-1xl font-normal">Ingrese código de confirmación</h4>
+        <h4 className="font-jostRegular text-1xl font-normal">Por favor, ingrese el código de confirmación:</h4>
         <p
           className={`${
             errors.loginError === '' && 'hidden'
@@ -130,24 +134,24 @@ const ConfirmCode = (props: ConfirmCodeProps) => {
         <button
           type="button"
           onClick={(e) => submitFromConfirmationCode(e)}
-          className={`font-jostBold relative flex items-center justify-center h-10 text-white ${
+          className={`font-jostBold relative flex items-center justify-center h-10 text-white  ${
             loginForm.username.length > 0
               ? 'bg-custom-marca-boton  hover:bg-custom-marca-boton-variante'
               : 'bg-custom-marca-boton  hover:bg-custom-marca-boton-variante'
-          } focus:outline-none focus:ring-4 focus:ring-gray-300 font-medium rounded-md text-sm px-5 py-3 mb-2 dark:bg-gray-800 dark:hover:bg-gray-700 dark:focus:ring-gray-700 dark:border-gray-700 w-full mt-4`}
+          } focus:outline-none focus:ring-4 focus:ring-gray-300 font-medium rounded-md text-base  mb-2 dark:bg-gray-800 dark:hover:bg-gray-700 dark:focus:ring-gray-700 dark:border-gray-700 w-full mt-4 `}
         >
           {loading ? (
             <TailSpin
-              width="20"
+              width="30"
               color="#fff"
-              wrapperClass="font-jostRegular absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2"
+              wrapperClass="font-jostRegular absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 "
             />
           ) : (
             'Confirmar código'
           )}
         </button>
         <button
-       className={`relative w-full flex items-center justify-center font-jostBold focus:z-10 focus:outline-none text-white bg-custom-marca-boton border border-transparent enabled:hover:bg-custom-marca-boton-variante  dark:bg-cyan-600 dark:enabled:hover:bg-cyan-700  rounded-lg focus:ring-2 px-8 py-2`}
+       className={`text-base relative w-full flex items-center justify-center font-jostBold focus:z-10 focus:outline-none text-white bg-custom-marca-boton border border-transparent enabled:hover:bg-custom-marca-boton-variante  dark:bg-cyan-600 dark:enabled:hover:bg-cyan-700  rounded-lg focus:ring-2 px-8 py-2`}
           onClick={() => resendCode()}
         >
           Reenviar código

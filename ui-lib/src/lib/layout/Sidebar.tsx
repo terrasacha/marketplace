@@ -267,7 +267,7 @@ export default function Sidebar(props: SidebarProps) {
             onClick={() => setDisplayWalletOptions(!displayWalletOptions)}
           >
             <WalletIcon />
-            <span className={`flex-1 ms-3 text-left rtl:text-right whitespace-nowrap`}>Billetera</span>
+            <span className={`${colors.fuenteAlterna}  flex-1 ms-3 text-left rtl:text-right whitespace-nowrap`}>Billetera</span>
             <ChevronDownIcon />
           </button>
           <ul
@@ -279,7 +279,7 @@ export default function Sidebar(props: SidebarProps) {
             <li>
               <Link
                 href="/wallet"
-                className={`${colors.fuenteAlterna}flex items-center w-full p-2 pl-11 group text-black rounded-lg hover:bg-custom-dark hover:text-white transition duration-150 ease-linear`}
+                className={`${colors.fuenteAlterna} flex items-center w-full p-2 pl-11 group text-black rounded-lg hover:bg-custom-dark hover:text-white transition duration-150 ease-linear`}
               >
                 Cuadro de mando
               </Link>

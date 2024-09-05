@@ -34,11 +34,29 @@ export default function AssetsList(props: AssesListProps) {
   const prevPage = () => {
     setCurrentPage((prevPage) => prevPage - 1);
   };
-
+  const marketplaceName = process.env.NEXT_PUBLIC_MARKETPLACE_NAME || 'Marketplace';
+  const marketplaceColors: Record<string, { bgColor: string; hoverBgColor: string;bgColorAlternativo:string;fuente:string;fuenteAlterna:string;}> = {
+    Terrasacha: {
+      bgColor: 'bg-custom-marca-boton',
+      hoverBgColor: 'hover:bg-custom-marca-boton-variante',
+      bgColorAlternativo: 'bg-custom-marca-boton-alterno2',
+      fuente:'font-jostBold',
+      fuenteAlterna:'font-jostRegular',
+    },
+  
+    // Agrega más marketplaces y colores aquí
+  };
+  const colors = marketplaceColors[marketplaceName] || {
+    bgColor:  'bg-custom-dark' ,
+    hoverBgColor: 'hover:bg-custom-dark-hover',
+    bgColorAlternativo: 'bg-amber-400',
+    fuente:'font-semibold',
+    fuenteAlterna:'font-medium',
+  };
   return (
     <>
       {/* Tus activos serán listados acá */}
-      <div className="space-y-2">
+      <div className={`${colors.fuenteAlterna} space-y-2`}>
         {currentItems?.map((asset, index) => (
           <div key={index} onClick={() => handleOpenAssetModal(asset)}>
             <AssetRow
@@ -53,7 +71,7 @@ export default function AssetsList(props: AssesListProps) {
           </div>
         ))}
       </div>
-      <div className="flex flex-col items-center mt-5">
+      <div className={`${colors.fuenteAlterna}  flex flex-col items-center mt-5`}>
         <span className="text-sm text-gray-700 dark:text-gray-400">
           Mostrando de{' '}
           <span className="font-semibold text-gray-900 dark:text-white">
@@ -67,11 +85,12 @@ export default function AssetsList(props: AssesListProps) {
           <span className="font-semibold text-gray-900 dark:text-white">
             {totalItems}
           </span>{' '}
+         
           Activos
-        </span>
+       </span>
         <div className="inline-flex mt-2 xs:mt-0">
           <button
-            className={`flex items-center justify-center px-3 h-8 text-sm font-medium text-white bg-custom-dark rounded-s hover:bg-custom-dark-hover ${
+            className={`flex items-center justify-center px-3 h-8 text-sm font-medium text-white ${colors.bgColor}  rounded-s ${colors.hoverBgColor} ${
               !canShowPrevious && 'opacity-50 cursor-not-allowed'
             }`}
             onClick={prevPage}
@@ -95,7 +114,7 @@ export default function AssetsList(props: AssesListProps) {
             Prev
           </button>
           <button
-            className={`flex items-center justify-center px-3 h-8 text-sm font-medium text-white bg-custom-dark border-0 border-s border-gray-700 rounded-e hover:bg-custom-dark-hover ${
+            className={`flex items-center justify-center px-3 h-8 text-sm font-medium text-white ${colors.bgColor}  border-0 border-s border-gray-700 rounded-e ${colors.hoverBgColor} ${
               !canShowNext && 'opacity-50 cursor-not-allowed'
             }`}
             onClick={nextPage}

@@ -16,9 +16,9 @@ const Login = (props: any) => {
       <div className="h-auto w-[90%] lg:w-[90%] 2xl:w-[80%] 3xl:w-[70%] flex justify-center 2xl:justify-between z-10">
         <Title />
         <LoginForm
-          logo="/v2/logo.svg"
-          widthLogo={250}
-          heightLogo={250}
+          logo="/v2/logoterrasacha.svg"
+          widthLogo={400}
+          heightLogo={80}
           appName="Terrasacha"
           signInAuth={signInAuth}
           poweredby={true}
