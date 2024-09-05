@@ -129,10 +129,29 @@ export default function Assets(props: AssetsProps) {
       value: parseInt(asset.quantity),
     };
   });
-
+  const marketplaceName = process.env.NEXT_PUBLIC_MARKETPLACE_NAME || 'Marketplace';
+  const marketplaceColors: Record<string, { bgColor: string; hoverBgColor: string;bgColorAlternativo:string;fuente:string;fuenteAlterna:string;}> = {
+    Terrasacha: {
+      bgColor: 'bg-custom-marca-boton',
+      hoverBgColor: 'hover:bg-custom-marca-boton-variante',
+      bgColorAlternativo: 'bg-custom-marca-boton-alterno2',
+      fuente:'font-jostBold',
+      fuenteAlterna:'font-jostRegular',
+    },
+  
+    // Agrega más marketplaces y colores aquí
+  };
+  const colors = marketplaceColors[marketplaceName] || {
+    bgColor:  'bg-custom-dark' ,
+    hoverBgColor: 'hover:bg-custom-dark-hover',
+    bgColorAlternativo: 'bg-amber-400',
+    fuente:'font-semibold',
+    fuenteAlterna:'font-medium',
+  };
   return (
     <Card>
-      <Card.Header title="Activos" />
+      <Card.Header title="Activos"  className={`${colors.fuente}`}  />
+   
       <Card.Body>
         {assetsData?.length ? (
           <>
@@ -149,7 +168,7 @@ export default function Assets(props: AssetsProps) {
             )}
           </>
         ) : (
-          <div className="flex items-center justify-center h-96">
+          <div className={`${colors.fuenteAlterna}  flex items-center justify-center h-96`}>
             Aún no tienes activos para mostrar {':('}
           </div>
         )}

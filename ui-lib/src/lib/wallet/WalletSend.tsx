@@ -365,11 +365,30 @@ export default function WalletSend(props: AccountProps) {
   const rows = calculateRows(newTransactionGroup.message);
 
   console.log(props.userWalletData);
+  const marketplaceName = process.env.NEXT_PUBLIC_MARKETPLACE_NAME || 'Marketplace';
+  const marketplaceColors: Record<string, { bgColor: string; hoverBgColor: string;bgColorAlternativo:string;fuente:string;fuenteAlterna:string;}> = {
+    Terrasacha: {
+      bgColor: 'bg-custom-marca-boton',
+      hoverBgColor: 'hover:bg-custom-marca-boton-variante',
+      bgColorAlternativo: 'bg-custom-marca-boton-alterno2',
+      fuente:'font-jostBold',
+      fuenteAlterna:'font-jostRegular',
+    },
+  
+    // Agrega más marketplaces y colores aquí
+  };
+  const colors = marketplaceColors[marketplaceName] || {
+    bgColor:  'bg-custom-dark' ,
+    hoverBgColor: 'hover:bg-custom-dark-hover',
+    bgColorAlternativo: 'bg-amber-400',
+    fuente:'font-semibold',
+    fuenteAlterna:'font-medium',
+  };
   return (
     <>
-      <div className="grid grid-cols-6 gap-5">
+      <div className={`${colors.fuenteAlterna}  grid grid-cols-6 gap-5`}>
         <Card className="col-span-6 xl:col-span-6 h-fit">
-          <Card.Header title="Nueva Transacción" />
+          <Card.Header title="Nueva Transacción" className={`${colors.fuente}`} />
           <Card.Body className="space-y-4">
             {newTransactionGroup.recipients.map(
               (transaction: any, index: number) => {
@@ -429,14 +448,14 @@ export default function WalletSend(props: AccountProps) {
             <div className="flex justify-between">
               <button
                 type="button"
-                className="col-span-4 sm:col-span-1 text-white bg-custom-dark hover:bg-custom-dark-hover focus:outline-none focus:ring-4 focus:ring-gray-300 font-medium rounded text-sm px-5 py-2.5 "
+                className={`col-span-4 sm:col-span-1 text-white ${colors.bgColor} ${colors.hoverBgColor} focus:outline-none focus:ring-4 focus:ring-gray-300 font-medium rounded text-sm px-5 py-2.5 `}
                 onClick={handleAddRecipient}
               >
                 Añadir destinatario
               </button>
               <button
                 type="button"
-                className="col-span-4 sm:col-span-1 text-white bg-custom-dark hover:bg-custom-dark-hover focus:outline-none focus:ring-4 focus:ring-gray-300 font-medium rounded text-sm px-5 py-2.5 "
+                className={`col-span-4 sm:col-span-1 text-white ${colors.bgColor} ${colors.hoverBgColor} focus:outline-none focus:ring-4 focus:ring-gray-300 font-medium rounded text-sm px-5 py-2.5 `}
                 onClick={handleSendTransaction}
               >
                 {isLoading ? <LoadingIcon className="w-4 h-4" /> : 'Enviar'}

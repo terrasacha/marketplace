@@ -30,13 +30,33 @@ export default function WalletDashboard(props: WalletDashboardProps) {
   };
 
   console.log(props.userWalletData);
+
+  const marketplaceName = process.env.NEXT_PUBLIC_MARKETPLACE_NAME || 'Marketplace';
+  const marketplaceColors: Record<string, { bgColor: string; hoverBgColor: string;bgColorAlternativo:string;fuente:string;fuenteAlterna:string;}> = {
+    Terrasacha: {
+      bgColor: 'bg-custom-marca-boton',
+      hoverBgColor: 'hover:bg-custom-marca-boton-variante',
+      bgColorAlternativo: 'bg-custom-marca-boton-alterno2',
+      fuente:'font-jostBold',
+      fuenteAlterna:'font-jostRegular',
+    },
+  
+    // Agrega más marketplaces y colores aquí
+  };
+  const colors = marketplaceColors[marketplaceName] || {
+    bgColor:  'bg-custom-dark' ,
+    hoverBgColor: 'hover:bg-custom-dark-hover',
+    bgColorAlternativo: 'bg-amber-400',
+    fuente:'font-semibold',
+    fuenteAlterna:'font-medium',
+  };
   return (
     <>
       <ClaimTokens />
       <div className="grid grid-cols-1 2xl:grid-cols-5 2xl:space-x-5">
         <div className="flex-col col-span-3 space-y-5">
           <Card className="h-fit">
-            <Card.Header title="Cuenta" />
+            <Card.Header title="Cuenta" className={`${colors.fuente}`} />
             <Card.Body>
               <div className="w-full rounded-lg bg-custom-dark p-3">
                 <div className="flex gap-3 items-center">
