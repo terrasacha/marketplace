@@ -357,7 +357,7 @@ export default function WalletSend(props: AccountProps) {
 
     console.log('meshTxBody', meshTxBody);
 
-    const unsignedTx = await txBuilder.complete(meshTxBody);
+    const unsignedTx = await txBuilder.complete(meshTxBody); // Esto generara una especie de cbor
     console.log('unsignedTx', unsignedTx)
     const signedTx = await wallet.signTx(unsignedTx);
     const txHash = await wallet.submitTx(signedTx);

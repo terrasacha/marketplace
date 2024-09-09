@@ -1,6 +1,6 @@
 {
   "auth": {
-    "terrasachamarket6acd7eb7": {
+    "terrasachamarket59c5bce5": {
       "customAuth": false,
       "dependsOn": [],
       "providerPlugin": "awscloudformation",
@@ -9,91 +9,91 @@
     }
   },
   "parameters": {
-    "AMPLIFY_auth_terrasachamarket6acd7eb7_allowUnauthenticatedIdentities": {
+    "AMPLIFY_auth_terrasachamarket59c5bce5_allowUnauthenticatedIdentities": {
       "usedBy": [
         {
           "category": "auth",
-          "resourceName": "terrasachamarket6acd7eb7"
+          "resourceName": "terrasachamarket59c5bce5"
         }
       ]
     },
-    "AMPLIFY_auth_terrasachamarket6acd7eb7_authRoleArn": {
+    "AMPLIFY_auth_terrasachamarket59c5bce5_authRoleArn": {
       "usedBy": [
         {
           "category": "auth",
-          "resourceName": "terrasachamarket6acd7eb7"
+          "resourceName": "terrasachamarket59c5bce5"
         }
       ]
     },
-    "AMPLIFY_auth_terrasachamarket6acd7eb7_authRoleName": {
+    "AMPLIFY_auth_terrasachamarket59c5bce5_authRoleName": {
       "usedBy": [
         {
           "category": "auth",
-          "resourceName": "terrasachamarket6acd7eb7"
+          "resourceName": "terrasachamarket59c5bce5"
         }
       ]
     },
-    "AMPLIFY_auth_terrasachamarket6acd7eb7_identityPoolId": {
+    "AMPLIFY_auth_terrasachamarket59c5bce5_identityPoolId": {
       "usedBy": [
         {
           "category": "auth",
-          "resourceName": "terrasachamarket6acd7eb7"
+          "resourceName": "terrasachamarket59c5bce5"
         }
       ]
     },
-    "AMPLIFY_auth_terrasachamarket6acd7eb7_identityPoolName": {
+    "AMPLIFY_auth_terrasachamarket59c5bce5_identityPoolName": {
       "usedBy": [
         {
           "category": "auth",
-          "resourceName": "terrasachamarket6acd7eb7"
+          "resourceName": "terrasachamarket59c5bce5"
         }
       ]
     },
-    "AMPLIFY_auth_terrasachamarket6acd7eb7_nativeClientId": {
+    "AMPLIFY_auth_terrasachamarket59c5bce5_nativeClientId": {
       "usedBy": [
         {
           "category": "auth",
-          "resourceName": "terrasachamarket6acd7eb7"
+          "resourceName": "terrasachamarket59c5bce5"
         }
       ]
     },
-    "AMPLIFY_auth_terrasachamarket6acd7eb7_unauthRoleArn": {
+    "AMPLIFY_auth_terrasachamarket59c5bce5_unauthRoleArn": {
       "usedBy": [
         {
           "category": "auth",
-          "resourceName": "terrasachamarket6acd7eb7"
+          "resourceName": "terrasachamarket59c5bce5"
         }
       ]
     },
-    "AMPLIFY_auth_terrasachamarket6acd7eb7_unauthRoleName": {
+    "AMPLIFY_auth_terrasachamarket59c5bce5_unauthRoleName": {
       "usedBy": [
         {
           "category": "auth",
-          "resourceName": "terrasachamarket6acd7eb7"
+          "resourceName": "terrasachamarket59c5bce5"
         }
       ]
     },
-    "AMPLIFY_auth_terrasachamarket6acd7eb7_userPoolId": {
+    "AMPLIFY_auth_terrasachamarket59c5bce5_userPoolId": {
       "usedBy": [
         {
           "category": "auth",
-          "resourceName": "terrasachamarket6acd7eb7"
+          "resourceName": "terrasachamarket59c5bce5"
         }
       ]
     },
-    "AMPLIFY_auth_terrasachamarket6acd7eb7_userPoolName": {
+    "AMPLIFY_auth_terrasachamarket59c5bce5_userPoolName": {
       "usedBy": [
         {
           "category": "auth",
-          "resourceName": "terrasachamarket6acd7eb7"
+          "resourceName": "terrasachamarket59c5bce5"
         }
       ]
     },
-    "AMPLIFY_auth_terrasachamarket6acd7eb7_webClientId": {
+    "AMPLIFY_auth_terrasachamarket59c5bce5_webClientId": {
       "usedBy": [
         {
           "category": "auth",
-          "resourceName": "terrasachamarket6acd7eb7"
+          "resourceName": "terrasachamarket59c5bce5"
         }
       ]
     }
