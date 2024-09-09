@@ -61,9 +61,7 @@ const WelcomeCard = (props: WelcomeCardProps) => {
     </h2>
       {userData ? (
         <p className="font-jostRegular text-sm text-center">
-          {`El siguiente paso es crear tu billetera virtual o utilizar una que hayas creado con anterioridad (asegurese de contar con las mnemonics). 
-        Para ello haz click en "Crear billetera" o "Recuperar billetera", allí deberás seguir los requerimientos 
-        para luego poder solicitar tu token de acceso y así ingresar al Marketplace.`}
+          {`El siguiente paso es crear tu billetera virtual o utilizar una que hayas creado previamente (asegúrate de tener tus mnemonics o grupo secreto de palabras). Para continuar, haz clic en "Crear billetera" o "Recuperar billetera". Luego, deberás seguir los requisitos indicados para poder solicitar tu token de acceso y, así, ingresar al Marketplace.`}
         </p>
       ) : (
         <p className="text-sm pb-2 text-center font-jostRegular">

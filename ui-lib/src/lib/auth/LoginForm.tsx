@@ -18,46 +18,52 @@ const VerifyCodeMFA = (props: any) => {
   const handleInputChange = (event: React.ChangeEvent<HTMLInputElement>) => {
     setCode(event.target.value);
   };
+  const marketplaceName =
+  process.env.NEXT_PUBLIC_MARKETPLACE_NAME || 'Marketplace';
+const marketplaceColors: Record<
+  string,
+  {
+    bgColor: string;
+    hoverBgColor: string;
+    bgColorAlternativo: string;
+    fuente: string;
+    fuenteAlterna: string;
+    fuenteVariante:string;
+  }
+> = {
+  Terrasacha: {
+    bgColor: 'bg-custom-marca-boton',
+    hoverBgColor: 'hover:bg-custom-marca-boton-variante',
+    bgColorAlternativo: 'bg-custom-marca-boton-alterno2',
+    fuente: 'font-jostBold',
+    fuenteAlterna: 'font-jostRegular',
+    fuenteVariante: 'font-jostItalica',
+  },
+
+  // Agrega más marketplaces y colores aquí
+};
+const colors = marketplaceColors[marketplaceName] || {
+  bgColor: 'bg-custom-dark',
+  hoverBgColor: 'hover:bg-custom-dark-hover',
+  bgColorAlternativo: 'bg-amber-400',
+  fuente: 'font-semibold',
+  fuenteAlterna: 'font-medium',
+  fuenteVariante: 'font-normal',
+};
+
   const verifyMFA = async (codeMFA: string) => {
     setLoading(true);
     try {
       const result2 = await confirmSignIn({ challengeResponse: codeMFA });
       return router.replace('/');
     } catch (error) {
-      toast.error('Código inválido');
+      toast.error(
+        <span className={colors.fuente}>Código inválido</span>
+      );
       setCode('');
     } finally {
       setLoading(false);
     }
-  };
-  const marketplaceName =
-    process.env.NEXT_PUBLIC_MARKETPLACE_NAME || 'Marketplace';
-  const marketplaceColors: Record<
-    string,
-    {
-      bgColor: string;
-      hoverBgColor: string;
-      bgColorAlternativo: string;
-      fuente: string;
-      fuenteAlterna: string;
-    }
-  > = {
-    Terrasacha: {
-      bgColor: 'bg-custom-marca-boton',
-      hoverBgColor: 'hover:bg-custom-marca-boton-variante',
-      bgColorAlternativo: 'bg-custom-marca-boton-alterno2',
-      fuente: 'font-jostBold',
-      fuenteAlterna: 'font-jostRegular',
-    },
-
-    // Agrega más marketplaces y colores aquí
-  };
-  const colors = marketplaceColors[marketplaceName] || {
-    bgColor: 'bg-custom-dark',
-    hoverBgColor: 'hover:bg-custom-dark-hover',
-    bgColorAlternativo: 'bg-amber-400',
-    fuente: 'font-semibold',
-    fuenteAlterna: 'font-medium',
   };
 
   return (
@@ -67,13 +73,13 @@ const VerifyCodeMFA = (props: any) => {
       >
         Autenticación Multi-factor (MFA){' '}
       </h1>
-      <p className="pb-1 text-sm">
+      <p className={`pb-1 text-sm  ${colors.fuenteAlterna}` }>
         Digite el código MFA proporcionado en su Google Authenticator para
         completar el inicio de sesión:
       </p>
       <input
         type="text"
-        className="text-sm border border-gray-200 w-full p-4 rounded-md"
+        className={` ${colors.fuenteAlterna}  text-sm border border-gray-200 w-full p-4 rounded-md`}
         value={code}
         onChange={handleInputChange}
         placeholder="Ingresa el código MFA"
