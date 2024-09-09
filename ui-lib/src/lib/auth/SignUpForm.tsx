@@ -18,7 +18,7 @@ interface SignUpFormProps {
   signUpAuth: any;
   poweredby: boolean;
 }
-const initialStateErrors = { confirmPassword: '', createUserError: '' };
+const initialStateErrors = { confirmPassword: '', createUserError: '', emailError: '' };
 const deafultStateShowInfo = { password: false, passwordConfirm: false };
 
 const SignUpForm = (props: SignUpFormProps) => {
@@ -77,7 +77,6 @@ const SignUpForm = (props: SignUpFormProps) => {
       });
       router.push('/auth/confirm-code');
     } catch (error: any) {
-      console.log(error.name);
       if (error.message === 'Las contraseñas no coinciden') {
         setErrors((preForm: any) => ({
           ...preForm,
@@ -94,11 +93,20 @@ const SignUpForm = (props: SignUpFormProps) => {
           confirmPassword: 'La contraseña debe tener al menos 8 caracteres',
         }));
       } else if (error.name === 'InvalidParameterException') {
-        setErrors((preForm: any) => ({
-          ...preForm,
-          createUserError:
-            'El nombre de usuario no satisface las condiciones requeridas',
-        }));
+        if(error.message === 'Invalid email address format.'){
+
+          setErrors((preForm: any) => ({
+            ...preForm,
+            emailError:
+              'Email inválido',
+          }));
+        } else{
+          setErrors((preForm: any) => ({
+            ...preForm,
+            createUserError:
+              'El nombre de usuario no satisface las condiciones requeridas',
+          }));
+        }
       }
     } finally {
       setLoading(false);
@@ -165,10 +173,27 @@ const SignUpForm = (props: SignUpFormProps) => {
             value={signupForm.email}
             name="email"
             onChange={handleChange}
-            className="block py-2.5 px-0 w-full text-sm text-gray-900 bg-transparent border-0 border-b-2 border-gray-300 appearance-none dark:text-white dark:border-gray-600 dark:focus:border-blue-500 focus:outline-none focus:ring-0 focus:border-blue-600 peer"
+            className={`font-jostRegular block py-2.5 px-0 w-full text-sm text-gray-900 bg-transparent border-0 border-b-2 ${
+              errors.emailError !== ''
+                ? 'border-red-400'
+                : 'border-gray-300'
+            } appearance-none dark:text-white dark:border-gray-600 dark:focus:border-blue-500 focus:outline-none focus:ring-0 focus:border-blue-600 peer`}
+
             placeholder="Email"
             required
           />
+          <p
+            className={`${
+              errors.emailError === '' && 'hidden'
+            } Font-JostRegular text-red-400 text-xs`}
+          >
+            {/* Otro contenido */}
+            {errors.emailError && (
+              <p style={{ fontFamily: 'Jost, sans-serif', color: '#f87171' }}>
+                {errors.emailError}
+              </p>
+            )}
+          </p>
         </div>
         <div className="font-jostRegular relative z-0 w-full mb-4 group">
           <input
@@ -177,7 +202,11 @@ const SignUpForm = (props: SignUpFormProps) => {
             name="password"
             onChange={handleChange}
             onKeyDown={(e) => e.key === 'Enter' && e.preventDefault()}
-            className="font-jostRegular block py-2.5 px-0 w-full text-sm text-gray-900 bg-transparent border-0 border-b-2 border-gray-300 appearance-none dark:text-white dark:border-gray-600 dark:focus:border-blue-500 focus:outline-none focus:ring-0 focus:border-blue-600 peer"
+            className={`font-jostRegular block py-2.5 px-0 w-full text-sm text-gray-900 bg-transparent border-0 border-b-2 ${
+              errors.confirmPassword !== ''
+                ? 'border-red-400'
+                : 'border-gray-300'
+            } appearance-none dark:text-white dark:border-gray-600 dark:focus:border-blue-500 focus:outline-none focus:ring-0 focus:border-blue-600 peer`}
             placeholder="Contraseña"
             required
           />
@@ -187,6 +216,7 @@ const SignUpForm = (props: SignUpFormProps) => {
           >
             {showInfo.password ? <BsFillEyeFill /> : <BsFillEyeSlashFill />}
           </button>
+          <p className="text-xs text-red-400">{errors.confirmPassword}</p>
         </div>
         <div className="font-jostRegular relative z-0 w-full mb-2 group">
           <input
@@ -195,7 +225,11 @@ const SignUpForm = (props: SignUpFormProps) => {
             name="confirmPassword"
             onChange={handleChangeExtraForm}
             onKeyDown={(e) => e.key === 'Enter' && e.preventDefault()}
-            className="block py-2.5 px-0 w-full text-sm text-gray-900 bg-transparent border-0 border-b-2 border-gray-300 appearance-none dark:text-white dark:border-gray-600 dark:focus:border-blue-500 focus:outline-none focus:ring-0 focus:border-blue-600 peer"
+            className={`font-jostRegular block py-2.5 px-0 w-full text-sm text-gray-900 bg-transparent border-0 border-b-2 ${
+              errors.confirmPassword !== ''
+                ? 'border-red-400'
+                : 'border-gray-300'
+            } appearance-none dark:text-white dark:border-gray-600 dark:focus:border-blue-500 focus:outline-none focus:ring-0 focus:border-blue-600 peer`}
             placeholder="Confirmar contraseña"
             required
           />
@@ -209,7 +243,6 @@ const SignUpForm = (props: SignUpFormProps) => {
               <BsFillEyeSlashFill />
             )}
           </button>
-          <p className="text-xs text-red-400">{errors.confirmPasswordError}</p>
         </div>
         <div className="max-w-md mb-2">
           <div className="mb-2 block">
