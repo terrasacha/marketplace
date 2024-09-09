@@ -87,6 +87,27 @@ export default function Projects(props: any) {
       }
     }
 
+    const marketplaceName = process.env.NEXT_PUBLIC_MARKETPLACE_NAME || 'Marketplace';
+    const marketplaceColors: Record<string, { bgColor: string; hoverBgColor: string;bgColorAlternativo:string;fuente:string;fuenteAlterna:string;}> = {
+      Terrasacha: {
+        bgColor: 'bg-custom-marca-boton',
+        hoverBgColor: 'hover:bg-custom-marca-boton-variante',
+        bgColorAlternativo: 'bg-custom-marca-boton-alterno2',
+        fuente:'font-jostBold',
+        fuenteAlterna:'font-jostRegular',
+      },
+    
+      // Agrega más marketplaces y colores aquí
+    };
+    const colors = marketplaceColors[marketplaceName] || {
+      bgColor:  'bg-custom-dark' ,
+      hoverBgColor: 'hover:bg-custom-dark-hover',
+      bgColorAlternativo: 'bg-amber-400',
+      fuente:'font-semibold',
+      fuenteAlterna:'font-medium',
+    };
+
+    
     return false;
   };
 
@@ -698,20 +719,52 @@ export default function Projects(props: any) {
       }
     }
   };
+  const marketplaceName =
+  process.env.NEXT_PUBLIC_MARKETPLACE_NAME || 'Marketplace';
+const marketplaceColors: Record<
+  string,
+  {
+    bgColor: string;
+    hoverBgColor: string;
+    bgColorAlternativo: string;
+    fuente: string;
+    fuenteAlterna: string;
+    fuenteVariante:string;
+  }
+> = {
+  Terrasacha: {
+    bgColor: 'bg-custom-marca-boton',
+    hoverBgColor: 'hover:bg-custom-marca-boton-variante',
+    bgColorAlternativo: 'bg-custom-marca-boton-alterno2',
+    fuente: 'font-jostBold',
+    fuenteAlterna: 'font-jostRegular',
+    fuenteVariante: 'font-jostItalica',
+  },
 
+  // Agrega más marketplaces y colores aquí
+};
+const colors = marketplaceColors[marketplaceName] || {
+  bgColor: 'bg-custom-dark',
+  hoverBgColor: 'hover:bg-custom-dark-hover',
+  bgColorAlternativo: 'bg-amber-400',
+  fuente: 'font-semibold',
+  fuenteAlterna: 'font-medium',
+  fuenteVariante: 'font-normal',
+};
   return (
     <>
+    <div className={`${colors.fuenteAlterna} `}>
       <Card className="h-fit">
         <Card.Header title="Gestión de Proyectos" />
         <Card.Body>
-          <ul className="flex flex-wrap text-sm font-medium text-center text-gray-500 dark:text-gray-400 mb-2">
+          <ul className={`bg-custom-dark flex flex-wrap text-sm font-medium text-center text-gray-500 dark:text-gray-400 mb-2`}>
             <li className="me-2">
               <button
                 onClick={() => setActiveTab('Distribuidos')}
-                className={`inline-block px-4 py-3 rounded-lg ${
+                className={`${colors.fuente} inline-block px-4 py-3 rounded-lg ${
                   activeTab === 'Distribuidos'
-                    ? 'bg-custom-dark text-white'
-                    : 'hover:text-gray-900 hover:bg-gray-100'
+                    ? `${colors.bgColor} text-white`
+                    : `${colors.hoverBgColor} text-white`
                 }`}
                 aria-current="page"
               >
@@ -721,10 +774,10 @@ export default function Projects(props: any) {
             <li className="me-2">
               <button
                 onClick={() => setActiveTab('Sin distribuir')}
-                className={`inline-block px-4 py-3 rounded-lg ${
+                className={`${colors.fuente} inline-block px-4 py-3 rounded-lg  ${
                   activeTab === 'Sin distribuir'
-                    ? 'bg-custom-dark text-white'
-                    : 'hover:text-gray-900 hover:bg-gray-100'
+                    ? `${colors.bgColor} text-white`
+                    : `${colors.hoverBgColor} text-white`
                 }`}
               >
                 Sin distribuir
@@ -750,6 +803,7 @@ export default function Projects(props: any) {
           </div>
         </Card.Body>
       </Card>
+      </div>
       <SignTransactionModal
         signTransactionModal={signTransactionModal}
         handleOpenSignTransactionModal={handleOpenSignTransactionModal}

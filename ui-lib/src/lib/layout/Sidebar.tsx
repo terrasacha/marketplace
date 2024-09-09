@@ -258,7 +258,7 @@ export default function Sidebar(props: SidebarProps) {
             className="flex items-center p-2 text-black rounded-lg hover:bg-custom-dark hover:text-white transition duration-150 ease-linear"
           >
             <ChartIcon />
-            <span className="ml-3">CoreWallet</span>
+            <span className={`${colors.fuenteAlterna}  ml-3`}>CoreWallet</span>
           </Link>
         </li>
         <li /* className={connected ? 'hidden' : ''} */>

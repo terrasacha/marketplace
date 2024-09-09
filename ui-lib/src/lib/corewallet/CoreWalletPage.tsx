@@ -160,7 +160,7 @@ export default function CoreWallet(props: any) {
         handleOpenSignTransactionModal();
       } else {
         toast.error(
-          'Algo ha salido mal, revisa las direcciones de billetera ...'
+          <span className={colors.fuente}>Algo ha salido mal, revisa las direcciones de billetera ..</span>
         );
       }
     }
@@ -169,6 +169,39 @@ export default function CoreWallet(props: any) {
       transfer: false,
     }));
   };
+  const marketplaceName =
+  process.env.NEXT_PUBLIC_MARKETPLACE_NAME || 'Marketplace';
+const marketplaceColors: Record<
+  string,
+  {
+    bgColor: string;
+    hoverBgColor: string;
+    bgColorAlternativo: string;
+    fuente: string;
+    fuenteAlterna: string;
+    fuenteVariante:string;
+  }
+> = {
+  Terrasacha: {
+    bgColor: 'bg-custom-marca-boton',
+    hoverBgColor: 'hover:bg-custom-marca-boton-variante',
+    bgColorAlternativo: 'bg-custom-marca-boton-alterno2',
+    fuente: 'font-jostBold',
+    fuenteAlterna: 'font-jostRegular',
+    fuenteVariante: 'font-jostItalica',
+  },
+
+  // Agrega más marketplaces y colores aquí
+};
+const colors = marketplaceColors[marketplaceName] || {
+  bgColor: 'bg-custom-dark',
+  hoverBgColor: 'hover:bg-custom-dark-hover',
+  bgColorAlternativo: 'bg-amber-400',
+  fuente: 'font-semibold',
+  fuenteAlterna: 'font-medium',
+  fuenteVariante: 'font-normal',
+};
+
   if(!walletData) return null
   return (
     <>
@@ -194,7 +227,7 @@ export default function CoreWallet(props: any) {
             role="alert"
           >
             <div className="flex flex-col space-y-4">
-                <h3 className="text-lg font-medium flex gap-x-2 items-center">
+                <h3 className={`${colors.fuente} text-lg font-medium flex gap-x-2 items-center`}>
                   <TrophyIcon /> Tu marketplace está configurado correctamente
                 </h3>
             </div>
@@ -204,19 +237,21 @@ export default function CoreWallet(props: any) {
         walletData.balance !== "0"?
           <div
             id="alert-additional-content-3"
-            className="col-span-2 p-4 mb-5 space-y-4 text-blue-700 border border-blue-200 rounded-lg bg-blue-50 dark:bg-gray-700 dark:text-blue-300 dark:border-blue-700"
+            className={`${colors.fuenteAlterna}  col-span-2 p-4 mb-5 space-y-4 text-blue-700 border border-blue-200 rounded-lg bg-blue-50 dark:bg-gray-700 dark:text-blue-300 dark:border-blue-700`}
             role="alert"
           >
             <div className="flex flex-col space-y-4">
               <div className="space-y-4">
-                <h3 className="text-lg font-medium flex gap-x-2 items-center">
+                <h3 className={`${colors.fuente}   text-lg font-medium flex gap-x-2 items-center`}>
                   <WarningIcon /> Creación del token de acceso
                 </h3>
                 <div className="text-md">
                   Este paso es indispensable para que los usuarios puedan ingresar
                   y operar dentro de la aplicación
                 </div>
-                <button onClick={() => generateTokenAccess()} disabled={loadingSendTokenAccess} className=' relative py-2 px-6 rounded-md bg-blue-300 font-medium text-sm hover:bg-blue-400 hover:text-blue-800 min-h-10 min-w-40'>
+               
+                <button 
+                onClick={() => generateTokenAccess()} disabled={loadingSendTokenAccess} className={`text-white ${colors.fuente} ${colors.bgColor} ${colors.hoverBgColor} relative py-2 px-6 rounded-md  text-sm hover:bg-blue-400  min-h-10 min-w-40`}>
                 {loadingSendTokenAccess ? (
                     <TailSpin
                       width="20"
@@ -227,6 +262,7 @@ export default function CoreWallet(props: any) {
                     'Enviar token de acceso'
                   )}
                   </button>
+              
               </div>
             </div>
           </div>
@@ -248,8 +284,8 @@ export default function CoreWallet(props: any) {
             </div>
           </div>
       }
-      <div className="grid grid-cols-2">
-        <div className="col-span-2">
+      <div className={`${colors.fuente} grid grid-cols-2`}>
+        <div className={`${colors.fuenteAlterna} col-span-2`}>
           <Card>
             <Card.Header title="Billetera Oráculo" />
             <Card.Body>
@@ -261,7 +297,7 @@ export default function CoreWallet(props: any) {
                   <div className="flex space-x-2 items-center">
                     <button
                       type="button"
-                      className="text-white bg-custom-dark hover:bg-custom-dark-hover focus:outline-none focus:ring-4 focus:ring-gray-300 font-medium rounded text-sm p-2.5 "
+                      className={`${colors.fuente} text-white ${colors.bgColor} ${colors.hoverBgColor} focus:outline-none focus:ring-4 focus:ring-gray-300 font-medium rounded text-sm p-2.5 `}
                       onClick={handleGetOracleWalletLovelaceBalance}
                     >
                       {isLoading.query ? (
@@ -305,7 +341,7 @@ export default function CoreWallet(props: any) {
                   </div>
                   <button
                     type="button"
-                    className="text-white bg-custom-dark hover:bg-custom-dark-hover focus:outline-none focus:ring-4 focus:ring-gray-300 font-medium rounded text-sm p-2.5 "
+                    className={` ${colors.fuente}  text-white ${colors.bgColor} focus:outline-none focus:ring-4 focus:ring-gray-300 font-medium rounded text-sm p-2.5 `}
                     onClick={handleSendTransaction}
                   >
                     {isLoading.transfer ? (
