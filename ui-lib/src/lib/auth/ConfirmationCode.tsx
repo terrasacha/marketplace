@@ -30,6 +30,7 @@ const ConfirmCode = (props: ConfirmCodeProps) => {
     handleResendCode,
   } = props;
   const router = useRouter();
+  const { email } = router.query;
   const [loginForm, setLoginForm] = useState<any>(initialStateloginForm);
   const [errors, setErrors] = useState<any>(initialStateErrors);
   const [loading, setLoading] = useState(false);
@@ -70,11 +71,20 @@ const ConfirmCode = (props: ConfirmCodeProps) => {
     try {
       await handleResendCode(confirmationCode.username);
       toast.success('Código enviado.', {
-        className: 'font-custom text-lg', // Cambia 'font-custom' por la clase que desees
+        className: 'font-custom text-lg',
       });
-    } catch (error) {
-      toast.error('Error al enviar el código.', {
-        className: 'font-custom text-lg', // Cambia 'font-custom' por la clase que desees
+    } catch (error : any) {
+      let msg = 'Error al enviar el código'
+      if(error.name === 'UserNotFoundException'){
+        msg = 'El usuario no existe'
+      }
+      if(error.name === 'UserNotFoundException'){
+        msg = 'El usuario no existe'
+      }if(error.name === 'LimitExceededException'){
+        msg = 'Cantidad de envíos excedido. Intente en unos minutos.'
+      } 
+      toast.error(msg, {
+        className: 'font-custom text-lg',
       });
     }
   };
@@ -90,7 +100,15 @@ const ConfirmCode = (props: ConfirmCodeProps) => {
         />
       </div>
       <>
-        <h2 className="font-jostBold text-3xl font-normal pb-2">Código de confirmación</h2>
+        <h2 className="font-jostBold text-3xl font-normal pb-2 text-center">Código de confirmación</h2>
+        {email && <div
+          id="alert-additional-content-3"
+          className="p-4 mb-5 space-y-4 text-green-600 border border-green-200 rounded-md bg-green-100 dark:bg-gray-700 dark:text-green-300 dark:border-green-700 text-center"
+        >
+          <p className="text-sm font-medium">
+            Código enviado a {email}
+          </p>
+        </div>}
         <h4 className="font-jostRegular text-1xl font-normal">Por favor, ingrese el código de confirmación:</h4>
         <p
           className={`${
@@ -99,7 +117,7 @@ const ConfirmCode = (props: ConfirmCodeProps) => {
         >
           {errors.loginError}
         </p>
-        <form className="pt-10" onSubmit={(e) => submitFromConfirmationCode(e)}>
+        <form className="pt-2" onSubmit={(e) => submitFromConfirmationCode(e)}>
           <div className="relative z-0 w-full mb-6 group">
             <input
               type="text"

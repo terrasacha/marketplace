@@ -75,7 +75,10 @@ const SignUpForm = (props: SignUpFormProps) => {
         label: 'New user created',
         value: signupForm.username
       });
-      router.push('/auth/confirm-code');
+      router.push({
+        pathname: '/auth/confirm-code',
+        query: { email: signupForm.email}
+      });
     } catch (error: any) {
       if (error.message === 'Las contraseñas no coinciden') {
         setErrors((preForm: any) => ({
