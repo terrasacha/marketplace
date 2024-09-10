@@ -48,7 +48,7 @@ const ConfirmCode = (props: ConfirmCodeProps) => {
     setLoading(true);
     try {
       const data = await confirmSignUpAuth(confirmationCode);
-      console.log(data, 'confirmSignUpAuth')
+      console.log(data, 'confirmSignUpAuth');
       if (data) {
         router.push('/auth/login');
       }
@@ -65,7 +65,9 @@ const ConfirmCode = (props: ConfirmCodeProps) => {
   const resendCode = async () => {
     if (!confirmationCode.username) {
       return toast.info(
-        'Ingresa tu nombre de usuario para poder enviar el código.'
+        <span className="font-jostRegular text-lg">
+        Ingresa tu nombre de usuario para poder enviar el código.
+        </span>
       );
     }
     try {
@@ -73,22 +75,54 @@ const ConfirmCode = (props: ConfirmCodeProps) => {
       toast.success('Código enviado.', {
         className: 'font-custom text-lg',
       });
-    } catch (error : any) {
-      let msg = 'Error al enviar el código'
-      if(error.name === 'UserNotFoundException'){
-        msg = 'El usuario no existe'
+    } catch (error: any) {
+      let msg = 'Error al enviar el código';
+      if (error.name === 'UserNotFoundException') {
+        msg = 'El usuario no existe';
       }
-      if(error.name === 'UserNotFoundException'){
-        msg = 'El usuario no existe'
-      }if(error.name === 'LimitExceededException'){
-        msg = 'Cantidad de envíos excedido. Intente en unos minutos.'
-      } 
+      if (error.name === 'UserNotFoundException') {
+        msg = 'El usuario no existe';
+      }
+      if (error.name === 'LimitExceededException') {
+        msg = 'Cantidad de envíos excedido. Intente en unos minutos.';
+      }
       toast.error(msg, {
         className: 'font-custom text-lg',
       });
     }
   };
+  const marketplaceName =
+    process.env.NEXT_PUBLIC_MARKETPLACE_NAME || 'Marketplace';
+  const marketplaceColors: Record<
+    string,
+    {
+      bgColor: string;
+      hoverBgColor: string;
+      bgColorAlternativo: string;
+      fuente: string;
+      fuenteAlterna: string;
+      fuenteVariante: string;
+    }
+  > = {
+    Terrasacha: {
+      bgColor: 'bg-custom-marca-boton',
+      hoverBgColor: 'hover:bg-custom-marca-boton-variante',
+      bgColorAlternativo: 'bg-custom-marca-boton-alterno2',
+      fuente: 'font-jostBold',
+      fuenteAlterna: 'font-jostRegular',
+      fuenteVariante: 'font-jostItalic',
+    },
 
+    // Agrega más marketplaces y colores aquí
+  };
+  const colors = marketplaceColors[marketplaceName] || {
+    bgColor: 'bg-custom-dark',
+    hoverBgColor: 'hover:bg-custom-dark-hover',
+    bgColorAlternativo: 'bg-amber-400',
+    fuente: 'font-semibold',
+    fuenteAlterna: 'font-medium',
+    fuenteVariante: 'font-normal',
+  };
   return (
     <div className="bg-white rounded-2xl w-[35rem] max-w-[35rem] 2xl:w-[38%] py-10 px-12 sm:px-20 h-auto flex flex-col justify-center">
       <div className="w-full flex justify-center mb-8">
@@ -100,16 +134,23 @@ const ConfirmCode = (props: ConfirmCodeProps) => {
         />
       </div>
       <>
-        <h2 className="font-jostBold text-3xl font-normal pb-2 text-center">Código de confirmación</h2>
-        {email && <div
-          id="alert-additional-content-3"
-          className="p-4 mb-5 space-y-4 text-green-600 border border-green-200 rounded-md bg-green-100 dark:bg-gray-700 dark:text-green-300 dark:border-green-700 text-center"
-        >
-          <p className="text-sm font-medium">
-            Código enviado a {email}
-          </p>
-        </div>}
-        <h4 className="font-jostRegular text-1xl font-normal">Por favor, ingrese el código de confirmación:</h4>
+        <h2 className="font-jostBold text-3xl font-normal pb-2 text-center">
+          Código de confirmación
+        </h2>
+        {email && (
+          <div
+            id="alert-additional-content-3"
+            className="p-4 mb-5 space-y-4 text-green-600 border border-green-200 rounded-md bg-green-100 dark:bg-gray-700 dark:text-green-300 dark:border-green-700 text-center"
+          >
+            <p className={`${colors.fuenteVariante} text-sm font-medium`}>
+              Se ha enviado el código de confirmación a su correo registrado:
+              <strong className={`${colors.fuente}`}>{email}</strong>
+            </p>
+          </div>
+        )}
+        <h4 className="font-jostRegular text-1xl font-normal">
+          Por favor, ingrese el código de confirmación:
+        </h4>
         <p
           className={`${
             errors.loginError === '' && 'hidden'
@@ -149,31 +190,33 @@ const ConfirmCode = (props: ConfirmCodeProps) => {
           </div>
         </form>
 
-        <button
-          type="button"
-          onClick={(e) => submitFromConfirmationCode(e)}
-          className={`font-jostBold relative flex items-center justify-center h-10 text-white  ${
-            loginForm.username.length > 0
-              ? 'bg-custom-marca-boton  hover:bg-custom-marca-boton-variante'
-              : 'bg-custom-marca-boton  hover:bg-custom-marca-boton-variante'
-          } focus:outline-none focus:ring-4 focus:ring-gray-300 font-medium rounded-md text-base  mb-2 dark:bg-gray-800 dark:hover:bg-gray-700 dark:focus:ring-gray-700 dark:border-gray-700 w-full mt-4 `}
-        >
-          {loading ? (
-            <TailSpin
-              width="30"
-              color="#fff"
-              wrapperClass="font-jostRegular absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 "
-            />
-          ) : (
-            'Confirmar código'
-          )}
-        </button>
-        <button
-       className={`text-base relative w-full flex items-center justify-center font-jostBold focus:z-10 focus:outline-none text-white bg-custom-marca-boton border border-transparent enabled:hover:bg-custom-marca-boton-variante  dark:bg-cyan-600 dark:enabled:hover:bg-cyan-700  rounded-lg focus:ring-2 px-8 py-2`}
-          onClick={() => resendCode()}
-        >
-          Reenviar código
-        </button>
+
+<button
+  type="button"
+  onClick={(e) => submitFromConfirmationCode(e)}
+  className={`font-jostBold relative flex items-center justify-center h-10 text-white  ${
+    loginForm.username.length > 0
+      ? 'bg-custom-marca-boton  hover:bg-custom-marca-boton-variante'
+      : 'bg-custom-marca-boton  hover:bg-custom-marca-boton-variante'
+  } focus:outline-none focus:ring-4 focus:ring-gray-300 font-medium rounded-md text-base  mb-2 dark:bg-gray-800 dark:hover:bg-gray-700 dark:focus:ring-gray-700 dark:border-gray-700 w-full mt-4`}
+>
+  {loading ? (
+    <TailSpin
+      width="30"
+      color="#fff"
+      wrapperClass="font-jostRegular absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 "
+    />
+  ) : (
+    'Confirmar código'
+  )}
+</button>
+
+<button
+  className={`h-10 text-base relative w-full flex items-center justify-center font-jostBold focus:z-10 focus:outline-none text-white bg-custom-marca-boton border border-transparent enabled:hover:bg-custom-marca-boton-variante  dark:bg-cyan-600 dark:enabled:hover:bg-cyan-700  rounded-lg focus:ring-2 px-8 py-2 mt-4`}
+  onClick={() => resendCode()}
+>
+  Reenviar código
+</button>
       </>
     </div>
   );

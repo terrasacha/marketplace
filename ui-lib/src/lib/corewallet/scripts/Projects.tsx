@@ -738,7 +738,7 @@ const marketplaceColors: Record<
     bgColorAlternativo: 'bg-custom-marca-boton-alterno2',
     fuente: 'font-jostBold',
     fuenteAlterna: 'font-jostRegular',
-    fuenteVariante: 'font-jostItalica',
+    fuenteVariante: 'font-jostItalic',
   },
 
   // Agrega más marketplaces y colores aquí
@@ -754,10 +754,10 @@ const colors = marketplaceColors[marketplaceName] || {
   return (
     <>
     <div className={`${colors.fuenteAlterna} `}>
-      <Card className="h-fit">
+      <Card className="h-fit mt-6">
         <Card.Header title="Gestión de Proyectos" />
         <Card.Body>
-          <ul className={`bg-custom-dark flex flex-wrap text-sm font-medium text-center text-gray-500 dark:text-gray-400 mb-2`}>
+          <ul className={`bg-custom-dark flex flex-wrap text-sm font-medium text-center text-gray-500 dark:text-gray-400 mb-2 rounded-lg`}>
             <li className="me-2">
               <button
                 onClick={() => setActiveTab('Distribuidos')}
@@ -802,8 +802,11 @@ const colors = marketplaceColors[marketplaceName] || {
             )}
           </div>
         </Card.Body>
-      </Card>
+      </Card >
       </div>
+      <div className="mt-6"> {/* Este margen agrega el espacio después del Card */}
+  {/* Contenido adicional */}
+</div>
       <SignTransactionModal
         signTransactionModal={signTransactionModal}
         handleOpenSignTransactionModal={handleOpenSignTransactionModal}

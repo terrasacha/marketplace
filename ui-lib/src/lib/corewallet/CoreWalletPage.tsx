@@ -188,7 +188,7 @@ const marketplaceColors: Record<
     bgColorAlternativo: 'bg-custom-marca-boton-alterno2',
     fuente: 'font-jostBold',
     fuenteAlterna: 'font-jostRegular',
-    fuenteVariante: 'font-jostItalica',
+    fuenteVariante: 'font-jostItalic',
   },
 
   // Agrega más marketplaces y colores aquí
@@ -341,7 +341,7 @@ const colors = marketplaceColors[marketplaceName] || {
                   </div>
                   <button
                     type="button"
-                    className={` ${colors.fuente}  text-white ${colors.bgColor} focus:outline-none focus:ring-4 focus:ring-gray-300 font-medium rounded text-sm p-2.5 `}
+                    className={` ${colors.fuente}  text-white ${colors.bgColor} ${colors.hoverBgColor} focus:outline-none focus:ring-4 focus:ring-gray-300 font-medium rounded text-sm p-2.5 `}
                     onClick={handleSendTransaction}
                   >
                     {isLoading.transfer ? (

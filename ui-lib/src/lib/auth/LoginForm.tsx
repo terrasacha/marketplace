@@ -37,7 +37,7 @@ const marketplaceColors: Record<
     bgColorAlternativo: 'bg-custom-marca-boton-alterno2',
     fuente: 'font-jostBold',
     fuenteAlterna: 'font-jostRegular',
-    fuenteVariante: 'font-jostItalica',
+    fuenteVariante: 'font-jostItalic',
   },
 
   // Agrega más marketplaces y colores aquí
@@ -85,17 +85,18 @@ const colors = marketplaceColors[marketplaceName] || {
         placeholder="Ingresa el código MFA"
       />
       {/* Botón de información */}
-      <button
-        className="text-gray-400 ml-2"
-        title="Recuerde: Debe tener instalado Google Authenticator en su móvil y haber escaneado el código QR previamente."
-      >
+      <div className="relative group inline-block">
+      <button className={`v text-gray-400 ml-2`}>
         <div className="text-yellow-500 p-2 flex items-center">
-          <AiOutlineInfoCircle
-            size={30}
-            className="cursor-pointer text-orange-500"
-          />
+          <AiOutlineInfoCircle size={30} className="cursor-pointer text-orange-500" />
         </div>
       </button>
+      
+      {/* Tooltip */}
+      <div className={`${colors.fuenteVariante}  absolute invisible group-hover:visible bg-black text-white text-lg rounded py-1 px-2 bottom-full mb-1`}>
+        Recuerde: Debe tener instalado Google Authenticator en su móvil y escanear el código QR.
+      </div>
+    </div>
       <button
         className="relative w-full mt-6 flex items-center h-10 justify-center font-jostBold focus:z-10 focus:outline-none text-white bg-custom-marca-boton border border-transparent enabled:hover:bg-custom-marca-boton-variante  dark:bg-cyan-600 dark:enabled:hover:bg-cyan-700  rounded-lg focus:ring-2 px-8 py-2"
         onClick={() => verifyMFA(code)}
@@ -300,7 +301,7 @@ const LoginForm = (props: LoginFormProps) => {
               }
               className="text-[#50A4FF] text-sm"
             >
-              Ingresa aquí
+              Registrarse aquí
             </Link>
           </p>
           <p className="font-jostRegular text-[#50A4FF] text-sm pt-2">
