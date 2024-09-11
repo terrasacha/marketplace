@@ -2,7 +2,6 @@
 import axios from "axios";
 import { Category } from "myTypes";
 import { Amplify } from 'aws-amplify';
-import awsconfig from '@cauca//src/aws-exports';
 import { signUp, confirmSignUp, type ConfirmSignUpInput, signIn, type SignInInput, signOut, resetPassword, type ResetPasswordInput, confirmResetPassword, type ConfirmResetPasswordInput, resendSignUpCode, confirmSignIn, type ConfirmSignInInput } from 'aws-amplify/auth';
 
 /* import { integer } from "aws-sdk/clients/cloudfront"; */
@@ -10,8 +9,6 @@ import { getProduct } from "@cauca//lib/customQueries";
 /* const AWS = require("aws-sdk");
 
 AWS.config.update(awsconfig); */
-
-Amplify.configure(awsconfig);
 
 //Auth AWS
 
