@@ -193,6 +193,38 @@ const RedirectToHome = (props: RedirectToHomeProps) => {
           setLoading(false)
     }
   } */
+    const marketplaceName =
+    process.env.NEXT_PUBLIC_MARKETPLACE_NAME || 'Marketplace';
+  const marketplaceColors: Record<
+    string,
+    {
+      bgColor: string;
+      hoverBgColor: string;
+      bgColorAlternativo: string;
+      fuente: string;
+      fuenteAlterna: string;
+      fuenteVariante: string;
+    }
+  > = {
+    Terrasacha: {
+      bgColor: 'bg-custom-marca-boton',
+      hoverBgColor: 'hover:bg-custom-marca-boton-variante',
+      bgColorAlternativo: 'bg-custom-marca-boton-alterno2',
+      fuente: 'font-jostBold',
+      fuenteAlterna: 'font-jostRegular',
+      fuenteVariante: 'font-jostItalic',
+    },
+
+    // Agrega más marketplaces y colores aquí
+  };
+  const colors = marketplaceColors[marketplaceName] || {
+    bgColor: 'bg-custom-dark',
+    hoverBgColor: 'hover:bg-custom-dark-hover',
+    bgColorAlternativo: 'bg-amber-400',
+    fuente: 'font-semibold',
+    fuenteAlterna: 'font-medium',
+  };
+
     return (
     <div className="bg-white rounded-2xl w-[40rem] max-w-[35rem] 2xl:w-[45%] py-10 px-10 sm:px-10 h-auto flex flex-col justify-center">
         <div className='flex justify-center mb-8'>
@@ -203,7 +235,7 @@ const RedirectToHome = (props: RedirectToHomeProps) => {
           alt="Logotipo de Terrasacha"
         />
       </div>
-      <h2 className="text-2xl font-normal pb-4 flex justify-center text-center">
+      <h2 className={`${colors.fuente}  text-2xl font-normal pb-4 flex justify-center text-center`}>
        {optionsToDisplay[checkingWallet]?.title}
       </h2>
       <p className="text-sm text-gray-500 text-center mb-2">

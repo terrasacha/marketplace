@@ -54,10 +54,9 @@ const GenerateWordsStep = (props: any) => {
         </h2>
       </section>
       <p className="pb-4 font-jostItalic text-sm">
-        Las palabras que aparecen a continuación se denominan frase de
-        recuperación. Le permiten restaurar y acceder a sus fondos en cualquier
-        monedero Cardano. Por favor, escríbalas en papel en el en el orden
-        indicado, y no las almacene en un servicio en línea.
+      Las palabras que se muestran a continuación conforman su frase de recuperación. 
+      Esta frase es esencial para restaurar y acceder a sus fondos en cualquier monedero de Cardano.
+       Se recomienda escribirla en papel en el orden exacto y no guardarla en ningún servicio en línea.
       </p>
       <section className="flex justify-between pb-2">
         <h2 className="text- font-jostBold">Cantidad de palabras</h2>

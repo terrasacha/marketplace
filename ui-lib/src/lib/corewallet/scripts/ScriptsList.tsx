@@ -77,10 +77,41 @@ const ScriptsList = (props: AssesListProps) => {
 
   console.log('scripts', scripts);
   console.log('groupedScripts', groupedScripts);
+  const marketplaceName =
+  process.env.NEXT_PUBLIC_MARKETPLACE_NAME || 'Marketplace';
+const marketplaceColors: Record<
+  string,
+  {
+    bgColor: string;
+    hoverBgColor: string;
+    bgColorAlternativo: string;
+    fuente: string;
+    fuenteAlterna: string;
+    fuenteVariante:string;
+  }
+> = {
+  Terrasacha: {
+    bgColor: 'bg-custom-marca-boton',
+    hoverBgColor: 'hover:bg-custom-marca-boton-variante',
+    bgColorAlternativo: 'bg-custom-marca-boton-alterno2',
+    fuente: 'font-jostBold',
+    fuenteAlterna: 'font-jostRegular',
+    fuenteVariante: 'font-jostItalic',
+  },
 
+  // Agrega más marketplaces y colores aquí
+};
+const colors = marketplaceColors[marketplaceName] || {
+  bgColor: 'bg-custom-dark',
+  hoverBgColor: 'hover:bg-custom-dark-hover',
+  bgColorAlternativo: 'bg-amber-400',
+  fuente: 'font-semibold',
+  fuenteAlterna: 'font-medium',
+  fuenteVariante: 'font-normal',
+};
   return (
     <div className="relative overflow-x-auto rounded-lg">
-      <table className="w-full text-sm text-left rtl:text-righ text-white">
+      <table className="w-full text-sm text-left rtl:text-righ text-white ">
         <thead className="text-xs uppercase bg-custom-dark border-b-8 border-custom-fondo">
           <tr>
             <th scope="col" className="px-6 py-3"></th>
@@ -159,7 +190,7 @@ const ScriptsList = (props: AssesListProps) => {
         </span>
         <div className="inline-flex mt-2 xs:mt-0">
           <button
-            className={`flex items-center justify-center px-3 h-8 text-sm font-medium text-white bg-custom-dark rounded-s hover:bg-custom-dark-hover ${
+            className={`${colors.fuenteAlterna}  flex items-center justify-center px-3 h-8 text-sm font-medium text-white bg-custom-dark rounded-s hover:bg-custom-dark-hover ${
               !canShowPrevious && 'opacity-50 cursor-not-allowed'
             }`}
             onClick={prevPage}
@@ -183,7 +214,7 @@ const ScriptsList = (props: AssesListProps) => {
             Prev
           </button>
           <button
-            className={`flex items-center justify-center px-3 h-8 text-sm font-medium text-white bg-custom-dark border-0 border-s border-gray-700 rounded-e hover:bg-custom-dark-hover ${
+            className={`${colors.fuenteAlterna}  flex items-center justify-center px-3 h-8 text-sm font-medium text-white bg-custom-dark border-0 border-s border-gray-700 rounded-e hover:bg-custom-dark-hover ${
               !canShowNext && 'opacity-50 cursor-not-allowed'
             }`}
             onClick={nextPage}
