@@ -213,7 +213,7 @@ const EnableMFA = (props: any) => {
       
       {/* Tooltip */}
       <div className={`${colors.fuenteVariante}  absolute invisible group-hover:visible bg-black text-white text-lg rounded py-1 px-2 bottom-full mb-1`}>
-        Recuerde: Debe tener instalado Google Authenticator en su móvil y escanear el código QR.
+        Debe tener instalado Google Authenticator en su móvil y escanear el código QR.
       </div>
     </div>
           <button

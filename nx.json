@@ -6,7 +6,7 @@
   "targetDefaults": {
     "build": {
       "cache": true,
-      "dependsOn": ["^build"],
+      "dependsOn": [],
       "inputs": ["production", "^production"]
     },
     "lint": {
@@ -33,7 +33,7 @@
     },
     "@nx/next:build": {
       "cache": false,
-      "dependsOn": ["^build"],
+      "dependsOn": [],
       "inputs": ["production", "^production"]
     }
   },
