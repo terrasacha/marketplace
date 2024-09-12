@@ -1,0 +1,7 @@
+{
+  "prod": {
+    "configLevel": "project",
+    "useProfile": false,
+    "awsConfigFilePath": "/home/loow3/.amplify/awscloudformation/qkFqzhI11v"
+  }
+}
