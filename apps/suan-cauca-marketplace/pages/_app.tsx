@@ -15,8 +15,7 @@ import { Layouts } from '@cauca/components/common/Layouts';
 import TelegramFloatingButton from '@cauca//components/TelegramFloatingButton';
 import { Amplify } from 'aws-amplify';
 
-import config from '@marketplaces/src/aws-exports';
-import Script from 'next/script';
+import config from '../src/aws-exports';
 
 Amplify.configure(config);
 
