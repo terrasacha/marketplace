@@ -312,7 +312,7 @@ export default function PaymentPage({}) {
     let dataFormatted: any = {};
     data.map((item: any) => {
       let obj = `ADArate${item.currency}`;
-      dataFormatted[obj] = item.value.toFixed(4);
+      dataFormatted[obj] = item.value;
     });
     return dataFormatted;
   };
@@ -542,6 +542,7 @@ export default function PaymentPage({}) {
           walletID: walletID,
           walletAddress: walletAddress,
           productID: projectInfo.projectID,
+          contractAddressOrigin: spendContractFromMintProjectToken.testnetAddr
         },
       };
 
@@ -857,7 +858,25 @@ export default function PaymentPage({}) {
   const feesADA = parseFloat((feesUSD / exchangeRate).toFixed(4));
   const totalUSD = subTotalUSD + feesUSD;
   const totalADA = parseFloat((totalUSD / exchangeRate).toFixed(4));
-
+  const marketplaceName = process.env.NEXT_PUBLIC_MARKETPLACE_NAME || 'Marketplace';
+  const marketplaceColors: Record<string, { bgColor: string; hoverBgColor: string;bgColorAlternativo:string;fuente:string;fuenteAlterna:string;}> = {
+    Terrasacha: {
+      bgColor: 'bg-custom-marca-boton',
+      hoverBgColor: 'hover:bg-custom-marca-boton-variante',
+      bgColorAlternativo: 'bg-custom-marca-boton-alterno2',
+      fuente:'font-jostBold',
+      fuenteAlterna:'font-jostRegular',
+    },
+  
+    // Agrega más marketplaces y colores aquí
+  };
+  const colors = marketplaceColors[marketplaceName] || {
+    bgColor:  'bg-custom-dark' ,
+    hoverBgColor: 'hover:bg-custom-dark-hover',
+    bgColorAlternativo: 'bg-amber-400',
+    fuente:'font-semibold',
+    fuenteAlterna:'font-medium',
+  };
   return (
     <>
       <PendingVerificationMessage />
@@ -881,8 +900,8 @@ export default function PaymentPage({}) {
                 {step.step}
               </span>
               <span>
-                <h3 className="font-medium leading-tight">{step.title}</h3>
-                <p className="text-sm">{step.description}</p>
+                <h3 className={`${colors.fuente} leading-tight`}>{step.title}</h3>
+                <p className={`${colors.fuente}  text-sm`}>{step.description}</p>
               </span>
             </div>
           ))}
@@ -923,7 +942,7 @@ export default function PaymentPage({}) {
                   tokenImageUrl={tokenImageUrl}
                 />
                 <div>
-                  <span>Cantidad de tokens:</span>
+                  <span className={`font-jostBold`}>Cantidad de tokens:</span>
                   <TextInput
                     className="mt-2"
                     addon={
@@ -941,13 +960,13 @@ export default function PaymentPage({}) {
                 </div>
                 <div className="flex space-x-2">
                   <button
-                    className="flex justify-center w-full text-amber-400 bg-custom-dark hover:bg-custom-dark-hover focus:outline-none focus:ring-4 focus:ring-gray-300 font-medium rounded px-5 py-2.5"
+                    className="font-jostBold flex justify-center w-full text-amber-400 bg-custom-marca-boton  enabled: hover:bg-custom-marca-boton-variante  focus:outline-none focus:ring-4 focus:ring-gray-300 font-medium rounded px-5 py-2.5"
                     onClick={handleCreateTransactionStep}
                   >
                     Pago Crypto
                   </button>
                   <button
-                    className="flex justify-center w-full text-amber-400 bg-custom-dark hover:bg-custom-dark-hover focus:outline-none focus:ring-4 focus:ring-gray-300 font-medium rounded px-5 py-2.5"
+                    className="font-jostBold  flex justify-center w-full text-amber-400 bg-custom-marca-boton  enabled: hover:bg-custom-marca-boton-variante focus:outline-none focus:ring-4 focus:ring-gray-300 font-medium rounded px-5 py-2.5"
                     onClick={() => handlePayment()}
                   >
                     Pago FIAT

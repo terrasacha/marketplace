@@ -50,7 +50,8 @@
       "@marketplaces/utils-2/src/lib/mappers/*": ["utils-2/src/lib/mappers/*"],
       "@suan/*": ["apps/suan-marketplace/*"],
       "@terrasacha/*": ["apps/terrasacha-marketplace/*"],
-      "@cauca/*": ["apps/suan-cauca-marketplace/*"]
+      "@cauca/*": ["apps/suan-cauca-marketplace/*"],
+      "@marketplaces/*": ["./*"]
     }
   },
   "exclude": ["node_modules", "tmp"]

@@ -32,6 +32,8 @@ export default {
         'custom-dark-hover': '#212121',
         'custom-hover': '#4aa3df',
         'custom-hover-invert': '#95e9fb',
+            'custom-marca-boton': '#333333',
+        'custom-marca-boton-variante': '#212121'
       },
       blur: {
         xs: '2px',

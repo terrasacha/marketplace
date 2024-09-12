@@ -61,7 +61,7 @@ export default function ProjectDataModal({
     >
       <div className="relative p-4 w-full h-5/6 max-w-6xl max-h-full bg-white overflow-y-scroll rounded-xl no-scrollbar">
         <div className="flex items-center justify-between p-4 md:p-5 border-b rounded-t dark:border-gray-600">
-          <h3 className="text-xl font-semibold text-gray-900 dark:text-white">
+          <h3 className="text-xl font-jostBold text-gray-900 dark:text-white">
             Información del proyecto
           </h3>
           <button
@@ -89,29 +89,29 @@ export default function ProjectDataModal({
         </div>
         <div className="p-4 md:p-5 space-y-4">
           <div className="sm:mx-8 sm:px-8 mx-2 px-2">
-            <p className="modal-name text-2xl text-[#2E7D96]">
-              {projectData.projectInfo.title}{' '}
+            <p className="modal-name text-2xl text-[#2e9651] font-jostBold">
+              {projectData.projectInfo.title} {' '}
             </p>
-            <p className="modal-date text-[#484848]">
+            <p className="modal-date text-[#484848] font-jostBold">
               Fecha de creación:{' '}
               <span>{projectData.projectInfo.createdAt}</span>
             </p>
-            <p className="modal-description text-[#484848] mt-2">
+            <p className="modal-description text-[#484848] mt-2 font-jostRegular">
               {projectData.projectInfo.description}{' '}
             </p>
             {projectData.projectVerifierNames?.length > 0 && (
               <section className="mb-8">
-                <p className="modal-validadores mt-4 text-[#484848]">
+                <p className="modal-validadores mt-4 text-[#484848] font-jostBold">
                   Validadores:
                 </p>
-                <div className="flex gap-x-2 mt-2 flex-col sm:flex-row">
+                <div className="flex gap-x-2 mt-2 flex-col sm:flex-row font-jostBold">
                   {projectData.projectVerifierNames?.map(
                     (pvn: any, index: number) => {
                       return (
                         <Badge
                           key={index}
                           color="success"
-                          className="modal-validador text-[#2E7D96] bg-[#D6F8F4] py-1 px-4"
+                          className="modal-validador text-[#2E7D96] bg-[#D6F8F4] py-1 px-4 font-jostBold"
                         >
                           {/* Validador {index + 1}: {pvn} */}
                           {pvn}
@@ -123,8 +123,8 @@ export default function ProjectDataModal({
               </section>
             )}
 
-            <div className="border-t border-1 w-11/12 "></div>
-            <div className="detail-tabs">
+            <div className="border-t border-1 w-11/12 font-jostRegular"></div>
+            <div className="detail-tabs font-jostRegular">
               <div className="detail-div border-[#ABABAB] flex justify-center">
                 <div className="tabs mt-2 pt-2 flex sm:flex-row flex-col w-full">
                   {tabs.map((tab, index) => (

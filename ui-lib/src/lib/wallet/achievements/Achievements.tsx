@@ -14,11 +14,32 @@ interface AccountProps {
 
 export default function Achievements(props: AccountProps) {
   console.log(props.userWalletData);
+  const marketplaceName = process.env.NEXT_PUBLIC_MARKETPLACE_NAME || 'Marketplace';
+  const marketplaceColors: Record<string, { bgColor: string; hoverBgColor: string;bgColorAlternativo:string;fuente:string;fuenteAlterna:string;}> = {
+    Terrasacha: {
+      bgColor: 'bg-custom-marca-boton',
+      hoverBgColor: 'hover:bg-custom-marca-boton-variante',
+      bgColorAlternativo: 'bg-custom-marca-boton-alterno2',
+      fuente:'font-jostBold',
+      fuenteAlterna:'font-jostRegular',
+    },
+  
+    // Agrega más marketplaces y colores aquí
+  };
+  const colors = marketplaceColors[marketplaceName] || {
+    bgColor:  'bg-custom-dark' ,
+    hoverBgColor: 'hover:bg-custom-dark-hover',
+    bgColorAlternativo: 'bg-amber-400',
+    fuente:'font-semibold',
+    fuenteAlterna:'font-medium',
+  };
+
+
   return (
     <>
-      <div className="grid grid-cols-6 gap-5">
+      <div className={`${colors.fuenteAlterna}  grid grid-cols-6 gap-5`}>
         <Card className="col-span-6 xl:col-span-6 h-fit">
-          <Card.Header title="Tus logros" />
+          <Card.Header title="Tus logros" className={`${colors.fuente}`} />
           <Card.Body className="space-y-4">
             <div className='mt-[-1rem] flex items-center'>
                 <p>Si compartes tus logros, ¡duplicaremos los puntos ganados!</p>

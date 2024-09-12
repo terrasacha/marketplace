@@ -439,7 +439,7 @@ const Product: MyPage = (props: any) => {
         <div className="col-span-2">
           <Card>
             <header>
-              <ul className="flex text-sm font-medium text-center rounded-t-lg border-b">
+              <ul className={`flex text-sm   text-center rounded-t-lg border-b`}>
                 {tabs.map((tab: any, index: number) => {
                   return (
                     <li key={index} className="w-full focus-within:z-10">

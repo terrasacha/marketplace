@@ -23,6 +23,25 @@ export default function SignTransactionModal(props: SignTransactionModalProps) {
     newTransactionBuild,
     signType,
   } = props;
+  const marketplaceName = process.env.NEXT_PUBLIC_MARKETPLACE_NAME || 'Marketplace';
+  const marketplaceColors: Record<string, { bgColor: string; hoverBgColor: string;bgColorAlternativo:string;fuente:string;fuenteAlterna:string;}> = {
+    Terrasacha: {
+      bgColor: 'bg-custom-marca-boton',
+      hoverBgColor: 'hover:bg-custom-marca-boton-variante',
+      bgColorAlternativo: 'bg-custom-marca-boton-alterno2',
+      fuente:'font-jostBold',
+      fuenteAlterna:'font-jostRegular',
+    },
+  
+    // Agrega más marketplaces y colores aquí
+  };
+  const colors = marketplaceColors[marketplaceName] || {
+    bgColor:  'bg-custom-dark' ,
+    hoverBgColor: 'hover:bg-custom-dark-hover',
+    bgColorAlternativo: 'bg-amber-400',
+    fuente:'font-semibold',
+    fuenteAlterna:'font-medium',
+  };
 
   return (
     <>
@@ -33,7 +52,8 @@ export default function SignTransactionModal(props: SignTransactionModalProps) {
               handleOpenSignTransactionModal();
             }}
           >
-            Firmar Transacción
+            
+            <span className={`${colors.fuente}  text-xl`}>Firmar Transacción</span>
           </Modal.Header>
           <Modal.Body>
             <SignTransaction

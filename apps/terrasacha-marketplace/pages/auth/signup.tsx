@@ -15,7 +15,7 @@ const Signup: MyPage = (props: any) => {
       <div className="absolute inset-0 z-0">
       <Image
         priority={true}
-        src="/images/home-page/fondo_signup.avif"
+            src="/v2/bg2.avif"
         alt="landing-suan-image"
         layout="fill"
       objectFit="cover"
@@ -27,7 +27,7 @@ const Signup: MyPage = (props: any) => {
         <Title />
         <SignUpForm
           handleSetSignUpStatus={handleSetSignUpStatus}
-          logo="/images/home-page/terrasacha_logo_principal.png"
+          logo="/v2/logo.svg"
           widthLogo={250}
           heightLogo={250}
           appName="Terrasacha"

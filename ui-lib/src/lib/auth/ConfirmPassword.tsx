@@ -4,6 +4,7 @@ import Link from 'next/link';
 import Image from 'next/image';
 import { useRouter } from 'next/router';
 import { TailSpin } from 'react-loader-spinner';
+import { BsFillEyeFill, BsFillEyeSlashFill } from 'react-icons/bs';
 export interface ConfirmPasswordProps {
   logo: string;
   widthLogo: number;
@@ -84,7 +85,15 @@ const ConfirmPassword = (props: ConfirmPasswordProps) => {
       setLoading(false);
     }
   };
-
+  const deafultStateShowInfo = { password: false };
+  const [showInfo, setShowInfo] = useState(deafultStateShowInfo) as any[];
+  const handleShowInfo = (e : any, name: string) => {
+    e.preventDefault()
+    setShowInfo({
+      ...showInfo,
+      [name]: !showInfo[name],
+    });
+  };
   return (
     <div className="bg-white rounded-2xl w-[35rem] max-w-[35rem] 2xl:w-[38%] py-10 px-12 sm:px-20 h-auto flex flex-col justify-center">
       <div className="w-full flex justify-center mb-8">
@@ -97,27 +106,39 @@ const ConfirmPassword = (props: ConfirmPasswordProps) => {
       </div>
       {actualStep === 1 && (
         <>
-          <h2 className="text-3xl font-normal pb-2">Recuperar contraseña</h2>
-          <h4 className="text-1xl font-normal">Ingrese sus datos</h4>
+          <h2 className="font-jostBold text-3xl font-normal pb-2">
+            Recuperar contraseña
+          </h2>
+          <h4 className="font-jostRegular text-1xl font-normal">
+            Ingrese sus datos:
+          </h4>
           <p
             className={`${
               errors.loginError === '' && 'hidden'
-            } text-red-400 text-xs`}
+            } font-jostRegulartext-red-400 text-xs`}
           >
-            {errors.loginError}
+            <p
+              className={`font-jostRegular text-red-400 text-xs ${
+                errors.loginError ? '' : 'hidden'
+              }`}
+            >
+              {errors.loginError
+                ? 'Hubo un problema con el Username ingresado. Por favor, verifica tus credenciales.'
+                : ''}
+            </p>
           </p>
           <form className="pt-10" onSubmit={(e) => submitForm(e)}>
-            <div className="relative z-0 w-full mb-6 group">
+            <div className="font-jostRegular relative z-0 w-full mb-4 group">
               <input
                 type="text"
                 value={loginForm.username}
                 name="username"
                 onChange={handleChange}
-                className="block py-2.5 px-0 w-full text-sm text-gray-900 bg-transparent border-0 border-b-2 border-gray-300 appearance-none dark:text-white dark:border-gray-600 dark:focus:border-blue-500 focus:outline-none focus:ring-0 focus:border-blue-600 peer"
+                className="font-jostRegular mb-10 block py-2.5 px-0 w-full text-sm text-gray-900 bg-transparent border-0 border-b-2 border-gray-300 appearance-none dark:text-white dark:border-gray-600 dark:focus:border-blue-500 focus:outline-none focus:ring-0 focus:border-blue-600 peer"
                 placeholder=" "
                 required
               />
-              <label className="peer-focus:font-medium absolute text-sm text-gray-500 dark:text-gray-400 duration-300 transform -translate-y-6 scale-75 top-3 -z-10 origin-[0] peer-focus:left-0 peer-focus:text-blue-600 peer-focus:dark:text-blue-500 peer-placeholder-shown:scale-100 peer-placeholder-shown:translate-y-0 peer-focus:scale-75 peer-focus:-translate-y-6">
+              <label className="font-jostRegular mb-4 peer-focus:font-medium absolute text-sm text-gray-500 dark:text-gray-400 duration-300 transform -translate-y-6 scale-75 top-3 -z-10 origin-[0] peer-focus:left-0 peer-focus:text-blue-600 peer-focus:dark:text-blue-500 peer-placeholder-shown:scale-100 peer-placeholder-shown:translate-y-0 peer-focus:scale-75 peer-focus:-translate-y-6">
                 Username
               </label>
             </div>
@@ -125,10 +146,10 @@ const ConfirmPassword = (props: ConfirmPasswordProps) => {
           <button
             type="submit"
             onClick={(e) => submitForm(e)}
-            className={`relative flex items-center justify-center h-10 text-white ${
+            className={`font-jostBold relative flex items-center justify-center h-10 text-white ${
               loginForm.username.length > 0
-                ? 'bg-gray-800 hover:bg-gray-900'
-                : 'bg-gray-500 hover:bg-gray-600'
+                ? 'bg-custom-marca-boton  hover:bg-custom-marca-boton-variante'
+                : 'bg-custom-marca-boton  hover:bg-custom-marca-boton-variante'
             } focus:outline-none focus:ring-4 focus:ring-gray-300 font-medium rounded-md text-sm px-5 py-3 mb-2 dark:bg-gray-800 dark:hover:bg-gray-700 dark:focus:ring-gray-700 dark:border-gray-700 w-full mt-4`}
           >
             {loading ? (
@@ -145,8 +166,8 @@ const ConfirmPassword = (props: ConfirmPasswordProps) => {
       )}
       {actualStep === 2 && (
         <>
-          <h2 className="text-3xl font-normal pb-2">Recuperar contraseña</h2>
-          <h4 className="text-1xl font-normal">Ingrese sus datos</h4>
+          <h2 className="font-jostBold text-3xl font-normal pb-2">Recuperar contraseña</h2>
+          <h4 className="font-jostRegular text-1xl font-normal">Ingrese sus datos</h4>
           <p
             className={`${
               errors.loginError === '' && 'hidden'
@@ -161,21 +182,21 @@ const ConfirmPassword = (props: ConfirmPasswordProps) => {
                 value={loginFormRecovery.confirmationCode}
                 name="confirmationCode"
                 onChange={handleChangeRecovery}
-                className="block py-2.5 px-0 w-full text-sm text-gray-900 bg-transparent border-0 border-b-2 border-gray-300 appearance-none dark:text-white dark:border-gray-600 dark:focus:border-blue-500 focus:outline-none focus:ring-0 focus:border-blue-600 peer"
+                className="font-jostRegular block py-2.5 px-0 w-full text-sm text-gray-900 bg-transparent border-0 border-b-2 border-gray-300 appearance-none dark:text-white dark:border-gray-600 dark:focus:border-blue-500 focus:outline-none focus:ring-0 focus:border-blue-600 peer"
                 placeholder=" "
                 required
               />
-              <label className="peer-focus:font-medium absolute text-sm text-gray-500 dark:text-gray-400 duration-300 transform -translate-y-6 scale-75 top-3 -z-10 origin-[0] peer-focus:left-0 peer-focus:text-blue-600 peer-focus:dark:text-blue-500 peer-placeholder-shown:scale-100 peer-placeholder-shown:translate-y-0 peer-focus:scale-75 peer-focus:-translate-y-6">
+              <label className="font-jostRegular peer-focus:font-medium absolute text-sm text-gray-500 dark:text-gray-400 duration-300 transform -translate-y-6 scale-75 top-3 -z-10 origin-[0] peer-focus:left-0 peer-focus:text-blue-600 peer-focus:dark:text-blue-500 peer-placeholder-shown:scale-100 peer-placeholder-shown:translate-y-0 peer-focus:scale-75 peer-focus:-translate-y-6">
                 Código de verificación
               </label>
             </div>
-            <div className="relative z-0 w-full mb-6 group">
+            <div className="font-jostRegular relative z-0 w-full mb-6 group">
               <input
                 type="text"
                 value={loginFormRecovery.username}
                 name="username"
                 onChange={handleChangeRecovery}
-                className="block py-2.5 px-0 w-full text-sm text-gray-900 bg-transparent border-0 border-b-2 border-gray-300 appearance-none dark:text-white dark:border-gray-600 dark:focus:border-blue-500 focus:outline-none focus:ring-0 focus:border-blue-600 peer"
+                className="font-jostRegular block py-2.5 px-0 w-full text-sm text-gray-900 bg-transparent border-0 border-b-2 border-gray-300 appearance-none dark:text-white dark:border-gray-600 dark:focus:border-blue-500 focus:outline-none focus:ring-0 focus:border-blue-600 peer"
                 placeholder=" "
                 required
               />
@@ -183,19 +204,25 @@ const ConfirmPassword = (props: ConfirmPasswordProps) => {
                 Username
               </label>
             </div>
-            <div className="relative z-0 w-full mb-6 group">
+            <div className="font-jostRegular relative z-0 w-full mb-6 group">
               <input
-                type="password"
+                type={showInfo.password ? 'text' : 'password'}
                 value={loginFormRecovery.newPassword}
                 name="newPassword"
                 onChange={handleChangeRecovery}
-                className="block py-2.5 px-0 w-full text-sm text-gray-900 bg-transparent border-0 border-b-2 border-gray-300 appearance-none dark:text-white dark:border-gray-600 dark:focus:border-blue-500 focus:outline-none focus:ring-0 focus:border-blue-600 peer"
+                className="font-jostRegular block py-2.5 px-0 w-full text-sm text-gray-900 bg-transparent border-0 border-b-2 border-gray-300 appearance-none dark:text-white dark:border-gray-600 dark:focus:border-blue-500 focus:outline-none focus:ring-0 focus:border-blue-600 peer"
                 placeholder=" "
                 required
               />
-              <label className="peer-focus:font-medium absolute text-sm text-gray-500 dark:text-gray-400 duration-300 transform -translate-y-6 scale-75 top-3 -z-10 origin-[0] peer-focus:left-0 peer-focus:text-blue-600 peer-focus:dark:text-blue-500 peer-placeholder-shown:scale-100 peer-placeholder-shown:translate-y-0 peer-focus:scale-75 peer-focus:-translate-y-6">
+              <label className="font-jostRegular peer-focus:font-medium absolute text-sm text-gray-500 dark:text-gray-400 duration-300 transform -translate-y-6 scale-75 top-3 -z-10 origin-[0] peer-focus:left-0 peer-focus:text-blue-600 peer-focus:dark:text-blue-500 peer-placeholder-shown:scale-100 peer-placeholder-shown:translate-y-0 peer-focus:scale-75 peer-focus:-translate-y-6">
                 Nueva contraseña
               </label>
+              <button
+            className="font-jostRegular absolute right-4 top-1/2 transform -translate-y-1/2 text-gray-500"
+            onClick={(e) => handleShowInfo(e, 'password')}
+          >
+            {showInfo.password ? <BsFillEyeFill /> : <BsFillEyeSlashFill />}
+          </button>
             </div>
           </form>
           <button
@@ -203,8 +230,8 @@ const ConfirmPassword = (props: ConfirmPasswordProps) => {
             onClick={(e) => submitFormRecovery(e)}
             className={`relative h-10 flex items-center justify-center text-white ${
               loginForm.username.length > 0
-                ? 'bg-gray-800 hover:bg-gray-900'
-                : 'bg-gray-500 hover:bg-gray-600'
+             ? 'bg-custom-marca-boton  hover:bg-custom-marca-boton-variante'
+              : 'bg-custom-marca-boton  hover:bg-custom-marca-boton-variante'
             } focus:outline-none focus:ring-4 focus:ring-gray-300 font-medium rounded-md text-sm px-5 py-3 mb-2 dark:bg-gray-800 dark:hover:bg-gray-700 dark:focus:ring-gray-700 dark:border-gray-700 w-full mt-4`}
           >
             {loading ? (

@@ -68,13 +68,15 @@ export default function Transactions(props: TransactionsProps) {
     }
   }, [router.query]);
   useEffect(() => {
-    getTransactionsData(1, false);
-  }, [router]);
+    if (walletAddress) {
+      getTransactionsData(1, false);
+    }
+  }, [router, walletAddress]);
 
   useEffect(() => {
     const clearAllCaches = () => {
       Object.keys(localStorage).forEach((key) => {
-        if (key.startsWith('/api/transactions/account-tx')) {
+        if (key.startsWith('/api/transactions/address-tx')) {
           localStorage.removeItem(key);
         }
       });
@@ -101,7 +103,7 @@ export default function Transactions(props: TransactionsProps) {
       const cachedData = localStorage.getItem(cacheKey);
       if (cachedData) {
         const { data, timestamp } = JSON.parse(cachedData);
-        if (Date.now() - timestamp < (60 * 60 * 1000) && !data?.error) {
+        if (Date.now() - timestamp < 60 * 60 * 1000 && !data?.error) {
           // Invalida después de 1 hora
           return data;
         }
@@ -129,9 +131,6 @@ export default function Transactions(props: TransactionsProps) {
     invalidateCache: boolean = false
   ) => {
     setIsLoading(true);
-    if (!walletAddress) {
-      return;
-    }
 
     const payload = {
       address: walletAddress,
@@ -168,7 +167,7 @@ export default function Transactions(props: TransactionsProps) {
       totalItems: 0,
     };
 
-    console.log('responseData', responseData)
+    console.log('responseData', responseData);
     const mappedTransactionListData = await mapAccountTxData({
       walletAddress: walletData?.address,
       data: responseData,
@@ -256,14 +255,33 @@ export default function Transactions(props: TransactionsProps) {
     await fetchWalletData();
     setIsLoading(false);
   };
+  const marketplaceName = process.env.NEXT_PUBLIC_MARKETPLACE_NAME || 'Marketplace';
+  const marketplaceColors: Record<string, { bgColor: string; hoverBgColor: string;bgColorAlternativo:string;fuente:string;fuenteAlterna:string;}> = {
+    Terrasacha: {
+      bgColor: 'bg-custom-marca-boton',
+      hoverBgColor: 'hover:bg-custom-marca-boton-variante',
+      bgColorAlternativo: 'bg-custom-marca-boton-alterno2',
+      fuente:'font-jostBold',
+      fuenteAlterna:'font-jostRegular',
+    },
+  
+    // Agrega más marketplaces y colores aquí
+  };
+  const colors = marketplaceColors[marketplaceName] || {
+    bgColor:  'bg-custom-dark' ,
+    hoverBgColor: 'hover:bg-custom-dark-hover',
+    bgColorAlternativo: 'bg-amber-400',
+    fuente:'font-semibold',
+    fuenteAlterna:'font-medium',
+  };
   return (
-    <Card className="col-span-2 h-fit">
+    <Card className={` ${colors.fuenteAlterna}  col-span-2 h-fit`}>
       <Card.Header
-        title="Transacciones"
+        title="Transacciones" className={`${colors.fuente}`}
         tooltip={
           <button
             type="button"
-            className="text-white bg-custom-dark hover:bg-custom-dark-hover focus:outline-none focus:ring-4 focus:ring-gray-300 font-medium rounded text-sm p-2.5 "
+            className={`text-white ${colors.bgColor}  ${colors.hoverBgColor} focus:outline-none focus:ring-4 focus:ring-gray-300 font-medium rounded text-sm p-2.5 `}
             disabled={isLoading}
             onClick={() => handleRefresh()}
           >
@@ -355,7 +373,7 @@ export default function Transactions(props: TransactionsProps) {
           </span> */}
           <div className="inline-flex mt-2 xs:mt-0">
             <button
-              className={`flex items-center justify-center px-3 h-8 text-sm font-medium text-white bg-custom-dark rounded-s hover:bg-custom-dark-hover ${
+              className={`flex items-center justify-center px-3 h-8 text-sm font-medium text-white ${colors.bgColor}  rounded-s ${colors.hoverBgColor} ${
                 isLoading && 'cursor-progress'
               } ${!canShowPrevious && 'opacity-50 cursor-not-allowed'}`}
               onClick={() => changePage(-1)}
@@ -380,11 +398,11 @@ export default function Transactions(props: TransactionsProps) {
                 Prev
               </>
             </button>
-            <div className='flex items-center justify-center px-3 h-8 text-sm font-medium text-white border-0 border-s border-gray-700 bg-custom-dark hover:bg-custom-dark-hover'>
+            <div className={`flex items-center justify-center px-3 h-8 text-sm font-medium text-white border-0 border-s border-gray-700 ${colors.bgColor}  ${colors.hoverBgColor}`}>
               {paginationMetadata.currentPage}
             </div>
             <button
-              className={`flex items-center justify-center px-3 h-8 text-sm font-medium text-white bg-custom-dark border-0 border-s border-gray-700 rounded-e hover:bg-custom-dark-hover ${
+              className={`flex items-center justify-center px-3 h-8 text-sm font-medium text-white ${colors.bgColor}  border-0 border-s border-gray-700 rounded-e ${colors.hoverBgColor} ${
                 isLoading && 'cursor-progress'
               } ${!canShowNext && 'opacity-50 cursor-not-allowed'}`}
               onClick={() => changePage(1)}

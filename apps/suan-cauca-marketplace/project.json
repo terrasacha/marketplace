@@ -26,7 +26,7 @@
         "buildTarget": "suan-cauca-marketplace:build",
         "postcssConfig": "apps/suan-marketplace/postcss.config.js",
         "dev": true,
-        "port": 4100
+        "port": 4300
       },
       "configurations": {
         "development": {

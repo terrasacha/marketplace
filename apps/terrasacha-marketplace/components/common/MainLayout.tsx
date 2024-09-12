@@ -8,7 +8,7 @@ import Sidebar from '@marketplaces/ui-lib/src/lib/layout/Sidebar';
 import Navbar from '@marketplaces/ui-lib/src/lib/layout/Navbar';
 /* import { useWallet, useAddress, useLovelace } from '@meshsdk/react'; */
 import { useRouter } from 'next/router';
-import { getCurrentUser } from 'aws-amplify/auth';
+import { fetchUserAttributes, getCurrentUser } from 'aws-amplify/auth';
 import WalletContext from '@marketplaces/utils-2/src/lib/context/wallet-context';
 import HomeSkeleton from "@marketplaces/ui-lib/src/lib/common/skeleton/HomeSkeleton"
 
@@ -79,7 +79,8 @@ const MainLayout = ({ children }: PropsWithChildren) => {
             const hasTokenAuthFunction = await checkTokenStakeAddress(
               wallet[0].address
             );
-            if (hasTokenAuthFunction) {
+            const userData = await fetchUserAttributes()
+            if (hasTokenAuthFunction || (userData['custom:role'] === 'marketplace_admin') && userData['custom:subrole'] === process.env.NEXT_PUBLIC_MARKETPLACE_NAME?.toLowerCase()) {
               window.sessionStorage.setItem("hasTokenAuth", "true")
               const address = wallet[0].address;
               setAllowAccess(true);
@@ -241,9 +242,9 @@ const MainLayout = ({ children }: PropsWithChildren) => {
             //image="/images/home-page/suan_logo.png"
             //heightLogo={120}
             //widthLogo={60}
-            image="/images/home-page/terrasacha_logo_vertical.png"
-            heightLogo={60}
-            widthLogo={120}
+            image="/v2/logoterrasacha.svg"
+            heightLogo={150}
+            widthLogo={300}
             poweredBy={true}
             //poweredBy={false}
           />

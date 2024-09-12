@@ -1,6 +1,7 @@
 /* import { useWallet } from '@meshsdk/react'; */
 import { useEffect, useState, useRef, useContext } from 'react';
 import Image from 'next/image';
+import { Tooltip } from 'react-tooltip';
 import Link from 'next/link';
 import { useRouter } from 'next/router';
 import { BookIcon } from '../icons/BookIcon';
@@ -12,7 +13,7 @@ import WalletIcon from '../icons/WalletIcon';
 import { WalletContext } from '@marketplaces/utils-2';
 import { LoadingIcon, SquareArrowUpIcon } from '../ui-lib';
 import SideBarBalanceSkeleton from '../common/skeleton/SideBarBalanceSkeleton';
-
+import { fetchUserAttributes } from 'aws-amplify/auth';
 interface SidebarProps {
   isOpen: boolean;
   onClose: () => void;
@@ -55,6 +56,7 @@ export default function Sidebar(props: SidebarProps) {
   /* const { wallet, connected } = useWallet(); */
   const [walletStakeID, setWalletStakeID] = useState<any>(undefined);
   const [copied, setCopied] = useState(false);
+  const [allowAccessCW, setAllowAccessCW] = useState(false)
   const sidebarRef = useRef<HTMLDivElement | null>(null);
   const [displayWalletOptions, setDisplayWalletOptions] = useState(false);
   const [displayMarketOptions, setDisplayMarketOptions] = useState(false);
@@ -62,7 +64,16 @@ export default function Sidebar(props: SidebarProps) {
   const [balanceChangeUSD, setBalanceChangeUSD] = useState<number>(0)
   const [changeOnBalanceDetected, setChangeOnBalanceDetected] =
     useState<boolean>(false);
-
+  const [env, setEnv] = useState('')
+  useEffect(() =>{
+    const env = process.env.NEXT_PUBLIC_HOST?.includes('test')? 'TEST' : 'PRODUCTION'
+    setEnv(env)
+    fetchUserAttributes().then((data :any)=>{
+      if(data['custom:role'] === 'marketplace_admin' && data['custom:subrole'] === process.env.NEXT_PUBLIC_MARKETPLACE_NAME?.toLocaleLowerCase()){
+        setAllowAccessCW(true)
+      }
+    })
+  },[])
   useEffect(() => {
     const handleClickOutside = (event: MouseEvent) => {
       if (
@@ -138,7 +149,25 @@ export default function Sidebar(props: SidebarProps) {
   function resetComponentState() {
     setWalletStakeID(undefined);
   } */
-
+    const marketplaceName = process.env.NEXT_PUBLIC_MARKETPLACE_NAME || 'Marketplace';
+    const marketplaceColors: Record<string, { bgColor: string; hoverBgColor: string;bgColorAlternativo:string;fuente:string;fuenteAlterna:string;}> = {
+      Terrasacha: {
+        bgColor: 'bg-custom-marca-boton',
+        hoverBgColor: 'hover:bg-custom-marca-boton-variante',
+        bgColorAlternativo: 'bg-custom-marca-boton-alterno2',
+        fuente:'font-jostBold',
+        fuenteAlterna:'font-jostRegular',
+      },
+    
+      // Agrega más marketplaces y colores aquí
+    };
+    const colors = marketplaceColors[marketplaceName] || {
+      bgColor:  'bg-custom-dark' ,
+      hoverBgColor: 'hover:bg-custom-dark-hover',
+      bgColorAlternativo: 'bg-amber-400',
+      fuente:'font-semibold',
+      fuenteAlterna:'font-medium',
+    };
   return (
     <aside
   ref={sidebarRef}
@@ -159,7 +188,7 @@ export default function Sidebar(props: SidebarProps) {
       <div className="pt-4 border-t border-gray-200"></div>
       {balance ? (
         <div>
-          <label className="block text-sm font-semibold text-gray-400">Tu saldo</label>
+          <label className={`${colors.fuenteAlterna}  block text-sm font-semibold text-gray-400`}>Tu saldo</label>
           <div>
             <p
               className={`text-xl truncate font-semibold mb-[-.1rem] ${
@@ -171,7 +200,7 @@ export default function Sidebar(props: SidebarProps) {
               }`}
             >
               {!isLoading ? balanceUSD.toFixed(4) : <LoadingIcon className="h-5 w-5" />}{' '}
-              <span className="font-bold text-gray-400 text-base">USD</span>
+              <span className={`${colors.fuenteAlterna}  font-bold text-gray-400 text-base`}>USD</span>
               {changeOnBalanceDetected && (
                 <>
                   <span className="inline-block animate-bounce ml-2">
@@ -205,7 +234,7 @@ export default function Sidebar(props: SidebarProps) {
                 </>
               )}
             </p>
-            <label className="block text-xs font-light text-gray-500 pt-2">
+            <label className={`${colors.fuenteAlterna}  block text-xs font-light text-gray-500 pt-2`}>
               Sincronizado hace {syncedAgo} segundos
             </label>
           </div>
@@ -214,17 +243,22 @@ export default function Sidebar(props: SidebarProps) {
         <SideBarBalanceSkeleton />
       )}
 
-      <div className="pt-4 mt-4 border-t border-gray-200"></div>
-
+      <div className="pt-4 mt-2 border-t border-gray-200"></div>
       <ul className="space-y-4">
-        <li className={walletAdmin ? '' : 'hidden'}>
+        <li>
+        <div data-tooltip-id="my-tooltip" data-tooltip-content={`Ambiente de desarrollo: ${env}`} className='relative py-1 px-12 bg-blue-400 rounded-sm text-white text-xs w-full text-center'>
+          {env}
+        </div>
+        <Tooltip id="my-tooltip" />
+        </li>
+        <li className={allowAccessCW ? '' : 'hidden'}>
           <Link
             onClick={onClose}
             href="/corewallet"
             className="flex items-center p-2 text-black rounded-lg hover:bg-custom-dark hover:text-white transition duration-150 ease-linear"
           >
             <ChartIcon />
-            <span className="ml-3">CoreWallet</span>
+            <span className={`${colors.fuenteAlterna}  ml-3`}>CoreWallet</span>
           </Link>
         </li>
         <li /* className={connected ? 'hidden' : ''} */>
@@ -233,7 +267,7 @@ export default function Sidebar(props: SidebarProps) {
             onClick={() => setDisplayWalletOptions(!displayWalletOptions)}
           >
             <WalletIcon />
-            <span className="flex-1 ms-3 text-left rtl:text-right whitespace-nowrap">Billetera</span>
+            <span className={`${colors.fuenteAlterna}  flex-1 ms-3 text-left rtl:text-right whitespace-nowrap`}>Billetera</span>
             <ChevronDownIcon />
           </button>
           <ul
@@ -245,7 +279,7 @@ export default function Sidebar(props: SidebarProps) {
             <li>
               <Link
                 href="/wallet"
-                className="flex items-center w-full p-2 pl-11 group text-black rounded-lg hover:bg-custom-dark hover:text-white transition duration-150 ease-linear"
+                className={`${colors.fuenteAlterna} flex items-center w-full p-2 pl-11 group text-black rounded-lg hover:bg-custom-dark hover:text-white transition duration-150 ease-linear`}
               >
                 Cuadro de mando
               </Link>
@@ -253,7 +287,7 @@ export default function Sidebar(props: SidebarProps) {
             <li>
               <Link
                 href="/wallet/assets"
-                className="flex items-center w-full p-2 pl-11 group text-black rounded-lg hover:bg-custom-dark hover:text-white transition duration-150 ease-linear"
+                className={`${colors.fuenteAlterna} flex items-center w-full p-2 pl-11 group text-black rounded-lg hover:bg-custom-dark hover:text-white transition duration-150 ease-linear`}
               >
                 Activos
               </Link>
@@ -261,7 +295,7 @@ export default function Sidebar(props: SidebarProps) {
             <li>
               <Link
                 href="/wallet/transactions"
-                className="flex items-center w-full p-2 pl-11 group text-black rounded-lg hover:bg-custom-dark hover:text-white transition duration-150 ease-linear"
+                className={`${colors.fuenteAlterna}  flex items-center w-full p-2 pl-11 group text-black rounded-lg hover:bg-custom-dark hover:text-white transition duration-150 ease-linear`}
               >
                 Transacciones
               </Link>
@@ -269,7 +303,7 @@ export default function Sidebar(props: SidebarProps) {
             <li>
               <Link
                 href="/wallet/send"
-                className="flex items-center w-full p-2 pl-11 group text-black rounded-lg hover:bg-custom-dark hover:text-white transition duration-150 ease-linear"
+                className={`${colors.fuenteAlterna} flex items-center w-full p-2 pl-11 group text-black rounded-lg hover:bg-custom-dark hover:text-white transition duration-150 ease-linear`}
               >
                 Nueva transaccion
               </Link>
@@ -277,7 +311,7 @@ export default function Sidebar(props: SidebarProps) {
             <li>
               <Link
                 href="/wallet/achievements"
-                className="flex items-center w-full p-2 pl-11 group text-black rounded-lg hover:bg-custom-dark hover:text-white transition duration-150 ease-linear"
+                className={`${colors.fuenteAlterna}  flex items-center w-full p-2 pl-11 group text-black rounded-lg hover:bg-custom-dark hover:text-white transition duration-150 ease-linear`}
               >
                 Logros
               </Link>
@@ -291,7 +325,7 @@ export default function Sidebar(props: SidebarProps) {
             className="flex items-center p-2 text-black rounded-lg hover:bg-custom-dark hover:text-white transition duration-150 ease-linear"
           >
             <ScaleIcon />
-            <span className="flex-1 ml-3 whitespace-nowrap">Proyectos</span>
+            <span className={`${colors.fuenteAlterna} flex-1 ml-3 whitespace-nowrap`}>Proyectos</span>
           </Link>
         </li>
 
@@ -302,7 +336,7 @@ export default function Sidebar(props: SidebarProps) {
             className="flex items-center p-2 text-black rounded-lg hover:bg-custom-dark hover:text-white transition duration-150 ease-linear"
           >
             <MarketIcon />
-            <span className="flex-1 ml-3 whitespace-nowrap">Mercado P2P</span>
+            <span className={`${colors.fuenteAlterna}  flex-1 ml-3 whitespace-nowrap`}>Mercado P2P</span>
           </Link>
         </li>
       </ul>
@@ -316,12 +350,12 @@ export default function Sidebar(props: SidebarProps) {
             className="flex items-center p-2 text-black rounded-lg hover:bg-custom-dark hover:text-white transition duration-150 ease-linear"
           >
             <BookIcon />
-            <span className="flex-1 ml-3 whitespace-nowrap">Ayuda</span>
+            <span className={`${colors.fuenteAlterna} flex-1 ml-3 whitespace-nowrap`}>Ayuda</span>
           </Link>
         </li>
         <li className="pt-4 mt-4 border-t text-xs font-light border-gray-200 flex flex-col items-center justify-center text-center">
           {poweredBy && (
-            <div className="flex items-center mt-2 mb-4">
+            <div className={`${colors.fuenteAlterna} flex items-center mt-2 mb-4`}>
               Powered by
               <Image
                 src="/images/home-page/suan_logo.png"
@@ -333,9 +367,9 @@ export default function Sidebar(props: SidebarProps) {
             </div>
           )}
           <div>
-            <p>Copyright © Derechos de autor</p>
-            <p>Todos los derechos reservados</p>
-            <p>Suan 2001-2023</p>
+            <p className={`${colors.fuenteAlterna} `}>Copyright © Derechos de autor</p>
+            <p className={`${colors.fuenteAlterna} `} >Todos los derechos reservados</p>
+            <p className={`${colors.fuenteAlterna} `} >Suan 2001-2023</p>
           </div>
         </li>
       </ul>

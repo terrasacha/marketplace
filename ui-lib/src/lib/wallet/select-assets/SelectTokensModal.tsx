@@ -1,6 +1,6 @@
 import { useContext, useEffect, useState } from 'react';
 import AssetCard from '../../wallet/select-assets/AssetCard';
-import Modal from '../../common/Modal'
+import Modal from '../../common/Modal';
 import { WalletContext } from '@marketplaces/utils-2';
 
 interface SelectTokensModalProps {
@@ -15,14 +15,7 @@ interface SelectTokensModalProps {
     recipientIDToRemove: number
   ) => void;
   checkedAssetList: Array<any>;
-  // Agrega cualquier otra propiedad que tenga tu token
 }
-
-const SEARCH_TYPE = {
-  ALL: 'all',
-  FT: 'ft',
-  NFT: 'nft',
-};
 
 export default function SelectTokensModal(props: SelectTokensModalProps) {
   const {
@@ -43,21 +36,38 @@ export default function SelectTokensModal(props: SelectTokensModalProps) {
     type: string;
   }>({
     search: '',
-    type: SEARCH_TYPE.ALL,
+    type: 'ALL',
   });
 
-  const [assetsList, setAssetsList] = useState<Array<any>>(walletData.assets);
+  const [assetsList, setAssetsList] = useState<Array<any>>([]);
+
+  // Función para generar fingerprints
+  const generateFingerprint = (asset: any) => {
+    return `${asset.policy_id}-${asset.asset_name}`;
+  };
 
   useEffect(() => {
-    //const checkedAssets = selectTokensModal.data;
+    // Al abrir el modal, asegurarse de que los fingerprints se calculan y se asignan correctamente
+    const assetsWithFingerprint = walletData.assets.map((asset: any) => ({
+      ...asset,
+      fingerprint: generateFingerprint(asset),
+    }));
+    setAssetsList(assetsWithFingerprint);
+  }, [walletData.assets, selectTokensModal.visible]);
+
+  useEffect(() => {
     if (checkedAssetList.length > 0) {
       setAssetsList((prevState) => {
         return prevState.map((asset) => {
-          // Calcular el availableSupplyValue, en caso de ser del mismo recipiente no restar las cantidades
-          const originalAvailableSupply = walletData.assets.find(
+          const originalAsset = walletData.assets.find(
             (originalAsset: any) =>
-              originalAsset.fingerprint === asset.fingerprint
-          ).quantity;
+              generateFingerprint(originalAsset) === asset.fingerprint
+          );
+
+          if (!originalAsset) {
+            console.error('No matching asset found for fingerprint:', asset.fingerprint);
+            return asset;
+          }
 
           const usedSupply = checkedAssetList.reduce((acc, current) => {
             if (current.fingerprint === asset.fingerprint) {
@@ -66,8 +76,9 @@ export default function SelectTokensModal(props: SelectTokensModalProps) {
             }
             return acc;
           }, 0);
+
           const availableSupply = String(
-            parseInt(originalAvailableSupply) - usedSupply
+            parseInt(originalAsset.quantity) - usedSupply
           );
 
           const checkedAsset = checkedAssetList
@@ -81,7 +92,6 @@ export default function SelectTokensModal(props: SelectTokensModalProps) {
             );
 
           if (checkedAsset) {
-            // El objeto existe en assetListChecked, actualiza los valores
             return {
               ...asset,
               quantity: availableSupply,
@@ -90,7 +100,6 @@ export default function SelectTokensModal(props: SelectTokensModalProps) {
             };
           }
 
-          // Si el objeto no está en assetListChecked, simplemente devuelve el objeto original
           return {
             ...asset,
             quantity: availableSupply,
@@ -101,94 +110,6 @@ export default function SelectTokensModal(props: SelectTokensModalProps) {
       });
     }
   }, [walletData.assets, checkedAssetList, selectTokensModal]);
-
-  // useEffect(() => {
-  //   const findFingerprintInRecipients = (
-  //     assets: any,
-  //     fingerprintToFind: any
-  //   ) => {
-  //     for (const asset of assets) {
-  //       const foundAsset = asset.selectedAssets.find(
-  //         (found: any) => found.fingerprint === fingerprintToFind
-  //       );
-
-  //       if (foundAsset) {
-  //         return foundAsset;
-  //       }
-  //     }
-
-  //     return null; // Si no se encuentra el fingerprint
-  //   };
-  //   const mapGlobalRecipientsAssets = newTransactionGroup.recipients.map(
-  //     (recipient: any, index: number) => {
-  //       return {
-  //         recipient: index,
-  //         selectedAssets: recipient.selectedAssets,
-  //       };
-  //     }
-  //   );
-
-  //   setAssetsList((prevState) => {
-  //     return prevState.map((asset) => {
-  //       const selectedAssetFromOtherRecipients = mapGlobalRecipientsAssets
-  //         .flat()
-  //         .filter((assetFromOtherRecipient: any) => {
-  //           return (
-  //             assetFromOtherRecipient.recipient !==
-  //             selectTokensModal.recipientID
-  //           );
-  //         });
-
-  //       const selectedAsset = findFingerprintInRecipients(
-  //         selectedAssetFromOtherRecipients,
-  //         asset.fingerprint
-  //       );
-
-  //       const checkedAsset = selectTokensModal.data.find(
-  //         (checkedAsset: any) => checkedAsset.fingerprint === asset.fingerprint
-  //       );
-
-  //       let availableSupply;
-  //       if (selectedAsset) {
-  //         availableSupply =
-  //           asset.availableSupply - parseInt(selectedAsset.selectedSupply);
-  //       } else {
-  //         availableSupply = asset.availableSupply;
-  //       }
-
-  //       let selectedSupply;
-  //       if (checkedAsset) {
-  //         selectedSupply = checkedAsset.selectedSupply;
-  //       } else {
-  //         selectedSupply = asset.selectedSupply;
-  //       }
-
-  //       const data = {
-  //         ...asset,
-  //         availableSupply: availableSupply,
-  //         selectedSupply: selectedSupply,
-  //         checked: checkedAsset ? checkedAsset.checked : asset.checked,
-  //       };
-  //       console.log('data', data);
-  //       return data;
-  //     });
-  //   });
-  // }, [selectTokensModal.data, newTransactionGroup.recipients]);
-
-  // Funcion para actualizar la cantidad de assets seleccionados del mismo tipo para enviar
-  // const handleAssetSelectedChange = (
-  //   fingerprint: string,
-  //   property: string,
-  //   value: string | boolean | number
-  // ) => {
-  //   setAssetsList((prevAssetsList) =>
-  //     prevAssetsList.map((asset) =>
-  //       asset.fingerprint === fingerprint
-  //         ? { ...asset, [property]: value }
-  //         : asset
-  //     )
-  //   );
-  // };
 
   const handleFilterInputChange = (field: string, value: string) => {
     setAssetsFilter((prevState) => ({
@@ -202,15 +123,12 @@ export default function SelectTokensModal(props: SelectTokensModalProps) {
       (asset) => asset.recipientID === selectTokensModal.recipientID
     );
 
-    //handleSetSelectedTokensToSelectTokensModal(selectedAssets);
     handleAddRecipientSelectedAssets(
       selectTokensModal.recipientID,
       selectedAssets
     );
     handleOpenSelectTokensModal();
-    setAssetsList(walletData.assets);
-
-    console.log('TotalCheckedAssetList', checkedAssetList);
+    setAssetsList([]); // Limpiar la lista de activos al cerrar
   };
 
   const handleAssetQuantityValue = (fingerprint: string, value: string) => {
@@ -231,38 +149,32 @@ export default function SelectTokensModal(props: SelectTokensModalProps) {
         onClose={() => {
           handleOpenSelectTokensModal();
           handleSetSelectedTokensToSelectTokensModal([]);
-          setAssetsList(walletData.assets);
+          setAssetsList([]); // Limpiar la lista de activos al cerrar
         }}
       >
         Selecciona Assets
       </Modal.Header>
       <Modal.Body>
-        {/* <AssetsFilter
-          assetsFilter={assetsFilter}
-          handleInputChange={handleFilterInputChange}
-        /> */}
         <div>
           {assetsList.length > 0 ? (
             <>
               <p>Tús Activos</p>
               <div className="grid grid-cols-1 md:grid-cols-4 gap-2">
-                {assetsList.map((asset: any, index: number) => {
-                  return (
-                    <AssetCard
-                      key={index}
-                      recipientID={selectTokensModal.recipientID}
-                      assetName={asset.asset_name}
-                      policy_id={asset.policy_id}
-                      fingerprint={asset.fingerprint}
-                      availableSupplyValue={asset.quantity}
-                      selectedSupplyValue={asset.selectedSupply}
-                      isChecked={asset.checked}
-                      handleAddCheckedAsset={handleAddCheckedAsset}
-                      handleRemoveCheckedAsset={handleRemoveCheckedAsset}
-                      handleAssetQuantityValue={handleAssetQuantityValue}
-                    />
-                  );
-                })}
+                {assetsList.map((asset: any, index: number) => (
+                  <AssetCard
+                    key={index}
+                    recipientID={selectTokensModal.recipientID}
+                    assetName={asset.asset_name}
+                    policy_id={asset.policy_id}
+                    fingerprint={asset.fingerprint}
+                    availableSupplyValue={asset.quantity}
+                    selectedSupplyValue={asset.selectedSupply}
+                    isChecked={asset.checked}
+                    handleAddCheckedAsset={handleAddCheckedAsset}
+                    handleRemoveCheckedAsset={handleRemoveCheckedAsset}
+                    handleAssetQuantityValue={handleAssetQuantityValue}
+                  />
+                ))}
               </div>
             </>
           ) : (

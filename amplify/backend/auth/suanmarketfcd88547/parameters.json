@@ -1,0 +1,22 @@
+{
+  "authSelections": "identityPoolAndUserPool",
+<<<<<<<< HEAD:apps/terrasacha-marketplace/amplify/backend/auth/terrasachamarket59c5bce5/parameters.json
+  "resourceName": "terrasachamarket59c5bce5",
+========
+  "resourceName": "suanmarketfcd88547",
+>>>>>>>> dev:amplify/backend/auth/suanmarketfcd88547/parameters.json
+  "serviceType": "imported",
+  "region": "us-east-1",
+  "requiredAttributes": [
+    "email"
+  ],
+  "passwordPolicyMinLength": 8,
+  "passwordPolicyCharacters": [],
+  "mfaConfiguration": "OPTIONAL",
+  "autoVerifiedAttributes": [
+    "email"
+  ],
+  "mfaTypes": [
+    "TOTP"
+  ]
+}

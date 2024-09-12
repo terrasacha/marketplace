@@ -16,16 +16,19 @@ interface AccountProps {
 }
 
 export default function WalletSend(props: AccountProps) {
-  const { walletID, walletData } = useContext<any>(WalletContext);
+  const { walletID, walletAddress, walletData } =
+    useContext<any>(WalletContext);
   const [checkedAssetList, setCheckedAssetList] = useState<Array<any>>([]);
 
   const handleAddCheckedAsset = (checkedAsset: any) => {
+    console.log('Adding checked asset: ', checkedAsset);
     setCheckedAssetList((prevState: any) => {
       const existingAssetIndex = prevState.findIndex(
         (asset: any) =>
           asset.fingerprint === checkedAsset.fingerprint &&
           asset.recipientID === checkedAsset.recipientID
       );
+      console.log('Existing asset index:', existingAssetIndex);
 
       if (existingAssetIndex !== -1) {
         // Actualizar el selectedSupply si el objeto ya existe
@@ -44,6 +47,7 @@ export default function WalletSend(props: AccountProps) {
     fingerprintToRemove: string,
     recipientIDToRemove: number
   ) => {
+    console.log('Removing checked asset: ', fingerprintToRemove, recipientIDToRemove);
     setCheckedAssetList((prevState: any) => {
       const updatedAssetList = prevState.filter(
         (asset: any) =>
@@ -81,6 +85,7 @@ export default function WalletSend(props: AccountProps) {
   const [newTransactionBuild, setNewTransactionBuild] = useState<any>(null);
 
   const handleOpenSelectTokensModal = (recipientID: number = 0) => {
+    console.log('Opening SelectTokensModal for recipientID:', recipientID);
     setSelectTokensModal((prevState) => ({
       ...prevState,
       visible: !selectTokensModal.visible,
@@ -95,6 +100,7 @@ export default function WalletSend(props: AccountProps) {
   const handleSetSelectedTokensToSelectTokensModal = (
     selectedTokensData: any
   ) => {
+    console.log('Setting selected tokens:', selectedTokensData);
     setSelectTokensModal((prevState) => ({
       ...prevState,
       data: selectedTokensData,
@@ -102,6 +108,7 @@ export default function WalletSend(props: AccountProps) {
   };
 
   const handleAddRecipientSelectedAssets = async (index: number, data: any) => {
+    console.log('Adding recipient selected assets for index:', index, data);
     const payloadMultiAsset = data.map((asset: any) => {
       return {
         policyid: asset.policy_id,
@@ -306,9 +313,15 @@ export default function WalletSend(props: AccountProps) {
         .filter((elemento) => elemento !== '');
 
       const payload = {
-        wallet_id: walletID,
-        addresses: addresses,
-        metadata: { '634': { msg: messageArray } },
+        payload: {
+          wallet_id: walletID,
+          addresses: addresses,
+          metadata: { '634': { msg: messageArray } },
+        },
+        transactionPayload: {
+          walletID: walletID,
+          walletAddress: walletAddress,
+        },
       };
       console.log('BuildTx Payload: ', payload);
 
@@ -330,7 +343,10 @@ export default function WalletSend(props: AccountProps) {
           metadata: { '634': { msg: messageArray } },
         });
 
-        setNewTransactionBuild(mappedTransactionData);
+        setNewTransactionBuild({
+          ...mappedTransactionData,
+          transaction_id: buildTxResponse.transaction_id,
+        });
         handleOpenSignTransactionModal();
       } else {
         toast.error(
@@ -349,11 +365,30 @@ export default function WalletSend(props: AccountProps) {
   const rows = calculateRows(newTransactionGroup.message);
 
   console.log(props.userWalletData);
+  const marketplaceName = process.env.NEXT_PUBLIC_MARKETPLACE_NAME || 'Marketplace';
+  const marketplaceColors: Record<string, { bgColor: string; hoverBgColor: string;bgColorAlternativo:string;fuente:string;fuenteAlterna:string;}> = {
+    Terrasacha: {
+      bgColor: 'bg-custom-marca-boton',
+      hoverBgColor: 'hover:bg-custom-marca-boton-variante',
+      bgColorAlternativo: 'bg-custom-marca-boton-alterno2',
+      fuente:'font-jostBold',
+      fuenteAlterna:'font-jostRegular',
+    },
+  
+    // Agrega más marketplaces y colores aquí
+  };
+  const colors = marketplaceColors[marketplaceName] || {
+    bgColor:  'bg-custom-dark' ,
+    hoverBgColor: 'hover:bg-custom-dark-hover',
+    bgColorAlternativo: 'bg-amber-400',
+    fuente:'font-semibold',
+    fuenteAlterna:'font-medium',
+  };
   return (
     <>
-      <div className="grid grid-cols-6 gap-5">
+      <div className={`${colors.fuenteAlterna}  grid grid-cols-6 gap-5`}>
         <Card className="col-span-6 xl:col-span-6 h-fit">
-          <Card.Header title="Nueva Transacción" />
+          <Card.Header title="Nueva Transacción" className={`${colors.fuente}`} />
           <Card.Body className="space-y-4">
             {newTransactionGroup.recipients.map(
               (transaction: any, index: number) => {
@@ -413,14 +448,14 @@ export default function WalletSend(props: AccountProps) {
             <div className="flex justify-between">
               <button
                 type="button"
-                className="col-span-4 sm:col-span-1 text-white bg-custom-dark hover:bg-custom-dark-hover focus:outline-none focus:ring-4 focus:ring-gray-300 font-medium rounded text-sm px-5 py-2.5 "
+                className={`col-span-4 sm:col-span-1 text-white ${colors.bgColor} ${colors.hoverBgColor} focus:outline-none focus:ring-4 focus:ring-gray-300 font-medium rounded text-sm px-5 py-2.5 `}
                 onClick={handleAddRecipient}
               >
                 Añadir destinatario
               </button>
               <button
                 type="button"
-                className="col-span-4 sm:col-span-1 text-white bg-custom-dark hover:bg-custom-dark-hover focus:outline-none focus:ring-4 focus:ring-gray-300 font-medium rounded text-sm px-5 py-2.5 "
+                className={`col-span-4 sm:col-span-1 text-white ${colors.bgColor} ${colors.hoverBgColor} focus:outline-none focus:ring-4 focus:ring-gray-300 font-medium rounded text-sm px-5 py-2.5 `}
                 onClick={handleSendTransaction}
               >
                 {isLoading ? <LoadingIcon className="w-4 h-4" /> : 'Enviar'}

@@ -11,6 +11,25 @@ import BlockChainPieChart from './BlockChainPieChart';
 import StackBarGraphComponent from '../../graphs/StackBarGraphComponent';
 import { useRouter } from 'next/router';
 import DashboardProjectSkeleton from '../../common/skeleton/DashboardProjectSkeleton';
+const marketplaceName = process.env.NEXT_PUBLIC_MARKETPLACE_NAME || 'Marketplace';
+const marketplaceColors: Record<string, { bgColor: string; hoverBgColor: string;bgColorAlternativo:string;fuente:string;fuenteAlterna:string;}> = {
+  Terrasacha: {
+    bgColor: 'bg-custom-marca-boton',
+    hoverBgColor: 'hover:bg-custom-marca-boton-variante',
+    bgColorAlternativo: 'bg-custom-marca-boton-alterno2',
+    fuente:'font-jostBold',
+    fuenteAlterna:'font-jostRegular',
+  },
+
+  // Agrega más marketplaces y colores aquí
+};
+const colors = marketplaceColors[marketplaceName] || {
+  bgColor:  'bg-custom-dark' ,
+  hoverBgColor: 'hover:bg-custom-dark-hover',
+  bgColorAlternativo: 'bg-amber-400',
+  fuente:'font-semibold',
+  fuenteAlterna:'font-medium',
+};
 
 export default function DashboardProject(props: any) {
   const router = useRouter();
@@ -35,10 +54,10 @@ export default function DashboardProject(props: any) {
       <div className="flex justify-between">
         <button
           onClick={() => router.back()}
-          className="flex items-center text-[#287993] text-sm"
+          className={` ${colors.fuenteAlterna}  flex items-center text-[#287993] text-sm`}
         >
           <svg
-            className="w-3 h-3 mr-2 text-[#287993]  dark:text-white"
+            className={` w-3 h-3 mr-2 text-[#287993]  dark:text-white`}
             aria-hidden="true"
             xmlns="http://www.w3.org/2000/svg"
             fill="none"
@@ -55,12 +74,12 @@ export default function DashboardProject(props: any) {
           Regresar
         </button>
       </div>
-      <h2 className="p-4 text-2xl lg:text-3xl font-semibold text-gray-900 dark:text-gray-500">
+      <h2 className={`p-4 text-2xl lg:text-3xl ${colors.fuente}  text-gray-900 dark:text-gray-500`}>
         {project.name}
       </h2>
 
-      <div className="grid grid-cols-2 lg:grid-cols-2 2xl:grid-cols-4 gap-3">
-        <div className="row-span-2 lg:col-span-1 2xl:col-span-1 lg:row-span-2">
+      <div className={`grid grid-cols-2 lg:grid-cols-2 2xl:grid-cols-4 gap-3 ${colors.fuenteAlterna} `}>
+        <div className={`row-span-2 lg:col-span-1 2xl:col-span-1 lg:row-span-2 ${colors.fuenteAlterna} `}>
           <TokenCard
             projectName={project.name}
             categoryName={projectData.projectInfo.category}
@@ -125,9 +144,9 @@ export default function DashboardProject(props: any) {
           </div>
         ))}
       </div>
-      <div className="grid grid-cols-2 lg:grid-cols-2 2xl:grid-cols-4 gap-3 mt-4">
-        <div className="bg-custom-dark-hover p-4 rounded-md shadow-lg col-span-2 row-span-6 lg:col-span-2 2xl:col-span-3 lg:row-span-6 flex flex-col ">
-          <h2 className="text-xl font-semibold text-white">
+      <div className={`${colors.fuenteAlterna} grid grid-cols-2 lg:grid-cols-2 2xl:grid-cols-4 gap-3 mt-4`}>
+        <div className={`${colors.fuente} bg-custom-dark-hover p-4 rounded-md shadow-lg col-span-2 row-span-6 lg:col-span-2 2xl:col-span-3 lg:row-span-6 flex flex-col `}>
+          <h2 className={`text-xl   text-white`}>
             Evolución del precio del token
           </h2>
 

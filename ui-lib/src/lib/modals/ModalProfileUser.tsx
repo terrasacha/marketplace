@@ -60,13 +60,31 @@ const ModalProfileUser = (props: ModalProfileUserProps) => {
       }
     );
   };
-
+  const marketplaceName = process.env.NEXT_PUBLIC_MARKETPLACE_NAME || 'Marketplace';
+  const marketplaceColors: Record<string, { bgColor: string; hoverBgColor: string;bgColorAlternativo:string;fuente:string;fuenteAlterna:string;}> = {
+    Terrasacha: {
+      bgColor: 'bg-custom-marca-boton',
+      hoverBgColor: 'hover:bg-custom-marca-boton-variante',
+      bgColorAlternativo: 'bg-custom-marca-boton-alterno2',
+      fuente:'font-jostBold',
+      fuenteAlterna:'font-jostRegular',
+    },
+  
+    // Agrega más marketplaces y colores aquí
+  };
+  const colors = marketplaceColors[marketplaceName] || {
+    bgColor:  'bg-custom-dark' ,
+    hoverBgColor: 'hover:bg-custom-dark-hover',
+    bgColorAlternativo: 'bg-amber-400',
+    fuente:'font-semibold',
+    fuenteAlterna:'font-medium',
+  };
   return (
     <div
       ref={modalRef}
       className="animate-fade-left animate-duration-200 animate-ease-in absolute bottom-[-.2rem] right-0 w-[22rem] flex items-center justify-center z-40"
     >
-      <div className="z-50 w-full bg-white dark:bg-gray-800 rounded-md shadow-2xl absolute bottom-0 left-1/2 transform -translate-x-1/2 translate-y-full overflow-hidden pb-3">
+      <div className={`${colors.fuenteAlterna}  z-50 w-full bg-white dark:bg-gray-800 rounded-md shadow-2xl absolute bottom-0 left-1/2 transform -translate-x-1/2 translate-y-full overflow-hidden pb-3`}>
         <div className="w-full bg-[#e7eaf5] py-4 px-3 flex gap-4 items-start">
           <div
             // @ts-ignore

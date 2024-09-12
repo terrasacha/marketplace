@@ -6,7 +6,8 @@ export default async function handler(req, res) {
             id: walletData.id,
             name: walletData.name,
             passphrase: walletData.passphrase,
-            claimed_token: false
+            claimed_token: false,
+            isAdmin: walletData.isAdmin
         })
         console.log(response.data.data.updateWallet)
         res.status(200).json({ msg: 'success' })

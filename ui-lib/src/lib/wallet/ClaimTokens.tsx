@@ -117,22 +117,6 @@ export default function ClaimTokens() {
         "spendPolicyId": spendContractFromMintProjectToken.id,
         "addresses": [
           {
-            "address": spendContractFromMintProjectToken.testnetAddr,
-            "lovelace": 0,
-            "multiAsset": [
-              {
-                "policyid": mintProjectTokenContract.id,
-                "tokens": {
-                  [mintProjectTokenContract.token_name]:
-                    availableTokensAmount - parseInt(order.tokenAmount),
-                }
-              }
-            ],
-            "datum": {
-              "beneficiary": "575a7f01272dd95a9ba2696e9e3d4895fe39b12350f7fa88a301b3ad"
-            }
-          },
-          {
             "address": walletAddress, // Address de usuario logeado
             "lovelace": 0,
             "multiAsset": [
@@ -145,7 +129,13 @@ export default function ClaimTokens() {
             ]
           }
         ]
-      }
+      },
+      transactionPayload: {
+        walletID: walletID,
+        walletAddress: walletAddress,
+        productID: order.productID,
+        contractAddressOrigin: spendContractFromMintProjectToken.testnetAddr
+      },
     }
     const request = await fetch('/api/transactions/claim-tx', {
       method: 'POST',
@@ -194,7 +184,8 @@ export default function ClaimTokens() {
         ...mappedTransactionData,
         postDistributionPayload,
         scriptId: spendContractFromMintProjectToken.id,
-        walletId: "575a7f01272dd95a9ba2696e9e3d4895fe39b12350f7fa88a301b3ad"
+        walletId: "575a7f01272dd95a9ba2696e9e3d4895fe39b12350f7fa88a301b3ad",
+        transaction_id: buildTxResponse.transaction_id,
       });
       handleOpenSignTransactionModal();
     } else {

@@ -5,7 +5,8 @@ import { BsFillEyeFill, BsFillEyeSlashFill } from 'react-icons/bs';
 import RestoreWalletContext from '@marketplaces/ui-lib/src/lib/store/restore-wallet-context';
 import { TailSpin } from 'react-loader-spinner';
 import { toast } from 'sonner';
-
+import { fetchUserAttributes } from 'aws-amplify/auth';
+import Image from 'next/image'; // Importa Image de Next.js
 const deafultState = {
   walletname: '',
   password: '',
@@ -21,7 +22,17 @@ const CreateCredentials = (props: any) => {
   const [showInfo, setShowInfo] = useState(deafultStateShowInfo) as any[];
   const [errors, setErrors] = useState(deafultState) as any[];
   const [loading, setLoading] = useState(false) as any[];
+  const [userIsAdmin, serUserIsAdmin] = useState(false)
 
+  useEffect(() =>{
+    fetchUserAttributes().then((data) =>{
+      if(data['custom:role'] === 'marketplace_admin' && data){
+        serUserIsAdmin(true)
+      }
+    }).catch((error) =>{
+      console.log('error obteniendo data del usuario', error)
+    })
+  },[])
   useEffect(() => {
     if (errors.mnemonics !== '') {
       toast.error(errors.mnemonics);
@@ -108,6 +119,7 @@ const CreateCredentials = (props: any) => {
             id: data.data.wallet_id,
             name: inputValue.walletname,
             passphrase: inputValue.password,
+            isAdmin: userIsAdmin
           }),
         });
         const data2 = response2.json();
@@ -128,8 +140,16 @@ const CreateCredentials = (props: any) => {
   };
   return (
     <div>
+            <section className="flex flex-col items-center pb-2">
+        <Image
+          src="/v2/logo.svg"
+          alt="Logo"
+          width={500} // Ajusta el tamaño según sea necesario
+          height={500} // Ajusta el tamaño según sea necesario
+          className="mb-4" // Margen inferior para separar la imagen del texto
+        /> </section>
       <section className="flex justify-between pb-2">
-        <h2 className="text-2xl font-semibold text-center w-full">
+        <h2 className="text-3xl font-JostBold text-center w-full">
           Crea tu billetera de Cardano
         </h2>
       </section>
@@ -219,15 +239,15 @@ const CreateCredentials = (props: any) => {
         </div>
       </div>
       <div className="flex w-full justify-end mt-6 ">
-        <Button
-          className="px-8"
+        <button
+          className="relative flex h-10 min-w-16 items-center justify-center p-4 bg-custom-marca-boton-variante2 hover:bg-custom-marca-boton-alterno  font-medium focus:z-10 focus:outline-none text-white  border border-transparent   rounded-lg focus:ring-2 px-8 ml-4"
           color="gray"
           onClick={() => setCurrentSection(1)}
         >
           Volver
-        </Button>
+        </button>
         <button
-          className="relative flex h-10 items-center justify-center p-2 font-medium focus:z-10 focus:outline-none text-white bg-cyan-700 border border-transparent enabled:hover:bg-cyan-800 focus:ring-cyan-300 dark:bg-cyan-600 dark:enabled:hover:bg-cyan-700 dark:focus:ring-cyan-800 rounded-lg focus:ring-2 px-8 ml-4"
+          className="relative flex h-10 min-w-16 items-center justify-center p-4 bg-custom-marca-boton hover:bg-custom-marca-boton-variante font-medium focus:z-10 focus:outline-none text-white  border border-transparent   rounded-lg focus:ring-2 px-8 ml-4"
           onClick={() => handleContinue()}
           disabled={errors.mnemonics}
         >

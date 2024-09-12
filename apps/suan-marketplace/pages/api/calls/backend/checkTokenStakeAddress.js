@@ -1,3 +1,4 @@
+import { getScriptTokenAccess } from "@marketplaces/data-access";
 export default async function handler(req, res) {
   if (req.method === 'POST') {
     try {
@@ -15,9 +16,12 @@ export default async function handler(req, res) {
       });
 
       const data = await response.json();
-      const tokenAccess = validateTokenAccess(data);
+      console.log('function handler',data)
+
+      const tokenAccess = await validateTokenAccess(data);
       res.status(200).json(tokenAccess);
     } catch (error) {
+      console.log(error)
       res.status(500).json(false);
     }
   } else {
@@ -25,48 +29,33 @@ export default async function handler(req, res) {
   }
 }
 
-function validateTokenAccess(data) {
+async function validateTokenAccess(data) {
+  const result = await getTokenScript()
+  console.log(`${result.id}${process.env.NEXT_PUBLIC_TOKEN_AUTHORIZER_NAME_HEX}`)
   let hasTokenAuth = false;
   data?.amount.some((item) => {
     if (
       item.unit ===
-      `${process.env.NEXT_PUBLIC_TOKEN_AUTHORIZER}${process.env.NEXT_PUBLIC_TOKEN_AUTHORIZER_NAME_HEX}`
+      `${result.id}${process.env.NEXT_PUBLIC_TOKEN_AUTHORIZER_NAME_HEX}`
     ) {
       hasTokenAuth = true;
     }
   });
   return hasTokenAuth;
 }
-/* function validateTokenAccess(data, stake_address) {
-    let token_recieved = 0
-    let token_send = 0
 
-    data.map(item => {
-        item.inputs.map(item2 => {
-            if (item2.stake_addr === stake_address && item2.asset_list.length > 0) {
-                item2.asset_list.map(asset => {
-                    if (asset.policy_id === process.env.NEXT_PUBLIC_TOKEN_AUTHORIZER
-                        && asset.asset_name === process.env.NEXT_PUBLIC_TOKEN_AUTHORIZER_NAME_HEX) {
-                        return token_send += parseInt(asset.quantity)
-                    }
-                })
-            }
-        })
-        item.outputs.map(item2 => {
-            if (item2.stake_addr === stake_address && item2.asset_list.length > 0) {
-                item2.asset_list.map(asset => {
-                    if (asset.policy_id === process.env.NEXT_PUBLIC_TOKEN_AUTHORIZER
-                        && asset.asset_name === process.env.NEXT_PUBLIC_TOKEN_AUTHORIZER_NAME_HEX) {
-                        return token_recieved += parseInt(asset.quantity)
-                    }
-                })
-            }
-        })
-    })
-
-    console.log(token_recieved, 'token_recieved')
-    console.log(token_send, 'token_send')
-    console.log(token_recieved - token_send, 'me quedan')
-    return token_recieved - token_send
-
-} */
+const getTokenScript = async () => {
+  const marketplace = process.env.NEXT_PUBLIC_MARKETPLACE_NAME?.toLocaleLowerCase() || ''
+  if(marketplace === '') return console.log('variable de entorno de marketplace no especificada')
+  
+  try {
+      const result = await getScriptTokenAccess(marketplace)
+      return {
+          id: result.data.listScripts.items[0].id,
+          wallet_id: result.data.listScripts.items[0].pbk[0],
+          marketplace: result.data.listScripts.items[0].marketplaceID,
+      }
+  } catch (error) {
+      return { error: 'error en la solicitud'}
+  }
+}

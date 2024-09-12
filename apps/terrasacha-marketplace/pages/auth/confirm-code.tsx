@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import Title from '@marketplaces/ui-lib/src/lib/auth/Title'
+import Title from '@marketplaces/ui-lib/src/lib/auth/Title';
 import ConfirmCode from '@marketplaces/ui-lib/src/lib/auth/ConfirmationCode'
 import { confirmSignUpAuth, handleResendCode } from '@terrasacha/backend';
 import { MyPage } from '@terrasacha/components/common/types';
@@ -14,7 +14,7 @@ const ConfirmCodePage: MyPage = (props: any) => {
     <div className="w-full min-h-screen flex justify-center items-center bg-slate-200">
       <Image
         priority={true}
-        src="/images/home-page/fondo_signup.avif"
+       src="/v2/bg3.avif"
         alt="landing-suan-image"
         fill
         style={{ objectFit: 'cover', objectPosition: 'center', zIndex: '0' }}
@@ -23,7 +23,7 @@ const ConfirmCodePage: MyPage = (props: any) => {
         <Title />
 
         <ConfirmCode
-          logo="/images/home-page/terrasacha_logo_principal.png"
+             logo="/v2/logo.svg"
           widthLogo={250}
           heightLogo={250}
           appName="Terrasacha"

@@ -1,3 +1,5 @@
+import { createTransaction } from "@marketplaces/data-access";
+
 export default async function handler(req, res) {
   if (req.method === 'POST') {
     try {
@@ -17,8 +19,54 @@ export default async function handler(req, res) {
       });
 
       const data = await response.json();
-      res.status(200).json(data);
+      
+      if (data?.success) {
+        // En funcion del redeemer debe cambiar addresses
+        // Si es claim, usar addressOrigin del contrato
+
+        let newTransactionPayload = {
+          addressOrigin: payload.transactionPayload.walletAddress,
+          addressDestination: JSON.stringify(payload.transactionPayload.walletAddress),
+          walletID: payload.transactionPayload.walletID,
+          txIn: JSON.stringify(data.build_tx.inputs),
+          txOutput: JSON.stringify(data.build_tx.outputs),
+          txCborhex: data.cbor,
+          txHash: data.build_tx.tx_id,
+          mint: JSON.stringify(data.build_tx.mint),
+          scriptDataHash: data.build_tx.script_data_hash,
+          metadataUrl: data.metadata_cbor,
+          redeemer: order_side,
+          fees: data.build_tx.fee,
+          network: 'testnet',
+          type: 'unlockOrder',
+          productID: payload.transactionPayload.productID,
+          signed: false,
+        };
+
+        if(order_side === 'Buy') {
+          newTransactionPayload.addressOrigin = payload.transactionPayload.spendSwapAddress
+          newTransactionPayload.addressDestination = JSON.stringify(payload.transactionPayload.walletAddress)
+        }
+
+        /* if(order_side === 'Sell') {
+          newTransactionPayload.addressOrigin = payload.transactionPayload.spendSwapAddress
+          newTransactionPayload.addressDestination = JSON.stringify(payload.transactionPayload.walletAddress)
+        } */
+
+        if(order_side === 'Unlist') {
+          newTransactionPayload.addressOrigin = payload.transactionPayload.spendSwapAddress
+          newTransactionPayload.addressDestination = JSON.stringify(payload.transactionPayload.walletAddress)
+        }
+
+        const newTransaction = await createTransaction(newTransactionPayload);
+
+        res.status(200).json({ ...data, transaction_id: newTransaction.id });
+      } else {
+        res.status(200).json(data);
+      }
+      
     } catch (error) {
+      console.log(error)
       res.status(500).json({ error: 'Error al procesar la solicitud' });
     }
   } else {
