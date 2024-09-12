@@ -1,0 +1,51 @@
+{
+  "providers": {
+    "awscloudformation": {
+      "AuthRoleName": "amplify-terrasachamarket-dev-49979-authRole",
+      "UnauthRoleArn": "arn:aws:iam::036134507423:role/amplify-terrasachamarket-dev-49979-unauthRole",
+      "AuthRoleArn": "arn:aws:iam::036134507423:role/amplify-terrasachamarket-dev-49979-authRole",
+      "Region": "us-east-1",
+      "DeploymentBucketName": "amplify-terrasachamarket-dev-49979-deployment",
+      "UnauthRoleName": "amplify-terrasachamarket-dev-49979-unauthRole",
+      "StackName": "amplify-terrasachamarket-dev-49979",
+      "StackId": "arn:aws:cloudformation:us-east-1:036134507423:stack/amplify-terrasachamarket-dev-49979/b8acb7e0-6bbe-11ef-8524-12c50ee8c81f",
+      "AmplifyAppId": "dpthnm0kh5f8o"
+    }
+  },
+  "auth": {
+    "suanmarketfcd88547": {
+      "service": "Cognito",
+      "serviceType": "imported",
+      "providerPlugin": "awscloudformation",
+      "dependsOn": [],
+      "customAuth": false,
+      "output": {
+        "UserPoolId": "us-east-1_g4wKDiX0F",
+        "UserPoolName": "kiosuanbcrjsappa6accc93_userpool_a6accc93-dev",
+        "AppClientID": "33uepkv93ro3tqo6pvpku816h9",
+        "AppClientIDWeb": "4es17qruqpihkmlfbqrr316t95",
+        "IdentityPoolId": "us-east-1:66fc6f16-820f-4f70-9e96-2c0f64cc7124",
+        "IdentityPoolName": "kiosuanbcrjsappa6accc93_identitypool_a6accc93__dev"
+      },
+      "frontendAuthConfig": {
+        "socialProviders": [],
+        "usernameAttributes": [],
+        "signupAttributes": [
+          "EMAIL"
+        ],
+        "passwordProtectionSettings": {
+          "passwordPolicyMinLength": 8,
+          "passwordPolicyCharacters": []
+        },
+        "mfaConfiguration": "OPTIONAL",
+        "mfaTypes": [
+          "TOTP"
+        ],
+        "verificationMechanisms": [
+          "EMAIL"
+        ]
+      },
+      "lastPushTimeStamp": "2024-09-11T20:57:52.673Z"
+    }
+  }
+}
