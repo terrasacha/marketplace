@@ -1,15 +1,15 @@
 {
   "dev": {
     "awscloudformation": {
-      "AuthRoleName": "amplify-suanmarket-dev-b2adb-authRole",
-      "UnauthRoleArn": "arn:aws:iam::036134507423:role/amplify-suanmarket-dev-b2adb-unauthRole",
-      "AuthRoleArn": "arn:aws:iam::036134507423:role/amplify-suanmarket-dev-b2adb-authRole",
+      "AuthRoleName": "amplify-terrasachamarket-dev-49979-authRole",
+      "UnauthRoleArn": "arn:aws:iam::036134507423:role/amplify-terrasachamarket-dev-49979-unauthRole",
+      "AuthRoleArn": "arn:aws:iam::036134507423:role/amplify-terrasachamarket-dev-49979-authRole",
       "Region": "us-east-1",
-      "DeploymentBucketName": "amplify-suanmarket-dev-b2adb-deployment",
-      "UnauthRoleName": "amplify-suanmarket-dev-b2adb-unauthRole",
-      "StackName": "amplify-suanmarket-dev-b2adb",
-      "StackId": "arn:aws:cloudformation:us-east-1:036134507423:stack/amplify-suanmarket-dev-b2adb/148949a0-6bbc-11ef-8669-0e1933d4b5af",
-      "AmplifyAppId": "dxi2fvcozws8o"
+      "DeploymentBucketName": "amplify-terrasachamarket-dev-49979-deployment",
+      "UnauthRoleName": "amplify-terrasachamarket-dev-49979-unauthRole",
+      "StackName": "amplify-terrasachamarket-dev-49979",
+      "StackId": "arn:aws:cloudformation:us-east-1:036134507423:stack/amplify-terrasachamarket-dev-49979/b8acb7e0-6bbe-11ef-8524-12c50ee8c81f",
+      "AmplifyAppId": "dpthnm0kh5f8o"
     },
     "categories": {
       "auth": {

@@ -1,21 +1,21 @@
-import '@cauca//styles/globals.css';
+import '@cauca/styles/globals.css';
 /* import { MeshProvider } from '@meshsdk/react'; */
 import { useEffect } from 'react';
 import { useRouter } from 'next/router';
 import Head from 'next/head';
 import NextNProgress from 'nextjs-progressbar';
-import { NotificationContextProvider } from '@cauca//store/notification-context';
-import { ProjectInfoContextProvider } from '@cauca//store/projectinfo-context';
+import { NotificationContextProvider } from '@cauca/store/notification-context';
+import { ProjectInfoContextProvider } from '@cauca/store/projectinfo-context';
 import { WalletContextProvider } from '@marketplaces/utils-2';
-import { LoginFromContextProvider } from '@cauca//store/login-from';
+import { LoginFromContextProvider } from '@cauca/store/login-from';
 import '../styles/globals.css';
 import { Toaster } from 'sonner';
 import { MyAppProps } from '@cauca/components/common/types';
 import { Layouts } from '@cauca/components/common/Layouts';
-import TelegramFloatingButton from '@cauca//components/TelegramFloatingButton';
+import TelegramFloatingButton from '@cauca/components/TelegramFloatingButton';
 import { Amplify } from 'aws-amplify';
 
-import config from '../src/aws-exports';
+import config from '../../../src/aws-exports';
 
 Amplify.configure(config);
 
