@@ -1,7 +1,8 @@
 import { createContext, useEffect, useMemo, useState } from 'react';
 import { getProjects } from '@marketplaces/data-access';
-import { getActualPeriod } from '../utils-2';
+import { getActualPeriod, getAssetsLockedValue } from '../utils-2';
 import { BsWindowSidebar } from 'react-icons/bs';
+import { MinLovelaceResponse } from '../generic/getAssetsLockedValue';
 
 
 const WalletContext = createContext({});
@@ -22,6 +23,9 @@ export function WalletContextProvider({
   const [isLoading, setIsLoading] = useState<any>(false);
   const [prevBalance, setPrevBalance] = useState(null);
   const [balanceChanged, setBalanceChanged] = useState(0);
+  const [walletLockedBalance, setWalletLockedBalance] = useState<MinLovelaceResponse>(null);
+  const [walletAvailableBalance, setWalletAvailableBalance] = useState<any>(null);
+  const [walletTotalBalance, setWalletTotalBalance] = useState<any>(null);
 
   const handleWalletData = async ({
     walletID,
@@ -134,7 +138,17 @@ export function WalletContextProvider({
         setPrevBalance(responseData.balance);
       }
       console.log(responseData, 'responseData')
+
+      const blockedLovelace = await getAssetsLockedValue(wallet_address, responseData.assets)
+      
       setWalletData(responseData);
+
+      if(blockedLovelace && responseData.balance) {
+        setWalletTotalBalance(responseData.balance);
+        setWalletAvailableBalance(responseData.balance - blockedLovelace);
+        setWalletLockedBalance(blockedLovelace);
+      }
+
       setIsLoading(false);
       setLastSyncDate(Date.now());
 
@@ -216,6 +230,9 @@ export function WalletContextProvider({
       isLoading,
       lastSyncDate,
       balanceChanged,
+      walletLockedBalance,
+      walletAvailableBalance,
+      walletTotalBalance,
       handleWalletData,
       handleClearData,
       fetchWalletData,

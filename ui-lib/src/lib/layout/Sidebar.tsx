@@ -50,7 +50,7 @@ export default function Sidebar(props: SidebarProps) {
     balance,
     balanceUSD
   } = props;
-  const { walletAdmin, isLoading, lastSyncDate, balanceChanged } =
+  const { walletAdmin, isLoading, lastSyncDate, balanceChanged, walletAvailableBalance, walletLockedBalance } =
     useContext<any>(WalletContext);
   const router = useRouter();
   /* const { wallet, connected } = useWallet(); */
@@ -221,6 +221,7 @@ export default function Sidebar(props: SidebarProps) {
                   : 'text-black'
               }`}
             >
+              <span>Total: </span>
               {!isLoading ? balance : <LoadingIcon className="h-5 w-5" />}{' '}
               <span className="text-gray-400 text-xs">ADA</span>
               {changeOnBalanceDetected && (
@@ -233,6 +234,32 @@ export default function Sidebar(props: SidebarProps) {
                   </span>
                 </>
               )}
+            </p>
+            <p
+              className={`text-sm font-light truncate ${
+                changeOnBalanceDetected
+                  ? balanceChanged >= 0
+                    ? 'balance-changed-positive'
+                    : 'balance-changed-negative'
+                  : 'text-black'
+              }`}
+            >
+              <span>Disponible: </span>
+              {!isLoading ? (walletAvailableBalance / 1000000).toFixed(4) : <LoadingIcon className="h-5 w-5" />}{' '}
+              <span className="text-gray-400 text-xs">ADA</span>
+            </p>
+            <p
+              className={`text-sm font-light truncate ${
+                changeOnBalanceDetected
+                  ? balanceChanged >= 0
+                    ? 'balance-changed-positive'
+                    : 'balance-changed-negative'
+                  : 'text-black'
+              }`}
+            >
+              <span>Bloqueado: </span>
+              {!isLoading ? (walletLockedBalance / 1000000).toFixed(4) : <LoadingIcon className="h-5 w-5" />}{' '}
+              <span className="text-gray-400 text-xs">ADA</span>
             </p>
             <label className={`${colors.fuenteAlterna}  block text-xs font-light text-gray-500 pt-2`}>
               Sincronizado hace {syncedAgo} segundos
