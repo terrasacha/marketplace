@@ -1,15 +1,15 @@
 {
   "dev": {
     "awscloudformation": {
-      "AuthRoleName": "amplify-marketpcauca-dev-25607-authRole",
-      "UnauthRoleArn": "arn:aws:iam::036134507423:role/amplify-marketpcauca-dev-25607-unauthRole",
-      "AuthRoleArn": "arn:aws:iam::036134507423:role/amplify-marketpcauca-dev-25607-authRole",
+      "AuthRoleName": "amplify-marketpsuan-dev-f3370-authRole",
+      "UnauthRoleArn": "arn:aws:iam::036134507423:role/amplify-marketpsuan-dev-f3370-unauthRole",
+      "AuthRoleArn": "arn:aws:iam::036134507423:role/amplify-marketpsuan-dev-f3370-authRole",
       "Region": "us-east-1",
-      "DeploymentBucketName": "amplify-marketpcauca-dev-25607-deployment",
-      "UnauthRoleName": "amplify-marketpcauca-dev-25607-unauthRole",
-      "StackName": "amplify-marketpcauca-dev-25607",
-      "StackId": "arn:aws:cloudformation:us-east-1:036134507423:stack/amplify-marketpcauca-dev-25607/6aef8960-7145-11ef-ab86-0e4c44067d59",
-      "AmplifyAppId": "d3g6351f8sugd6"
+      "DeploymentBucketName": "amplify-marketpsuan-dev-f3370-deployment",
+      "UnauthRoleName": "amplify-marketpsuan-dev-f3370-unauthRole",
+      "StackName": "amplify-marketpsuan-dev-f3370",
+      "StackId": "arn:aws:cloudformation:us-east-1:036134507423:stack/amplify-marketpsuan-dev-f3370/bfee2740-7146-11ef-b3c9-0affebf21007",
+      "AmplifyAppId": "d2h2yvb6fy5h0q"
     },
     "categories": {
       "auth": {
