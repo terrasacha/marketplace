@@ -13,19 +13,36 @@
     },
     "categories": {
       "auth": {
-        "marketpsuane5dd0829": {
-          "allowUnauthenticatedIdentities": true,
-          "authRoleArn": "arn:aws:iam::036134507423:role/amplify-platform-prod-2ba04-authRole",
-          "authRoleName": "amplify-platform-prod-2ba04-authRole",
-          "identityPoolId": "us-east-1:de8f0487-b723-47fe-b2f8-a9150adc1a44",
-          "identityPoolName": "platformauth_identitypool_e2d9b0e9__prod",
-          "nativeClientId": "1vtgc20hcg8020h453u4oeeljd",
-          "unauthRoleArn": "arn:aws:iam::036134507423:role/amplify-platform-prod-2ba04-unauthRole",
-          "unauthRoleName": "amplify-platform-prod-2ba04-unauthRole",
-          "userPoolId": "us-east-1_GB5udPihs",
+        "marketplacesuan86c6a6e0": {
+          "nativeClientId": "7j84k25il3svih7a375laet3jr",
+          "userPoolId": "us-east-1_Oo3U0bJOP",
           "userPoolName": "platform82accf3f_userpool_82accf3f-prod",
-          "webClientId": "5ksukn194p96qgh2urib8v8g16"
+          "webClientId": "jm3i4hid7glhdfrb2v81q38d3"
         }
+      }
+    }
+  },
+  "dev": {
+    "awscloudformation": {
+      "AuthRoleName": "amplify-marketpsuan-dev-f3370-authRole",
+      "UnauthRoleArn": "arn:aws:iam::036134507423:role/amplify-marketpsuan-dev-f3370-unauthRole",
+      "AuthRoleArn": "arn:aws:iam::036134507423:role/amplify-marketpsuan-dev-f3370-authRole",
+      "Region": "us-east-1",
+      "DeploymentBucketName": "amplify-marketpsuan-dev-f3370-deployment",
+      "UnauthRoleName": "amplify-marketpsuan-dev-f3370-unauthRole",
+      "StackName": "amplify-marketpsuan-dev-f3370",
+      "StackId": "arn:aws:cloudformation:us-east-1:036134507423:stack/amplify-marketpsuan-dev-f3370/bfee2740-7146-11ef-b3c9-0affebf21007",
+      "AmplifyAppId": "d2h2yvb6fy5h0q"
+    },
+    "categories": {
+      "auth": {
+        "marketplacesuan86c6a6e0": {
+          "userPoolId": "us-east-1_4jexv6wdn",
+          "userPoolName": "platform82accf3f_userpool_82accf3f-dev",
+          "webClientId": "3qu68fsupfvkve4cf3lu8takri",
+          "nativeClientId": "5ug6uhifnv610ocis2bcli5gt5"
+        },
+        "marketpsuane5dd0829": {}
       }
     }
   }

@@ -2,6 +2,7 @@ import getActualPeriod from './generic/getActualPeriod';
 import colorByLetter from './dicc';
 import getTTLDate from './generic/getTTLDate';
 import getDateFromTimeStamp from './generic/getDateFromTimeStamp';
+import getAssetsLockedValue from './generic/getAssetsLockedValue';
 import hexToText from './generic/hexToText';
 import getTimeLive from './generic/getTimeLive';
 import assetDifference from './generic/assetDifference';
@@ -21,6 +22,7 @@ export {
   getActualPeriod,
   getTTLDate,
   getDateFromTimeStamp,
+  getAssetsLockedValue,
   mapBuildTransactionInfo,
   mapTransactionListInfo,
   mapDashboardProject,
