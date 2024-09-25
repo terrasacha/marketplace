@@ -124,7 +124,7 @@ const CreateCredentials = (props: any) => {
           className="mb-4" // Margen inferior para separar la imagen del texto
         /> </section>
       <section className="flex justify-between pb-2">
-        <h2 className="text-3xl font-jostBlod text-center w-full">
+        <h2 className="text-3xl font-jostBold text-center w-full">
           Crea tu billetera de Cardano
         </h2>
       </section>
@@ -217,14 +217,14 @@ const CreateCredentials = (props: any) => {
 
 
 <button
-  className="group flex items-center justify-center h-12 px-4 text-center font-medium focus:z-10 focus:outline-none text-white bg-custom-marca-boton-variante2 hover:bg-custom-marca-boton-alterno border border-transparent rounded-lg focus:ring-2 ml-4"
+  className="font-jostBold relative group flex items-center h-10 justify-center p-1 text-center font-medium focus:z-10 focus:outline-none text-white bg-custom-marca-boton  enabled:hover:bg-custom-marca-boton-variante border border-transparent rounded-lg focus:ring-2 px-8 ml-4"
   onClick={() => setInputValue(deafultState)}
 >
   Limpiar campos
 </button>
 
 <button
-  className="relative group flex items-center justify-center h-12 min-w-16 px-4 text-center font-medium focus:z-10 focus:outline-none text-white bg-custom-marca-boton-variante hover:bg-custom-marca-boton-variante2 border border-transparent   rounded-lg focus:ring-2 ml-4"
+  className="font-jostBold relative group flex items-center h-10 justify-center p-1 text-center font-medium focus:z-10 focus:outline-none text-white bg-custom-marca-boton  enabled:hover:bg-custom-marca-boton-variante border border-transparent rounded-lg focus:ring-2 px-8 ml-4"
   onClick={() => handleContinue()}
 >
 {loading ? (

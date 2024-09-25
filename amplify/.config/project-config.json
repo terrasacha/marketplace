@@ -2,7 +2,7 @@
   "providers": [
     "awscloudformation"
   ],
-  "projectName": "terrasachamarket",
+  "projectName": "marketplacesuan",
   "version": "3.1",
   "frontend": "javascript",
   "javascript": {
