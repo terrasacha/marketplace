@@ -66,7 +66,7 @@ export default function Sidebar(props: SidebarProps) {
     useState<boolean>(false);
   const [env, setEnv] = useState('')
   useEffect(() =>{
-    const env = process.env.NEXT_PUBLIC_HOST?.includes('test')? 'TEST' : 'PRODUCTION'
+    const env = process.env.NEXT_PUBLIC_ENV || ''
     setEnv(env)
     fetchUserAttributes().then((data :any)=>{
       if(data['custom:role'] === 'marketplace_admin' && data['custom:subrole'] === process.env.NEXT_PUBLIC_MARKETPLACE_NAME?.toLocaleLowerCase()){
