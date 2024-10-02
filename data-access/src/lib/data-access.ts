@@ -252,6 +252,7 @@ export async function getAllProjects(app: string | undefined) {
                 id
                 name
               }
+              marketplaceID
               description
               categoryID 
               category {
@@ -364,6 +365,7 @@ export async function getAllProjects(app: string | undefined) {
     console.log(awsAppSyncApiKey, 'awsAppSyncApiKey');
     console.log(graphqlEndpoint, 'graphqlEndpoint');
 
+    console.log('allProducts', response.data.data.listProducts.items);
     const marketplaceProducts = response.data.data.listProducts.items.filter(
       (product: any) => product.marketplace.name === app
     );
