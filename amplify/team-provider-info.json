@@ -1,4 +1,50 @@
 {
+  "production": {
+    "awscloudformation": {
+      "AuthRoleName": "amplify-marketplace-production-a3a02-authRole",
+      "UnauthRoleArn": "arn:aws:iam::879381245127:role/amplify-marketplace-production-a3a02-unauthRole",
+      "AuthRoleArn": "arn:aws:iam::879381245127:role/amplify-marketplace-production-a3a02-authRole",
+      "Region": "us-east-1",
+      "DeploymentBucketName": "amplify-marketplace-production-a3a02-deployment",
+      "UnauthRoleName": "amplify-marketplace-production-a3a02-unauthRole",
+      "StackName": "amplify-marketplace-production-a3a02",
+      "StackId": "arn:aws:cloudformation:us-east-1:879381245127:stack/amplify-marketplace-production-a3a02/5a35bb20-80c8-11ef-aa4a-123c9ab5fd7d",
+      "AmplifyAppId": "d2u548lsiqkmk4"
+    },
+    "categories": {
+      "auth": {
+        "marketplacead3ef9aa": {
+          "nativeClientId": "6f8lbf6vu5mr12chr0o58odfe5",
+          "userPoolId": "us-east-1_9jHIQbCPM",
+          "userPoolName": "platform4b7079bf_userpool_4b7079bf-production",
+          "webClientId": "6gvb6rcmp7klbe6cp0i81028hv"
+        }
+      }
+    }
+  },
+  "develop": {
+    "awscloudformation": {
+      "AuthRoleName": "amplify-marketplacesuan-develop-884bb-authRole",
+      "UnauthRoleArn": "arn:aws:iam::879381245127:role/amplify-marketplacesuan-develop-884bb-unauthRole",
+      "AuthRoleArn": "arn:aws:iam::879381245127:role/amplify-marketplacesuan-develop-884bb-authRole",
+      "Region": "us-east-1",
+      "DeploymentBucketName": "amplify-marketplacesuan-develop-884bb-deployment",
+      "UnauthRoleName": "amplify-marketplacesuan-develop-884bb-unauthRole",
+      "StackName": "amplify-marketplacesuan-develop-884bb",
+      "StackId": "arn:aws:cloudformation:us-east-1:879381245127:stack/amplify-marketplacesuan-develop-884bb/c8fbb5c0-7c4d-11ef-8628-12368639ce2d",
+      "AmplifyAppId": "d2u548lsiqkmk4"
+    },
+    "categories": {
+      "auth": {
+        "marketplacead3ef9aa": {
+          "nativeClientId": "8352s18e4q1i7m7r9m5ch2jr",
+          "userPoolId": "us-east-1_1TX1WTr20",
+          "userPoolName": "platform4b7079bf_userpool_4b7079bf-develop",
+          "webClientId": "6qo47b4s7v2jb8ljb76ssge10f"
+        }
+      }
+    }
+  },
   "internal": {
     "awscloudformation": {
       "AuthRoleName": "amplify-marketplace-internal-e1a21-authRole",
@@ -14,10 +60,10 @@
     "categories": {
       "auth": {
         "marketplace326d84da": {
+          "nativeClientId": "2jeds8lbl01fef0n6i9ccv6qb3",
           "userPoolId": "us-east-1_6bep3adis",
           "userPoolName": "platform4b7079bf_userpool_4b7079bf-internal",
-          "webClientId": "6oce98fs9gdnhlo15c9tu7lngr",
-          "nativeClientId": "2jeds8lbl01fef0n6i9ccv6qb3"
+          "webClientId": "6oce98fs9gdnhlo15c9tu7lngr"
         }
       }
     }

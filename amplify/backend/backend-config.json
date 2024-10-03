@@ -1,6 +1,6 @@
 {
   "auth": {
-    "marketplace326d84da": {
+    "marketplacead3ef9aa": {
       "customAuth": false,
       "dependsOn": [],
       "providerPlugin": "awscloudformation",
@@ -9,35 +9,35 @@
     }
   },
   "parameters": {
-    "AMPLIFY_auth_marketplace326d84da_nativeClientId": {
+    "AMPLIFY_auth_marketplacead3ef9aa_nativeClientId": {
       "usedBy": [
         {
           "category": "auth",
-          "resourceName": "marketplace326d84da"
+          "resourceName": "marketplacead3ef9aa"
         }
       ]
     },
-    "AMPLIFY_auth_marketplace326d84da_userPoolId": {
+    "AMPLIFY_auth_marketplacead3ef9aa_userPoolId": {
       "usedBy": [
         {
           "category": "auth",
-          "resourceName": "marketplace326d84da"
+          "resourceName": "marketplacead3ef9aa"
         }
       ]
     },
-    "AMPLIFY_auth_marketplace326d84da_userPoolName": {
+    "AMPLIFY_auth_marketplacead3ef9aa_userPoolName": {
       "usedBy": [
         {
           "category": "auth",
-          "resourceName": "marketplace326d84da"
+          "resourceName": "marketplacead3ef9aa"
         }
       ]
     },
-    "AMPLIFY_auth_marketplace326d84da_webClientId": {
+    "AMPLIFY_auth_marketplacead3ef9aa_webClientId": {
       "usedBy": [
         {
           "category": "auth",
-          "resourceName": "marketplace326d84da"
+          "resourceName": "marketplacead3ef9aa"
         }
       ]
     }
