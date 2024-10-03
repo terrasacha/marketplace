@@ -19,8 +19,7 @@ interface ProjectContractsProps {
 }
 
 export default function Projects(props: any) {
-  const { walletID, walletAddress, walletData } =
-    useContext<any>(WalletContext);
+  const { walletID, walletAddress, walletData } = useContext<any>(WalletContext);
   const [projectList, setProjectList] = useState<any>(null);
   const [projectListFiltered, setProjectListFiltered] = useState<any>(null);
   const [activeTab, setActiveTab] = useState<string>('Distribuidos');
