@@ -60,6 +60,7 @@ export default function PaymentPage({}) {
     walletStakeAddress,
     walletBySuan,
     walletData,
+    walletAvailableBalance,
     fetchWalletData,
   } = useContext<any>(WalletContext);
   const [newTransactionBuild, setNewTransactionBuild] = useState<any>(null);
@@ -294,11 +295,12 @@ export default function PaymentPage({}) {
       });
       return false;
     }
-    if (totalADA * 1000000 > walletData.balance) {
+    if (totalADA * 1000000 > walletAvailableBalance) {
+      const rest = walletAvailableBalance / parseFloat(projectInfo.token.oraclePrice)
       setAlertMessage({
         type: 'failure',
         title: 'Error !',
-        message: 'Parece que no tienes fondos suficientes.',
+        message: `Parece que no tienes fondos suficientes. El maximo de tokens que puedes comprar es de ${Math.floor(rest)}`,
         visible: true,
       });
       return false;
@@ -920,7 +922,8 @@ export default function PaymentPage({}) {
                   tokenCurrency={projectInfo.tokenCurrency}
                   creationDate={projectInfo.createdAt}
                   availableAmount={availableTokenAmount}
-                  tokenPrice={projectInfo.tokenPrice}
+                  tokenPriceCOP={projectInfo.tokenPrice}
+                  tokenPriceADA={projectInfo.token.oraclePrice}
                   tokenImageUrl={tokenImageUrl}
                 />
                 <div>
@@ -1074,6 +1077,7 @@ export default function PaymentPage({}) {
         handleOpenSignTransactionModal={handleOpenSignTransactionModal}
         newTransactionBuild={newTransactionBuild}
         signType="buyTokens"
+        isCollapsed={false}
       />
     </>
   );

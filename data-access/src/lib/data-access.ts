@@ -252,6 +252,7 @@ export async function getAllProjects(app: string | undefined) {
                 id
                 name
               }
+              marketplaceID
               description
               categoryID 
               category {
@@ -364,6 +365,7 @@ export async function getAllProjects(app: string | undefined) {
     console.log(awsAppSyncApiKey, 'awsAppSyncApiKey');
     console.log(graphqlEndpoint, 'graphqlEndpoint');
 
+    console.log('allProducts', response.data.data.listProducts.items);
     const marketplaceProducts = response.data.data.listProducts.items.filter(
       (product: any) => product.marketplace.name === app
     );
@@ -1170,6 +1172,41 @@ export async function isValidUser(userId: string) {
   }
 
   return false;
+}
+
+export async function updateMarketplaceOracleWalletAddress(oracleWalletAddress: string) {
+  try {
+    const response = await axios.post(
+      graphqlEndpoint,
+      {
+        query: `
+        mutation UpdateMarketplace($input: UpdateMarketplaceInput!) {
+          updateMarketplace(input: $input) {
+            id
+          }
+        }
+      `,
+        variables: {
+          input: {
+            id: process.env[
+              'NEXT_PUBLIC_MARKETPLACE_NAME'
+            ]?.toLowerCase(),
+            oracleWallet: oracleWalletAddress,
+          },
+        },
+      },
+      {
+        headers: {
+          'x-api-key': awsAppSyncApiKey,
+        },
+      }
+    );
+
+    return response;
+  } catch (error) {
+    console.log(error);
+    return false;
+  }
 }
 
 export async function validateUserStep2(userId: string) {

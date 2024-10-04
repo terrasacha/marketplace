@@ -50,6 +50,7 @@ export default function Projects(props: any) {
         setProjectListFiltered(projectsFiltered);
       }
       if (activeTab === 'Sin distribuir') {
+        console.log('este es: ', projectList)
         const projectsFiltered = projectList.filter(
           (project: any) =>
             project.tokenGenesis === false || project.tokenGenesis === null
