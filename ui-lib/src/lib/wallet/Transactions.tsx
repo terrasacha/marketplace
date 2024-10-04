@@ -318,7 +318,7 @@ export default function Transactions(props: TransactionsProps) {
               />
             </div>
           )}
-          <MessageList/>
+          {/* <MessageList/> */}
           <p>Historial de transacciones de billetera</p>
           <LoadingOverlay visible={isLoading} className="space-y-2">
             {transactionsList &&

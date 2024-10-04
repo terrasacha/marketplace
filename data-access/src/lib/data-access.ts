@@ -1174,6 +1174,41 @@ export async function isValidUser(userId: string) {
   return false;
 }
 
+export async function updateMarketplaceOracleWalletAddress(oracleWalletAddress: string) {
+  try {
+    const response = await axios.post(
+      graphqlEndpoint,
+      {
+        query: `
+        mutation UpdateMarketplace($input: UpdateMarketplaceInput!) {
+          updateMarketplace(input: $input) {
+            id
+          }
+        }
+      `,
+        variables: {
+          input: {
+            id: process.env[
+              'NEXT_PUBLIC_MARKETPLACE_NAME'
+            ]?.toLowerCase(),
+            oracleWallet: oracleWalletAddress,
+          },
+        },
+      },
+      {
+        headers: {
+          'x-api-key': awsAppSyncApiKey,
+        },
+      }
+    );
+
+    return response;
+  } catch (error) {
+    console.log(error);
+    return false;
+  }
+}
+
 export async function validateUserStep2(userId: string) {
   try {
     const response = await axios.post(
