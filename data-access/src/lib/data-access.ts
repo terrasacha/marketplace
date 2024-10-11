@@ -1174,7 +1174,10 @@ export async function isValidUser(userId: string) {
   return false;
 }
 
-export async function updateMarketplaceOracleWalletAddress(oracleWalletAddress: string) {
+export async function updateMarketplaceConfig(
+  oracleWalletID: string,
+  oracleTokenName: string
+) {
   try {
     const response = await axios.post(
       graphqlEndpoint,
@@ -1188,10 +1191,9 @@ export async function updateMarketplaceOracleWalletAddress(oracleWalletAddress: 
       `,
         variables: {
           input: {
-            id: process.env[
-              'NEXT_PUBLIC_MARKETPLACE_NAME'
-            ]?.toLowerCase(),
-            oracleWallet: oracleWalletAddress,
+            id: process.env['NEXT_PUBLIC_MARKETPLACE_NAME']?.toLowerCase(),
+            oracleWalletID: oracleWalletID,
+            oracleTokenName: oracleTokenName,
           },
         },
       },
@@ -1969,6 +1971,42 @@ export async function updateOrder(objeto: any) {
   }
 }
 
+export async function getOracleWalletId(marketplace: string) {
+  try {
+    const response = await axios.post(
+      graphqlEndpoint,
+      {
+        query: `query listMarketplaces {
+          listMarketplaces(filter: {id: {eq: "${marketplace}"}}) {
+            items {
+              id
+              name
+              oracleTokenName
+              oracleWalletID
+            }
+          }
+        }`,
+      },
+      {
+        headers: {
+          'x-api-key': awsAppSyncApiKey,
+        },
+      }
+    );
+
+    if (response.data.data.listMarketplaces) {
+      return (
+        response.data.data.listMarketplaces.items[0].oracleWalletID || false
+      );
+    } else {
+      return false;
+    }
+  } catch (error) {
+    console.log(error);
+    return false;
+  }
+}
+
 export async function createTransaction({
   addressDestination,
   addressOrigin,
@@ -2389,8 +2427,7 @@ export async function listTokensDashboard(productID: string) {
   }
 }
 
-
-export async function getScriptTokenAccess(marketplace: string){
+export async function getScriptTokenAccess(marketplace: string) {
   try {
     const response = await axios.post(
       graphqlEndpoint,
@@ -2421,7 +2458,9 @@ export async function getScriptTokenAccess(marketplace: string){
 }
 
 export async function createClaimedToken(
-  marketplaceID : string, walletID: string ) {
+  marketplaceID: string,
+  walletID: string
+) {
   try {
     const response = await axios.post(
       graphqlEndpoint,
@@ -2439,8 +2478,7 @@ export async function createClaimedToken(
         variables: {
           input: {
             marketplaceID: marketplaceID,
-            walletID: walletID
-
+            walletID: walletID,
           },
         },
       },
@@ -2458,7 +2496,10 @@ export async function createClaimedToken(
   }
 }
 
-export async function checkClaimedToken(marketplaceID: string, walletID: string) {
+export async function checkClaimedToken(
+  marketplaceID: string,
+  walletID: string
+) {
   try {
     const response = await axios.post(
       graphqlEndpoint,
@@ -2480,11 +2521,11 @@ export async function checkClaimedToken(marketplaceID: string, walletID: string)
       }
     );
     if (response.data.data.listClaimedTokens.items.length > 0) {
-      return true
+      return true;
     }
-    return false
+    return false;
   } catch (error) {
     console.log(error);
-    return false
+    return false;
   }
 }
