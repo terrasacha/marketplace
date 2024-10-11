@@ -60,10 +60,10 @@
     "categories": {
       "auth": {
         "marketplacead3ef9aa": {
+          "nativeClientId": "2jeds8lbl01fef0n6i9ccv6qb3",
           "userPoolId": "us-east-1_6bep3adis",
           "userPoolName": "platform4b7079bf_userpool_4b7079bf-internal",
-          "webClientId": "6oce98fs9gdnhlo15c9tu7lngr",
-          "nativeClientId": "2jeds8lbl01fef0n6i9ccv6qb3"
+          "webClientId": "6oce98fs9gdnhlo15c9tu7lngr"
         }
       }
     }
