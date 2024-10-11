@@ -360,14 +360,7 @@ export default function PaymentPage({}) {
             showCancelButton: true,
             confirmButtonColor: '#3085d6',
             cancelButtonColor: '#d33',
-            confirmButtonText: 'Si, quiero verificarme!',
-            cancelButtonText: 'Cancelar',
-          }).then(async (result) => {
-            if (result.isConfirmed) {
-              const url = `https://identity.truora.com/preview/IPF428f73bc6dc1448d38eedac992d43f17?trigger_user=neider.smith1%40gmail.com&account_id=${userId}`;
-              window.open(url);
-            }
-          });
+          })
           return false;
         }
       }
