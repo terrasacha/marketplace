@@ -145,7 +145,7 @@ export default function ProjectDataModal({
           <div className="mapa sm:mx-4 sm:p-6">
             <GoogleMapReact
               bootstrapURLKeys={{
-                key: "AIzaSyCzXTla3o3V7o72HS_mvJfpVaIcglon38U",
+                key: process.env['NEXT_PUBLIC_GMAPS_API_KEY'] || '',
               }}
               defaultCenter={{
                 lat: projectData.projectInfo.location.coords.lat,
