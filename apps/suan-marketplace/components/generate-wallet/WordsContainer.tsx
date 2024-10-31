@@ -41,11 +41,12 @@ const WordsContainer = (props: any) => {
         <Button
           className="relative flex items-center justify-center h-10 px-4 py-2 bg-[#0e7490] rounded-md text-sm text-white w-48"
           onClick={() => generateWords()}
+        style={{backgroundColor:"black", boxShadow: 'none', }}
         >
           {loading ? (
             <TailSpin
               width="20"
-              color="#fff"
+              color="#FFFFFF"
               wrapperClass="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2"
             />
           ) : (
@@ -60,6 +61,7 @@ const WordsContainer = (props: any) => {
         <button
           onClick={() => copyToClipboard()}
           className="absolute right-2 top-2 text-[#2e7d96]"
+          style={{color:"black"}}
         >
           {copied ? <FaCopy /> : <FaRegCopy />}
         </button>
@@ -72,8 +74,8 @@ const WordsContainer = (props: any) => {
                 className="palabra w-full relative text-center text-lg font-semibold"
                 key={index}
               >
-                <p className="absolute left-2 ">{index + 1}</p>
-                <p>{word}</p>
+                <p style={{color:"black"}} className="absolute left-2 ">{index + 1}</p>
+                <p style={{color:"black"}}>{word}</p> 
               </div>
             );
           })}
@@ -95,7 +97,7 @@ const WordsContainer = (props: any) => {
                       : 'text-gray-400'
                   }`}
                 >
-                  {index + 1}
+               <p  style={{color:"black"}}> {index + 1}</p>   
                 </p>
                 {word !== '' && (
                   <button
@@ -105,7 +107,7 @@ const WordsContainer = (props: any) => {
                     <IoCloseSharp />
                   </button>
                 )}
-                <p className="text-white">{word || 'ㅤ'}</p>
+                <p style={{color:"black"}}>{word || 'ㅤ'}</p>
               </div>
             );
           })}
@@ -114,4 +116,4 @@ const WordsContainer = (props: any) => {
   );
 };
 
-export default WordsContainer;
+export default WordsContainer;

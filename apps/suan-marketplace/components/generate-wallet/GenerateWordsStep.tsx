@@ -68,6 +68,10 @@ const GenerateWordsStep = (props: any) => {
                 defaultChecked={option.value === 24}
                 value={option.value}
                 onClick={(e) => setRecoveryWords(Array(option.value).fill(''))}
+                style={{
+                  color: 'black',
+                  boxShadow: 'none', 
+                }}
               />
               <Label htmlFor={option.id}>{option.value} palabras</Label>
             </div>
@@ -113,6 +117,7 @@ const GenerateWordsStep = (props: any) => {
                 id="alreadycopy"
                 checked={isChecked}
                 onChange={handleCheckboxChange}
+                style={{color:"black", boxShadow: 'none',}}
               />
             </div>
             <div className="flex flex-col">
@@ -122,18 +127,20 @@ const GenerateWordsStep = (props: any) => {
             </div>
           </div>
           <div className="flex w-full justify-end mt-3">
-            <Button
-              className="group flex h-min items-center justify-center p-1 text-center font-medium focus:z-10 focus:outline-none text-white bg-cyan-700 border border-transparent enabled:hover:bg-cyan-800  dark:bg-cyan-600 dark:enabled:hover:bg-cyan-700  rounded-lg focus:ring-2 px-8 ml-4"
-              disabled={!isChecked}
-              onClick={() => setCurrentSection(2)}
-            >
-              Continuar
-            </Button>
+          <Button
+  className={`group flex h-min items-center justify-center p-1 text-center font-medium focus:z-10 focus:outline-none text-white border border-transparent rounded-lg focus:ring-2 px-8 ml-4 
+  ${isChecked ? 'bg-black' : 'bg-gray-400 cursor-not-allowed'}`}
+  style={{ backgroundColor: isChecked ? 'black' : '#d1d5db', pointerEvents: isChecked ? 'auto' : 'none' }}
+  disabled={!isChecked}
+  onClick={() => setCurrentSection(2)}
+>
+  Continuar
+</Button>
+
           </div>
         </>
       )}
     </div>
   );
 };
-
 export default GenerateWordsStep;

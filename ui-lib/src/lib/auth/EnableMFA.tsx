@@ -229,34 +229,30 @@ const EnableMFA = (props: any) => {
             )}
           </button>
           <button
-            disabled={!codeChecked}
-            className={`relative w-full mt-6 flex items-center h-10 justify-center ${
-              colors.fuente
-            }  focus:z-10 focus:outline-none text-white ${
-              codeChecked ? colors.bgColor : colors.bgColorAlternativo
-            } disabled:cursor-not-allowed border border-transparent enabled:${
-              colors.hoverBgColor
-            }  dark:bg-cyan-600 dark:enabled:hover:bg-cyan-700  rounded-lg focus:ring-2 px-8 py-2`}
-            onClick={() => handleUpdateMFAPreference()}
-          >
-            {saveLoading ? (
-              <TailSpin
-                width="20"
-                color="#fff"
-                wrapperClass="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2"
-              />
-            ) : (
-              'Continuar'
-            )}
-          </button>
-          <button
-            className={`relative w-full mt-6 flex items-center h-10 justify-center ${colors.fuente} focus:z-10 focus:outline-none border border-custom-marca-boton text-custom-marca-boton ${colors.bgColorAlternativo} ${colors.hoverBgColor} dark:bg-cyan-600 dark:enabled:hover:bg-cyan-700  rounded-lg focus:ring-2 px-8 py-2`}
-            onClick={() => {
-              signOut().then(() => router.reload());
-            }}
-          >
-            Cerrar sesión
-          </button>
+  disabled={!codeChecked}
+  className="relative w-full mt-6 flex items-center h-10 justify-center text-white bg-black hover:bg-gray-800 disabled:bg-gray-500 focus:z-10 focus:outline-none border border-transparent rounded-lg focus:ring-2 px-8 py-2 disabled:cursor-not-allowed"
+  onClick={() => handleUpdateMFAPreference()}
+>
+  {saveLoading ? (
+    <TailSpin
+      width="20"
+      color="#fff"
+      wrapperClass="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2"
+    />
+  ) : (
+    'Continuar'
+  )}
+</button>
+
+<button
+  className="relative w-full mt-6 flex items-center h-10 justify-center text-white bg-black hover:bg-gray-800 focus:z-10 focus:outline-none border border-transparent rounded-lg focus:ring-2 px-8 py-2"
+  onClick={() => {
+    signOut().then(() => router.reload());
+  }}
+>
+  Cerrar sesión
+</button>
+
         </div>
       </div>
     </div>
