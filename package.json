@@ -5,6 +5,7 @@
   "scripts": {},
   "private": true,
   "dependencies": {
+    "@aws-sdk/client-s3": "^3.682.0",
     "@circle-fin/circle-sdk": "^2.0.0",
     "@fontsource/jost": "^5.0.18",
     "@headlessui/react": "^1.7.15",
