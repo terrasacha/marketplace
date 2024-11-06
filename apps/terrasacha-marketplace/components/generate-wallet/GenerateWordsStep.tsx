@@ -129,13 +129,23 @@ const GenerateWordsStep = (props: any) => {
             </div>
           </div>
           <div className="flex w-full justify-end mt-3">
-            <Button
-             className="group flex h-min items-center justify-center p-1 text-center font-medium focus:z-10 focus:outline-none text-white bg-custom-marca-boton  enabled:hover:bg-custom-marca-boton-variante border border-transparent  dark:bg-cyan-600 dark:enabled:hover:bg-cyan-700  rounded-lg focus:ring-2 px-8 ml-4"
-              disabled={!isChecked}
-              onClick={() => setCurrentSection(2)}
-            >
-              Continuar
-            </Button>
+          <Button
+          className="px-8"
+          color="gray"
+          onClick={() => router.push('/')}
+        >
+          Vover
+        </Button>
+          <Button
+  className={`group flex h-min items-center justify-center p-1 text-center font-medium focus:z-10 focus:outline-none text-white border border-transparent rounded-lg focus:ring-2 px-8 ml-4 
+  ${isChecked ? 'bg-black' : 'bg-gray-400 cursor-not-allowed'}`}
+  style={{ backgroundColor: isChecked ? 'black' : '#d1d5db', pointerEvents: isChecked ? 'auto' : 'none' }}
+  disabled={!isChecked}
+  onClick={() => setCurrentSection(2)}
+>
+  Continuar
+</Button>
+
           </div>
         </>
       )}
