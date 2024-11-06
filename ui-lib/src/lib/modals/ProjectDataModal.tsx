@@ -24,10 +24,10 @@ export default function ProjectDataModal({
   project,
 }: any) {
   const [activeTab, setActiveTab] = useState(0);
-  const tabs = ["Detalles", /* "Galeria", */ "Archivos", "Blockchain", "Finanzas"];
+  const tabs = ["Detalles", "Galeria", "Archivos", "Blockchain", "Finanzas"];
   const tabComponents = [
     TabDetalles,
-    /* TabGaleria, */
+    TabGaleria,
     TabArchivos,
     TabBlockchain,
     TabFinanzas,

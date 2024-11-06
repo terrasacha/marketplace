@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import GoogleMapReact from 'google-map-react';
 import { Modal, Tabs, Badge, Label, TextInput } from 'flowbite-react';
 import ProjectInfoCard from '../projectData/ProjectInfoCard';
@@ -15,18 +15,37 @@ import CashFlowResume from '../projectData/CashFlowResume';
 import BlockchainCard from '../projectData/BlockchainCards';
 import OwnersDataVerification from '../projectData/OwnersDataVerification';
 import Link from 'next/link';
-
+import { ImageSlider } from '@marketplaces/ui-lib/src/lib/common/ImageSlider'
+import { getProjectImagesCarousel } from '@marketplaces/data-access';
 export default function ProjectDataModal({
   setOpenModal,
   projectData,
   project,
 }: any) {
-  console.log(projectData.projectInfo,'projectData.projectInfo ')
   const [activeTab, setActiveTab] = useState(0);
-  const tabs = ['Detalles', /* 'Galeria', */ 'Archivos', 'Blockchain', 'Finanzas'];
+  const [projectImages, setProjectImages] = useState([]);
+
+  useEffect(() =>{
+    getProjectImagesCarousel(project.id)
+    .then(data =>{
+      const processedData = data.map((item : any) =>{
+        let url = item.imageURL.split('/')
+        url.splice(2,0, 'public')
+        url = url.join('/')
+        let publicUrl = `${process.env.NEXT_PUBLIC_s3EndPoint}${url}`
+        return {
+          alt: item.title,
+          url: publicUrl
+        }
+      })
+      return processedData
+    })
+    .then(data => setProjectImages(data))
+  }, [])
+  const tabs = ['Detalles', 'Galeria', 'Archivos', 'Blockchain', 'Finanzas'];
   const tabComponents = [
     TabDetalles,
-    /* TabGaleria, */
+    TabGaleria,
     TabArchivos,
     TabBlockchain,
     TabFinanzas,
@@ -300,10 +319,9 @@ export default function ProjectDataModal({
   }
 
   function TabGaleria() {
+
     return (
-      <div className="flex justify-center border p-5">
-        No se ha subido información
-      </div>
+        <ImageSlider images={projectImages}/>
     );
   }
 

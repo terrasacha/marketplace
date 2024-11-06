@@ -1173,6 +1173,45 @@ export async function getProjectImages(projectID: string ) {
     throw new Error('Could not fetch project images');
   }
 }
+export async function getProjectImagesCarousel(projectID: string) {
+  const query = `
+    query MyQuery {
+      listImages(
+        filter: {
+          productID: { eq: "${projectID}" },
+          isActive: { eq: true },
+          isOnCarousel: { eq: true }
+        }
+      ) {
+        items {
+          id
+          title
+          imageURL
+          isActive
+          isOnCarousel
+        }
+      }
+    }
+  `;
+
+  try {
+    const response = await axios.post(
+      graphqlEndpoint,
+      { query: query },
+      {
+        headers: {
+          'x-api-key': awsAppSyncApiKey,
+        },
+      }
+    );
+
+    return response.data.data.listImages.items;
+  } catch (error) {
+    console.error('Error fetching project images:', error);
+    throw new Error('Could not fetch project images');
+  }
+}
+
 export async function createImageOnDB(productID : string, imageURL : string, name: string) {
   const mutation = `
     mutation MyMutation {

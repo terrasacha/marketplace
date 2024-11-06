@@ -5,7 +5,7 @@ import { TailSpin } from 'react-loader-spinner';
 import { S3Client } from "@aws-sdk/client-s3";
 import { GetObjectCommand, ListObjectsV2Command, PutObjectCommand, DeleteObjectCommand, CopyObjectCommand} from "@aws-sdk/client-s3";
 import { fetchAuthSession, decodeJWT } from 'aws-amplify/auth';
-
+import { toast } from 'sonner';
 interface ModalTableImagesProps {
     projectID: string;
     openModal: boolean;
@@ -69,6 +69,7 @@ export default function ModalTableImages({projectID, openModal, handleModalImage
         const newData = await getProjectImages(projectID)
         console.log(newData,'newData')
         setImages(newData)
+        toast.success('Imagen creada exitosamente')
     } catch (error) {
         console.error("Error uploading image:", error);
     }
@@ -172,8 +173,10 @@ export default function ModalTableImages({projectID, openModal, handleModalImage
                 console.log(newData,'newData')
                 setImages(newData)
             }
+            toast.success('Eliminación exitosa')
         } catch (error) {
             
+        }finally{
         }
     }
     const handleFileChange = (event: React.ChangeEvent<HTMLInputElement>) => {
@@ -184,19 +187,21 @@ export default function ModalTableImages({projectID, openModal, handleModalImage
     };
 
     const updateImageTable = async (type: string, item: any) =>{
-        if(type = 'isActive'){
+        if(type === 'isActive'){
             await toPublicImage(item.imageURL, !item.isActive)
             await updateImageOnDB({
                 id: item.id,
                 isActive: !item.isActive,
                 isOnCarousel: item.isOnCarousel
               })
+            toast.success('Actulización de visibilidad.')
         }else if(type === 'isOnCarousel'){
             await updateImageOnDB({
                 id: item.id,
                 isActive: item.isActive,
                 isOnCarousel: !item.isOnCarousel
               })
+              toast.success('Actulización de carrusel completada')
         }
         const newData = await getProjectImages(projectID)
         setImages(newData)
