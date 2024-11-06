@@ -319,7 +319,11 @@ export default function ProjectDataModal({
   }
 
   function TabGaleria() {
-
+    if(projectImages.length === 0) return(
+      <div className="flex justify-center border p-5">
+        No se ha subido información
+      </div>
+    ) 
     return (
         <ImageSlider images={projectImages}/>
     );

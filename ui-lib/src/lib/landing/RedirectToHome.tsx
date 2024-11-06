@@ -80,6 +80,11 @@ const RedirectToHome = (props: RedirectToHomeProps) => {
             setLoading(false);
             setStatusText('Token encontrado, redirigiendo...');
             setShowButtonAccess(true);
+            const playCashRegister = () => {
+              var audio: any = document.getElementById('a1');
+              audio.play();
+            };
+            playCashRegister()
             tokenFound = true;
           } else {
             setStatusText('Token no encontrado, por favor espera...');
@@ -305,6 +310,7 @@ const RedirectToHome = (props: RedirectToHomeProps) => {
           />
         </div>
       )}
+      <audio id="a1" src="/sounds/cash-register.mp3"></audio>
     </div>
   );
 };
