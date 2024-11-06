@@ -62,17 +62,26 @@ export default function ModalTableImages({projectID, openModal, handleModalImage
         ContentType: file.type,
     });
 
-    try {
-        await clients3.send(command);
-        console.log("Image uploaded successfully to s3");
-        await createImageOnDB(projectID, key, file.name)
-        const newData = await getProjectImages(projectID)
-        console.log(newData,'newData')
-        setImages(newData)
-        toast.success('Imagen creada exitosamente')
-    } catch (error) {
-        console.error("Error uploading image:", error);
-    }
+    const uploadFLow = async () => {
+          try {
+            await clients3.send(command);
+            console.log("Image uploaded successfully to s3");
+            await createImageOnDB(projectID, key, file.name)
+            const newData = await getProjectImages(projectID)
+            console.log(newData,'newData')
+            setImages(newData)
+            /* toast.success('Imagen creada exitosamente') */
+        } catch (error) {
+            console.error("Error uploading image:", error);
+        }
+      }
+      toast.promise(uploadFLow(), {
+        loading: 'Subiendo imagen...',
+        success: (data) => {
+          return `Imagen subida exitosamente`;
+        },
+        error: 'Error',
+      });
     };
     const getImage = async (key: string) => {
         let data = {
@@ -164,47 +173,83 @@ export default function ModalTableImages({projectID, openModal, handleModalImage
         
     }
 
-    const deleteImageOnDB = async (id: string, key: string) =>{
-        try {
+    const deleteImageOnDB = async (id: string, key: string, isActive : boolean) =>{
+        const deleteFlow = async () => {
+          try {
             const resultDeleteOnS3 = await deleteImageOnS3(key)
+            if(isActive){
+              let url : string | string[] = key.split('/')
+              url.splice(2,0, 'public')
+              url = url.join('/')
+              let publicUrl = `${url}`
+              await deleteImageOnS3(publicUrl)
+            }
             if(resultDeleteOnS3){
                 const result = await deleteImage(id)
                 const newData = await getProjectImages(projectID)
                 console.log(newData,'newData')
                 setImages(newData)
             }
-            toast.success('Eliminación exitosa')
-        } catch (error) {
-            
-        }finally{
+          } catch (error) {
+              
+          }
         }
+        toast.promise(deleteFlow(), {
+          loading: 'Eliminando...',
+          success: (data) => {
+            return `Eliminación exitosa`;
+          },
+          error: 'Error',
+        });
     }
     const handleFileChange = (event: React.ChangeEvent<HTMLInputElement>) => {
         const file = event.target.files?.[0];
         if (file) {
+          // Verifica que el tipo de archivo sea de imagen
+          const allowedTypes = ['image/jpeg', 'image/png', 'image/gif'];
+          if (!allowedTypes.includes(file.type)) {
+              toast.error('Solo se permiten archivos de imagen (JPEG, PNG, GIF)');
+              return;
+          }
           uploadImage(file);
-        }
+      }
     };
 
     const updateImageTable = async (type: string, item: any) =>{
+      
         if(type === 'isActive'){
-            await toPublicImage(item.imageURL, !item.isActive)
-            await updateImageOnDB({
-                id: item.id,
-                isActive: !item.isActive,
-                isOnCarousel: item.isOnCarousel
-              })
-            toast.success('Actulización de visibilidad.')
+          /* let result = toPublicImage(item.imageURL, !item.isActive) */
+          toast.promise(toPublicImage(item.imageURL, !item.isActive), {
+            loading: 'Actualizando...',
+            success: (data) => {
+              return 'Actulización de visibilidad.';
+            },
+            error: 'Error',
+          });
+          await updateImageOnDB({
+              id: item.id,
+              isActive: !item.isActive,
+              isOnCarousel: item.isOnCarousel
+            })
+            /* toast.success('Actulización de visibilidad.') */
         }else if(type === 'isOnCarousel'){
-            await updateImageOnDB({
-                id: item.id,
-                isActive: item.isActive,
-                isOnCarousel: !item.isOnCarousel
-              })
-              toast.success('Actulización de carrusel completada')
+          toast.promise(updateImageOnDB({
+            id: item.id,
+            isActive: item.isActive,
+            isOnCarousel: !item.isOnCarousel
+          }), {
+            loading: 'Actualizando...',
+            success: (data) => {
+              return 'Actulización de carrusel completada';
+            },
+            error: 'Error',
+          });
         }
         const newData = await getProjectImages(projectID)
         setImages(newData)
+    }
+    const tryDeletePublicImage = async () =>{
+
     }
 
     const handleButtonClick = () => {
@@ -276,7 +321,7 @@ export default function ModalTableImages({projectID, openModal, handleModalImage
                                     </td>
                                     <td className="px-6 py-4">
                                         <button className='bg-red-600 rounded-md py-2 text-white px-4 text-sm'
-                                                onClick={() =>deleteImageOnDB(item.id, item.imageURL)}>Eliminar</button>
+                                                onClick={() =>deleteImageOnDB(item.id, item.imageURL, item.isActive)}>Eliminar</button>
                                     </td>
                                 </tr>
                             )
