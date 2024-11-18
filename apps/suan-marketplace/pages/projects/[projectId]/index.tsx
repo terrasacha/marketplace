@@ -358,7 +358,7 @@ const Product: MyPage = (props: any) => {
                     'polygonsFetchedData'
                   );
 
-                  if (projectData.projectPredialGeoJson.features.length > 0) {
+                  if (projectData?.projectPredialGeoJson?.features?.length > 0) {
                     // Load GeoJSON.
                     map.data.addGeoJson(projectData.projectPredialGeoJson);
                     console.log('entro');

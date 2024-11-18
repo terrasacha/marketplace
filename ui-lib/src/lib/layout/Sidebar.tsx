@@ -6,6 +6,7 @@ import Link from 'next/link';
 import { useRouter } from 'next/router';
 import { BookIcon } from '../icons/BookIcon';
 import { ChartIcon } from '../icons/ChartIcon';
+import { MailIcon } from '../icons/MailIcon';
 import { ChevronDownIcon } from '../icons/ChevronDownIcon';
 import { MarketIcon } from '../icons/MarketIcon';
 import { ScaleIcon } from '../icons/ScaleIcon';
@@ -372,6 +373,16 @@ export default function Sidebar(props: SidebarProps) {
           >
             <MarketIcon />
             <span className={`${colors.fuenteAlterna}  flex-1 ml-3 whitespace-nowrap`}>Mercado P2P</span>
+          </Link>
+        </li>
+        <li>
+          <Link
+            onClick={onClose}
+            href="/pqr"
+            className="flex items-center p-2 text-black rounded-lg hover:bg-custom-dark hover:text-white transition duration-150 ease-linear"
+          >
+            <MailIcon />
+            <span className={`${colors.fuenteAlterna} flex-1 ml-3 whitespace-nowrap`}>PQR</span>
           </Link>
         </li>
       </ul>
