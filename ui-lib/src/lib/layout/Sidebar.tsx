@@ -391,7 +391,7 @@ export default function Sidebar(props: SidebarProps) {
       <ul className="space-y-4">
         <li>
           <Link
-            href="https://suan-1.gitbook.io/documentacion-suan-sandbox/"
+            href="https://suans-organization.gitbook.io/suan"
             target="_blank"
             className="flex items-center p-2 text-black rounded-lg hover:bg-custom-dark hover:text-white transition duration-150 ease-linear"
           >
