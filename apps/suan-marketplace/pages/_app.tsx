@@ -18,8 +18,8 @@ import { Amplify } from 'aws-amplify';
 import config from '../../../src/aws-exports';
 
 Amplify.configure(config);
-
 function MyApp({ Component, pageProps }: MyAppProps) {
+  console.log(config, 'Amplify.configure(config)')
   const Layout = Layouts[Component.Layout] ?? ((page) => page);
   const router = useRouter();
 
