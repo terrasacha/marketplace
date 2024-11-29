@@ -199,12 +199,12 @@ export default class PQRForm extends Component<{}, PQRFormState> {
                 type="file"
                 className="form-control-file"
                 id="prqImage"
-                accept="image/png, image/jpeg, image/jpg, image/gif"
+                accept="image/png, image/jpeg, image/jpg, image/gif,  application/pdf"
                 onChange={(e) => {
                   const file = e.target.files ? e.target.files[0] : null;
                   if (file) {
-                    if (!["image/png", "image/jpeg", "image/jpg", "image/gif"].includes(file.type)) {
-                      alert("Solo se aceptan imágenes en formato PNG, JPEG, JPG o GIF.");
+                    if (!["image/png", "image/jpeg", "image/jpg", "image/gif", "application/pdf"].includes(file.type)) {
+                      alert("Solo se aceptan imágenes en formato PNG, JPEG, JPG, GIF o archivos PDF.");
                       return;
                     }
                   }

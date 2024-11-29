@@ -134,12 +134,12 @@ const PQRForm: MyPage = () => {
             type="file"
             style={styles.fileInput}
             id="prqImage"
-            accept="image/png, image/jpeg, image/jpg, image/gif"
+            accept="image/png, image/jpeg, image/jpg, image/gif, application/pdf"
             onChange={(e) => {
               const file = e.target.files ? e.target.files[0] : null;
   
-              if (file && !['image/png', 'image/jpeg', 'image/jpg', 'image/gif'].includes(file.type)) {
-                toast.error('Formato no válido. Solo se permiten PNG, JPEG, JPG, GIF.');
+              if (file && !['image/png', 'image/jpeg', 'image/jpg', 'image/gif',"application/pdf"].includes(file.type)) {
+                toast.error('Formato no válido. Solo se permiten PNG, JPEG, JPG, GIF o PDF.');
                 e.target.value = ''; // Limpiar el input si el archivo no es válido
                 return;
               }
@@ -148,7 +148,7 @@ const PQRForm: MyPage = () => {
             }}
           />
           <small style={styles.smallText}>
-            Formatos aceptados: PNG, JPEG, JPG, GIF. Tamaño máximo: 15 MB.
+            Formatos aceptados: PNG, JPEG, JPG, GIF O PDF. Tamaño máximo: 15 MB.
           </small>
         </div>
         <div style={styles.formGroup}>
