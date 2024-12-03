@@ -1,6 +1,6 @@
 {
-  "authSelections": "userPoolOnly",
-  "resourceName": "marketplacesuandd372463",
+  "authSelections": "identityPoolAndUserPool",
+  "resourceName": "marketplacesuanf960d3cf",
   "serviceType": "imported",
   "region": "us-east-1",
   "requiredAttributes": [
