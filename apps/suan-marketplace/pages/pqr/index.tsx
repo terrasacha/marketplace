@@ -35,72 +35,41 @@ const PQRForm: MyPage = () => {
 
   const handlePRQSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
-  
-    let imageUrl: string | null = null;
-  
-    if (prqImage) {
-      const maxFileSize = 15 * 1024 * 1024; // 15 MB
-      if (prqImage.size > maxFileSize) {
-        toast.error('El tamaño máximo permitido para la imagen es de 15 MB.');
-        return;
-      }
-  
-      const bucketName = process.env.NEXT_PUBLIC_S3_BUCKET_NAME;
-      const bucketRegion = process.env.NEXT_PUBLIC_S3_BUCKET_REGION;
-  
-      if (!bucketName || !bucketRegion) {
-        console.error('Bucket o región no configurados');
-        toast.error('Error de configuración. Contacta al administrador.');
-        return;
-      }
-  
-      const fileName = `prq-images/${Date.now()}_${prqImage.name}`;
-  
-      try {
-        const s3 = new S3({ region: bucketRegion });
-        const result = await s3
-          .upload({
-            Bucket: bucketName,
-            Key: fileName,
-            Body: prqImage,
-            ContentType: prqImage.type,
-            ACL: 'public-read',
-          })
-          .promise();
-  
-        imageUrl = result.Location;
-      } catch (error) {
-        console.error('Error al subir la imagen:', error);
-        toast.error('Hubo un error al subir la imagen. Inténtalo de nuevo.');
-        return;
-      }
-    }
-  
-    const requestBody = { prqDescription, imageUrl, prqEmail };
-  
+
+    // Si no se necesita la URL de la imagen, dejamos este valor como null
+    const imageUrl: string | null = null;
+
+    // Crear el cuerpo de la solicitud con solo los textos
+    const requestBody = { 
+        prqDescription, 
+        imageUrl, // Puede ser eliminado si el backend no requiere este campo
+        prqEmail 
+    };
+
     try {
-      const response = await fetch(
-        'https://4e2uo1y7p0.execute-api.us-east-1.amazonaws.com/prod/pqr',
-        {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify(requestBody),
+        const response = await fetch(
+            'https://y2alnoyxxc.execute-api.us-east-1.amazonaws.com/QA/',
+            {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify(requestBody),
+            }
+        );
+
+        if (response.ok) {
+            toast.success('Tu PQR se envió exitosamente.');
+            setPrqDescription('');
+            setPrqImage(null); // Limpia el estado de la imagen
+            setPrqEmail('');
+        } else {
+            toast.error('Hubo un error al enviar el PQR. Inténtalo de nuevo.');
         }
-      );
-  
-      if (response.ok) {
-        toast.success('Tu PQR se envió exitosamente.');
-        setPrqDescription('');
-        setPrqImage(null);
-        setPrqEmail('');
-      } else {
-        toast.error('Hubo un error al enviar el PQR. Inténtalo de nuevo.');
-      }
     } catch (error) {
-      console.error('Error enviando el PQR:', error);
-      toast.error('Hubo un error al enviar el PQR. Inténtalo de nuevo.');
+        console.error('Error enviando el PQR:', error);
+        toast.error('Hubo un error al enviar el PQR. Inténtalo de nuevo.');
     }
-  };
+};
+
   
 
   if (!isAuthenticated) {
