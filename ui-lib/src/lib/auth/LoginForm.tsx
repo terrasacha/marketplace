@@ -180,6 +180,11 @@ const submitForm = async () => {
     const data: SignInResponse = await signInAuth(loginForm);
     console.log("🔹 Respuesta completa de Cognito:", data);
 
+    if (data.isSignedIn) {
+      const isFromGenerateWallet = router.query.fromGenerateWallet === 'true';
+      return router.push(isFromGenerateWallet ? '/generate-wallet' : '/');
+    }
+
     let email = "";
     let userName = loginForm.username;
 

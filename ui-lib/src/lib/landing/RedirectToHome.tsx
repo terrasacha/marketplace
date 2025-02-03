@@ -258,8 +258,9 @@ const RedirectToHome = (props: RedirectToHomeProps) => {
             Reintentar envío
       </button>
       } */}
+      <div className="w-full flex flex-col items-center gap-4 mt-4">
       {showButtonAccess &&
-          <button onClick={() =>router.push('/home')} className="w-full group flex h-min items-center justify-center p-1 text-center font-medium focus:z-10 focus:outline-none text-white bg-custom-marca-boton  enabled:hover:bg-custom-marca-boton-variante border border-transparent focus:ring-cyan-300 dark:bg-cyan-600 dark:enabled:hover:bg-cyan-700 dark:focus:ring-cyan-800 rounded-lg focus:ring-2 px-8 ml-4">
+          <button onClick={() =>router.push('/home')} className="w-full group flex h-min items-center justify-center p-1 text-center font-medium focus:z-10 focus:outline-none text-white bg-custom-marca-boton  enabled:hover:bg-custom-marca-boton-variante border border-transparent focus:ring-cyan-300 dark:bg-cyan-600 dark:enabled:hover:bg-cyan-700 dark:focus:ring-cyan-800 rounded-lg focus:ring-2 px-8">
             Acceder
           </button>
       }
@@ -297,7 +298,7 @@ const RedirectToHome = (props: RedirectToHomeProps) => {
     Cerrar sesión
   </button>
 }
-
+</div>
       {poweredby && (
         <div className="flex items-center justify-center mt-4 text-xs">
           Powered by
