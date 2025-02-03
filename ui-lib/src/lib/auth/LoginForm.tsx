@@ -174,82 +174,97 @@ const LoginForm = (props: LoginFormProps) => {
   };
 
 
-const submitForm = async () => {
-  setLoading(true);
-  try {
-    const data: SignInResponse = await signInAuth(loginForm);
-    console.log("🔹 Respuesta completa de Cognito:", data);
-
-    if (data.isSignedIn) {
-      const isFromGenerateWallet = router.query.fromGenerateWallet === 'true';
-      return router.push(isFromGenerateWallet ? '/generate-wallet' : '/');
-    }
-
-    let email = "";
-    let userName = loginForm.username;
-
-    console.log("🔍 Buscando email en AppSync para usuario:", userName);
+  const submitForm = async () => {
+    setLoading(true);
+    setErrors(initialStateErrors); // Resetea errores previos
+  
     try {
-      const userData = await getUserByName(userName); // Ahora buscamos por `name` en AppSync
-
-      if (userData?.email) {
-        email = userData.email;
-        console.log("📩 Email obtenido desde AppSync:", email);
+      const data: SignInResponse = await signInAuth(loginForm);
+      console.log("🔹 Respuesta de Cognito:", data);
+  
+      switch (data.nextStep?.signInStep) {
+        case "CONFIRM_SIGN_IN_WITH_NEW_PASSWORD_REQUIRED":
+          return router.push(
+            `/auth/new-password-required?username=${loginForm.username}`
+          );
+  
+        case "CONFIRM_SIGN_IN_WITH_TOTP_CODE":
+          setShowMFA(true);
+          return;
+  
+        default:
+          if (data.isSignedIn) {
+            const isFromGenerateWallet =
+              router.query.fromGenerateWallet === "true";
+            return router.push(isFromGenerateWallet ? "/generate-wallet" : "/");
+          }
       }
-    } catch (error) {
-      console.error("❌ Error obteniendo email desde AppSync:", error);
+  
+      // --- 🔹 Obtener email del usuario si no está confirmado ---
+      let email = "";
+      let userName = loginForm.username;
+  
+      console.log("🔍 Buscando email en AppSync para usuario:", userName);
+      try {
+        const userData = await getUserByName(userName);
+        if (userData?.email) {
+          email = userData.email;
+          console.log("📩 Email obtenido desde AppSync:", email);
+        }
+      } catch (error) {
+        console.error("❌ Error obteniendo email desde AppSync:", error);
+      }
+  
+      // Si no hay email, usar el username si es un correo válido
+      if (!email && userName.includes("@")) {
+        email = userName;
+        console.log("📩 Usando el username como email:", email);
+      }
+  
+      console.log("✅ Email final recuperado:", email || "No disponible");
+  
+      // 🔄 Redirigir con el email obtenido
+      return router.push(`/auth/confirm-code?email=${encodeURIComponent(email)}`);
+  
+    } catch (error: any) {
+      console.error("❌ Error de autenticación:", error);
+  
+      let errorMessage = "Error desconocido, cierre su sesión antes de intentar nuevamente";
+      let emailFromError = error?.challengeParam?.userAttributes?.email || "";
+  
+      switch (error.name) {
+        case "UserNotFoundException":
+          errorMessage = "El usuario no existe";
+          break;
+        case "NotAuthorizedException":
+          errorMessage = "Contraseña inválida";
+          break;
+        case "EmptySignInUsername":
+          errorMessage = "Debe ingresar datos";
+          break;
+        case "NetworkError":
+          errorMessage = "Problema de red, intenta nuevamente";
+          break;
+        default:
+          errorMessage = "Error inesperado, por favor intente más tarde.";
+      }
+  
+      setErrors((prevErrors: { loginError: string }) => ({
+        ...prevErrors,
+        loginError: errorMessage,
+      }));
+  
+      toast.error(errorMessage);
+  
+      // Si obtenemos el email del error, redirigir a confirmación
+      if (emailFromError) {
+        return router.push(`/auth/confirm-code?email=${encodeURIComponent(emailFromError)}`);
+      }
+    } finally {
+      setLoading(false);
     }
-
-    // Si no encontramos el email, usamos el username como respaldo
-    if (!email && userName.includes("@")) {
-      email = userName;
-      console.log("📩 Usando el username como email:", email);
-    }
-
-    console.log("✅ Email final recuperado:", email || "No disponible");
-
-    // 🔄 Redirigir con el email obtenido
-    return router.push(`/auth/confirm-code?email=${encodeURIComponent(email)}`);
-
-  } catch (error: any) {
-    console.error("❌ Error de autenticación:", error);
-
-    let errorMessage = '';
-    let emailFromError = error?.challengeParam?.userAttributes?.email || "";
-
-    switch (error.name) {
-      case 'UserNotFoundException':
-        errorMessage = 'El usuario no existe';
-        break;
-      case 'NotAuthorizedException':
-        errorMessage = 'Contraseña inválida';
-        break;
-      case 'EmptySignInUsername':
-        errorMessage = 'Debe ingresar datos';
-        break;
-      case 'NetworkError':
-        errorMessage = 'Problema de red, intenta nuevamente';
-        break;
-      default:
-        errorMessage = 'Error desconocido, cierre su usuario antes de intentar nuevamente';
-    }
-
-    console.log("⚠️ Mensaje de error generado:", errorMessage);
-
-    setErrors((prevErrors: { loginError: string }) => ({
-      ...prevErrors,
-      loginError: errorMessage,
-    }));
-
-    // Si obtenemos el email del error, redirigir a la confirmación
-    if (emailFromError) {
-      return router.push(`/auth/confirm-code?email=${encodeURIComponent(emailFromError)}`);
-    }
-  } finally {
-    setLoading(false);
-  }
-};
-
+  };
+  
   
   
 
