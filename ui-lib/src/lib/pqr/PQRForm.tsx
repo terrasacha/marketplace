@@ -1,6 +1,6 @@
 import React, { Component } from "react";
-import { S3 } from "aws-sdk";
-import { fetchAuthSession } from "aws-amplify/auth";
+import { getCurrentUser, fetchUserAttributes } from "@aws-amplify/auth";
+import { S3Client, PutObjectCommand } from "@aws-sdk/client-s3";
 
 interface PQRFormState {
   prqDescription: string;
@@ -13,6 +13,8 @@ interface PQRFormState {
 }
 
 export default class PQRForm extends Component<{}, PQRFormState> {
+  private s3Client: S3Client;
+
   constructor(props: {}) {
     super(props);
     this.state = {
@@ -24,82 +26,101 @@ export default class PQRForm extends Component<{}, PQRFormState> {
       modalType: "",
       isAuthenticated: false,
     };
+
+    this.s3Client = new S3Client({
+      region: process.env.NEXT_PUBLIC_S3_BUCKET_REGION!,
+    });
   }
 
   async componentDidMount() {
     try {
-      const session = await fetchAuthSession();
-      this.setState({ isAuthenticated: true });
+      const user = await getCurrentUser();
+      console.log("✅ Usuario autenticado:", user);
+
+      if (user) {
+        this.setState({ isAuthenticated: true });
+
+        // Obtener atributos del usuario (opcional)
+        const attributes = await fetchUserAttributes();
+        console.log("✅ Atributos del usuario:", attributes);
+      }
     } catch (error) {
-      console.error("No hay sesión activa:", error);
+      console.error("❌ No hay sesión activa:", error);
       window.location.href = "/";
     }
   }
 
+  uploadToS3 = async (file: File): Promise<string | null> => {
+    const bucketName = process.env.NEXT_PUBLIC_S3_BUCKET_NAME;
+    if (!bucketName) {
+      console.error("❌ El nombre del bucket no está configurado.");
+      alert("Error de configuración. Contacta al administrador.");
+      return null;
+    }
+
+    const fileKey = `prq-images/${Date.now()}_${file.name}`;
+    console.log("📤 Subiendo archivo a S3:", file.name);
+    console.log("🔹 Bucket:", bucketName);
+    console.log("🔹 Clave del archivo:", fileKey);
+
+    try {
+      const command = new PutObjectCommand({
+        Bucket: bucketName,
+        Key: fileKey,
+        Body: file,
+        ContentType: file.type,
+        ACL: "public-read",
+      });
+
+      await this.s3Client.send(command);
+      const uploadedUrl = `https://${bucketName}.s3.${process.env.NEXT_PUBLIC_S3_BUCKET_REGION}.amazonaws.com/${fileKey}`;
+      console.log("✅ Imagen subida con éxito a:", uploadedUrl);
+
+      return uploadedUrl;
+    } catch (error) {
+      console.error("❌ Error al subir la imagen a S3:", error);
+      alert("Hubo un error al subir la imagen. Inténtalo de nuevo.");
+      return null;
+    }
+  };
+
   handlePRQSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
     const { prqDescription, prqImage, prqEmail } = this.state;
-  
-    let imageUrl: string | null = null;
-  
-    // Validar y subir la imagen si existe
-    if (prqImage) {
-      const maxFileSize = 15 * 1024 * 1024; // 15 MB en bytes
-      if (prqImage.size > maxFileSize) {
-        alert("El tamaño máximo permitido para la imagen es de 15 MB.");
-        return;
-      }
-  
-      // Leer el bucket y la región desde las variables de entorno
-      const bucketName = process.env.REACT_APP_S3_BUCKET_NAME;
-      const bucketRegion = process.env.REACT_APP_S3_BUCKET_REGION;
-  
-      if (!bucketName || !bucketRegion) {
-        console.error("El nombre del bucket o la región no están configurados en las variables de entorno.");
-        alert("Error de configuración. Contacta al administrador del sistema.");
-        return;
-      }
-  
-      const fileName = `prq-images/${Date.now()}_${prqImage.name}`;
-  
-      try {
-        const s3 = new S3({
-          region: bucketRegion,
-        });
-  
-        const result = await s3.upload({
-          Bucket: bucketName, // Nombre del bucket desde la variable de entorno
-          Key: fileName,
-          Body: prqImage,
-          ContentType: prqImage.type,
-          ACL: "public-read", // Permiso de lectura pública
-        }).promise();
-  
-        imageUrl = result.Location;
-      } catch (error) {
-        console.error("Error al subir la imagen a S3:", error);
-        alert("Hubo un error al subir la imagen. Inténtalo de nuevo.");
-        return;
-      }
+
+    if (prqDescription.length < 15) {
+      alert("⚠️ La descripción debe tener al menos 15 caracteres.");
+      return;
     }
-  
-    // Construir el cuerpo de la solicitud
-    const requestBody = {
-      prqDescription,
-      imageUrl,
-      prqEmail,
-    };
-  
+
+    let imageUrl: string | null = null;
+    if (prqImage) {
+      const maxFileSize = 15 * 1024 * 1024;
+      if (prqImage.size > maxFileSize) {
+        alert("⚠️ El tamaño máximo permitido para la imagen es de 15 MB.");
+        return;
+      }
+
+      console.log("🖼️ Imagen seleccionada para subir:", prqImage.name);
+      imageUrl = await this.uploadToS3(prqImage);
+      if (!imageUrl) return;
+    }
+
+    const requestBody = { prqDescription, imageUrl, prqEmail };
+    console.log("📨 Enviando solicitud con el siguiente cuerpo:", requestBody);
+
     try {
-      const response = await fetch("https://4e2uo1y7p0.execute-api.us-east-1.amazonaws.com/prod/pqr", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify(requestBody),
-      });
-  
+      const response = await fetch(
+        "https://4e2uo1y7p0.execute-api.us-east-1.amazonaws.com/prod/pqr",
+        {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify(requestBody),
+        }
+      );
+
       if (response.ok) {
+        console.log("✅ PQR enviado correctamente.");
         this.setState({
           showModal: true,
           modalMessage: "Tu PQR se envió exitosamente.",
@@ -109,6 +130,7 @@ export default class PQRForm extends Component<{}, PQRFormState> {
           prqEmail: "",
         });
       } else {
+        console.error("❌ Error al enviar el PQR, respuesta del servidor:", await response.json());
         this.setState({
           showModal: true,
           modalMessage: "Hubo un error al enviar el PQR. Inténtalo de nuevo.",
@@ -116,7 +138,7 @@ export default class PQRForm extends Component<{}, PQRFormState> {
         });
       }
     } catch (error) {
-      console.error("Error enviando el PQR:", error);
+      console.error("❌ Error enviando el PQR:", error);
       this.setState({
         showModal: true,
         modalMessage: "Hubo un error al enviar el PQR. Inténtalo de nuevo.",
@@ -124,7 +146,6 @@ export default class PQRForm extends Component<{}, PQRFormState> {
       });
     }
   };
-  
 
   closeModal = () => {
     this.setState({ showModal: false });
@@ -163,13 +184,7 @@ export default class PQRForm extends Component<{}, PQRFormState> {
         <div className="container mt-5 p-4">
           <button
             className="btn mb-4"
-            style={{
-              color: "#1C3541",
-              textDecoration: "none",
-              display: "flex",
-              alignItems: "center",
-              gap: "8px",
-            }}
+            style={{ color: "#1C3541" }}
             onClick={() => (window.location.href = "/")}
           >
             &larr; Regresar
@@ -189,9 +204,6 @@ export default class PQRForm extends Component<{}, PQRFormState> {
                 minLength={15}
                 placeholder="Describe detalladamente tu consulta"
               ></textarea>
-              <small className="form-text text-muted">
-                La descripción debe tener al menos 15 caracteres.
-              </small>
             </div>
             <div className="form-group mb-3">
               <label htmlFor="prqImage">Imagen (opcional)</label>
@@ -199,21 +211,9 @@ export default class PQRForm extends Component<{}, PQRFormState> {
                 type="file"
                 className="form-control-file"
                 id="prqImage"
-                accept="image/png, image/jpeg, image/jpg, image/gif,  application/pdf"
-                onChange={(e) => {
-                  const file = e.target.files ? e.target.files[0] : null;
-                  if (file) {
-                    if (!["image/png", "image/jpeg", "image/jpg", "image/gif", "application/pdf"].includes(file.type)) {
-                      alert("Solo se aceptan imágenes en formato PNG, JPEG, JPG, GIF o archivos PDF.");
-                      return;
-                    }
-                  }
-                  this.setState({ prqImage: file });
-                }}
+                accept="image/png, image/jpeg, image/jpg, image/gif, application/pdf"
+                onChange={(e) => this.setState({ prqImage: e.target.files ? e.target.files[0] : null })}
               />
-              <small className="form-text text-muted">
-                Formatos aceptados: PNG, JPEG, JPG, GIF. Tamaño máximo: 15 MB.
-              </small>
             </div>
             <div className="form-group mb-3">
               <label htmlFor="prqEmail">Correo de contacto</label>
@@ -227,37 +227,10 @@ export default class PQRForm extends Component<{}, PQRFormState> {
                 placeholder="Ingresa tu correo electrónico"
               />
             </div>
-            <button
-              type="submit"
-              className="btn w-100 mt-3"
-              style={{
-                backgroundColor: "#1C3541",
-                borderColor: "#1C3541",
-                color: "#fff",
-              }}
-            >
+            <button type="submit" className="btn w-100 mt-3" style={{ backgroundColor: "#1C3541", color: "#fff" }}>
               Enviar PQR
             </button>
           </form>
-
-          <div className={`modal ${showModal ? "show" : ""}`} style={{ display: showModal ? "block" : "none" }}>
-            <div className="modal-dialog modal-dialog-centered">
-              <div className="modal-content">
-                <div className="modal-header">
-                  <h5 className="modal-title">{modalType === "success" ? "Éxito" : "Error"}</h5>
-                  <button type="button" className="close" onClick={this.closeModal}>
-                    <span>&times;</span>
-                  </button>
-                </div>
-                <div className="modal-body">{modalMessage}</div>
-                <div className="modal-footer">
-                  <button type="button" className="btn btn-primary" onClick={this.closeModal}>
-                    Cerrar
-                  </button>
-                </div>
-              </div>
-            </div>
-          </div>
         </div>
       </div>
     );

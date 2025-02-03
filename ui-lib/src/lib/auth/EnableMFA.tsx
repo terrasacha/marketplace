@@ -155,9 +155,9 @@ const EnableMFA = (props: any) => {
   };
 
   return (
-    <div className="bg-white rounded-2xl w-[45rem] max-w-[45rem] 2xl:w-[45%] py-10 px-10 sm:px-10 h-auto flex flex-col justify-center">
+    <div className="bg-white rounded-2xl w-full max-w-[90%] sm:max-w-[45rem] 2xl:w-[45%] py-10 px-4 sm:px-10 h-auto flex flex-col justify-center" >
       <div>
-        <div className="flex p-6 justify-center">
+      <div className="flex p-4 sm:p-6 justify-center">
           <div className="w-full flex justify-center">
             {/* Aquí agregamos el logo */}
             <img src="/images/home-page/suan_logo.png" alt="Logo" className="h-24 w-auto" />
@@ -170,8 +170,8 @@ const EnableMFA = (props: any) => {
           Lee el QR con tu dispositivo móvil.
         </p>
       </div>
-      <div className="flex p-6">
-        <div className="w-[70%] flex justify-center">
+      <div className="flex flex-col sm:flex-row p-4 sm:p-6 items-center sm:items-start">
+      <div className="w-full sm:w-[70%] flex justify-center">
           {setupMFA ? (
             <Canvas
               text={`${setupMFA}` || 'loading'}
@@ -255,6 +255,19 @@ const EnableMFA = (props: any) => {
 
         </div>
       </div>
+      <div className="text-center mt-6">
+      <p className="text-sm sm:text-base text-gray-600">
+        ¿No sabes cómo escanear el QR?  
+        <a 
+          href="https://suans-organization.gitbook.io/suan/guia-de-usuario-marketplace/publish-your-docs" 
+          target="_blank" 
+          rel="noopener noreferrer" 
+          className="text-blue-600 hover:text-blue-800 font-semibold underline ml-1"
+        >
+          Mira esta guía.
+        </a>
+      </p>
+    </div>
     </div>
   );
 };

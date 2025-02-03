@@ -1297,6 +1297,28 @@ export async function getUser(userId: string) {
   return response.data.data.getUser;
 }
 
+export async function getUserByName(userName: string) {
+  const response = await axios.post(
+    graphqlEndpoint,
+    {
+      query: `query MyQuery {
+        listUsers(filter: { name: { eq: "${userName}" } }) {
+          items {
+            email
+          }
+        }
+      }`,
+    },
+    {
+      headers: {
+        'x-api-key': awsAppSyncApiKey,
+      },
+    }
+  );
+
+  return response.data.data.listUsers.items[0]; // Devuelve el primer usuario encontrado
+}
+
 export async function isValidUser(userId: string) {
   const response = await axios.post(
     graphqlEndpoint,
