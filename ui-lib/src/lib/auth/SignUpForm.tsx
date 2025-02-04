@@ -339,9 +339,9 @@ const SignUpForm = (props: SignUpFormProps) => {
         <div className="font-jostRegular flex items-center justify-center mt-4 text-xs">
           Powered by
           <Image
-            src="/images/home-page/suan_logo.png"
-            height={10}
-            width={12}
+            src={logo}
+            height={80}
+            width={92}
             className="ml-2"
             alt={`${appName} logo`}
           />

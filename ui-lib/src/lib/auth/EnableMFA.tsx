@@ -160,7 +160,7 @@ const EnableMFA = (props: any) => {
       <div className="flex p-4 sm:p-6 justify-center">
           <div className="w-full flex justify-center">
             {/* Aquí agregamos el logo */}
-            <img src="/images/home-page/suan_logo.png" alt="Logo" className="h-24 w-auto" />
+            <img src="\images\home-page\logoterrasacha.svg" alt="Logo" className="h-10 w-auto" />
           </div>
         </div>
         <h1 className={`${colors.fuente}  text-3xl  pb-3 text-center`}>
@@ -230,7 +230,9 @@ const EnableMFA = (props: any) => {
           </button>
           <button
   disabled={!codeChecked}
-  className="relative w-full mt-6 flex items-center h-10 justify-center text-white bg-black hover:bg-gray-800 disabled:bg-gray-500 focus:z-10 focus:outline-none border border-transparent rounded-lg focus:ring-2 px-8 py-2 disabled:cursor-not-allowed"
+  className={`relative w-full mt-6 flex items-center h-10 justify-center text-white border border-transparent rounded-lg focus:z-10 focus:outline-none focus:ring-2 px-8 py-2 disabled:bg-gray-500 disabled:cursor-not-allowed ${
+    codeChecked ? `${colors.bgColor} ${colors.hoverBgColor} ${colors.fuente}` : 'bg-black hover:bg-gray-800'
+  }`}
   onClick={() => handleUpdateMFAPreference()}
 >
   {saveLoading ? (
@@ -244,8 +246,9 @@ const EnableMFA = (props: any) => {
   )}
 </button>
 
+
 <button
-  className="relative w-full mt-6 flex items-center h-10 justify-center text-white bg-black hover:bg-gray-800 focus:z-10 focus:outline-none border border-transparent rounded-lg focus:ring-2 px-8 py-2"
+ className={`relative w-full mt-6 flex items-center h-10 justify-center ${colors.fuente} focus:z-10 focus:outline-none text-white ${colors.bgColor} border border-transparent ${colors.hoverBgColor} rounded-lg focus:ring-2 px-8 py-2`}
   onClick={() => {
     signOut().then(() => router.reload());
   }}

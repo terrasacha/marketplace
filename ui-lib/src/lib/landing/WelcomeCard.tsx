@@ -125,9 +125,9 @@ const WelcomeCard = (props: WelcomeCardProps) => {
         <div className="flex items-center justify-center mt-4 text-xs font-jostRegular">
           Powered by
           <Image
-            src="/images/home-page/suan_logo.png"
-            height={10}
-            width={12}
+            src="/v2/logoterrasacha.svg"
+            height={80}
+            width={92}
             className="ml-2"
             alt={`${appName} logo`}
           />

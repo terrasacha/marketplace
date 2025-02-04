@@ -396,9 +396,9 @@ export default function Sidebar(props: SidebarProps) {
             <div className={`${colors.fuenteAlterna} flex items-center mt-2 mb-4`}>
               Powered by
               <Image
-                src="/images/home-page/suan_logo.png"
-                height={10}
-                width={12}
+                src="/v2/logoterrasacha.svg"
+                height={80}
+                width={92}
                 className="ml-1"
                 alt="SUAN Logo"
               />

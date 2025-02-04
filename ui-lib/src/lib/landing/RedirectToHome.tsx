@@ -274,7 +274,9 @@ const RedirectToHome = (props: RedirectToHomeProps) => {
   <button 
     onClick={() => requestToken()} 
     disabled={claimed} 
-    className="relative group flex h-10 w-full items-center justify-center p-2 text-center font-medium focus:z-10 focus:outline-none text-white bg-black hover:bg-black border border-transparent rounded-lg focus:ring-2 px-8 mt-4 mb-4"
+    className={`relative group flex h-10 w-full items-center justify-center p-2 text-center font-medium focus:z-10 focus:outline-none text-white ${colors.bgColor} border border-transparent rounded-lg focus:ring-2 px-8 mt-4 mb-4 ${
+      claimed ? 'opacity-50 cursor-not-allowed' : colors.hoverBgColor
+    }`}
   >
     {loading ? (
       <TailSpin
@@ -290,7 +292,7 @@ const RedirectToHome = (props: RedirectToHomeProps) => {
 
 {checkingWallet !== 'hasTokenAuth' && 
   <button 
-    className="relative group flex h-10 w-full items-center justify-center p-2 text-center font-medium focus:z-10 focus:outline-none text-white bg-black hover:bg-black border border-transparent rounded-lg focus:ring-2 px-8 mt-4 mb-4"
+  className={`relative group flex h-10 w-full items-center justify-center p-2 text-center font-medium focus:z-10 focus:outline-none text-white ${colors.bgColor} border border-transparent rounded-lg focus:ring-2 px-8 mt-4 mb-4 ${colors.hoverBgColor}`}  
     onClick={() => {
       signOut().then(() => router.reload());
     }}
@@ -299,18 +301,19 @@ const RedirectToHome = (props: RedirectToHomeProps) => {
   </button>
 }
 </div>
-      {poweredby && (
-        <div className="flex items-center justify-center mt-4 text-xs">
-          Powered by
-          <Image
-            src="/images/home-page/suan_logo.png"
-            height={10}
-            width={12}
-            className="ml-2"
-            alt={`${appName} logo`}
-          />
-        </div>
-      )}
+{poweredby && (
+  <div className="flex flex-col items-center justify-center mt-20 text-xs">
+    <p className="text-gray-600">Powered by</p>
+    <Image
+      src="/v2/logoterrasacha.svg"
+      height={50}
+      width={70}
+      className="mt-2"
+      alt={`${appName} logo`}
+    />
+  </div>
+)}
+
       <audio id="a1" src="/sounds/cash-register.mp3"></audio>
     </div>
   );

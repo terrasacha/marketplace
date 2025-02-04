@@ -140,14 +140,15 @@ const GenerateWordsStep = (props: any) => {
               Volver
             </Button>
             <Button
-              className={`w-full md:w-auto px-6 ${
-                isChecked ? 'bg-black text-white' : 'bg-gray-400 text-gray-700 cursor-not-allowed'
-              }`}
-              disabled={!isChecked}
-              onClick={() => setCurrentSection(2)}
-            >
-              Continuar
-            </Button>
+  className={`w-full md:w-auto px-6 text-white border border-transparent rounded-lg focus:z-10 focus:outline-none focus:ring-2 py-2 disabled:bg-gray-400 disabled:text-gray-700 disabled:cursor-not-allowed ${
+    isChecked ? 'bg-[#848454] hover:bg-[#757546]' : 'bg-gray-400 text-gray-700 cursor-not-allowed'
+  }`}
+  disabled={!isChecked}
+  onClick={() => setCurrentSection(2)}
+>
+  Continuar
+</Button>
+
           </div>
         </>
       )}
