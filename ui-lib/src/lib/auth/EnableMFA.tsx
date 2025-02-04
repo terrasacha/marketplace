@@ -262,7 +262,7 @@ const EnableMFA = (props: any) => {
       <p className="text-sm sm:text-base text-gray-600">
         ¿No sabes cómo escanear el QR?  
         <a 
-          href="https://suans-organization.gitbook.io/suan/guia-de-usuario-marketplace/publish-your-docs" 
+          href="https://terrasacha.gitbook.io/terrasacha/guia-de-usuario-marketplace/publish-your-docs" 
           target="_blank" 
           rel="noopener noreferrer" 
           className="text-blue-600 hover:text-blue-800 font-semibold underline ml-1"
