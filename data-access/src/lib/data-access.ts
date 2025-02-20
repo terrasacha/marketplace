@@ -408,14 +408,14 @@ export async function getAllProjects(app: string | undefined) {
             return count + 1;
           }
           // Condicion 6: Postulante ha ingresado
-          if (pf.featureID === 'C_ubicacion') {
+          /* if (pf.featureID === 'C_ubicacion') {
             return count + 1;
-          }
+          } */
           return count;
         },
         0
       );
-      return countFeatures === 5;
+      return countFeatures === 4;
     });
 
     // Condicion 7: Todos los archivos deben estar validados
@@ -591,14 +591,14 @@ export async function getProjects(app: any) {
               return count + 1;
             }
             // Condicion 6: Postulante ha ingresado
-            if (pf.featureID === 'C_ubicacion') {
+            /* if (pf.featureID === 'C_ubicacion') {
               return count + 1;
-            }
+            } */
             return count;
           },
           0
         );
-        return countFeatures === 5 && product.marketplace.name === app;
+        return countFeatures === 4 && product.marketplace.name === app;
       }
     );
 

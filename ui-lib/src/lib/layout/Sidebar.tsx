@@ -14,6 +14,7 @@ import { WalletContext } from '@marketplaces/utils-2';
 import { InfoIcon, LoadingIcon, SquareArrowUpIcon } from '../ui-lib';
 import SideBarBalanceSkeleton from '../common/skeleton/SideBarBalanceSkeleton';
 import { fetchUserAttributes } from 'aws-amplify/auth';
+import { useWallet } from '@meshsdk/react';
 interface SidebarProps {
   isOpen: boolean;
   onClose: () => void;
@@ -53,7 +54,7 @@ export default function Sidebar(props: SidebarProps) {
   const { walletAdmin, isLoading, lastSyncDate, balanceChanged, walletAvailableBalance, walletLockedBalance } =
     useContext<any>(WalletContext);
   const router = useRouter();
-  /* const { wallet, connected } = useWallet(); */
+  const { connected } = useWallet();
   const [walletStakeID, setWalletStakeID] = useState<any>(undefined);
   const [copied, setCopied] = useState(false);
   const [allowAccessCW, setAllowAccessCW] = useState(false)
@@ -72,7 +73,10 @@ export default function Sidebar(props: SidebarProps) {
       if(data['custom:role'] === 'marketplace_admin' && data['custom:subrole'] === process.env.NEXT_PUBLIC_MARKETPLACE_NAME?.toLocaleLowerCase()){
         setAllowAccessCW(true)
       }
-    })
+    }).catch((err) => {
+      console.log(err);
+      setAllowAccessCW(false)
+    });
   },[])
   useEffect(() => {
     const handleClickOutside = (event: MouseEvent) => {

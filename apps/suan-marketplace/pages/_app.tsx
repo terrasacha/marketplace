@@ -16,6 +16,7 @@ import TelegramFloatingButton from '@suan/components/TelegramFloatingButton';
 import { Amplify } from 'aws-amplify';
 
 import config from '../../../src/aws-exports';
+import { MeshProvider } from '@meshsdk/react';
 
 Amplify.configure(config);
 
@@ -38,25 +39,27 @@ function MyApp({ Component, pageProps }: MyAppProps) {
       </Head>
       <LoginFromContextProvider>
         <NotificationContextProvider>
-          <WalletContextProvider>
-            <ProjectInfoContextProvider>
-              <div>
-                <NextNProgress
-                  color="#69A1B3"
-                  startPosition={0.3}
-                  stopDelayMs={200}
-                  height={4}
-                  showOnShallow={true}
-                  options={{ easing: 'ease', speed: 500 }}
-                />
-                <Layout>
-                  <Component {...pageProps} />
-                  <TelegramFloatingButton></TelegramFloatingButton>
-                </Layout>
-                <Toaster richColors></Toaster>
-              </div>
-            </ProjectInfoContextProvider>
-          </WalletContextProvider>
+          <MeshProvider>
+            <WalletContextProvider>
+              <ProjectInfoContextProvider>
+                <div>
+                  <NextNProgress
+                    color="#69A1B3"
+                    startPosition={0.3}
+                    stopDelayMs={200}
+                    height={4}
+                    showOnShallow={true}
+                    options={{ easing: 'ease', speed: 500 }}
+                  />
+                  <Layout>
+                    <Component {...pageProps} />
+                    <TelegramFloatingButton></TelegramFloatingButton>
+                  </Layout>
+                  <Toaster richColors></Toaster>
+                </div>
+              </ProjectInfoContextProvider>
+            </WalletContextProvider>
+          </MeshProvider>
         </NotificationContextProvider>
       </LoginFromContextProvider>
     </>

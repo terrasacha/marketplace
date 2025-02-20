@@ -8,6 +8,7 @@ import { useRouter } from 'next/router';
 /* import { useAssets } from '@meshsdk/react' */
 import { event } from '../common/event';
 import { toast } from 'sonner';
+import { useWallet } from '@meshsdk/react';
 interface RedirectToHomeProps {
   poweredby: boolean;
   image: string;
@@ -52,6 +53,7 @@ const RedirectToHome = (props: RedirectToHomeProps) => {
   );
   const [showButtonAccess, setShowButtonAccess] = useState<boolean>(false);
   const [claimed, setClaimed] = useState<boolean>(false);
+  const { connected } = useWallet();
   const [tryAgainAccessToken, setTryAgainAccessToken] =
     useState<boolean>(false);
 
@@ -135,34 +137,35 @@ const RedirectToHome = (props: RedirectToHomeProps) => {
   const requestToken = async () => {
     if (walletData) {
       let payload = walletData.address;
-      let attempts = 0;
+      /* let attempts = 0;
       const maxAttempts = 6;
-      const retryInterval = 30000;
-      const tryRequest = async () => {
-        try {
-          const response = await fetch(
-            `api/helpers/requestAccessToken?destinAddress=${payload}&walletID=${walletData.id}`,
+      const retryInterval = 30000; */
+
+      try {
+        const response = await fetch(
+          `api/helpers/requestAccessToken?destinAddress=${payload}&walletID=${walletData.id}`,
+          {
+            method: 'GET',
+          }
+        );
+
+        const data = await response.json(); /* {detail: 'error'} */
+
+        if (!data.detail) {
+          const response2 = await fetch(
+            'api/calls/backend/walletClaimToken',
             {
-              method: 'GET',
+              method: 'POST',
+              body: JSON.stringify({
+                id: walletData.id,
+              }),
             }
           );
 
-          const data = await response.json(); /* {detail: 'error'} */
-
-          if (!data.detail) {
-            const response2 = await fetch(
-              'api/calls/backend/walletClaimToken',
-              {
-                method: 'POST',
-                body: JSON.stringify({
-                  id: walletData.id,
-                }),
-              }
-            );
-
-            const data2 = await response2.json();
+          const data2 = await response2.json();
+          
+          if(!connected) {
             const user = await getCurrentUser();
-
             // analytics
             event({
               action: 'claim_access_token',
@@ -170,31 +173,35 @@ const RedirectToHome = (props: RedirectToHomeProps) => {
               label: 'User claim access token',
               value: user.username,
             });
+          }
 
-            setClaimed(true);
-            handleSetCheckingWallet('alreadyClaimToken');
-            setLoading(false);
-            return;
-          } else {
-            throw new Error('Request failed with detail in response');
-          }
-        } catch (error) {
-          console.error('Error al hacer la solicitud:', error);
-          attempts++;
-          if (attempts < maxAttempts) {
-            toast.info('Reintentando envío de token...');
-            setTimeout(tryRequest, retryInterval);
-          } else {
-            toast.warning(
-              'Error al intentar enviar el token. Reintente más tarde.'
-            );
-            setLoading(false);
-          }
+          setClaimed(true);
+          handleSetCheckingWallet('alreadyClaimToken');
+          setLoading(false);
+          return;
+        } else {
+          throw new Error('Request failed with detail in response');
         }
-      };
+      } catch (error) {
+        console.error('Error al hacer la solicitud:', error);
+        toast.warning(
+          'Error al intentar enviar el token. Reintente más tarde.'
+        );
+        setLoading(false);
+        /* attempts++;
+        if (attempts < maxAttempts) {
+          toast.info('Reintentando envío de token...');
+          setTimeout(tryRequest, retryInterval);
+        } else {
+          toast.warning(
+            'Error al intentar enviar el token. Reintente más tarde.'
+          );
+          setLoading(false);
+        } */
+      }
 
-      setLoading(true);
-      tryRequest();
+      /* setLoading(true);
+      tryRequest(); */
     }
   };
   /*  const retryAccessToken = async () => {

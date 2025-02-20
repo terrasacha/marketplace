@@ -2,6 +2,7 @@ import { colorByLetter } from '@marketplaces/utils-2';
 import { getCurrentUser } from 'aws-amplify/auth';
 import { useState, useEffect } from 'react';
 import NavBarUserInfoSkeleton from '../common/skeleton/NavBarUserInfoSkeleton';
+import { useWallet } from '@meshsdk/react';
 interface ButtonProfileNavbarProps {
   openModal: any;
   walletInfo: any;
@@ -10,17 +11,23 @@ interface ButtonProfileNavbarProps {
 const ButtonProfileNavbar = (props: ButtonProfileNavbarProps) => {
   const { openModal, walletInfo, showModal } = props;
   const walletChar = walletInfo.name.charAt(0).toUpperCase();
-  const [username, setUsername] = useState<any>('')
-  useEffect(() =>{
-    getCurrentUser().then((data : any) =>{
-      setUsername(data.username)
-    })
-    .catch((err) =>{
-      console.log(err)
-      setUsername(walletInfo.name)
-    })
-  },[])
-  if(!walletChar) return <NavBarUserInfoSkeleton />
+  const [username, setUsername] = useState<any>('');
+  const { connected } = useWallet();
+  useEffect(() => {
+    if (connected) {
+      setUsername("External Wallet");
+      return;
+    }
+    getCurrentUser()
+      .then((data: any) => {
+        setUsername(data.username);
+      })
+      .catch((err) => {
+        console.log(err);
+        setUsername(walletInfo.name);
+      });
+  }, []);
+  if (!walletChar) return <NavBarUserInfoSkeleton />;
   return (
     <button
       onClick={() => openModal(!showModal)}

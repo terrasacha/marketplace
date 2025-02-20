@@ -8,11 +8,13 @@ import Recipient from '../wallet/Recipient';
 import { toast } from 'sonner';
 import { WalletContext } from '@marketplaces/utils-2';
 import { mapBuildTransactionInfo } from '@marketplaces/utils-2';
+import { deserializeTx } from '@meshsdk/core-cst';
 import { useWallet } from '@meshsdk/react';
 import {
   BlockfrostProvider,
   MeshTxBuilder,
   MeshTxBuilderBody,
+  Transaction,
 } from '@meshsdk/core';
 
 // Definir el tipo de 'token'
@@ -278,7 +280,7 @@ export default function WalletSend(props: AccountProps) {
   };
 
   const meshSign = async (cbor: string) => {
-    let blockFrostKeysPreview: string;
+    /* let blockFrostKeysPreview: string;
     if (process.env.NEXT_PUBLIC_blockFrostKeysPreview) {
       blockFrostKeysPreview = process.env.NEXT_PUBLIC_blockFrostKeysPreview;
     } else {
@@ -287,15 +289,22 @@ export default function WalletSend(props: AccountProps) {
       );
     }
 
-    /* const blockchainProvider = new BlockfrostProvider(blockFrostKeysPreview);
+    const blockchainProvider = new BlockfrostProvider(blockFrostKeysPreview);
 
     const txBuilder = new MeshTxBuilder({
       fetcher: blockchainProvider,
       evaluator: blockchainProvider,
     }); */
 
-    const signedTx = await wallet.signTx(cbor);
-    const txHash = await wallet.submitTx(signedTx);
+    try {
+      const tx = deserializeTx(cbor);
+      console.log('tx', tx);
+    } catch (error) {
+      console.log(error);
+    }
+
+    /* const signedTx = await wallet.signTx(cbor); // Error
+    const txHash = await wallet.submitTx(signedTx); */
   };
 
   const handleSendTransactionMesh = async () => {
@@ -319,6 +328,11 @@ export default function WalletSend(props: AccountProps) {
 
     const outputRecipients = newTransactionGroup.recipients;
 
+    const messageArray = newTransactionGroup.message
+      .split('\n')
+      .map((elemento) => elemento.trim())
+      .filter((elemento) => elemento !== '');
+
     // Mapear tx outputs
     const outputs = outputRecipients.map((recipient: any) => {
       const assets = recipient.selectedAssets.map((asset: any) => {
@@ -337,7 +351,7 @@ export default function WalletSend(props: AccountProps) {
     outputRecipients.forEach((recipient, index) => {
       outputs[index].amount.push({
         unit: 'lovelace',
-        quantity: parseFloat(recipient.adaAmount) * 1000000,
+        quantity: String(parseFloat(recipient.adaAmount) * 1000000),
       });
     });
 
@@ -350,17 +364,31 @@ export default function WalletSend(props: AccountProps) {
       extraInputs: utxos,
       selectionConfig: {
         threshold: '5000000',
-        strategy: 'largestFirst',
+        strategy: 'keepRelevant',
         includeTxFees: true,
       },
     };
 
     console.log('meshTxBody', meshTxBody);
 
-    const unsignedTx = await txBuilder.complete(meshTxBody); // Esto generara una especie de cbor
-    console.log('unsignedTx', unsignedTx)
-    const signedTx = await wallet.signTx(unsignedTx);
-    const txHash = await wallet.submitTx(signedTx);
+    try {
+      const unsignedTx = await txBuilder.metadataValue('721', messageArray).complete(meshTxBody);
+      const signedTx = await wallet.signTx(unsignedTx);
+      const txHash = await wallet.submitTx(signedTx);
+      console.log('Transaction submitted successfully', txHash);
+    } catch (error: any) {
+      if (error.message.includes('user declined sign tx')) {
+        toast.warning(
+          'Transacción finalizada, no ha sido firmada la transacción'
+        );
+      } else if (error.message.includes('Insufficient input in transaction')) {
+        toast.warning('No hay saldo suficiente para realizar la transacción');
+        console.log(error)
+      } else {
+        toast.error('Ha ocurrido un error desconocido');
+        console.log(error)
+      }
+    }
   };
 
   const handleSendTransaction = async () => {
@@ -435,7 +463,7 @@ export default function WalletSend(props: AccountProps) {
 
       if (buildTxResponse?.success) {
         await meshSign(buildTxResponse.cbor);
-        
+
         /* const mappedTransactionData = await mapBuildTransactionInfo({
           tx_type: 'preview',
           walletAddress: walletData.address,
@@ -465,30 +493,43 @@ export default function WalletSend(props: AccountProps) {
   const rows = calculateRows(newTransactionGroup.message);
 
   console.log(props.userWalletData);
-  const marketplaceName = process.env.NEXT_PUBLIC_MARKETPLACE_NAME || 'Marketplace';
-  const marketplaceColors: Record<string, { bgColor: string; hoverBgColor: string;bgColorAlternativo:string;fuente:string;fuenteAlterna:string;}> = {
+  const marketplaceName =
+    process.env.NEXT_PUBLIC_MARKETPLACE_NAME || 'Marketplace';
+  const marketplaceColors: Record<
+    string,
+    {
+      bgColor: string;
+      hoverBgColor: string;
+      bgColorAlternativo: string;
+      fuente: string;
+      fuenteAlterna: string;
+    }
+  > = {
     Terrasacha: {
       bgColor: 'bg-custom-marca-boton',
       hoverBgColor: 'hover:bg-custom-marca-boton-variante',
       bgColorAlternativo: 'bg-custom-marca-boton-alterno2',
-      fuente:'font-jostBold',
-      fuenteAlterna:'font-jostRegular',
+      fuente: 'font-jostBold',
+      fuenteAlterna: 'font-jostRegular',
     },
-  
+
     // Agrega más marketplaces y colores aquí
   };
   const colors = marketplaceColors[marketplaceName] || {
-    bgColor:  'bg-custom-dark' ,
+    bgColor: 'bg-custom-dark',
     hoverBgColor: 'hover:bg-custom-dark-hover',
     bgColorAlternativo: 'bg-amber-400',
-    fuente:'font-semibold',
-    fuenteAlterna:'font-medium',
+    fuente: 'font-semibold',
+    fuenteAlterna: 'font-medium',
   };
   return (
     <>
       <div className={`${colors.fuenteAlterna}  grid grid-cols-6 gap-5`}>
         <Card className="col-span-6 xl:col-span-6 h-fit">
-          <Card.Header title="Nueva Transacción" className={`${colors.fuente}`} />
+          <Card.Header
+            title="Nueva Transacción"
+            className={`${colors.fuente}`}
+          />
           <Card.Body className="space-y-4">
             {newTransactionGroup.recipients.map(
               (transaction: any, index: number) => {
@@ -556,7 +597,7 @@ export default function WalletSend(props: AccountProps) {
               <button
                 type="button"
                 className={`col-span-4 sm:col-span-1 text-white ${colors.bgColor} ${colors.hoverBgColor} focus:outline-none focus:ring-4 focus:ring-gray-300 font-medium rounded text-sm px-5 py-2.5 `}
-                onClick={handleSendTransaction}
+                onClick={handleSendTransactionMesh}
               >
                 {isLoading ? <LoadingIcon className="w-4 h-4" /> : 'Enviar'}
               </button>

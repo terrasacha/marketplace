@@ -34,6 +34,8 @@ export default function Projects(props: any) {
     );
     console.log('projects', projects);
     setProjectList(projects);
+
+    return projects
   }
 
   useEffect(() => {
@@ -238,7 +240,9 @@ export default function Projects(props: any) {
     project: any,
     tokenName: string
   ) => {
-    if (project.scripts.items.length > 0) {
+    const lastProjects = await fetchProjects()
+
+    if (lastProjects.find((lp: any) => lp.id === project.id).scripts.items.length > 0) {
       toast.error('El token ya tiene contratos asociados.');
       return;
     }
