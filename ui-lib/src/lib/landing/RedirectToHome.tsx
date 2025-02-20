@@ -95,10 +95,10 @@ const RedirectToHome = (props: RedirectToHomeProps) => {
             setStatusText('Token encontrado, redirigiendo...');
             setShowButtonAccess(true);
             const playCashRegister = () => {
-              var audio: any = document.getElementById('a1');
+              const audio: any = document.getElementById('a1');
               audio.play();
             };
-            playCashRegister()
+            playCashRegister();
             tokenFound = true;
           } else {
             setStatusText('Token no encontrado, por favor espera...');
@@ -141,7 +141,7 @@ const RedirectToHome = (props: RedirectToHomeProps) => {
 
   const requestToken = async () => {
     if (walletData) {
-      let payload = walletData.address;
+      const payload = walletData.address;
       /* let attempts = 0;
       const maxAttempts = 6;
       const retryInterval = 30000; */
@@ -157,19 +157,16 @@ const RedirectToHome = (props: RedirectToHomeProps) => {
         const data = await response.json(); /* {detail: 'error'} */
 
         if (!data.detail) {
-          const response2 = await fetch(
-            'api/calls/backend/walletClaimToken',
-            {
-              method: 'POST',
-              body: JSON.stringify({
-                id: walletData.id,
-              }),
-            }
-          );
+          const response2 = await fetch('api/calls/backend/walletClaimToken', {
+            method: 'POST',
+            body: JSON.stringify({
+              id: walletData.id,
+            }),
+          });
 
           const data2 = await response2.json();
-          
-          if(!connected) {
+
+          if (!connected) {
             const user = await getCurrentUser();
             // analytics
             event({
@@ -228,7 +225,7 @@ const RedirectToHome = (props: RedirectToHomeProps) => {
           setLoading(false)
     }
   } */
-    const marketplaceName =
+  const marketplaceName =
     process.env.NEXT_PUBLIC_MARKETPLACE_NAME || 'Marketplace';
   const marketplaceColors: Record<
     string,
@@ -260,7 +257,7 @@ const RedirectToHome = (props: RedirectToHomeProps) => {
     fuenteAlterna: 'font-medium',
   };
 
-    return (
+  return (
     <div className="bg-white rounded-2xl w-[40rem] max-w-[35rem] 2xl:w-[45%] py-10 px-10 sm:px-10 h-auto flex flex-col justify-center">
       <div className="flex justify-center mb-8">
         <Image
@@ -270,8 +267,10 @@ const RedirectToHome = (props: RedirectToHomeProps) => {
           alt="Logotipo de Terrasacha"
         />
       </div>
-      <h2 className={`${colors.fuente}  text-2xl font-normal pb-4 flex justify-center text-center`}>
-       {optionsToDisplay[checkingWallet]?.title}
+      <h2
+        className={`${colors.fuente}  text-2xl font-normal pb-4 flex justify-center text-center`}
+      >
+        {optionsToDisplay[checkingWallet]?.title}
       </h2>
       <p className="text-sm text-gray-500 text-center mb-2">
         {optionsToDisplay[checkingWallet]?.paragraph}
@@ -288,47 +287,50 @@ const RedirectToHome = (props: RedirectToHomeProps) => {
             Reintentar envío
       </button>
       } */}
-      <div className="w-full flex flex-col items-center gap-4 mt-4">
-      {showButtonAccess &&
-          <button onClick={() =>router.push('/home')} className="w-full group flex h-min items-center justify-center p-1 text-center font-medium focus:z-10 focus:outline-none text-white bg-custom-marca-boton  enabled:hover:bg-custom-marca-boton-variante border border-transparent focus:ring-cyan-300 dark:bg-cyan-600 dark:enabled:hover:bg-cyan-700 dark:focus:ring-cyan-800 rounded-lg focus:ring-2 px-8">
-            Acceder
+        <div className="w-full flex flex-col items-center gap-4 mt-4">
+          {showButtonAccess && (
+            <button
+              onClick={() => router.push('/home')}
+              className="w-full group flex h-min items-center justify-center p-1 text-center font-medium focus:z-10 focus:outline-none text-white bg-custom-marca-boton  enabled:hover:bg-custom-marca-boton-variante border border-transparent focus:ring-cyan-300 dark:bg-cyan-600 dark:enabled:hover:bg-cyan-700 dark:focus:ring-cyan-800 rounded-lg focus:ring-2 px-8"
+            >
+              Acceder
+            </button>
+          )}
+        </div>
+        {checkingWallet === 'hasTokenAuth' && (
+          <div className="flex text-xs gap-4 items-center justify-center  mb-4">
+            <TailSpin width="30" color="#0e7490" wrapperClass="" />
+          </div>
+        )}
+        {checkingWallet === 'requestToken' && (
+          <button
+            onClick={() => requestToken()}
+            disabled={claimed}
+            className="relative group flex h-10 w-full items-center justify-center p-2 text-center font-medium focus:z-10 focus:outline-none text-white bg-black hover:bg-black border border-transparent rounded-lg focus:ring-2 px-8 mt-4 mb-4"
+          >
+            {loading ? (
+              <TailSpin
+                width="20"
+                color="#fff"
+                wrapperClass="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2"
+              />
+            ) : (
+              'Solicitar token'
+            )}
+          </button>
+        )}
+
+        {checkingWallet !== 'hasTokenAuth' && (
+          <button
+            className="relative group flex h-10 w-full items-center justify-center p-2 text-center font-medium focus:z-10 focus:outline-none text-white bg-black hover:bg-black border border-transparent rounded-lg focus:ring-2 px-8 mt-4 mb-4"
+            onClick={() => {
+              signOut().then(() => router.reload());
+            }}
+          >
+            Cerrar sesión
           </button>
         )}
       </div>
-      {checkingWallet === 'hasTokenAuth' &&
-        <div className="flex text-xs gap-4 items-center justify-center  mb-4">
-          <TailSpin width="30" color="#0e7490" wrapperClass="" />
-        </div>
-        }
-    {checkingWallet === 'requestToken' &&  
-  <button 
-    onClick={() => requestToken()} 
-    disabled={claimed} 
-    className="relative group flex h-10 w-full items-center justify-center p-2 text-center font-medium focus:z-10 focus:outline-none text-white bg-black hover:bg-black border border-transparent rounded-lg focus:ring-2 px-8 mt-4 mb-4"
-  >
-    {loading ? (
-      <TailSpin
-        width="20"
-        color="#fff"
-        wrapperClass="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2"
-      />
-    ) : (
-      'Solicitar token'
-    )}
-  </button>
-}
-
-{checkingWallet !== 'hasTokenAuth' && 
-  <button 
-    className="relative group flex h-10 w-full items-center justify-center p-2 text-center font-medium focus:z-10 focus:outline-none text-white bg-black hover:bg-black border border-transparent rounded-lg focus:ring-2 px-8 mt-4 mb-4"
-    onClick={() => {
-      signOut().then(() => router.reload());
-    }}
-  >
-    Cerrar sesión
-  </button>
-}
-</div>
       {poweredby && (
         <div className="flex items-center justify-center mt-4 text-xs">
           Powered by
