@@ -1,0 +1,101 @@
+{
+  "auth": {
+    "marketpsuane5dd0829": {
+      "customAuth": false,
+      "dependsOn": [],
+      "providerPlugin": "awscloudformation",
+      "service": "Cognito",
+      "serviceType": "imported"
+    }
+  },
+  "parameters": {
+    "AMPLIFY_auth_marketpsuane5dd0829_allowUnauthenticatedIdentities": {
+      "usedBy": [
+        {
+          "category": "auth",
+          "resourceName": "marketpsuane5dd0829"
+        }
+      ]
+    },
+    "AMPLIFY_auth_marketpsuane5dd0829_authRoleArn": {
+      "usedBy": [
+        {
+          "category": "auth",
+          "resourceName": "marketpsuane5dd0829"
+        }
+      ]
+    },
+    "AMPLIFY_auth_marketpsuane5dd0829_authRoleName": {
+      "usedBy": [
+        {
+          "category": "auth",
+          "resourceName": "marketpsuane5dd0829"
+        }
+      ]
+    },
+    "AMPLIFY_auth_marketpsuane5dd0829_identityPoolId": {
+      "usedBy": [
+        {
+          "category": "auth",
+          "resourceName": "marketpsuane5dd0829"
+        }
+      ]
+    },
+    "AMPLIFY_auth_marketpsuane5dd0829_identityPoolName": {
+      "usedBy": [
+        {
+          "category": "auth",
+          "resourceName": "marketpsuane5dd0829"
+        }
+      ]
+    },
+    "AMPLIFY_auth_marketpsuane5dd0829_nativeClientId": {
+      "usedBy": [
+        {
+          "category": "auth",
+          "resourceName": "marketpsuane5dd0829"
+        }
+      ]
+    },
+    "AMPLIFY_auth_marketpsuane5dd0829_unauthRoleArn": {
+      "usedBy": [
+        {
+          "category": "auth",
+          "resourceName": "marketpsuane5dd0829"
+        }
+      ]
+    },
+    "AMPLIFY_auth_marketpsuane5dd0829_unauthRoleName": {
+      "usedBy": [
+        {
+          "category": "auth",
+          "resourceName": "marketpsuane5dd0829"
+        }
+      ]
+    },
+    "AMPLIFY_auth_marketpsuane5dd0829_userPoolId": {
+      "usedBy": [
+        {
+          "category": "auth",
+          "resourceName": "marketpsuane5dd0829"
+        }
+      ]
+    },
+    "AMPLIFY_auth_marketpsuane5dd0829_userPoolName": {
+      "usedBy": [
+        {
+          "category": "auth",
+          "resourceName": "marketpsuane5dd0829"
+        }
+      ]
+    },
+    "AMPLIFY_auth_marketpsuane5dd0829_webClientId": {
+      "usedBy": [
+        {
+          "category": "auth",
+          "resourceName": "marketpsuane5dd0829"
+        }
+      ]
+    }
+  }
+}

@@ -1,0 +1,51 @@
+{
+  "providers": {
+    "awscloudformation": {
+      "AuthRoleName": "amplify-marketpcauca-dev-25607-authRole",
+      "UnauthRoleArn": "arn:aws:iam::036134507423:role/amplify-marketpcauca-dev-25607-unauthRole",
+      "AuthRoleArn": "arn:aws:iam::036134507423:role/amplify-marketpcauca-dev-25607-authRole",
+      "Region": "us-east-1",
+      "DeploymentBucketName": "amplify-marketpcauca-dev-25607-deployment",
+      "UnauthRoleName": "amplify-marketpcauca-dev-25607-unauthRole",
+      "StackName": "amplify-marketpcauca-dev-25607",
+      "StackId": "arn:aws:cloudformation:us-east-1:036134507423:stack/amplify-marketpcauca-dev-25607/6aef8960-7145-11ef-ab86-0e4c44067d59",
+      "AmplifyAppId": "d3g6351f8sugd6"
+    }
+  },
+  "auth": {
+    "marketpsuane5dd0829": {
+      "service": "Cognito",
+      "serviceType": "imported",
+      "providerPlugin": "awscloudformation",
+      "dependsOn": [],
+      "customAuth": false,
+      "output": {
+        "UserPoolId": "us-east-1_4jexv6wdn",
+        "UserPoolName": "platform82accf3f_userpool_82accf3f-dev",
+        "AppClientID": "5ug6uhifnv610ocis2bcli5gt5",
+        "AppClientIDWeb": "3qu68fsupfvkve4cf3lu8takri",
+        "IdentityPoolId": "us-east-1:fab4eea0-db7f-4413-a527-0e63932e418e",
+        "IdentityPoolName": "platformauth_identitypool_e2d9b0e9__dev"
+      },
+      "frontendAuthConfig": {
+        "socialProviders": [],
+        "usernameAttributes": [],
+        "signupAttributes": [
+          "EMAIL"
+        ],
+        "passwordProtectionSettings": {
+          "passwordPolicyMinLength": 8,
+          "passwordPolicyCharacters": []
+        },
+        "mfaConfiguration": "OPTIONAL",
+        "mfaTypes": [
+          "TOTP"
+        ],
+        "verificationMechanisms": [
+          "EMAIL"
+        ]
+      },
+      "lastPushTimeStamp": "2024-09-18T20:45:22.134Z"
+    }
+  }
+}

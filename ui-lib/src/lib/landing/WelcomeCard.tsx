@@ -7,6 +7,7 @@ import Image from 'next/image';
 /* import { useWallet } from '@meshsdk/react'; */
 import { useRouter } from 'next/router';
 import CardanoWalletGeneric from '../cardano-wallet/CardanoWalletGenericButton';
+import { SelectWalletModal } from '../ui-lib';
 interface WelcomeCardProps {
   poweredby: boolean;
   appName: string;
@@ -16,6 +17,7 @@ interface WelcomeCardProps {
 const WelcomeCard = (props: WelcomeCardProps) => {
   const { poweredby, appName, checkingWallet, handleSetCheckingWallet } = props;
   const [userData, setUserData] = useState(null) as any;
+  const [openModal, setOpenModal] = useState<string | undefined>();
   /* const { disconnect } = useWallet(); */
   const router = useRouter();
   useEffect(() => {
@@ -41,17 +43,18 @@ const WelcomeCard = (props: WelcomeCardProps) => {
     }
   }
   return (
-    <div className="bg-white rounded-2xl w-[40rem] max-w-[35rem] 2xl:w-[45%] py-10 px-10 sm:px-10 h-auto flex flex-col justify-center">
-      {appName === 'Terrasacha' && (
-        <div className='flex justify-center'>
-        <Image
-          src="/v2/logoterrasacha.svg"
-          width={400}
-          height={80}
-          alt="Logotipo de Terrasacha"
-        />
-        </div>
-      )}
+    <>
+      <div className="bg-white rounded-2xl w-[40rem] max-w-[35rem] 2xl:w-[45%] py-10 px-10 sm:px-10 h-auto flex flex-col justify-center">
+        {appName === 'Terrasacha' && (
+          <div className="flex justify-center">
+            <Image
+              src="/v2/logoterrasacha.svg"
+              width={400}
+              height={80}
+              alt="Logotipo de Terrasacha"
+            />
+          </div>
+        )}
 
 <h2 className="font-jostBold text-3xl  pb-4 flex justify-center text-center mt-8"
 >
@@ -73,67 +76,76 @@ const WelcomeCard = (props: WelcomeCardProps) => {
           <a href="https://suan-1.gitbook.io/documentacion-suan-sandbox"
               target="_blank"
               className="text-[#50A4FF]">enlace</a>. */}
-        </p>
-      )}
+          </p>
+        )}
 
-      <p
-        className={`h-16 flex justify-center items-center text-sm ${
-          checkingWallet === 'unauthorized' ? 'text-red-400' : 'text-slate-600'
-        }`}
-      >
-        {/* {checkingWallet === 'uncheck'? '': checkingWallet} */}
-        {checkingWallet === 'checking' ? 'Cargando...' : ''}
-        {checkingWallet === 'authorized'
-          ? 'Billetera autorizada. Redirigiendo...'
-          : ''}
-        {checkingWallet === 'unauthorized' ? 'Billetera no autorizada.' : ''}
-      </p>
-      {userData ? (
-        <Link href={'/generate-wallet'}>
-          <button className="font-jostBold relative w-full flex items-center justify-center font-jostBold focus:z-10 focus:outline-none text-white bg-custom-marca-boton border border-transparent enabled:hover:bg-custom-marca-boton-variante  dark:bg-cyan-600 dark:enabled:hover:bg-cyan-700  rounded-lg focus:ring-2 px-8 py-2">
-
-            Crear billetera
-          </button>
-        </Link>
-      ) : (
-        <Link href={'/auth/login'}>
-        <button className="font-jostBold relative w-full flex items-center justify-center font-jostBold focus:z-10 focus:outline-none text-white bg-custom-marca-boton border border-transparent enabled:hover:bg-custom-marca-boton-variante  dark:bg-cyan-600 dark:enabled:hover:bg-cyan-700  rounded-lg focus:ring-2 px-8 py-2">
-          Ingresar
-        </button>
-      </Link>
-      )
-      }
-      {userData && (
-        <Link href="/restore-wallet">
-      <button className="font-jostBold relative w-full flex items-center justify-center font-jostBold focus:z-10 focus:outline-none text-white bg-custom-marca-boton  border-transparent enabled:hover:bg-custom-marca-boton-variante  dark:bg-cyan-600 dark:enabled:hover:bg-cyan-700  rounded-lg focus:ring-2 px-8 py-2 mt-4">
-
-            Recuperar billetera
-          </button>
-        </Link>
-      )}
-      {userData && (
-        <button className="font-jostBold relative w-full flex items-center justify-center font-jostBold focus:z-10 focus:outline-none text-white bg-custom-marca-boton  border-transparent enabled:hover:bg-custom-marca-boton-variante  dark:bg-cyan-600 dark:enabled:hover:bg-cyan-700  rounded-lg focus:ring-2 px-8 py-2 mt-4"
-
-          onClick={() => {
-            signOut().then(() => router.reload());
-          }}
+        <p
+          className={`h-16 flex justify-center items-center text-sm ${
+            checkingWallet === 'unauthorized'
+              ? 'text-red-400'
+              : 'text-slate-600'
+          }`}
         >
-          Cerrar sesión como {userData.username}
-        </button>
-      )}
-      {poweredby && (
-        <div className="flex items-center justify-center mt-4 text-xs font-jostRegular">
-          Powered by
-          <Image
-            src="/images/home-page/suan_logo.png"
-            height={10}
-            width={12}
-            className="ml-2"
-            alt={`${appName} logo`}
-          />
-        </div>
-      )}
-    </div>
+          {/* {checkingWallet === 'uncheck'? '': checkingWallet} */}
+          {checkingWallet === 'checking' ? 'Cargando...' : ''}
+          {checkingWallet === 'authorized'
+            ? 'Billetera autorizada. Redirigiendo...'
+            : ''}
+          {checkingWallet === 'unauthorized' ? 'Billetera no autorizada.' : ''}
+        </p>
+        {userData ? (
+          <Link href={'/generate-wallet'}>
+            <button className="font-jostBold relative w-full flex items-center justify-center font-jostBold focus:z-10 focus:outline-none text-white bg-custom-marca-boton border border-transparent enabled:hover:bg-custom-marca-boton-variante  dark:bg-cyan-600 dark:enabled:hover:bg-cyan-700  rounded-lg focus:ring-2 px-8 py-2">
+              Crear billetera
+            </button>
+          </Link>
+        ) : (
+          <>
+            <Link href={'/auth/login'}>
+              <button className="font-jostBold relative w-full flex items-center justify-center font-jostBold focus:z-10 focus:outline-none text-white bg-custom-marca-boton border border-transparent enabled:hover:bg-custom-marca-boton-variante  dark:bg-cyan-600 dark:enabled:hover:bg-cyan-700  rounded-lg focus:ring-2 px-8 py-2">
+                Ingresar
+              </button>
+            </Link>
+            <button
+              className="mt-4 font-jostBold relative w-full flex items-center justify-center font-jostBold focus:z-10 focus:outline-none text-white bg-custom-marca-boton border border-transparent enabled:hover:bg-custom-marca-boton-variante  dark:bg-cyan-600 dark:enabled:hover:bg-cyan-700  rounded-lg focus:ring-2 px-8 py-2"
+              onClick={() => setOpenModal('selectWalletModal')}
+            >
+              Ingresar con billetera externa
+            </button>
+          </>
+        )}
+        {userData && (
+          <Link href="/restore-wallet">
+            <button className="font-jostBold relative w-full flex items-center justify-center font-jostBold focus:z-10 focus:outline-none text-white bg-custom-marca-boton  border-transparent enabled:hover:bg-custom-marca-boton-variante  dark:bg-cyan-600 dark:enabled:hover:bg-cyan-700  rounded-lg focus:ring-2 px-8 py-2 mt-4">
+              Recuperar billetera
+            </button>
+          </Link>
+        )}
+        {userData && (
+          <button
+            className="font-jostBold relative w-full flex items-center justify-center font-jostBold focus:z-10 focus:outline-none text-white bg-custom-marca-boton  border-transparent enabled:hover:bg-custom-marca-boton-variante  dark:bg-cyan-600 dark:enabled:hover:bg-cyan-700  rounded-lg focus:ring-2 px-8 py-2 mt-4"
+            onClick={() => {
+              signOut().then(() => router.reload());
+            }}
+          >
+            Cerrar sesión como {userData.username}
+          </button>
+        )}
+        {poweredby && (
+          <div className="flex items-center justify-center mt-4 text-xs font-jostRegular">
+            Powered by
+            <Image
+              src="/images/home-page/suan_logo.png"
+              height={10}
+              width={12}
+              className="ml-2"
+              alt={`${appName} logo`}
+            />
+          </div>
+        )}
+      </div>
+      <SelectWalletModal openModal={openModal} setOpenModal={setOpenModal} />
+    </>
   );
 };
 
