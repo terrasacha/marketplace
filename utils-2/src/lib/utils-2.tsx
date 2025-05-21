@@ -16,10 +16,13 @@ import { mapWalletDataDashboardInvestor } from './mappers/mapWalletDataDashboard
 import { mapDashboardProject } from './mappers/mapDashboardProject';
 import WalletContext from './context/wallet-context';
 import { WalletContextProvider } from './context/wallet-context';
+import toGeoJSON from './geo/togeojson';
+
 import { useEpayco } from './hooks/useEpayco';
 
 
 export {
+  toGeoJSON,
   getActualPeriod,
   getTTLDate,
   getDateFromTimeStamp,

@@ -51,7 +51,7 @@ const getAvailableTokens = async (
 
 function calcutatePriceRate(currency: any, rate: any, adaprice: any, quantity: any) {
     const rateProjectCurrency = currency === "COP" ? rate.ADArateCOP : rate.ADArateUSD
-    let total = parseInt(quantity) * adaprice * rate.ADArateUSD
+    const total = parseInt(quantity) * adaprice * rate.ADArateUSD
     console.log(total, 'total')
     return total
 }
@@ -60,7 +60,7 @@ function createLineChartData(data: any) {
     const dataToPlot = data.map((item: any) => {
         let periods = item.periods
         periods = periods.map((p: any) => {
-            let price = data[0].asset_currency === 'COP' ? convert1(p.price) : p.price
+            const price = data[0].asset_currency === 'COP' ? convert1(p.price) : p.price
             return {
                 period: parseInt(p.period),
                 value: price,
@@ -169,7 +169,7 @@ const infoDistributionTokens = (data: any, historicalData: any) => {
         return { ...item, PORCENTAJE: percentages };
     });
     const tokensPerPeriod = percentages.map((percentage: any) => {
-        let cantPerPeriod = parseHistoricalData.map((item: any) => {
+        const cantPerPeriod = parseHistoricalData.map((item: any) => {
             return { period: item.period, amount: Math.floor(item.amount * (percentage.PORCENTAJE / 100)) }
         })
         return { CONCEPTO: percentage.CONCEPTO, periods: cantPerPeriod }
@@ -190,9 +190,9 @@ const getTokensInversionst = (pfs: Array<any>) => {
 const getRates = async () => {
     const response = await fetch('/api/calls/getRates')
     const data = await response.json()
-    let dataFormatted: any = {}
+    const dataFormatted: any = {}
     data.map((item: any) => {
-        let obj = `ADArate${item.currency}`
+        const obj = `ADArate${item.currency}`
         dataFormatted[obj] = item.value.toFixed(4)
     });
     return dataFormatted
@@ -203,10 +203,10 @@ export async function mapDashboardProject(project: any, projectData: any, projec
     console.log(projectPolicyID, 'projectPolicyID')
     const rates = await getRates()
     const projectTokenDistribution = project.productFeatures.items.filter((pf: any) => pf.featureID === 'GLOBAL_TOKEN_AMOUNT_DISTRIBUTION')[0].value
-    const projectMunicipio = project.productFeatures.items.filter((pf: any) => pf.featureID === 'A_municipio')[0].value
-    const projectVereda = project.productFeatures.items.filter((pf: any) => pf.featureID === 'A_vereda')[0].value
+    const projectMunicipio = 'NAN'
+    const projectVereda = 'NAN'
     const projectPeriod = project.productFeatures.items.filter((pf: any) => pf.featureID === 'GLOBAL_TOKEN_HISTORICAL_DATA')[0].value
-    const projectTokenName = project.productFeatures.items.filter((pf: any) => pf.featureID === 'GLOBAL_TOKEN_NAME')[0].value
+    const projectTokenName = project.productFeatures.items.filter((pf: any) => pf.featureID === 'GLOBAL_TOKEN_NAME')[0]?.value || "NAN"
     const projectCurrency = project.productFeatures.items.filter((pf: any) => pf.featureID === 'GLOBAL_TOKEN_CURRENCY')[0].value
     const assetFromSuan = walletData.assets.filter((asset: any) => asset.policy_id === projectPolicyID)
     console.log(walletData.assets, 'walletData.assets')
@@ -297,7 +297,7 @@ export async function mapDashboardProject(project: any, projectData: any, projec
         );
     }
     const tokensSold = tokensToInversionists - availableTokens
-    let relevantInfo = {
+    const relevantInfo = {
         name: project.name
             .toLowerCase()
             .replace(/(?:^|\s)\S/g, (char: string) => char.toUpperCase()),

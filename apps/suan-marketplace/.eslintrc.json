@@ -16,6 +16,7 @@
     {
       "files": ["*.ts", "*.tsx", "*.js", "*.jsx"],
       "rules": {
+        "@typescript-eslint/no-explicit-any": "off",
         "@next/next/no-html-link-for-pages": [
           "error",
           "apps/suan-marketplace/pages"

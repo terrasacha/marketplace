@@ -9,17 +9,14 @@ import { TokenDetailSection } from './TokenDetailSection';
 import { Button, TextInput } from 'flowbite-react';
 import { BlockChainIcon } from '../icons/BlockChainIcon';
 /* import { useWallet } from '@meshsdk/react'; */
-import { coingeckoPrices } from '@suan/utils/suan/oracle';
-import { getIpfsUrlHash } from '@suan/utils/generic/ipfs';
-import { featureMapping } from '@suan/utils/suan/mappings';
-import {
-  splitLongValues,
-  txHashLink,
-} from '@suan/utils/generic/conversions';
+import { coingeckoPrices } from '../../utils/suan/oracle';
+import { getIpfsUrlHash } from '../../utils/generic/ipfs';
+import { featureMapping } from '../../utils/suan/mappings';
+import { splitLongValues, txHashLink } from '../../utils/generic/conversions';
 /* import { createMintingTransaction, sign } from '@marketplaces/data-access'; */
 /* import { BlockfrostProvider } from '@meshsdk/core'; */
 import Link from 'next/link';
-import { cardanoscan } from '@suan/backend/mint';
+import { cardanoscan } from '../../backend/mint.js';
 import { WalletContext, mapBuildTransactionInfo } from '@marketplaces/utils-2';
 import { toast } from 'sonner';
 import Swal from 'sweetalert2';
@@ -311,9 +308,9 @@ export default function PaymentPage({}) {
   const getRates = async () => {
     const response = await fetch('/api/calls/getRates');
     const data = await response.json();
-    let dataFormatted: any = {};
+    const dataFormatted: any = {};
     data.map((item: any) => {
-      let obj = `ADArate${item.currency}`;
+      const obj = `ADArate${item.currency}`;
       dataFormatted[obj] = item.value;
     });
     return dataFormatted;
@@ -371,7 +368,7 @@ export default function PaymentPage({}) {
   };
 
   const handlePayment = async () => {
-    let userId: any = null;
+    const userId: any = null;
     try {
       const { userId } = await getCurrentUser();
 
@@ -423,7 +420,7 @@ export default function PaymentPage({}) {
           rates[`ADArate${projectInfo.tokenCurrency.toUpperCase()}`]
         );
 
-        let payload: any = {
+        const payload: any = {
           id: invoiceID,
           orderType: 'epayco',
           finalValue:
@@ -543,7 +540,7 @@ export default function PaymentPage({}) {
 
       console.log('BuildTx Payload: ', payload);
 
-      let success = false;
+      const success = false;
       const maxRetries = 2; // 3 minutes / 20 seconds = 9 retries
       let retries = 0;
 
@@ -911,12 +908,12 @@ export default function PaymentPage({}) {
               <div className="space-y-4">
                 <TokenDetailSection
                   projectName={projectInfo.projectName}
-                  tokenName={projectInfo.token.tokenName}
+                  tokenName={projectInfo.token?.tokenName || "???"}
                   tokenCurrency={projectInfo.tokenCurrency}
                   creationDate={projectInfo.createdAt}
-                  availableAmount={availableTokenAmount}
+                  availableAmount={availableTokenAmount || 0}
                   tokenPriceCOP={projectInfo.tokenPrice}
-                  tokenPriceADA={projectInfo.token.oraclePrice}
+                  tokenPriceADA={projectInfo.token?.oraclePrice || "???"}
                   tokenImageUrl={tokenImageUrl}
                 />
                 <div>
