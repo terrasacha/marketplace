@@ -9,38 +9,6 @@
     }
   },
   "parameters": {
-    "AMPLIFY_auth_marketplacesuandd372463_nativeClientId": {
-      "usedBy": [
-        {
-          "category": "auth",
-          "resourceName": "marketplacesuandd372463"
-        }
-      ]
-    },
-    "AMPLIFY_auth_marketplacesuandd372463_userPoolId": {
-      "usedBy": [
-        {
-          "category": "auth",
-          "resourceName": "marketplacesuandd372463"
-        }
-      ]
-    },
-    "AMPLIFY_auth_marketplacesuandd372463_userPoolName": {
-      "usedBy": [
-        {
-          "category": "auth",
-          "resourceName": "marketplacesuandd372463"
-        }
-      ]
-    },
-    "AMPLIFY_auth_marketplacesuandd372463_webClientId": {
-      "usedBy": [
-        {
-          "category": "auth",
-          "resourceName": "marketplacesuandd372463"
-        }
-      ]
-    },
     "AMPLIFY_auth_marketplacesuanf960d3cf_allowUnauthenticatedIdentities": {
       "usedBy": [
         {

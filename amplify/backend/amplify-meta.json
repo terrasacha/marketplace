@@ -13,7 +13,7 @@
     }
   },
   "auth": {
-    "marketplacesuan86c6a6e0": {
+    "marketplacesuanf960d3cf": {
       "service": "Cognito",
       "serviceType": "imported",
       "providerPlugin": "awscloudformation",
@@ -23,7 +23,10 @@
         "UserPoolId": "us-east-1_UbkfjlXod",
         "UserPoolName": "platform82accf3f_userpool_82accf3f-internal",
         "AppClientID": "5ngur7dpv17gis1319o9tsjojb",
-        "AppClientIDWeb": "4aa7fsknjedin026isvj94i71a"
+        "AppClientIDWeb": "4aa7fsknjedin026isvj94i71a",
+        "HostedUIDomain": "us-east-1ubkfjlxod",
+        "IdentityPoolId": "us-east-1:faee2749-d4b6-4d40-8964-13444d73fec8",
+        "IdentityPoolName": "platformauth_identitypool_e2d9b0e9__internal"
       },
       "frontendAuthConfig": {
         "socialProviders": [],
@@ -43,7 +46,7 @@
           "EMAIL"
         ]
       },
-      "lastPushTimeStamp": "2024-10-11T18:01:40.700Z"
+      "lastPushTimeStamp": "2024-12-03T14:58:10.734Z"
     }
   }
 }
