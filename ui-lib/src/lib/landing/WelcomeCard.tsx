@@ -43,7 +43,6 @@ const WelcomeCard = (props: WelcomeCardProps) => {
     }
   }
   return (
-    <>
       <div className="bg-white rounded-2xl w-[40rem] max-w-[35rem] 2xl:w-[45%] py-10 px-10 sm:px-10 h-auto flex flex-col justify-center">
         {appName === 'Terrasacha' && (
           <div className="flex justify-center">

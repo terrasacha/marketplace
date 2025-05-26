@@ -7,7 +7,9 @@
     "email"
   ],
   "passwordPolicyMinLength": 8,
-  "passwordPolicyCharacters": [],
+  "passwordPolicyCharacters": [
+    "Requires Numbers"
+  ],
   "mfaConfiguration": "OPTIONAL",
   "autoVerifiedAttributes": [
     "email"
