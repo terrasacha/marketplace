@@ -238,6 +238,7 @@ export async function getCategories() {
 }
 
 export async function getAllProjects(app: string | undefined) {
+  //console.log('XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX')
   try {
     const response = await axios.post(
       graphqlEndpoint,
@@ -362,8 +363,6 @@ export async function getAllProjects(app: string | undefined) {
         },
       }
     );
-    console.log(awsAppSyncApiKey, 'awsAppSyncApiKey');
-    console.log(graphqlEndpoint, 'graphqlEndpoint');
 
     console.log('allProducts', response.data.data.listProducts.items);
     const marketplaceProducts = response.data.data.listProducts.items.filter(
@@ -371,13 +370,13 @@ export async function getAllProjects(app: string | undefined) {
     );
     console.log('marketplaceProducts', marketplaceProducts);
 
-    let validProducts = marketplaceProducts.filter((product: any) => {
-      let countFeatures = product.productFeatures.items.reduce(
+    const validProducts = marketplaceProducts.filter((product: any) => {
+      const countFeatures = product.productFeatures.items.reduce(
         (count: number, pf: any) => {
           // Condicion 1: Tener periodos de precios y cantidad de tokens
           if (pf.featureID === 'GLOBAL_TOKEN_HISTORICAL_DATA') {
-            let data = JSON.parse(pf.value);
-            let todaysDate = Date.now();
+            const data = JSON.parse(pf.value);
+            const todaysDate = Date.now();
             if (data.some((date: any) => Date.parse(date.date) > todaysDate))
               return count + 1;
           }
@@ -416,27 +415,6 @@ export async function getAllProjects(app: string | undefined) {
         0
       );
       return countFeatures === 4;
-    });
-
-    // Condicion 7: Todos los archivos deben estar validados
-    validProducts = validProducts.filter((product: any) => {
-      const verifiablePF = product.productFeatures.items.filter(
-        (pf: any) => pf.feature.isVerifable === true
-      );
-
-      const documents = verifiablePF
-        .map((pf: any) => {
-          const docs = pf.documents.items.filter(
-            (document: any) => document.status !== 'validatorFile'
-          );
-          return docs;
-        })
-        .flat();
-
-      const approvedDocuments = documents.filter(
-        (projectFile: any) => projectFile.isApproved === true
-      );
-      if (documents.length === approvedDocuments.length) return true;
     });
 
     return validProducts;
@@ -551,16 +529,15 @@ export async function getProjects(app: any) {
         },
       }
     );
-    console.log(awsAppSyncApiKey, 'awsAppSyncApiKey');
-    console.log(graphqlEndpoint, 'graphqlEndpoint');
-    let validProducts = response.data.data.listProducts.items.filter(
+
+    const validProducts = response.data.data.listProducts.items.filter(
       (product: any) => {
-        let countFeatures = product.productFeatures.items.reduce(
+        const countFeatures = product.productFeatures.items.reduce(
           (count: number, pf: any) => {
             // Condicion 1: Tener periodos de precios y cantidad de tokens
             if (pf.featureID === 'GLOBAL_TOKEN_HISTORICAL_DATA') {
-              let data = JSON.parse(pf.value);
-              let todaysDate = Date.now();
+              const data = JSON.parse(pf.value);
+              const todaysDate = Date.now();
               if (data.some((date: any) => Date.parse(date.date) > todaysDate))
                 return count + 1;
             }
@@ -591,48 +568,29 @@ export async function getProjects(app: any) {
               return count + 1;
             }
             // Condicion 6: Postulante ha ingresado
-            if (pf.featureID === 'C_ubicacion') {
+            /* if (pf.featureID === 'C_ubicacion') {
               return count + 1;
-            }
+            } */
             return count;
           },
           0
         );
-        return countFeatures === 5 && product.marketplace.name === app;
+        return countFeatures === 4 && product.marketplace.name === app;
       }
     );
 
-    // Condicion 7: Todos los archivos deben estar validados
-    validProducts = validProducts.filter((product: any) => {
-      const verifiablePF = product.productFeatures.items.filter(
-        (pf: any) => pf.feature.isVerifable === true
-      );
-
-      const documents = verifiablePF
-        .map((pf: any) => {
-          const docs = pf.documents.items.filter(
-            (document: any) => document.status !== 'validatorFile'
-          );
-          return docs;
-        })
-        .flat();
-
-      const approvedDocuments = documents.filter(
-        (projectFile: any) => projectFile.isApproved === true
-      );
-      if (documents.length === approvedDocuments.length) return true;
-    });
+    console.log('validProducts', validProducts)
 
     // Condicion 8: Genesis del token requerido
 
-    validProducts = validProducts.filter((product: any) => {
+    /* validProducts = validProducts.filter((product: any) => {
       const hasTokenGenesis = product.tokenGenesis;
       if (hasTokenGenesis) {
         return true;
       } else {
         return false;
       }
-    });
+    }); */
 
     return validProducts;
   } catch (error) {
@@ -849,6 +807,36 @@ export async function getPendingTokensForClaiming(userId: string) {
   return false;
 }
 
+export async function getProperty(propertyId: string) {
+  const response = await axios.post(
+    graphqlEndpoint,
+    {
+      query: `query getProperties {
+        getProperty(id: "${propertyId}") {
+          id
+          name
+          description
+          department
+          campaignID
+          propertyFeatures {
+            items {
+              featureID
+              value
+            }
+          }
+        }
+      }`,
+    },
+    {
+      headers: {
+        'x-api-key': awsAppSyncApiKey,
+      },
+    }
+  );
+
+  return response.data.data.getProperty;
+}
+
 export async function getProject(projectId: string) {
   const response = await axios.post(
     graphqlEndpoint,
@@ -867,6 +855,13 @@ export async function getProject(projectId: string) {
           timeOnVerification
           projectReadiness
           categoryID
+          properties {
+            items {
+              id
+              name
+              description
+            }
+          }
           tokens {
             items {
               id
@@ -915,61 +910,61 @@ export async function getProject(projectId: string) {
             name
           }
           productFeatures {
-        items {
-          id
-          value
-          isToBlockChain
-          order
-          isOnMainCard
-          isResult
-          productID
-          verifications {
             items {
-              userVerifierID
-              userVerifiedID
-              verificationComments {
+              id
+              value
+              isToBlockChain
+              order
+              isOnMainCard
+              isResult
+              productID
+              verifications {
                 items {
-                  comment
-                  createdAt
+                  userVerifierID
+                  userVerifiedID
+                  verificationComments {
+                    items {
+                      comment
+                      createdAt
+                      id
+                      isCommentByVerifier
+                    }
+                  }
+                  userVerified {
+                    name
+                  }
+                  userVerifier {
+                    name
+                  }
                   id
-                  isCommentByVerifier
                 }
               }
-              userVerified {
-                name
+              documents {
+                items {
+                  id
+                  url
+                  isApproved
+                  docHash
+                  data
+                  isUploadedToBlockChain
+                  productFeatureID
+                  signed
+                  signedHash
+                  status
+                  timeStamp
+                  userID
+                }
               }
-              userVerifier {
+              feature {
                 name
+                isVerifable
               }
-              id
+              featureID
+              createdAt
+              updatedAt
             }
+            nextToken
           }
-          documents {
-            items {
-              id
-              url
-              isApproved
-              docHash
-              data
-              isUploadedToBlockChain
-              productFeatureID
-              signed
-              signedHash
-              status
-              timeStamp
-              userID
-            }
-          }
-          feature {
-            name
-            isVerifable
-          }
-          featureID
-          createdAt
-          updatedAt
-        }
-        nextToken
-      }
         }
       }`,
     },
@@ -2062,7 +2057,7 @@ export async function getPeriodTokenData(tokens_name: Array<string>) {
       }
     );
 
-    let tokenData =
+    const tokenData =
       response.data.data.listTokens.items[0].oraclePrice / 1000000;
     return tokenData;
   } catch (error) {

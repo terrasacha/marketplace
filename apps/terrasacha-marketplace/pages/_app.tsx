@@ -1,5 +1,5 @@
 import '@terrasacha/styles/globals.css';
-/* import { MeshProvider } from '@meshsdk/react'; */
+import { MeshProvider, useWallet } from '@meshsdk/react';
 import { useEffect } from 'react';
 import { useRouter } from 'next/router';
 import Head from 'next/head';
@@ -38,25 +38,27 @@ function MyApp({ Component, pageProps }: MyAppProps) {
       </Head>
       <LoginFromContextProvider>
         <NotificationContextProvider>
-          <WalletContextProvider>
-            <ProjectInfoContextProvider>
-              <div>
-                <NextNProgress
-                  color="#69A1B3"
-                  startPosition={0.3}
-                  stopDelayMs={200}
-                  height={1}
-                  showOnShallow={true}
-                  options={{ easing: 'ease', speed: 500 }}
-                />
-                <Layout>
-                  <Component {...pageProps} />
-                  <TelegramFloatingButton></TelegramFloatingButton>
-                </Layout>
-                <Toaster richColors></Toaster>
-              </div>
-            </ProjectInfoContextProvider>
-          </WalletContextProvider>
+          <MeshProvider>
+            <WalletContextProvider>
+              <ProjectInfoContextProvider>
+                <div>
+                  <NextNProgress
+                    color="#69A1B3"
+                    startPosition={0.3}
+                    stopDelayMs={200}
+                    height={1}
+                    showOnShallow={true}
+                    options={{ easing: 'ease', speed: 500 }}
+                  />
+                  <Layout>
+                    <Component {...pageProps} />
+                    <TelegramFloatingButton></TelegramFloatingButton>
+                  </Layout>
+                  <Toaster richColors></Toaster>
+                </div>
+              </ProjectInfoContextProvider>
+            </WalletContextProvider>
+          </MeshProvider>
         </NotificationContextProvider>
       </LoginFromContextProvider>
     </>

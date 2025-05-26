@@ -7,6 +7,7 @@ import Image from 'next/image';
 /* import { useWallet } from '@meshsdk/react'; */
 import { useRouter } from 'next/router';
 import CardanoWalletGeneric from '../cardano-wallet/CardanoWalletGenericButton';
+import { SelectWalletModal } from '../ui-lib';
 interface WelcomeCardProps {
   poweredby: boolean;
   appName: string;
@@ -16,6 +17,7 @@ interface WelcomeCardProps {
 const WelcomeCard = (props: WelcomeCardProps) => {
   const { poweredby, appName, checkingWallet, handleSetCheckingWallet } = props;
   const [userData, setUserData] = useState(null) as any;
+  const [openModal, setOpenModal] = useState<string | undefined>();
   /* const { disconnect } = useWallet(); */
   const router = useRouter();
   useEffect(() => {
@@ -41,40 +43,40 @@ const WelcomeCard = (props: WelcomeCardProps) => {
     }
   }
   return (
-    <div className="bg-white rounded-2xl w-full max-w-sm md:max-w-md lg:max-w-lg 2xl:w-[45%] py-6 px-6 sm:px-8 h-auto flex flex-col justify-center shadow-lg relative">
-      {appName === 'Terrasacha' && (
-        <div className='flex justify-center'>
-        <Image
-          src="/v2/logoterrasacha.svg"
-          width={400}
-          height={80}
-          alt="Logotipo de Terrasacha"
-        />
-        </div>
-      )}
+    <>
+      <div className="bg-white rounded-2xl w-[40rem] max-w-[35rem] 2xl:w-[45%] py-10 px-10 sm:px-10 h-auto flex flex-col justify-center">
+        {appName === 'Terrasacha' && (
+          <div className="flex justify-center">
+            <Image
+              src="/v2/logoterrasacha.svg"
+              width={400}
+              height={80}
+              alt="Logotipo de Terrasacha"
+            />
+          </div>
+        )}
 
-<h2 className="font-jostBold text-2xl  pb-4 flex justify-center text-center mt-8"
->
-      {userData
-        ? 'Crea tu billetera o utiliza una preexistente'
-        : '¡Bienvenido a nuestro Marketplace!'}
-    </h2>
-      {userData ? (
-        <p className="font-jostRegular text-sm text-center">
-          {`El siguiente paso es crear tu billetera virtual o utilizar una que hayas creado previamente (asegúrate de tener tus mnemonics o grupo secreto de palabras). Para continuar, haz clic en "Crear billetera" o "Recuperar billetera". Luego, deberás seguir los requisitos indicados para poder solicitar tu token de acceso y, así, ingresar al Marketplace.`}
-        </p>
-      ) : (
-        <p className="text-sm pb-2 text-center font-jostRegular">
-     Para comenzar a usar la aplicación, necesitas una billetera virtual con el token de acceso
-     de nuestra organización. 
-     Puedes crear tu billetera y usuario directamente en nuestra plataforma.
-          {/* , o conectar cualquier billetera externa oficial, recomendamos la utilización de "Eternl". 
+        <h2 className="font-jostBold text-2xl  pb-4 flex justify-center text-center mt-8">
+          {userData
+            ? 'Crea tu billetera o utiliza una preexistente'
+            : '¡Bienvenido a nuestro Marketplace!'}
+        </h2>
+        {userData ? (
+          <p className="font-jostRegular text-sm text-center">
+            {`El siguiente paso es crear tu billetera virtual o utilizar una que hayas creado previamente (asegúrate de tener tus mnemonics o grupo secreto de palabras). Para continuar, haz clic en "Crear billetera" o "Recuperar billetera". Luego, deberás seguir los requisitos indicados para poder solicitar tu token de acceso y, así, ingresar al Marketplace.`}
+          </p>
+        ) : (
+          <p className="text-sm pb-2 text-center font-jostRegular">
+            Para comenzar a usar la aplicación, necesitas una billetera virtual
+            con el token de acceso de nuestra organización. Puedes crear tu
+            billetera y usuario directamente en nuestra plataforma.
+            {/* , o conectar cualquier billetera externa oficial, recomendamos la utilización de "Eternl". 
           Si desea obtener más detalles sobre cómo crear una billetera en "Eternl", visite este
           <a href="https://suan-1.gitbook.io/documentacion-suan-sandbox"
               target="_blank"
               className="text-[#50A4FF]">enlace</a>. */}
-        </p>
-      )}
+          </p>
+        )}
 
       <p
         className={`h-16 flex justify-center items-center text-sm ${

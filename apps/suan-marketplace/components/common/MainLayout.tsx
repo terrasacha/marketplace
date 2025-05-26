@@ -6,7 +6,7 @@ import React, {
 } from 'react';
 import Sidebar from '@marketplaces/ui-lib/src/lib/layout/Sidebar';
 import Navbar from '@marketplaces/ui-lib/src/lib/layout/Navbar';
-/* import { useWallet, useAddress, useLovelace } from '@meshsdk/react'; */
+import { useWallet, useAddress, useLovelace } from '@meshsdk/react';
 import { useRouter } from 'next/router';
 import { getCurrentUser, fetchUserAttributes} from 'aws-amplify/auth';
 import WalletContext from '@marketplaces/utils-2/src/lib/context/wallet-context';
@@ -29,7 +29,7 @@ const initialStatewalletInfo = {
   externalWallet: false,
 };
 const MainLayout = ({ children }: PropsWithChildren) => {
-/*   const { connect, connected, disconnect, name, wallet } = useWallet(); */
+  const { connect, connected, disconnect, name, wallet } = useWallet();
   const { walletData } = useContext<any>(WalletContext);
   const [allowAccess, setAllowAccess] = useState<boolean>(false);
   const [user, setUser] = useState<any>(null);
@@ -105,7 +105,7 @@ const MainLayout = ({ children }: PropsWithChildren) => {
         if (!access) {
           let walletName: any = sessionStorage.getItem('preferredWalletSuan');
           if (walletName) {
-            /* connect(walletName); */
+            connect(walletName);
           } else {
             sessionStorage.removeItem('preferredWalletSuan');
             router.push('/');
@@ -119,17 +119,20 @@ const MainLayout = ({ children }: PropsWithChildren) => {
     fetchData();
   }, []);
 
-  /* useEffect(() => {
+  useEffect(() => {
     if (connected) {
-      if(window.sessionStorage.getItem("hasTokenAuth") === 'true'){
-        setAllowAccess(true)
+      console.log('entro');
+      if (window.sessionStorage.getItem('hasTokenAuth') === 'true') {
+        setAllowAccess(true);
       }
       const fetchData = async () => {
         const changeAddress = await wallet.getChangeAddress();
         const rewardAddresses = await wallet.getRewardAddresses();
+        /* const utxos = await wallet.getUtxos();
+        console.log('utxos', utxos); */
 
         const hasTokenAuthFunction = await checkTokenStakeAddress(
-          rewardAddresses[0]
+          changeAddress
         );
         console.log(hasTokenAuthFunction, 'hasTokenAuthFunction');
         const walletExists = await checkIfWalletExist(
@@ -138,7 +141,7 @@ const MainLayout = ({ children }: PropsWithChildren) => {
           true
         );
         if (hasTokenAuthFunction) {
-          window.sessionStorage.setItem("hasTokenAuth", "true")
+          window.sessionStorage.setItem('hasTokenAuth', 'true');
           setWalletInfo({
             name: name,
             addr: changeAddress,
@@ -155,7 +158,7 @@ const MainLayout = ({ children }: PropsWithChildren) => {
       };
       fetchData();
     }
-  }, [connected]); */
+  }, [connected]);
 
   const checkTokenStakeAddress = async (rewardAddresses: any) => {
     let tokenAuthOnSessionStorage = window.sessionStorage.getItem("hasTokenAuth")

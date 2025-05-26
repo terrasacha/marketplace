@@ -8,6 +8,14 @@ import Recipient from '../wallet/Recipient';
 import { toast } from 'sonner';
 import { WalletContext } from '@marketplaces/utils-2';
 import { mapBuildTransactionInfo } from '@marketplaces/utils-2';
+import { deserializeTx } from '@meshsdk/core-cst';
+import { useWallet } from '@meshsdk/react';
+import {
+  BlockfrostProvider,
+  MeshTxBuilder,
+  MeshTxBuilderBody,
+  Transaction,
+} from '@meshsdk/core';
 
 // Definir el tipo de 'token'
 interface AccountProps {
@@ -18,6 +26,8 @@ interface AccountProps {
 export default function WalletSend(props: AccountProps) {
   const { walletID, walletAddress, walletData } =
     useContext<any>(WalletContext);
+
+  const { wallet, connected } = useWallet();
   const [checkedAssetList, setCheckedAssetList] = useState<Array<any>>([]);
 
   const handleAddCheckedAsset = (checkedAsset: any) => {
@@ -47,7 +57,11 @@ export default function WalletSend(props: AccountProps) {
     fingerprintToRemove: string,
     recipientIDToRemove: number
   ) => {
-    console.log('Removing checked asset: ', fingerprintToRemove, recipientIDToRemove);
+    console.log(
+      'Removing checked asset: ',
+      fingerprintToRemove,
+      recipientIDToRemove
+    );
     setCheckedAssetList((prevState: any) => {
       const updatedAssetList = prevState.filter(
         (asset: any) =>
@@ -265,6 +279,118 @@ export default function WalletSend(props: AccountProps) {
     return true;
   };
 
+  const meshSign = async (cbor: string) => {
+    /* let blockFrostKeysPreview: string;
+    if (process.env.NEXT_PUBLIC_blockFrostKeysPreview) {
+      blockFrostKeysPreview = process.env.NEXT_PUBLIC_blockFrostKeysPreview;
+    } else {
+      throw new Error(
+        `Parameter ${process.env['blockFrostKeysPreview']} not found`
+      );
+    }
+
+    const blockchainProvider = new BlockfrostProvider(blockFrostKeysPreview);
+
+    const txBuilder = new MeshTxBuilder({
+      fetcher: blockchainProvider,
+      evaluator: blockchainProvider,
+    }); */
+
+    try {
+      const tx = deserializeTx(cbor);
+      console.log('tx', tx);
+    } catch (error) {
+      console.log(error);
+    }
+
+    /* const signedTx = await wallet.signTx(cbor); // Error
+    const txHash = await wallet.submitTx(signedTx); */
+  };
+
+  const handleSendTransactionMesh = async () => {
+    console.log('Transaccion: ', newTransactionGroup);
+
+    let blockFrostKeysPreview: string;
+    if (process.env.NEXT_PUBLIC_blockFrostKeysPreview) {
+      blockFrostKeysPreview = process.env.NEXT_PUBLIC_blockFrostKeysPreview;
+    } else {
+      throw new Error(
+        `Parameter ${process.env['blockFrostKeysPreview']} not found`
+      );
+    }
+
+    const blockchainProvider = new BlockfrostProvider(blockFrostKeysPreview);
+
+    const txBuilder = new MeshTxBuilder({
+      fetcher: blockchainProvider,
+      evaluator: blockchainProvider,
+    });
+
+    const outputRecipients = newTransactionGroup.recipients;
+
+    const messageArray = newTransactionGroup.message
+      .split('\n')
+      .map((elemento) => elemento.trim())
+      .filter((elemento) => elemento !== '');
+
+    // Mapear tx outputs
+    const outputs = outputRecipients.map((recipient: any) => {
+      const assets = recipient.selectedAssets.map((asset: any) => {
+        return {
+          unit: asset.fingerprint,
+          quantity: asset.selectedSupply,
+        };
+      });
+      return {
+        address: recipient.walletAddress,
+        amount: assets,
+      };
+    });
+
+    // Agregar lovelace como output
+    outputRecipients.forEach((recipient, index) => {
+      outputs[index].amount.push({
+        unit: 'lovelace',
+        quantity: String(parseFloat(recipient.adaAmount) * 1000000),
+      });
+    });
+
+    const changeAddress = await wallet.getChangeAddress();
+    const utxos = await wallet.getUtxos();
+
+    const meshTxBody: Partial<MeshTxBuilderBody> = {
+      outputs: outputs,
+      changeAddress: changeAddress,
+      extraInputs: utxos,
+      selectionConfig: {
+        threshold: '5000000',
+        strategy: 'keepRelevant',
+        includeTxFees: true,
+      },
+    };
+
+    console.log('meshTxBody', meshTxBody);
+
+    try {
+      const unsignedTx = await txBuilder.metadataValue('721', messageArray).complete(meshTxBody);
+      const signedTx = await wallet.signTx(unsignedTx);
+      const txHash = await wallet.submitTx(signedTx);
+      console.log('Transaction submitted successfully', txHash);
+    } catch (error: any) {
+      if (error.message.includes('user declined sign tx')) {
+        toast.warning(
+          'Transacción finalizada, no ha sido firmada la transacción'
+        );
+      } else if (error.message.includes('Insufficient input in transaction')) {
+        toast.warning('No hay saldo suficiente para realizar la transacción');
+        console.log(error)
+      } else {
+        toast.error('Ha ocurrido un error desconocido');
+        console.log(error)
+      }
+    }
+  };
+
   const handleSendTransaction = async () => {
     console.log('Transaccion: ', newTransactionGroup);
     if (!validateRecipients()) {
@@ -336,7 +462,9 @@ export default function WalletSend(props: AccountProps) {
       console.log('BuildTx Response: ', buildTxResponse);
 
       if (buildTxResponse?.success) {
-        const mappedTransactionData = await mapBuildTransactionInfo({
+        await meshSign(buildTxResponse.cbor);
+
+        /* const mappedTransactionData = await mapBuildTransactionInfo({
           tx_type: 'preview',
           walletAddress: walletData.address,
           buildTxResponse: buildTxResponse,
@@ -347,7 +475,7 @@ export default function WalletSend(props: AccountProps) {
           ...mappedTransactionData,
           transaction_id: buildTxResponse.transaction_id,
         });
-        handleOpenSignTransactionModal();
+        handleOpenSignTransactionModal(); */
       } else {
         toast.error(
           'Algo ha salido mal, revisa las direcciones de billetera ...'
@@ -365,30 +493,43 @@ export default function WalletSend(props: AccountProps) {
   const rows = calculateRows(newTransactionGroup.message);
 
   console.log(props.userWalletData);
-  const marketplaceName = process.env.NEXT_PUBLIC_MARKETPLACE_NAME || 'Marketplace';
-  const marketplaceColors: Record<string, { bgColor: string; hoverBgColor: string;bgColorAlternativo:string;fuente:string;fuenteAlterna:string;}> = {
+  const marketplaceName =
+    process.env.NEXT_PUBLIC_MARKETPLACE_NAME || 'Marketplace';
+  const marketplaceColors: Record<
+    string,
+    {
+      bgColor: string;
+      hoverBgColor: string;
+      bgColorAlternativo: string;
+      fuente: string;
+      fuenteAlterna: string;
+    }
+  > = {
     Terrasacha: {
       bgColor: 'bg-custom-marca-boton',
       hoverBgColor: 'hover:bg-custom-marca-boton-variante',
       bgColorAlternativo: 'bg-custom-marca-boton-alterno2',
-      fuente:'font-jostBold',
-      fuenteAlterna:'font-jostRegular',
+      fuente: 'font-jostBold',
+      fuenteAlterna: 'font-jostRegular',
     },
-  
+
     // Agrega más marketplaces y colores aquí
   };
   const colors = marketplaceColors[marketplaceName] || {
-    bgColor:  'bg-custom-dark' ,
+    bgColor: 'bg-custom-dark',
     hoverBgColor: 'hover:bg-custom-dark-hover',
     bgColorAlternativo: 'bg-amber-400',
-    fuente:'font-semibold',
-    fuenteAlterna:'font-medium',
+    fuente: 'font-semibold',
+    fuenteAlterna: 'font-medium',
   };
   return (
     <>
       <div className={`${colors.fuenteAlterna}  grid grid-cols-6 gap-5`}>
         <Card className="col-span-6 xl:col-span-6 h-fit">
-          <Card.Header title="Nueva Transacción" className={`${colors.fuente}`} />
+          <Card.Header
+            title="Nueva Transacción"
+            className={`${colors.fuente}`}
+          />
           <Card.Body className="space-y-4">
             {newTransactionGroup.recipients.map(
               (transaction: any, index: number) => {
@@ -456,7 +597,7 @@ export default function WalletSend(props: AccountProps) {
               <button
                 type="button"
                 className={`col-span-4 sm:col-span-1 text-white ${colors.bgColor} ${colors.hoverBgColor} focus:outline-none focus:ring-4 focus:ring-gray-300 font-medium rounded text-sm px-5 py-2.5 `}
-                onClick={handleSendTransaction}
+                onClick={handleSendTransactionMesh}
               >
                 {isLoading ? <LoadingIcon className="w-4 h-4" /> : 'Enviar'}
               </button>

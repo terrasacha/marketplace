@@ -39,6 +39,8 @@ export default function Projects(props: any) {
     );
     console.log('projects', projects);
     setProjectList(projects);
+
+    return projects
   }
 
   useEffect(() => {
@@ -135,9 +137,9 @@ export default function Projects(props: any) {
   const getRates = async () => {
     const response = await fetch('/api/calls/getRates');
     const data = await response.json();
-    let dataFormatted: any = {};
+    const dataFormatted: any = {};
     data.map((item: any) => {
-      let obj = `ADArate${item.currency}`;
+      const obj = `ADArate${item.currency}`;
       dataFormatted[obj] = item.value;
     });
     return dataFormatted;
@@ -247,7 +249,9 @@ export default function Projects(props: any) {
     project: any,
     tokenName: string
   ) => {
-    if (project.scripts.items.length > 0) {
+    const lastProjects = await fetchProjects()
+
+    if (lastProjects.find((lp: any) => lp.id === project.id).scripts.items.length > 0) {
       toast.error('El token ya tiene contratos asociados.');
       return;
     }
@@ -332,47 +336,47 @@ export default function Projects(props: any) {
     targetAddress: string,
     tokenName: string
   ) {
-    let newEntries = [];
+    const newEntries = [];
 
-    for (let entry of data) {
+    for (const entry of data) {
       if (entry.address === targetAddress) {
-        for (let asset of entry.multiAsset) {
+        for (const asset of entry.multiAsset) {
           if (asset.tokens && asset.tokens[tokenName]) {
             // Obtener el valor del token
-            let originalValue = asset.tokens[tokenName];
+            const originalValue = asset.tokens[tokenName];
             // Calcular un cuarto del valor
-            let quarterValue = Math.floor(originalValue / 4);
+            const quarterValue = Math.floor(originalValue / 4);
             // Asignar el primer cuarto al valor original
             asset.tokens[tokenName] = quarterValue;
             // Crear tres nuevos elementos con los otros tres cuartos
-            let newAsset1 = {
+            const newAsset1 = {
               policyid: asset.policyid,
               tokens: {
                 [tokenName]: quarterValue,
               },
             };
-            let newAsset2 = {
+            const newAsset2 = {
               policyid: asset.policyid,
               tokens: {
                 [tokenName]: quarterValue,
               },
             };
-            let newAsset3 = {
+            const newAsset3 = {
               policyid: asset.policyid,
               tokens: {
                 [tokenName]: originalValue - 3 * quarterValue,
               },
             };
             // Clonar el objeto de entrada original tres veces y modificar la cantidad del token
-            let newEntry1 = JSON.parse(JSON.stringify(entry));
+            const newEntry1 = JSON.parse(JSON.stringify(entry));
             newEntry1.multiAsset[0].tokens[tokenName] =
               newAsset1.tokens[tokenName];
 
-            let newEntry2 = JSON.parse(JSON.stringify(entry));
+            const newEntry2 = JSON.parse(JSON.stringify(entry));
             newEntry2.multiAsset[0].tokens[tokenName] =
               newAsset2.tokens[tokenName];
 
-            let newEntry3 = JSON.parse(JSON.stringify(entry));
+            const newEntry3 = JSON.parse(JSON.stringify(entry));
             newEntry3.multiAsset[0].tokens[tokenName] =
               newAsset3.tokens[tokenName];
 
@@ -413,7 +417,7 @@ export default function Projects(props: any) {
     // Obtener corewallet
     const coreWallet = await getCoreWallet();
 
-    let mapStakeHolders: any = {
+    const mapStakeHolders: any = {
       bioc: 'addr_test1vqx420pm9cx326rh0q8yx6u4h72ae56l9ekzk05m8w9qe3cz5swj5',
       administrador: coreWallet.address, // Addres de billetera unica tipo corewallet
       inversionista: spendContract.testnetAddr,
@@ -445,7 +449,7 @@ export default function Projects(props: any) {
       (sum: number, item: any) => sum + parseInt(item.CANTIDAD),
       0
     );
-    let addresses: Array<any> = [];
+    const addresses: Array<any> = [];
 
     let marketplaceTokensAmount;
 

@@ -1,11 +1,11 @@
 import React, { useEffect, useState } from 'react';
 import dynamic from 'next/dynamic';
 import Landing from '@suan/components/landing/Landing';
-/* import { useWallet } from '@meshsdk/react'; */
+import { useWallet } from '@meshsdk/react';
 import { MyPage } from '@suan/components/common/types';
 import { getCurrentUser, fetchUserAttributes } from 'aws-amplify/auth';
 const LandingPage: MyPage = (props: any) => {
-  /* const { connected, wallet } = useWallet(); */
+  const { connected, wallet } = useWallet();
   const [checkingWallet, setCheckingWallet] = useState<string>('uncheck');
   const [loading, setLoading] = useState<boolean>(true);
   const [walletcount, setWalletcount] = useState<number>(0);
@@ -27,10 +27,14 @@ const LandingPage: MyPage = (props: any) => {
           const walletData = await walletFetchResponse.json();
           setWalletData(walletData[0]);
           if (walletData && walletData.length > 0) {
-            const userData = await fetchUserAttributes()
-            if(userData['custom:role'] === 'marketplace_admin' && userData['custom:subrole'] === process.env.NEXT_PUBLIC_MARKETPLACE_NAME?.toLowerCase()){
-              setWalletcount(walletData.length)
-              return setCheckingWallet('hasTokenAuth')
+            const userData = await fetchUserAttributes();
+            if (
+              userData['custom:role'] === 'marketplace_admin' &&
+              userData['custom:subrole'] ===
+                process.env.NEXT_PUBLIC_MARKETPLACE_NAME?.toLowerCase()
+            ) {
+              setWalletcount(walletData.length);
+              return setCheckingWallet('hasTokenAuth');
             }
             const hasTokenAuthFunction = await checkTokenStakeAddress(
               walletData[0].address
@@ -39,8 +43,13 @@ const LandingPage: MyPage = (props: any) => {
             if (hasTokenAuthFunction) {
               setCheckingWallet('hasTokenAuth');
             } else {
-              const claimedTokenMarketplace = walletData[0].claimedToken?.items?.some((item : any) => item.marketplaceID === process.env.NEXT_PUBLIC_MARKETPLACE_NAME?.toLocaleLowerCase())
-              console.log('claimedTokenMarketplace', claimedTokenMarketplace)
+              const claimedTokenMarketplace =
+                walletData[0].claimedToken?.items?.some(
+                  (item: any) =>
+                    item.marketplaceID ===
+                    process.env.NEXT_PUBLIC_MARKETPLACE_NAME?.toLocaleLowerCase()
+                );
+              console.log('claimedTokenMarketplace', claimedTokenMarketplace);
               claimedTokenMarketplace
                 ? setCheckingWallet('alreadyClaimToken')
                 : setCheckingWallet('requestToken'); //requestToken. cambio para hacer la solicitud del token automaticamente
@@ -69,14 +78,17 @@ const LandingPage: MyPage = (props: any) => {
   const handleSetCheckingWallet = (data: string) => {
     setCheckingWallet(data);
   };
-  /* useEffect(() => {
+  
+  // Wallet Externas MESH
+  useEffect(() => {
     const fetchData = async () => {
       if (connected) {
         setCheckingWallet('checking');
         const changeAddress = await wallet.getChangeAddress();
         const rewardAddresses = await wallet.getRewardAddresses();
+        
         const hasTokenAuthFunction = await checkTokenStakeAddress(
-          rewardAddresses[0]
+          changeAddress
         );
         console.log(hasTokenAuthFunction, 'hasTokenAuthFunction');
         const walletExists = await checkIfWalletExist(
@@ -91,10 +103,10 @@ const LandingPage: MyPage = (props: any) => {
           } else {
             walletExists.data.claimed_token
               ? setCheckingWallet('alreadyClaimToken')
-              : setCheckingWallet('alreadyClaimToken'); //requestToken
+              : setCheckingWallet('requestToken');
           }
         } else {
-          setCheckingWallet('alreadyClaimToken'); //requestToken
+          setCheckingWallet('requestToken');
         }
         setWalletData(walletExists.data);
         setWalletcount(1);
@@ -103,7 +115,7 @@ const LandingPage: MyPage = (props: any) => {
       }
     };
     fetchData();
-  }, [connected]); */
+  }, [connected]);
 
   const checkIfWalletExist = async (
     address: string,

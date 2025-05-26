@@ -1,4 +1,4 @@
-import { getPolygonByCadastralNumber } from '@suan/backend';
+import { getPolygonByCadastralNumber } from '../backend/index';
 import {
   parseSerializedKoboData,
   convertAWSDatetimeToDate,
@@ -160,10 +160,8 @@ export const mapCategory = async (obj: string): Promise<string | boolean> => {
   const mapper: Record<string, string> = {
     PROYECTO_PLANTACIONES: 'Proyecto Plantaciones',
     'REDD+': 'REDD+',
-    'MIXTO': 'MIXTO',
-    'ECOSISTEMAS_ESTRATÉGICOS': 'ECOSISTEMAS_ESTRATÉGICOS'
-
-
+    MIXTO: 'MIXTO',
+    ECOSISTEMAS_ESTRATÉGICOS: 'ECOSISTEMAS_ESTRATÉGICOS',
   };
 
   return mapper[obj] || false;
@@ -213,14 +211,14 @@ export const mapTemporalOrPermanent = async (
 };
 // Importa aquí tus funciones como parseSerializedKoboData, mapTrueOrFalseAnswers, mapTemporalOrPermanent y mapUseTypes
 const timeBetweenDates = (firstPeriod: any, lastPeriod: any) => {
-  let startDate = moment(firstPeriod, 'DD-MM-YYYY');
-  let endDate = moment(lastPeriod, 'DD-MM-YYYY');
+  const startDate = moment(firstPeriod, 'DD-MM-YYYY');
+  const endDate = moment(lastPeriod, 'DD-MM-YYYY');
 
-  let totalMonths = endDate.diff(startDate, 'months');
-  let years = Math.floor(totalMonths / 12);
-  let months = totalMonths % 12;
+  const totalMonths = endDate.diff(startDate, 'months');
+  const years = Math.floor(totalMonths / 12);
+  const months = totalMonths % 12;
 
-  let daysInLastMonth = endDate.diff(
+  const daysInLastMonth = endDate.diff(
     startDate.add(years, 'years').add(months, 'months'),
     'days'
   );
@@ -612,6 +610,7 @@ export const mapProjectData = async (data: any): Promise<any> => {
       verificationLimitDate: data.timeOnVerification,
       createdAt: await convertAWSDatetimeToDate(data.createdAt),
     },
+    projectProperties: data.properties.items,
     projectPostulant: {
       id: postulantID,
       name: postulantName,
@@ -663,3 +662,14 @@ export const mapProjectData = async (data: any): Promise<any> => {
     projectPredialGeoJson: geoJsonPredialData,
   };
 };
+
+export const mapPropertyData = async (data: any): Promise<any> => {
+
+  return {
+    id: data.id,
+    name: data.name,
+    description: data.description,
+    location: data.department,
+    propertyFeatures: data.propertyFeatures
+  }
+}

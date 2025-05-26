@@ -177,7 +177,7 @@ export default function CardProject(props: any) {
   //   0
   // );
 
-  let relevantInfo = {
+  const relevantInfo = {
     name: project.name
       .toLowerCase()
       .replace(/(?:^|\s)\S/g, (char: string) => char.toUpperCase()),
@@ -256,7 +256,7 @@ export default function CardProject(props: any) {
           <Link
             className=
             {`flex justify-center w-full text-white ${colors.bgColor} ${colors.hoverBgColor}  focus:outline-none focus:ring-4 focus:ring-gray-300 font-medium rounded text-sm px-5 py-2.5 `}
-            href={`/projects/${project.id}`}
+            href={`/projects/${project.id}/dashboard`}
           >
             Ver Más de {project.name} 
             
