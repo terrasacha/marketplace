@@ -5,6 +5,7 @@ import ConfirmPassword from './auth/ConfirmPassword';
 import ConfirmCode from './auth/ConfirmationCode';
 import Sidebar from './layout/Sidebar';
 import WelcomeCard from './landing/WelcomeCard';
+import WelcomeCard2 from './landing/WelcomeCard2';
 import CardanoWallet from './cardano-wallet/CardanoWallet';
 import NavbarLanding from './landing/NavbarLanding';
 import LoadingPage from './common/LoadingPage';
@@ -109,6 +110,7 @@ export {
   Assets,
   PendingVerificationMessage,
   WelcomeCard,
+  WelcomeCard2,
   WalletCreatedSucessfully,
   RestoreWalletContext,
   PieChartCustom,

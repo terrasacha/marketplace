@@ -1415,13 +1415,13 @@ export async function validateUserStep2(userId: string) {
   }
 }
 
-export async function verifyWallet(stakeAddress: string) {
+export async function verifyWallet(wallet_id: string) {
   try {
     const response = await axios.post(
       graphqlEndpoint,
       {
         query: `query getUserByWallet {
-          listWallets(filter: {id: {eq: "${stakeAddress}"}}) {
+          listWallets(filter: {id: {eq: "${wallet_id}"}}) {
             items {
               id
             }
@@ -1491,23 +1491,23 @@ export async function getWalletByUser(userId: string): Promise<any> {
   return output;
 }
 
-export async function checkWalletAddressOnDB(data: string, userID: string) {
-  const existWallet = await verifyWallet(data);
+export async function checkAndCreateWalletOnDB(wallet_id: string, userID: string) {
+  const existWallet = await verifyWallet(wallet_id);
   if (!existWallet) {
     try {
-      await createWallet(data, userID);
+      await createWallet(wallet_id, userID);
     } catch (error) {
       throw error;
     }
   }
 }
 
-export async function createWallet(rewardAddresses: string, userId: string) {
+export async function createWallet(wallet_id: string, userId: string) {
   const response = await axios.post(
     graphqlEndpoint,
     {
       query: `mutation MyMutation {
-        createWallet(input: {id: "${rewardAddresses}", name: "${rewardAddresses}", status: "new", userID: "${userId}", isAdmin: false}) {
+        createWallet(input: {id: "${wallet_id}", name: "${wallet_id}", status: "new", userID: "${userId}", isAdmin: false}) {
           id
         }
       }`,

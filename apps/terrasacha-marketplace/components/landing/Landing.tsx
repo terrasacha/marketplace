@@ -1,6 +1,7 @@
 import LoadingPage from '@marketplaces/ui-lib/src/lib/common/LoadingPage';
 import RedirectToHome from '@marketplaces/ui-lib/src/lib/landing/RedirectToHome';
 import WelcomeCard from '@marketplaces/ui-lib/src/lib/landing/WelcomeCard';
+import WelcomeCard2 from '@marketplaces/ui-lib/src/lib/landing/WelcomeCard2';
 import EnableMFA from '@marketplaces/ui-lib/src/lib/auth/EnableMFA';
 import { useState, useEffect } from 'react';
 import Image from 'next/image';
@@ -44,7 +45,7 @@ const Login = (props: any) => {
   <div className="absolute inset-0 z-0">
     <Image
       priority={true}
-              src="/v2/bg3.avif"
+              src="/v2/bg3.png"
       alt="landing-suan-image"
       layout="fill"
       objectFit="cover"
@@ -60,7 +61,7 @@ const Login = (props: any) => {
         <EnableMFA />
         :
         walletcount === 0 ? (
-          <WelcomeCard
+          <WelcomeCard2
             checkingWallet={checkingWallet}
             handleSetCheckingWallet={props.handleSetCheckingWallet}
             appName="Terrasacha"
