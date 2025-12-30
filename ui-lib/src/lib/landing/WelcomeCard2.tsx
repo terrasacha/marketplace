@@ -10,6 +10,8 @@ import {
   importWallet,
   unlockWallet,
   storeWalletSession,
+  generateSessionKey,
+  storeSession,
 } from '../common/walletApi';
 import CopyToClipboard from '../common/CopyToClipboard';
 
@@ -152,6 +154,31 @@ const WelcomeCard2 = (props: WelcomeCard2Props) => {
     });
 
     if (result.success && result.data) {
+      const walletId = result.data.wallet_id;
+      
+      // Configurar auto-unlock después de crear la wallet
+      if (userId && walletId) {
+        try {
+          // Generar session key
+          const sessionKey = generateSessionKey();
+          const frontendSessionId = `terrasacha_${userId}`;
+
+          // Almacenar sesión para auto-unlock
+          await storeSession(
+            walletId,
+            userId,
+            newPassword,
+            sessionKey,
+            frontendSessionId,
+            24 // 24 horas de expiración
+          );
+        } catch (sessionError) {
+          console.error('Error al configurar auto-unlock:', sessionError);
+          // No fallar la creación de wallet si hay error al configurar auto-unlock
+          // Solo loguear el error
+        }
+      }
+
       setCreatedWallet({
         ...result.data,
         _password: newPassword,

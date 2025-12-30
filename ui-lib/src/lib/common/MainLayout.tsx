@@ -10,7 +10,9 @@ import { useWallet, useAddress, useLovelace } from '@meshsdk/react';
 import { useRouter } from 'next/router';
 import { getCurrentUser, fetchUserAttributes } from 'aws-amplify/auth';
 import WalletContext from '@marketplaces/utils-2/src/lib/context/wallet-context';
-import HomeSkeleton from "@marketplaces/ui-lib/src/lib/common/skeleton/HomeSkeleton"
+import HomeSkeleton from "@marketplaces/ui-lib/src/lib/common/skeleton/HomeSkeleton";
+import { autoUnlockWallet } from '@marketplaces/ui-lib/src/lib/common/walletApi';
+import WalletUnlockModal from '@marketplaces/ui-lib/src/lib/modals/WalletUnlockModal';
 
 const getRates = async () => {
   const response = await fetch('/api/calls/getRates')
@@ -37,9 +39,13 @@ const MainLayout = ({ children }: PropsWithChildren) => {
   const [balance, setBalance] = useState<any>(0);
   const [balanceUSD, setBalanceUSD] = useState<number>(0);
   const [isOpen, setIsOpen] = useState<boolean>(false);
+  const [isUnlockModalOpen, setIsUnlockModalOpen] = useState<boolean>(false);
+  const [currentWalletId, setCurrentWalletId] = useState<string | null>(null);
+  const [currentWalletName, setCurrentWalletName] = useState<string | null>(null);
   const router = useRouter();
 
   const { handleWalletData } = useContext<any>(WalletContext);
+
   useEffect(() => {
     if (walletData) {
       getRates().then((rates) => {
@@ -49,10 +55,12 @@ const MainLayout = ({ children }: PropsWithChildren) => {
       });
     }
   }, [walletData]);
+
   useEffect(() => {
     if (window.sessionStorage.getItem('hasTokenAuth') === 'true') {
       setAllowAccess(true);
     }
+    console.log('entro');
     const fetchData = async () => {
       let access = false;
 
@@ -64,26 +72,83 @@ const MainLayout = ({ children }: PropsWithChildren) => {
             body: res,
           });
           const wallet = await response.json();
+          console.log('wallettt', wallet);
           if (wallet.length < 0) return router.push('/');
           if (wallet.length > 0) {
-            const walletData = await handleWalletData({
-              walletID: wallet[0].id,
+            const walletId = wallet[0].id; // Este es el wallet_id del API externo
+            console.log('walletId', walletId);
+            // Validar sesión de auto-unlock
+            let autoUnlockSuccess = false;
+            let shouldShowModal = false;
+          
+            const sessionKey = window.localStorage.getItem('wallet_session_key');
+            const frontendSessionId = window.localStorage.getItem('wallet_frontend_session_id');
+            const expiresAt = window.localStorage.getItem('wallet_session_expires_at');
+            
+            // Verificar si la sesión no ha expirado
+            const isSessionValid = expiresAt && new Date(expiresAt) > new Date();
+            
+            if (sessionKey && frontendSessionId && isSessionValid) {
+              // Sesión válida - intentar auto-unlock
+              try {
+                const autoUnlockResult = await autoUnlockWallet(walletId);
+                if (autoUnlockResult.success) {
+                  autoUnlockSuccess = true;
+                  console.log('✅ Sesión válida - Auto-unlock exitoso para wallet:', walletId);
+                } else {
+                  // Auto-unlock falló - sesión inválida
+                  console.log('❌ Sesión inválida - Auto-unlock falló');
+                  window.localStorage.removeItem('wallet_session_key');
+                  window.localStorage.removeItem('wallet_frontend_session_id');
+                  window.localStorage.removeItem('wallet_session_expires_at');
+                  shouldShowModal = true;
+                }
+              } catch (autoUnlockError) {
+                console.log('❌ Sesión inválida - Error en auto-unlock:', autoUnlockError);
+                // Limpiar sesión inválida si falla
+                window.localStorage.removeItem('wallet_session_key');
+                window.localStorage.removeItem('wallet_frontend_session_id');
+                window.localStorage.removeItem('wallet_session_expires_at');
+                shouldShowModal = true;
+              }
+            } else if (sessionKey && frontendSessionId && !isSessionValid) {
+              // Sesión expirada
+              console.log('⏰ Sesión expirada - Limpiando datos de sesión');
+              window.localStorage.removeItem('wallet_session_key');
+              window.localStorage.removeItem('wallet_frontend_session_id');
+              window.localStorage.removeItem('wallet_session_expires_at');
+              shouldShowModal = true;
+            } else {
+              // No hay sesión almacenada
+              console.log('🔒 No hay sesión de auto-unlock almacenada');
+              // Si no hay sesión, redirigir a "/" en lugar de mostrar modal
+              return router.push('/');
+            }
+
+            // Si necesitamos mostrar el modal, configurarlo y retornar
+            if (shouldShowModal && !autoUnlockSuccess) {
+              setCurrentWalletId(walletId);
+              setCurrentWalletName(wallet[0].name || null);
+              setIsUnlockModalOpen(true);
+              return;
+            }
+            access = true;
+
+            // Si auto-unlock fue exitoso, continuar con el flujo normal
+            /* const walletData = await handleWalletData({
+              walletID: walletId,
               walletName: wallet[0].name,
               walletAddress: wallet[0].address,
               isWalletBySuan: true,
               isWalletAdmin: wallet[0].isAdmin,
             });
             console.log(walletData, 'walletData mainlayout');
-            const walletAddress = wallet[0].address;
-            const hasTokenAuthFunction = await checkTokenStakeAddress(
-              wallet[0].address
-            );
             const userData = await fetchUserAttributes();
             if (
-              hasTokenAuthFunction ||
               (userData['custom:role'] === 'marketplace_admin' &&
                 userData['custom:subrole'] ===
-                  process.env.NEXT_PUBLIC_MARKETPLACE_NAME?.toLowerCase())
+                  process.env.NEXT_PUBLIC_MARKETPLACE_NAME?.toLowerCase()) ||
+              autoUnlockSuccess // Permitir acceso si auto-unlock fue exitoso
             ) {
               window.sessionStorage.setItem('hasTokenAuth', 'true');
               const address = wallet[0].address;
@@ -101,9 +166,8 @@ const MainLayout = ({ children }: PropsWithChildren) => {
               access = true;
             } else {
               sessionStorage.removeItem('preferredWalletSuan');
-              /* disconnect(); */
               return router.push('/');
-            }
+            } */
           }
         }
 
@@ -118,67 +182,13 @@ const MainLayout = ({ children }: PropsWithChildren) => {
         }
       } catch (error) {
         console.error('Error:', error);
+        router.push('/');
       }
     };
 
     fetchData();
   }, []);
 
-  useEffect(() => {
-    if (connected) {
-      console.log('entro');
-      if (window.sessionStorage.getItem('hasTokenAuth') === 'true') {
-        setAllowAccess(true);
-      }
-      const fetchData = async () => {
-        const changeAddress = await wallet.getChangeAddress();
-        const rewardAddresses = await wallet.getRewardAddresses();
-        /* const utxos = await wallet.getUtxos();
-        console.log('utxos', utxos); */
-
-        const hasTokenAuthFunction = await checkTokenStakeAddress(
-          changeAddress
-        );
-        console.log(hasTokenAuthFunction, 'hasTokenAuthFunction');
-        const walletExists = await checkIfWalletExist(
-          changeAddress,
-          rewardAddresses[0],
-          true
-        );
-        if (hasTokenAuthFunction) {
-          window.sessionStorage.setItem('hasTokenAuth', 'true');
-          setWalletInfo({
-            name: name,
-            addr: changeAddress,
-            externalWallet: true,
-          });
-          if (hasTokenAuthFunction) {
-            setAllowAccess(true);
-          } else {
-            sessionStorage.removeItem('preferredWalletSuan');
-            disconnect();
-            return router.push('/');
-          }
-        }
-      };
-      fetchData();
-    }
-  }, [connected]);
-
-  const checkTokenStakeAddress = async (rewardAddresses: any) => {
-    let tokenAuthOnSessionStorage =
-      window.sessionStorage.getItem('hasTokenAuth');
-    if (tokenAuthOnSessionStorage === 'true') return true;
-    const response = await fetch('/api/calls/backend/checkTokenStakeAddress', {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-      },
-      body: JSON.stringify(rewardAddresses),
-    });
-    const hasTokenStakeAddress = await response.json();
-    return hasTokenStakeAddress;
-  };
   const accessHomeWithWallet = async () => {
     try {
       const user = await getCurrentUser();
@@ -188,51 +198,29 @@ const MainLayout = ({ children }: PropsWithChildren) => {
       return false;
     }
   };
-  const checkIfWalletExist = async (
-    address: string,
-    stake_address: string,
-    claimed_token: boolean
-  ) => {
-    const response = await fetch('/api/calls/backend/checkWalletByAddress', {
-      method: 'POST',
-      body: JSON.stringify({
-        stake_address,
-      }),
-    });
-    const walletInfoOnDB = await response.json();
-    const walletData = await handleWalletData({
-      walletID: walletInfoOnDB.data.id,
-      walletName: '',
-      walletAddress: walletInfoOnDB.data.address,
-      isWalletAdmin: walletInfoOnDB.data.isAdmin,
-    });
-    if (!walletInfoOnDB.data) {
-      const response = await fetch('/api/calls/backend/manageExternalWallets', {
-        method: 'POST',
-        body: JSON.stringify({
-          address,
-          stake_address,
-          claimed_token,
-        }),
-      });
-      const data = await response.json();
 
-      await handleWalletData({
-        walletID: data.data.id,
-        walletName: '',
-        walletAddress: data.data.address,
-        isWalletAdmin: false,
-      });
-      return data;
-    }
-    return walletInfoOnDB;
-  };
   const handleSidebarStatus = () => {
     setIsOpen(!isOpen);
   };
 
+  const handleUnlockSuccess = () => {
+    setIsUnlockModalOpen(false);
+    setCurrentWalletId(null);
+    setCurrentWalletName(null);
+    // Recargar la página para aplicar los cambios
+    window.location.reload();
+  };
+
   return (
     <>
+      {currentWalletId && (
+        <WalletUnlockModal
+          isOpen={isUnlockModalOpen}
+          walletId={currentWalletId}
+          walletName={currentWalletName || undefined}
+          onSuccess={handleUnlockSuccess}
+        />
+      )}
       {allowAccess ? (
         <>
           <Navbar
@@ -245,12 +233,11 @@ const MainLayout = ({ children }: PropsWithChildren) => {
             balanceUSD={balanceUSD}
             onClose={handleSidebarStatus}
             user={user}
-            appName="Suan"
-            image="/images/home-page/suan_logo.png"
-            heightLogo={120}
-            widthLogo={60}
+            appName="Terrasacha"
+            image="/v2/logoterrasacha.svg"
+            heightLogo={150}
+            widthLogo={300}
             poweredBy={true}
-            //poweredBy={false}
           />
           <main className="lg:ml-80 mt-20">{children}</main>
         </>

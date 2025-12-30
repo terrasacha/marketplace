@@ -199,7 +199,7 @@ export default function CardProject(props: any) {
         <div className="relative flex w-full h-full">
           <Image
             priority={false}
-            src={`${process.env['NEXT_PUBLIC_s3EndPoint']}public/category-projects-images/${encodeURIComponent(
+            src={`${process.env['NEXT_PUBLIC_s3EndPoint']}/public/category-projects-images/${encodeURIComponent(
               `${project.categoryID}`
             )}.avif`}
             className="rounded-t-lg"

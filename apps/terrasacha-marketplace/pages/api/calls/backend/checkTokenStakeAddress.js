@@ -28,7 +28,6 @@ export default async function handler(req, res) {
     res.status(405).json(false);
   }
 }
-
 async function validateTokenAccess(data) {
   const result = await getTokenScript()
   console.log(`${result.id}${process.env.NEXT_PUBLIC_TOKEN_AUTHORIZER_NAME_HEX}`)

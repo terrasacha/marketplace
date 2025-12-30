@@ -1090,7 +1090,7 @@ export async function getCoreWallet() {
 
 export async function getImages(imageURL: string) {
   try {
-    const url = `${process.env['NEXT_PUBLIC_s3EndPoint']}public/${imageURL}`;
+    const url = `${process.env['NEXT_PUBLIC_s3EndPoint']}/public/${imageURL}`;
 
     const response = await axios.get(url, { responseType: 'arraybuffer' });
     const data = Buffer.from(response.data, 'binary').toString('base64');
@@ -1123,7 +1123,7 @@ export async function deleteImage(id: string) {
 }
 export async function getImagesCategories(category: string) {
   try {
-    const url = `${process.env['NEXT_PUBLIC_s3EndPoint']}public/category-projects-images/${category}.jpg`;
+    const url = `${process.env['NEXT_PUBLIC_s3EndPoint']}/public/category-projects-images/${category}.jpg`;
     return url;
     // const response = await axios.get(url, { responseType: "arraybuffer" });
     // const data = Buffer.from(response.data, "binary").toString("base64");
@@ -1136,7 +1136,7 @@ export async function getImagesCategories(category: string) {
     return;
   }
 }
-export async function getProjectImages(projectID: string ) {
+export async function getProjectImages(projectID: string) {
   const query = `
     query MyQuery {
       listImages(filter: {productID: {eq: "${projectID}"}}) {
@@ -1207,7 +1207,7 @@ export async function getProjectImagesCarousel(projectID: string) {
   }
 }
 
-export async function createImageOnDB(productID : string, imageURL : string, name: string) {
+export async function createImageOnDB(productID: string, imageURL: string, name: string) {
   const mutation = `
     mutation MyMutation {
       createImage(input: {
@@ -1491,26 +1491,39 @@ export async function getWalletByUser(userId: string): Promise<any> {
   return output;
 }
 
-export async function checkAndCreateWalletOnDB(wallet_id: string, userID: string) {
-  const existWallet = await verifyWallet(wallet_id);
+export async function checkAndCreateWalletOnDB(wallet_data: any, userID: string) {
+  const existWallet = await verifyWallet(wallet_data.wallet_id);
   if (!existWallet) {
     try {
-      await createWallet(wallet_id, userID);
+      await createWallet(
+        wallet_data.wallet_id,
+        wallet_data.name,
+        wallet_data.enterprise_address,
+        wallet_data.staking_address,
+        userID
+      );
     } catch (error) {
       throw error;
     }
   }
 }
 
-export async function createWallet(wallet_id: string, userId: string) {
+export async function createWallet(
+  wallet_id: string,
+  name: string,
+  address: string,
+  stake_address: string,
+  userId: string
+) {
+
   const response = await axios.post(
     graphqlEndpoint,
     {
       query: `mutation MyMutation {
-        createWallet(input: {id: "${wallet_id}", name: "${wallet_id}", status: "new", userID: "${userId}", isAdmin: false}) {
-          id
-        }
-      }`,
+          createWallet(input: {id: "${wallet_id}", name: "${name}", address: "${address}", stake_address: "${stake_address}", status: "new", userID: "${userId}", isAdmin: false}) {
+            id
+          }
+        }`,
     },
     {
       headers: {
@@ -1518,8 +1531,22 @@ export async function createWallet(wallet_id: string, userId: string) {
       },
     }
   );
+
+  // Verificar si hay errores en la respuesta de GraphQL
+  if (response.data?.errors && response.data.errors.length > 0) {
+    const errorMessage = response.data.errors.map((err: any) => err.message).join('; ');
+    throw new Error(`GraphQL Error: ${errorMessage}`);
+  }
+
+  // Verificar que la respuesta tenga data válida
+  if (!response.data?.data?.createWallet) {
+    throw new Error('La respuesta de GraphQL no contiene datos válidos');
+  }
+
+  console.log('✅ Wallet creada exitosamente en DB:', response.data.data);
   return response;
 }
+
 export async function deleteWallet(id: string) {
   console.log(id, 'DELETE WALLET DATA ACCESS');
   const response = await axios.post(

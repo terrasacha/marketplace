@@ -203,4 +203,129 @@ export const revokeWalletToken = async () => {
   }
 };
 
+/**
+ * Genera una session key aleatoria usando crypto.getRandomValues (equivalente a crypto.randomBytes en Node.js)
+ * @returns Session key en formato base64url
+ */
+export const generateSessionKey = (): string => {
+  if (typeof window === 'undefined' || !window.crypto) {
+    throw new Error('crypto.getRandomValues no está disponible');
+  }
+
+  // Generar 32 bytes aleatorios (256 bits)
+  const array = new Uint8Array(32);
+  window.crypto.getRandomValues(array);
+
+  // Convertir a base64url (similar a base64 pero URL-safe)
+  // Reemplazar caracteres no seguros para URLs
+  const base64 = btoa(String.fromCharCode(...array));
+  return base64.replace(/\+/g, '-').replace(/\//g, '_').replace(/=/g, '');
+};
+
+/**
+ * Almacena la sesión de auto-unlock en el backend
+ * @param walletId ID de la billetera
+ * @param userId ID del usuario (de AWS Amplify)
+ * @param password Contraseña de la billetera (para verificación)
+ * @param sessionKey Session key generada por el frontend
+ * @param frontendSessionId ID de sesión del frontend
+ * @param expiresHours Horas de expiración (default: 24)
+ */
+export const storeSession = async (
+  walletId: string,
+  userId: string,
+  password: string,
+  sessionKey: string,
+  frontendSessionId: string,
+  expiresHours: number = 24
+) => {
+  try {
+    const response = await fetch(`${API_BASE}/${walletId}/session/store`, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({
+        user_id: userId,
+        password,
+        session_key: sessionKey,
+        frontend_session_id: frontendSessionId,
+        expires_hours: expiresHours,
+      }),
+    });
+
+    const data = await response.json();
+
+    if (data.success) {
+      // Almacenar session_key y frontend_session_id en localStorage
+      if (typeof window !== 'undefined') {
+        try {
+          window.localStorage.setItem('wallet_session_key', sessionKey);
+          window.localStorage.setItem('wallet_frontend_session_id', frontendSessionId);
+          window.localStorage.setItem('wallet_session_expires_at', data.expires_at || '');
+        } catch (err) {
+          console.error('No se pudo almacenar la session key:', err);
+        }
+      }
+      return { success: true, data };
+    }
+
+    const message = data.message || 'Error al almacenar la sesión';
+    toast.error(message);
+    return { success: false, data, error: message };
+  } catch (error: any) {
+    console.error('Error al almacenar la sesión:', error);
+    const message = error.message || 'Error al conectar con el servidor';
+    toast.error(message);
+    return { success: false, data: null, error: message };
+  }
+};
+
+/**
+ * Desbloquea automáticamente la billetera usando la sesión almacenada (sin requerir contraseña)
+ * @param walletId ID de la billetera
+ */
+export const autoUnlockWallet = async (walletId: string) => {
+  try {
+    if (typeof window === 'undefined') {
+      throw new Error('localStorage no está disponible');
+    }
+
+    const sessionKey = window.localStorage.getItem('wallet_session_key');
+    const frontendSessionId = window.localStorage.getItem('wallet_frontend_session_id');
+
+    if (!sessionKey || !frontendSessionId) {
+      const message = 'No se encontró la sesión de auto-unlock. Por favor, desbloquea la billetera manualmente.';
+      toast.error(message);
+      return { success: false, data: null, error: message };
+    }
+
+    const response = await fetch(`${API_BASE}/${walletId}/auto-unlock`, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'X-Session-Key': sessionKey,
+        'X-Frontend-Session-ID': frontendSessionId,
+      },
+    });
+
+    const data = await response.json();
+
+    if (data.success) {
+      storeWalletSession(data);
+      toast.success('Billetera desbloqueada automáticamente.');
+      return { success: true, data };
+    }
+
+    const message = data.message || 'Error al desbloquear automáticamente la billetera';
+    toast.error(message);
+    return { success: false, data, error: message };
+  } catch (error: any) {
+    console.error('Error al desbloquear automáticamente la billetera:', error);
+    const message = error.message || 'Error al conectar con el servidor';
+    toast.error(message);
+    return { success: false, data: null, error: message };
+  }
+};
+
 

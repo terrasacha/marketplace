@@ -38,24 +38,6 @@ const LandingPage: MyPage = (props: any) => {
               setWalletcount(walletData.length);
               return setCheckingWallet('hasTokenAuth');
             }
-            const hasTokenAuthFunction = await checkTokenStakeAddress(
-              walletData[0].address
-            );
-            console.log(hasTokenAuthFunction, 'hasTokenAuthFunction');
-            if (hasTokenAuthFunction) {
-              setCheckingWallet('hasTokenAuth');
-            } else {
-              const claimedTokenMarketplace =
-                walletData[0].claimedToken?.items?.some(
-                  (item: any) =>
-                    item.marketplaceID ===
-                    process.env.NEXT_PUBLIC_MARKETPLACE_NAME?.toLocaleLowerCase()
-                );
-              console.log('claimedTokenMarketplace', claimedTokenMarketplace);
-              claimedTokenMarketplace
-                ? setCheckingWallet('alreadyClaimToken')
-                : setCheckingWallet('requestToken'); //requestToken. cambio para hacer la solicitud del token automaticamente
-            }
             setWalletcount(walletData.length);
           }
         }
