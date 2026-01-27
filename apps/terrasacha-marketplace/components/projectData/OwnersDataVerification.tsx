@@ -42,7 +42,6 @@ export default function OwnersDataVerification({
         requestOptions
       );
       const ownersValidation = await response.json();
-      console.log("response", ownersValidation);
       if (ownersValidation.message[0] === true) {
         setVerificationResult((prevState: any) => ({
           candidateHash: ownersValidation.message[1].candidateHash,

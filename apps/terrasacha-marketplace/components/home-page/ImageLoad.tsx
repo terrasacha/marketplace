@@ -12,7 +12,7 @@ export default function S3Image(props: any) {
         const data = await getImages(imageURL);
         setImageData(data);
       } catch (error) {
-        console.error(error);
+        // Error loading image
       }
     }
     loadImageData();

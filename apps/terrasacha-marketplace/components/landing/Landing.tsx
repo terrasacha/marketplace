@@ -27,7 +27,7 @@ const Login = (props: any) => {
       setUser(user);
       
     } catch (err) {
-      console.log(err);
+      // Error
     } finally {
       /* setLoading(false) */
     }

@@ -49,8 +49,6 @@ const PasteWordsStep = (props: any) => {
       setRecoveryWords(recoveryWordsCopy);
       setNextRecoveryWordIndex(recoveryWordsCopy.indexOf(''));
       setInputValue('');
-    } else {
-      console.log(`La frase de recuperación no coincide.`);
     }
   };
 

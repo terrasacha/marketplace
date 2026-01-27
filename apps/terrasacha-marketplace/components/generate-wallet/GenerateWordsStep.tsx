@@ -27,7 +27,7 @@ const GenerateWordsStep = (props: any) => {
     const data  = await response.json()
     setWords(data);
   } catch (error) {
-    console.error('Error al hacer la solicitud:', error);
+    // Error al hacer la solicitud
   } finally {
     setLoading(false);
   }

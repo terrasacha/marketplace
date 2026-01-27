@@ -11,21 +11,46 @@ interface CheckoutData {
 export default function EpaycoCheckout(props: CheckoutData){
   const { amount, currency, tokenName, tokenQuantity, invoiceID } = props;
 
-  const finalAmount = String(parseFloat(amount) * parseInt(tokenQuantity));
+  // Calcular el monto total y redondearlo a entero (sin decimales) para Epayco
+  // Epayco requiere montos enteros, especialmente para COP
+  const totalAmount = parseFloat(amount) * parseInt(tokenQuantity);
+  const finalAmount = String(Math.round(totalAmount));
 
   // Creamos una referencia para el elemento que queremos simular el clic
   const pagoRef = useRef<any>(null);
 
   useEffect(() => {
-    let btnpay = document.getElementsByClassName('epayco-button-render');
-    setTimeout(() => {
-      btnpay[0].setAttribute('id', 'pago');
+    const checkAndSetButton = () => {
+      const btnpay = document.getElementsByClassName('epayco-button-render');
+      
+      if (btnpay && btnpay.length > 0 && btnpay[0]) {
+        btnpay[0].setAttribute('id', 'pago');
 
-      if (pagoRef.current) {
-        pagoRef.current.click();
-        console.log('hizo click');
+        if (pagoRef.current) {
+          pagoRef.current.click();
+          console.log('hizo click');
+        }
+        return true;
+      }
+      return false;
+    };
+
+    // Intentar múltiples veces con intervalos en caso de que el script aún no haya cargado
+    const intervalId = setInterval(() => {
+      if (checkAndSetButton()) {
+        clearInterval(intervalId);
       }
     }, 100);
+
+    // Limpiar el intervalo después de 5 segundos como máximo
+    const timeoutId = setTimeout(() => {
+      clearInterval(intervalId);
+    }, 5000);
+
+    return () => {
+      clearInterval(intervalId);
+      clearTimeout(timeoutId);
+    };
   }, []);
 
   return (
@@ -34,8 +59,8 @@ export default function EpaycoCheckout(props: CheckoutData){
       <form>
         <Script
           src={'https://checkout.epayco.co/checkout.js'}
-          data-epayco-key={'5757aeabf36a4a11058a10ca1d4265ac'}
-          data-epayco-private-key={'39e44462e5aaf8bd8e92fd550eb0ffbe'}
+          data-epayco-key={'71e8b0476df1c936056b373317001494'}
+          data-epayco-private-key={'95ac9ef5c27dc5644295b7545b1ded80'}
           className="epayco-button"
           data-epayco-invoice={invoiceID}
           data-epayco-amount={finalAmount}

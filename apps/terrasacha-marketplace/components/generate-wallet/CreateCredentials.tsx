@@ -28,7 +28,7 @@ const CreateCredentials = (props: any) => {
         }
       })
       .catch((error) => {
-        console.log('error obteniendo data del usuario', error);
+        // Error obteniendo data del usuario
       });
   }, []);
   const handleInputChange = (event: React.ChangeEvent<HTMLInputElement>) => {
@@ -99,7 +99,6 @@ const CreateCredentials = (props: any) => {
         name: inputValue.walletname,
         passwd: inputValue.password,
       });
-      console.log(data, 'data response1');
       const response2 = await fetch('api/calls/backend/updateWallet', {
         method: 'POST',
         body: JSON.stringify({
@@ -111,7 +110,7 @@ const CreateCredentials = (props: any) => {
       });
       setCurrentSection(4);
     } catch (error) {
-      console.error('Error al hacer la solicitud:', error);
+      // Error al hacer la solicitud
     } finally {
       setLoading(false);
     }

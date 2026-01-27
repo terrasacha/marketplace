@@ -38,7 +38,6 @@ const PasteWordsStep = (props: any) => {
   };
 
   const updateRecoveryWords = (index: number, value: string, from: string) => {
-    console.log(value);
     const saveWord = compareAndSaveWord(from, value);
     if (saveWord) {
       const updateRecoveryWords = [...recoveryWords];
@@ -79,7 +78,6 @@ const PasteWordsStep = (props: any) => {
         word.includes(inputValue)
       );
       if (currentWord.includes(inputValue) && wordInDictionary.length === 1) {
-        console.log(wordInDictionary[0]);
         return wordInDictionary[0];
       } else {
         setErrorInput(true);
@@ -87,7 +85,6 @@ const PasteWordsStep = (props: any) => {
       }
     }
     if (from === 'button') {
-      console.log(value);
       return value;
     }
   };

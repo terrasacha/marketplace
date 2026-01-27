@@ -43,7 +43,6 @@ const MainLayout = ({ children }: PropsWithChildren) => {
   useEffect(() => {
     if (walletData) {
       getRates().then((rates) => {
-        console.log(rates, 'rates 47');
         setBalance((walletData.balance / 1000000).toFixed(4));
         setBalanceUSD((walletData.balance / 1000000) * rates.ADArateUSD);
       });
@@ -73,7 +72,6 @@ const MainLayout = ({ children }: PropsWithChildren) => {
               isWalletBySuan: true,
               isWalletAdmin: wallet[0].isAdmin,
             });
-            console.log(walletData, 'walletData mainlayout');
             const walletAddress = wallet[0].address;
             const hasTokenAuthFunction = await checkTokenStakeAddress(
               wallet[0].address
@@ -117,7 +115,7 @@ const MainLayout = ({ children }: PropsWithChildren) => {
           }
         }
       } catch (error) {
-        console.error('Error:', error);
+        // Error handling
       }
     };
 
@@ -126,7 +124,6 @@ const MainLayout = ({ children }: PropsWithChildren) => {
 
   useEffect(() => {
     if (connected) {
-      console.log('entro');
       if (window.sessionStorage.getItem('hasTokenAuth') === 'true') {
         setAllowAccess(true);
       }
@@ -139,7 +136,6 @@ const MainLayout = ({ children }: PropsWithChildren) => {
         const hasTokenAuthFunction = await checkTokenStakeAddress(
           changeAddress
         );
-        console.log(hasTokenAuthFunction, 'hasTokenAuthFunction');
         const walletExists = await checkIfWalletExist(
           changeAddress,
           rewardAddresses[0],

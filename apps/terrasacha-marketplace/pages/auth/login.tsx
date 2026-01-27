@@ -10,7 +10,7 @@ const Login = (props: any) => {
   <div className="absolute inset-0 z-0">
     <Image
       priority={true}
-              src="/v2/bg2.avif"
+              src="/v2/bg2.png"
       alt="landing-suan-image"
       layout="fill"
       objectFit="cover"

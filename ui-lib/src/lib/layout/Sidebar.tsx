@@ -185,7 +185,7 @@ export default function Sidebar(props: SidebarProps) {
   <div className="relative h-full px-5 pb-4 bg-custom-fondo shadow-[rgba(221,222,227,1)_1px_1px_4px_0px] flex flex-col justify-between overflow-y-auto"> 
     <div>
       <div className="flex items-center justify-center py-8">
-        <Link href="/home">
+        <Link href="/">
           <Image src={image} height={heightLogo} width={widthLogo} alt={`${appName} Logo`} />
         </Link>
       </div>
@@ -353,7 +353,7 @@ export default function Sidebar(props: SidebarProps) {
         <li>
           <Link
             onClick={onClose}
-            href="/home"
+            href="/"
             className="flex items-center p-2 text-black rounded-lg hover:bg-custom-dark hover:text-white transition duration-150 ease-linear"
           >
             <ScaleIcon />

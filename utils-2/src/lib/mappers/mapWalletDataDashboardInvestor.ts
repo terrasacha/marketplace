@@ -101,7 +101,7 @@ const getTransactionsData = async (stake_address : string, address : string) => 
 
 function createLineChartData(data: any, rates: any) {
   const convert1 = (price: number) => { return (price / rates.ADArateCOP) * rates.ADArateUSD} 
-    const dataToPlot = data && data.map((item : any) => {
+    const dataToPlot = data && Array.isArray(data) ? data.map((item : any) => {
         let periods = JSON.parse(item.periods).map((p: any) => {
             let price = item.currency === 'COP'? convert1(p.price) : p.price
             return {
@@ -115,7 +115,7 @@ function createLineChartData(data: any, rates: any) {
             data: periods,
             actualPeriod: getActualPeriod(Date.now(), periods)
         }
-    }) || null
+    }) : null
     const maxPeriod = dataToPlot ? dataToPlot.sort((a : any, b : any) => b.data.length - a.data.length)[0]?.data.length : 0
     return {
         dataToPlot,

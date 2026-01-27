@@ -52,7 +52,7 @@ const WalletDashboard = () => {
       setWalletData(responseData);
       setTransactionAddr(changeAddress);
     } catch (error) {
-      console.error('Error en la solicitud:', error);
+      // Error en la solicitud
     }
   } */
   /*  const tokensData = {

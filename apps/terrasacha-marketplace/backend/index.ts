@@ -623,9 +623,16 @@ export async function getTransactions() {
     return [];
   }
 }
+// Función helper para normalizar el endpoint de S3 (asegurar que termine con "/")
+const normalizeS3Endpoint = (endpoint: string | undefined): string => {
+  if (!endpoint) return '';
+  return endpoint.endsWith('/') ? endpoint : `${endpoint}/`;
+};
+
 export async function getImages(imageURL: string) {
   try {
-    const url = `${process.env['NEXT_PUBLIC_s3EndPoint']}public/${imageURL}`;
+    const s3Endpoint = normalizeS3Endpoint(process.env['NEXT_PUBLIC_s3EndPoint']);
+    const url = `${s3Endpoint}public/${imageURL}`;
 
     const response = await axios.get(url, { responseType: 'arraybuffer' });
     const data = Buffer.from(response.data, 'binary').toString('base64');
@@ -640,7 +647,8 @@ export async function getImages(imageURL: string) {
 }
 export async function getImagesCategories(category: string) {
   try {
-    const url = `${process.env['NEXT_PUBLIC_s3EndPoint']}public/category-projects-images/${category}.avif`;
+    const s3Endpoint = normalizeS3Endpoint(process.env['NEXT_PUBLIC_s3EndPoint']);
+    const url = `${s3Endpoint}public/category-projects-images/${category}.avif`;
     return url;
     // const response = await axios.get(url, { responseType: "arraybuffer" });
     // const data = Buffer.from(response.data, "binary").toString("base64");
@@ -1012,5 +1020,105 @@ export async function getPolygonByCadastralNumber(cadastralNumbers: any) {
     return data;
   } catch (error) {
     console.error('Error al realizar la solicitud:', error);
+  }
+}
+
+// Mapas de códigos a nombres
+const DEPARTMENT_NAMES: { [key: string]: string } = {
+  '05': 'Antioquia', '08': 'Atlántico', '11': 'Bogotá D.C.', '13': 'Bolívar',
+  '15': 'Boyacá', '17': 'Caldas', '18': 'Caquetá', '19': 'Cauca',
+  '20': 'Cesar', '23': 'Córdoba', '25': 'Cundinamarca', '27': 'Chocó',
+  '41': 'Huila', '44': 'La Guajira', '47': 'Magdalena', '50': 'Meta',
+  '52': 'Nariño', '54': 'Norte de Santander', '63': 'Quindío', '66': 'Risaralda',
+  '68': 'Santander', '70': 'Sucre', '73': 'Tolima', '76': 'Valle del Cauca',
+  '81': 'Arauca', '85': 'Casanare', '86': 'Putumayo', '88': 'San Andrés',
+  '91': 'Amazonas', '94': 'Guainía', '95': 'Guaviare', '97': 'Vaupés', '99': 'Vichada',
+};
+
+const ECONOMIC_DESTINY: { [key: string]: { name: string; description: string } } = {
+  'A': { name: 'Habitacional', description: 'Uso residencial' },
+  'B': { name: 'Industrial', description: 'Actividades industriales' },
+  'C': { name: 'Comercial', description: 'Actividades comerciales' },
+  'D': { name: 'Agropecuario', description: 'Actividades agropecuarias' },
+  'E': { name: 'Minero', description: 'Actividades mineras' },
+  'F': { name: 'Cultural', description: 'Uso cultural' },
+  'G': { name: 'Recreacional', description: 'Uso recreacional' },
+  'H': { name: 'Salubridad', description: 'Servicios de salud' },
+  'I': { name: 'Institucional', description: 'Uso institucional' },
+  'J': { name: 'Educativo', description: 'Uso educativo' },
+  'K': { name: 'Religioso', description: 'Uso religioso' },
+  'L': { name: 'Agrícola', description: 'Uso agrícola' },
+  'M': { name: 'Forestal', description: 'Uso forestal' },
+  'N': { name: 'Uso público', description: 'Uso público' },
+  'O': { name: 'Lote urbanizable no urbanizado', description: 'Lote sin urbanizar' },
+  'P': { name: 'Lote urbanizado no edificado', description: 'Lote sin edificar' },
+  'Q': { name: 'Lote no urbanizable', description: 'Lote no urbanizable' },
+};
+
+export async function getPredialDataByCadastralNumber(cadastralNumbers: string[]) {
+  const url = `${process.env['NEXT_PUBLIC_CADASTRAL_QUERY_URL']}/17/query`;
+  const whereClause = `NUMERO_DEL_PREDIO IN ('${cadastralNumbers.join("','")}')`;
+
+  const queryParams = {
+    where: whereClause,
+    outFields: '*',
+    f: 'pjson',
+    token: '',
+  };
+
+  const fullUrl = `${url}?${new URLSearchParams(queryParams)}`;
+
+  try {
+    const response = await fetch(fullUrl);
+    const data = await response.json();
+    const mappedData = data.features?.reduce((result: any, feature: any) => {
+      const numeroDelPredio = feature.attributes.NUMERO_DEL_PREDIO;
+      const deptCode = feature.attributes.DEPARTAMENTO;
+      const destinoCode = feature.attributes.DESTINO_ECONOMICO;
+      const destino = ECONOMIC_DESTINY[destinoCode] || { name: destinoCode, description: '' };
+
+      result[numeroDelPredio] = {
+        ...feature.attributes,
+        area: feature.attributes.AREA_TERRENO,
+        predio: feature.attributes.DIRECCION,
+        NOMBRE_DEPARTAMENTO: DEPARTMENT_NAMES[deptCode] || deptCode,
+        NOMBRE_MUNICIPIO: feature.attributes.MUNICIPIO,
+        NOMBRE_DESTINOECONOMICO: destino.name,
+        DESCRIPCION_DESTINOECONOMICO: destino.description,
+      };
+      return result;
+    }, {}) || {};
+    return mappedData;
+  } catch (error) {
+    console.error('Error fetching predial data:', error);
+    return {};
+  }
+}
+
+export async function getPredialData2ByCadastralNumber(cadastralNumbers: string[]) {
+  const url = `${process.env['NEXT_PUBLIC_CADASTRAL_QUERY_URL']}/18/query`;
+  const whereClause = `NUMERO_DEL_PREDIO IN ('${cadastralNumbers.join("','")}')`;
+
+  const queryParams = {
+    where: whereClause,
+    outFields: '*',
+    f: 'pjson',
+    token: '',
+  };
+
+  const fullUrl = `${url}?${new URLSearchParams(queryParams)}`;
+
+  try {
+    const response = await fetch(fullUrl);
+    const data = await response.json();
+    const mappedData = data.features?.reduce((result: any, feature: any) => {
+      const numeroDelPredio = feature.attributes.NUMERO_DEL_PREDIO;
+      result[numeroDelPredio] = { ...feature.attributes };
+      return result;
+    }, {}) || {};
+    return mappedData;
+  } catch (error) {
+    console.error('Error fetching predial data 2:', error);
+    return {};
   }
 }

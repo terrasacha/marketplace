@@ -2,7 +2,6 @@
 import Card from '@marketplaces/ui-lib/src/lib/common/Card';
 import EpaycoCheckout from '@marketplaces/ui-lib/src/lib/epayco/EpaycoCheckout';
 import { LoadingIcon } from '@marketplaces/ui-lib/src/lib/icons/LoadingIcon';
-import PendingVerificationMessage from '@marketplaces/ui-lib/src/lib/common/PendingVerificationMessage';
 import SignTransactionModal from '@marketplaces/ui-lib/src/lib/wallet/sign-transaction/SignTransactionModal';
 import { useContext, useEffect, useRef, useState } from 'react';
 import { TokenDetailSection } from './TokenDetailSection';
@@ -54,6 +53,15 @@ export default function PaymentPage({}) {
   const [actualScriptId, setActualScriptId] = useState<string | null>(null);
 
   const { projectInfo } = useContext<any>(ProjectInfoContext);
+
+  // Validar que projectInfo y projectInfo.token existan
+  if (!projectInfo || !projectInfo.token) {
+    return (
+      <div className="flex items-center justify-center p-8">
+        <p className="text-gray-500">Cargando información del proyecto...</p>
+      </div>
+    );
+  }
   const {
     walletID,
     walletAddress,
@@ -104,12 +112,10 @@ export default function PaymentPage({}) {
     );
   }
   /* const blockfrostProvider = new BlockfrostProvider(blockFrostKeysPreview); */
-  console.log('projectInfo', projectInfo);
   // const IPFSUrlHash = getIpfsUrlHash(projectInfo.categoryID);
   const IPFSUrlHash = getIpfsUrlHash('REDD+');
 
   const tokenImageUrl = `https://coffee-dry-barnacle-850.mypinata.cloud/ipfs/${IPFSUrlHash}`;
-  console.log('tokenImageUrl', tokenImageUrl);
 
   const validateTokenAmount = () => {
     if (parseInt(tokenAmount) <= 0 || isNaN(parseInt(tokenAmount))) {
@@ -155,10 +161,6 @@ export default function PaymentPage({}) {
     );
     const spentWalletData = await response.json();
 
-    console.log('spendData', spentWalletData);
-    console.log('tokenName', tokenName);
-    console.log('tokenContractId', tokenContractId);
-
     if (!spentWalletData) {
       toast.error('Parece que un error ha ocurrido ...');
     }
@@ -174,7 +176,6 @@ export default function PaymentPage({}) {
       },
       0
     );
-    console.log('availableTokensAmount', availableTokensAmount);
     setAvailableTokenAmount(availableTokensAmount);
     return availableTokensAmount;
   };
@@ -186,8 +187,6 @@ export default function PaymentPage({}) {
         (script: any) =>
           script.script_type === 'mintProjectToken' && script.Active === true
       );
-
-      console.log('mintProjectTokenContract', mintProjectTokenContract);
 
       const spendContractFromMintProjectToken = projectInfo.scripts.find(
         (script: any) =>
@@ -256,7 +255,6 @@ export default function PaymentPage({}) {
       return false;
     }
     // Otras validaciones
-    console.log(walletData.balance);
     if (!validateTokenAmount()) {
       return false;
     }
@@ -322,7 +320,6 @@ export default function PaymentPage({}) {
   const getCoreWallet = async () => {
     const response = await fetch('/api/calls/getCoreWallet');
     const data = await response.json();
-    console.log('coreWallet', data);
     return data;
   };
 
@@ -351,19 +348,7 @@ export default function PaymentPage({}) {
       //     return false;
       //   }
       // }
-      if (paymentType === 'fiat') {
-        if (!userValidation.isValidatedStep2) {
-          Swal.fire({
-            title: 'Validación pendiente',
-            text: 'Debes completar la verificación Pro de identidad antes de poder realizar una compra.',
-            icon: 'warning',
-            showCancelButton: true,
-            confirmButtonColor: '#3085d6',
-            cancelButtonColor: '#d33',
-          })
-          return false;
-        }
-      }
+      // Validación de verificación Pro eliminada
       return true;
     }
 
@@ -497,11 +482,6 @@ export default function PaymentPage({}) {
       mintProjectTokenContract.id
     );
 
-    console.log(
-      'spendContractFromMintProjectToken',
-      spendContractFromMintProjectToken
-    );
-    console.log('availableTokensAmount', availableTokensAmount);
     if (spendContractFromMintProjectToken) {
       // Evaluar si el valor de los adas que le llegan al beneficiario es mayor o igual del numero de tokens * precio
       const payload = {
@@ -541,8 +521,6 @@ export default function PaymentPage({}) {
         },
       };
 
-      console.log('BuildTx Payload: ', payload);
-
       let success = false;
       const maxRetries = 2; // 3 minutes / 20 seconds = 9 retries
       let retries = 0;
@@ -560,7 +538,6 @@ export default function PaymentPage({}) {
             body: JSON.stringify(payload),
           });
           const buildTxResponse = await request.json();
-          console.log('BuildTx Response: ', buildTxResponse);
 
           if (buildTxResponse?.success) {
             return { buildTxResponse, payload };
@@ -569,9 +546,6 @@ export default function PaymentPage({}) {
             throw new Error('Build transaction failed');
           }
         } catch (error: any) {
-          console.error(
-            `Request failed: ${error.message}. Retrying in 20 seconds...`
-          );
           retries += 1;
           if (retries <= maxRetries) {
             await new Promise((resolve) => setTimeout(resolve, 20000));
@@ -681,9 +655,6 @@ export default function PaymentPage({}) {
       const adaPrice =
         parseFloat(projectInfo.tokenPrice) / currencyToCryptoRate;
 
-      console.log('currencyToCryptoRate', currencyToCryptoRate);
-      console.log('adaPrice', adaPrice);
-
       // Get category image from IPFS
 
       const IPFSUrlHash = getIpfsUrlHash(projectInfo.categoryID);
@@ -707,16 +678,9 @@ export default function PaymentPage({}) {
         mediaType: 'image/png',
       };
 
-      console.log(metadata);
-
       filteredList.forEach((obj2: any) => Object.assign(metadata, obj2));
 
       const truncated_metadata = splitLongValues(metadata);
-      console.log('utxos', utxos);
-      console.log('recipientAddress', recipientAddress);
-      console.log('tokenAmount', tokenAmount);
-      console.log('truncated_metadata', truncated_metadata);
-      console.log('ada Price', Math.round(adaPrice * 1000000));
 
       const createMintTransaction = await createMintingTransaction(
         `/mint/create-tx`,
@@ -736,7 +700,6 @@ export default function PaymentPage({}) {
           costLovelace,
         } = createMintTransaction;
 
-        console.log('feeAmount', feeAmount);
         const signedTx = await wallet.signTx(maskedTx, true);
         setTransactionStatusMessage('Transacción en proceso...');
 
@@ -745,9 +708,6 @@ export default function PaymentPage({}) {
           signedTx,
           originalMetadata
         );
-
-        console.log(signedTx);
-        console.log(originalMetadata);
 
         const txHashValue = await wallet.submitTx(appWalletSignedTx);
 
@@ -786,8 +746,6 @@ export default function PaymentPage({}) {
           '/api/calls/createTransaction',
           requestOptions
         );
-        console.log('CreateTranscation: ', createTransactionResult);
-        console.log('txHashValue', txHashValue);
         setTxHash(txHashValue);
 
         setTransactionStatusMessage(
@@ -875,7 +833,6 @@ export default function PaymentPage({}) {
 
   return (
     <>
-      <PendingVerificationMessage />
       <div className="grid grid-cols-1 xl:grid-cols-2 gap-4">
         {/* STEPPER */}
         <div className="flex flex-col sm:flex-row rounded-lg space-x-0 sm:space-x-4 space-y-4 sm:space-y-0 col-span-2">

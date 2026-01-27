@@ -32,6 +32,18 @@ const getProduct = /* GraphQL */ `
           id
         }
       }
+      properties {
+        items {
+          id
+          name
+          propertyFeatures {
+            items {
+              featureID
+              value
+            }
+          }
+        }
+      }
       userProducts {
         items {
           user {

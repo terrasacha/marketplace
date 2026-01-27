@@ -20,12 +20,11 @@ const Login = (props: any) => {
             //const verifyTOTP = await verifyTOTPSetup({code: ''}) 
             //console.log('fetchMFAPreference:' ,fetchpreference)
             //console.log('verifyTOTP:' ,verifyTOTP)
-            console.log('setUpTOTP: ', setup)
             // Generar un QR Code basado en el código proporcionado
             //const totpCode = `otpauth://totp/AWSCognito:${user.username}?secret=${code.sharedSecret}&issuer=Terrasacha`;
             setSetupMFA(setup)
         } catch (error) {
-            console.error('Error setting up TOTP:', error);
+            // Error setting up TOTP
         }
     }
 
@@ -38,7 +37,6 @@ const Login = (props: any) => {
       /* const result = await updateMFAPreference({ totp: 'PREFERRED'}) */
         const verify = verifyTOTPSetup({ code: ''})
         const result = await updateMFAPreference({ totp: 'ENABLED'} )
-        console.log(verify, 'result')
     }
   return (
     <div className="w-full h-screen flex flex-col justify-center items-center bg-slate-50">

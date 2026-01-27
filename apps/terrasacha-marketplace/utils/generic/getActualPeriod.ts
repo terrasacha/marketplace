@@ -10,7 +10,14 @@ export function getActualPeriod(actualDate: any, periods: any) {
     const fechaFin = new Date(periodo.date);
 
     if (actualDate >= fechaInicio && actualDate <= fechaFin) {
-      return { period: periodo.period, amount: periodo.amount, price:periodo.price, fechaInicio, fechaFin };
+      return { 
+        period: periodo.period, 
+        amount: periodo.amount, 
+        price: periodo.price, 
+        tir: periodo.tir || 0,
+        fechaInicio, 
+        fechaFin 
+      };
     }
 
     fechaInicio = new Date(periodo.date);

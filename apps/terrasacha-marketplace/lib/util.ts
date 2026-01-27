@@ -78,9 +78,16 @@ export const capitalizeWords = async (str: any) => {
   return capitalizedWords.join(" ");
 };
 
+// Función helper para normalizar el endpoint de S3 (asegurar que termine con "/")
+const normalizeS3Endpoint = (endpoint: string | undefined): string => {
+  if (!endpoint) return '';
+  return endpoint.endsWith('/') ? endpoint : `${endpoint}/`;
+};
+
 export const getImagesCategories = (category: any) => {
   try {
-    let url = `${process.env.NEXT_PUBLIC_s3EndPoint}public/category-projects-images/${category}.avif`;
+    const s3Endpoint = normalizeS3Endpoint(process.env.NEXT_PUBLIC_s3EndPoint);
+    let url = `${s3Endpoint}public/category-projects-images/${category}.avif`;
     url = url.replace("REDD+", "REDD%2B");
     return url;
   } catch (error) {
@@ -106,7 +113,7 @@ export const getActualPeriod = async (actualDate: any, periods: any) => {
     // console.log("fechaFin", fechaFin);
     // Verifica si la fecha actual está dentro del rango desde "fechaInicio" hasta "fechaFin".
     if (actualDate >= fechaInicio && actualDate <= fechaFin) {
-      return { period: periodo.period, amount: periodo.amount, price: periodo.price, fechaInicio, fechaFin };
+      return { period: periodo.period, amount: periodo.amount, price: periodo.price, tir: periodo.tir || 0, fechaInicio, fechaFin };
     }
 
     // Actualiza "fechaInicio" para la próxima iteración.

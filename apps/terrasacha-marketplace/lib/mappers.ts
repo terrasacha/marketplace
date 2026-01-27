@@ -662,5 +662,314 @@ export const mapProjectData = async (data: any): Promise<any> => {
       financialIndicators: { financialIndicatorsID, financialIndicators },
     },
     projectPredialGeoJson: geoJsonPredialData,
+    projectProperties: data.properties?.items || [],
   };
+};
+
+// Mapper para transformar productos de GraphQL a la interface Project para MockupProjectsList
+export const mapProductToProjectInterface = async (product: any): Promise<any> => {
+  try {
+    const productFeatures = product.productFeatures?.items || [];
+    
+    // Información básica
+    const id = product.id || '';
+    const title = product.name || '';
+    const description = product.description || '';
+    const categoryID = product.categoryID || '';
+    const category = product.category?.name || (await mapCategory(categoryID)) || categoryID;
+    const status = product.status || '';
+    const isActive = product.isActive || false;
+    const isActiveOnPlatform = product.isActiveOnPlatform ?? true;
+    const projectReadiness = product.projectReadiness || 0;
+    const tokenGenesis = product.tokenGenesis ?? false; // true = tokens verdes, false = tokens grises
+
+    // Información de ubicación
+    const municipio = productFeatures.find((pf: any) => pf.featureID === 'A_municipio')?.value || '';
+    const vereda = productFeatures.find((pf: any) => pf.featureID === 'A_vereda')?.value || '';
+    const department = product.properties?.items?.[0]?.department || '';
+    const location = municipio && department ? `${municipio}, ${department}` : municipio || department || '';
+
+    // Información de imágenes
+    const firstImage = product.images?.items?.[0];
+    let imageUrl = '/images/home-page/image.png'; // Imagen por defecto
+    if (firstImage?.imageURL) {
+      // Construir URL de S3
+      const imagePath = firstImage.imageURL;
+      if (imagePath.includes('http')) {
+        imageUrl = imagePath;
+      } else {
+        // Si no es URL completa, construirla con el endpoint de S3
+        const s3Endpoint = (process.env.NEXT_PUBLIC_s3EndPoint || '').endsWith('/') 
+          ? process.env.NEXT_PUBLIC_s3EndPoint 
+          : `${process.env.NEXT_PUBLIC_s3EndPoint}/`;
+        if (imagePath.startsWith('public/')) {
+          imageUrl = `${s3Endpoint}${imagePath}`;
+        } else {
+          imageUrl = `${s3Endpoint}public/${imagePath}`;
+        }
+      }
+    }
+
+    // Información de tokens
+    const tokenNameFeature = productFeatures.find((pf: any) => pf.featureID === 'GLOBAL_TOKEN_NAME');
+    const tokenName = tokenNameFeature?.value || product.name?.replace('Proyecto - ', '') || '';
+    const tokenCurrency = productFeatures.find((pf: any) => pf.featureID === 'GLOBAL_TOKEN_CURRENCY')?.value || 'USD';
+
+    // Total de tokens - Usar GLOBAL_TOKEN_TOTAL_AMOUNT si existe, sino calcular desde historical data
+    const tokenTotalAmountFeature = productFeatures.find(
+      (pf: any) => pf.featureID === 'GLOBAL_TOKEN_TOTAL_AMOUNT'
+    );
+    let totalTokens = tokenTotalAmountFeature?.value 
+      ? parseInt(tokenTotalAmountFeature.value) 
+      : 0;
+
+    // Token Historical Data - para precio actual y TIR
+    const tokenHistoricalDataFeature = productFeatures.find(
+      (pf: any) => pf.featureID === 'GLOBAL_TOKEN_HISTORICAL_DATA'
+    );
+    let price = 0;
+    let tir = 0; // TIR del período actual
+    
+    if (tokenHistoricalDataFeature?.value) {
+      try {
+        const tokenHistoricalData = JSON.parse(tokenHistoricalDataFeature.value);
+        
+        // Si no hay GLOBAL_TOKEN_TOTAL_AMOUNT, calcular desde historical data
+        if (!totalTokens) {
+          totalTokens = tokenHistoricalData.reduce(
+            (sum: number, item: any) => sum + parseInt(item.amount || 0),
+            0
+          );
+        }
+
+        // Obtener precio y TIR del período actual
+        const periods = tokenHistoricalData.map((tkhd: any) => ({
+          period: tkhd.period,
+          date: new Date(tkhd.date),
+          price: parseFloat(tkhd.price || 0),
+          amount: parseInt(tkhd.amount || 0),
+          tir: parseFloat(tkhd.tir || 0),
+        }));
+
+        const actualPeriod = await getActualPeriod(Date.now(), periods);
+        price = actualPeriod?.price || 0;
+        tir = actualPeriod?.tir || 0;
+      } catch (error) {
+        // Error parsing GLOBAL_TOKEN_HISTORICAL_DATA
+      }
+    }
+
+    // Token Amount Distribution - extraer tokens del INVERSIONISTA
+    const tokenAmountDistributionFeature = productFeatures.find(
+      (pf: any) => pf.featureID === 'GLOBAL_TOKEN_AMOUNT_DISTRIBUTION'
+    );
+    let investorTokens = 0; // Tokens asignados al inversionista (meta de venta)
+    let soldTokens = 0; // Tokens vendidos (transacciones)
+    
+    if (tokenAmountDistributionFeature?.value) {
+      try {
+        const distributionData = JSON.parse(tokenAmountDistributionFeature.value);
+        // Buscar específicamente los tokens del INVERSIONISTA
+        const investorDistribution = distributionData.find(
+          (item: any) => item.CONCEPTO === 'INVERSIONISTA'
+        );
+        investorTokens = parseInt(investorDistribution?.CANTIDAD || 0);
+      } catch (error) {
+        // Error parsing GLOBAL_TOKEN_AMOUNT_DISTRIBUTION
+      }
+    }
+
+    // Calcular tokens vendidos desde transacciones
+    if (product.transactions?.items) {
+      soldTokens = product.transactions.items.reduce(
+        (sum: number, tx: any) => sum + (parseInt(tx.amountOfTokens) || 0),
+        0
+      );
+    }
+
+    // Tokens disponibles para venta = tokens del inversionista - tokens vendidos
+    const availableTokens = Math.max(0, investorTokens - soldTokens);
+
+    // Calcular progreso de venta (vendidos / meta del inversionista)
+    const progress = investorTokens > 0 ? Math.round((soldTokens / investorTokens) * 100) : 0;
+
+    // ROI/TIR - Usar el TIR del período actual desde GLOBAL_TOKEN_HISTORICAL_DATA
+    const roi = tir;
+
+    // Información de campaña (opcional)
+    const campaignID = product.campaignID || null;
+    const campaignName = product.campaign?.name || null;
+
+    // Fechas
+    const createdAt = product.createdAt || '';
+    const updatedAt = product.updatedAt || '';
+
+    return {
+      id,
+      title,
+      description,
+      category,
+      categoryID,
+      location,
+      municipio,
+      vereda,
+      department,
+      imageUrl,
+      status,
+      isActive,
+      isActiveOnPlatform,
+      price,
+      availableTokens,
+      totalTokens,
+      investorTokens, // Meta de venta (tokens del inversionista)
+      soldTokens, // Tokens vendidos
+      roi,
+      tokenName,
+      tokenCurrency,
+      progress,
+      projectReadiness,
+      tokenGenesis,
+      campaignID,
+      campaignName,
+      createdAt,
+      updatedAt,
+    };
+  } catch (error) {
+    // Error mapping product to Project interface
+    // Retornar objeto con valores por defecto en caso de error
+    return {
+      id: product.id || '',
+      title: product.name || 'Proyecto sin nombre',
+      description: product.description || '',
+      category: product.category?.name || '',
+      categoryID: product.categoryID || '',
+      location: '',
+      municipio: '',
+      vereda: '',
+      department: '',
+      imageUrl: '/images/home-page/image.png',
+      status: product.status || '',
+      isActive: product.isActive || false,
+      isActiveOnPlatform: product.isActiveOnPlatform ?? true,
+      price: 0,
+      availableTokens: 0,
+      totalTokens: 0,
+      investorTokens: 0,
+      soldTokens: 0,
+      roi: 0,
+      tokenName: '',
+      tokenCurrency: 'USD',
+      progress: 0,
+      projectReadiness: product.projectReadiness || 0,
+      tokenGenesis: product.tokenGenesis ?? false,
+      campaignID: null,
+      campaignName: null,
+      createdAt: product.createdAt || '',
+      updatedAt: product.updatedAt || '',
+    };
+  }
+};
+
+// Mapper para transformar productos de GraphQL a la interface ProjectDetailData para MockupProjectDetail
+export const mapProductToProjectDetailData = async (product: any): Promise<any> => {
+  try {
+    const productFeatures = product.productFeatures?.items || [];
+    
+    // Información básica
+    const id = product.id || '';
+    const name = product.name || '';
+    const description = product.description || '';
+    const categoryID = product.categoryID || '';
+    const categoryName = product.category?.name || (await mapCategory(categoryID)) || categoryID;
+    const status = product.status || '';
+    const tokenGenesis = product.tokenGenesis ?? false;
+
+    // Información de ubicación
+    const municipio = productFeatures.find((pf: any) => pf.featureID === 'A_municipio')?.value || '';
+    const vereda = productFeatures.find((pf: any) => pf.featureID === 'A_vereda')?.value || '';
+    const department = product.properties?.items?.[0]?.department || '';
+    const location = productFeatures.find((pf: any) => pf.featureID === 'C_ubicacion')?.value || '';
+
+    // Información de imágenes
+    const firstImage = product.images?.items?.[0];
+    let imageUrl = '/images/home-page/image.png'; // Imagen por defecto
+    if (firstImage?.imageURL) {
+      const imagePath = firstImage.imageURL;
+      if (imagePath.includes('http')) {
+        imageUrl = imagePath;
+      } else {
+        // Si no es URL completa, construirla con el endpoint de S3
+        const s3Endpoint = (process.env.NEXT_PUBLIC_s3EndPoint || '').endsWith('/') 
+          ? process.env.NEXT_PUBLIC_s3EndPoint 
+          : `${process.env.NEXT_PUBLIC_s3EndPoint}/`;
+        if (imagePath.startsWith('public/')) {
+          imageUrl = `${s3Endpoint}${imagePath}`;
+        } else {
+          imageUrl = `${s3Endpoint}public/${imagePath}`;
+        }
+      }
+    }
+
+    // Información de tokens
+    const tokenNameFeature = productFeatures.find((pf: any) => pf.featureID === 'GLOBAL_TOKEN_NAME');
+    const tokenName = tokenNameFeature?.value || product.name?.replace('Proyecto - ', '') || '';
+    const tokenCurrency = productFeatures.find((pf: any) => pf.featureID === 'GLOBAL_TOKEN_CURRENCY')?.value || 'USD';
+
+    // Información de certificación
+    const projectValidatorFilesFeature = productFeatures.find(
+      (pf: any) => pf.featureID === 'GLOBAL_PROJECT_VALIDATOR_FILES'
+    );
+    let hasCertificate = false;
+    if (projectValidatorFilesFeature?.value) {
+      try {
+        const validatorFiles = JSON.parse(projectValidatorFilesFeature.value);
+        hasCertificate = Array.isArray(validatorFiles) && validatorFiles.length > 0;
+      } catch (error) {
+        // Error parsing GLOBAL_PROJECT_VALIDATOR_FILES
+      }
+    }
+
+    // Información del postulante
+    const postulantName = productFeatures.find((pf: any) => pf.featureID === 'A_postulante_name')?.value || '';
+
+    return {
+      id,
+      name,
+      description,
+      categoryID,
+      categoryName,
+      status,
+      tokenGenesis,
+      municipio,
+      vereda,
+      department,
+      location,
+      imageUrl,
+      tokenName,
+      tokenCurrency,
+      hasCertificate,
+      postulantName,
+    };
+  } catch (error) {
+    // Error mapping product to ProjectDetailData interface
+    // Retornar objeto con valores por defecto en caso de error
+    return {
+      id: product.id || '',
+      name: product.name || 'Proyecto sin nombre',
+      description: product.description || '',
+      categoryID: product.categoryID || '',
+      categoryName: product.category?.name || '',
+      status: product.status || '',
+      tokenGenesis: product.tokenGenesis ?? false,
+      municipio: '',
+      vereda: '',
+      department: '',
+      location: '',
+      imageUrl: '/images/home-page/image.png',
+      tokenName: '',
+      tokenCurrency: 'USD',
+      hasCertificate: false,
+      postulantName: '',
+    };
+  }
 };

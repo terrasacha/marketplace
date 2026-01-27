@@ -32,7 +32,10 @@ export default function ProjectDataModal({
         let url = item.imageURL.split('/')
         url.splice(2,0, 'public')
         url = url.join('/')
-        let publicUrl = `${process.env.NEXT_PUBLIC_s3EndPoint}${url}`
+        const s3Endpoint = (process.env.NEXT_PUBLIC_s3EndPoint || '').endsWith('/') 
+          ? process.env.NEXT_PUBLIC_s3EndPoint 
+          : `${process.env.NEXT_PUBLIC_s3EndPoint}/`;
+        let publicUrl = `${s3Endpoint}${url}`
         return {
           alt: item.title,
           url: publicUrl
@@ -70,7 +73,6 @@ export default function ProjectDataModal({
       return 'Sin archivo';
     }
   };
-  console.log(projectData);
 
   return (
     <div
@@ -203,22 +205,15 @@ export default function ProjectDataModal({
               }}
               defaultZoom={12}
               onGoogleApiLoaded={({ map, maps }) => {
-                console.log(
-                  projectData.projectPredialGeoJson,
-                  'polygonsFetchedData'
-                );
-
                 if (projectData.projectPredialGeoJson.features.length > 0) {
                   // Load GeoJSON.
                   map.data.addGeoJson(projectData.projectPredialGeoJson);
-                  console.log('entro');
 
                   // Create empty bounds object
                   let bounds = new maps.LatLngBounds();
 
                   map.data.addListener('click', (event: any) => {
                     const codigo = event.feature.getProperty('CODIGO');
-                    console.log('Este es el codigo: ', codigo);
                     const contentString = `
                           <div class='infoWindowContainer'>
                             <p>Identificador catastral: ${codigo}</p>

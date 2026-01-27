@@ -94,15 +94,12 @@ export default function BlockchainCard({ project }: BlockchainCardProps) {
 
   function getNewChartData(project: any): any {
     let chartData: any = {};
-    console.log('productFeatures', project.productFeatures);
 
     const tokenAmountDistribution = JSON.parse(
       project.productFeatures.items.filter(
         (item: any) => item.featureID === 'GLOBAL_TOKEN_AMOUNT_DISTRIBUTION'
       )[0]?.value || '[]'
     );
-
-    console.log('tokenAmountDistribution', tokenAmountDistribution);
 
     tokenAmountDistribution.forEach((tad: any) => {
       chartData[tad.CONCEPTO] = tad.CANTIDAD;

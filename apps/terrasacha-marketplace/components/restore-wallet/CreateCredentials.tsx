@@ -30,7 +30,7 @@ const CreateCredentials = (props: any) => {
         serUserIsAdmin(true)
       }
     }).catch((error) =>{
-      console.log('error obteniendo data del usuario', error)
+      // Error obteniendo data del usuario
     })
   },[])
   useEffect(() => {
@@ -100,7 +100,6 @@ const CreateCredentials = (props: any) => {
       userID: user,
       save_flag: true,
     };
-    console.log(info, 'info');
     try {
       setLoading(true);
       const response = await fetch('api/calls/createWalletCredentials', {
@@ -135,7 +134,7 @@ const CreateCredentials = (props: any) => {
       //setCurrentSection(4);
       setCurrentSection(3);
     } catch (error) {
-      console.error('Error al hacer la solicitud:', error);
+      // Error al hacer la solicitud
     } finally {
     }
   };

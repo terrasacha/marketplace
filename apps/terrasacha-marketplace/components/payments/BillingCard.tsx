@@ -41,7 +41,6 @@ export function BillingCard({
   const [txHash, setTxHash] = useState<string>('');
   const [tokensBuyed, setTokensBuyed] = useState<string>('');
 
-  console.log('projectInfo', projectInfo);
   let blockFrostKeysPreview: string;
   if (process.env.NEXT_PUBLIC_blockFrostKeysPreview) {
     blockFrostKeysPreview = process.env.NEXT_PUBLIC_blockFrostKeysPreview;
@@ -70,7 +69,7 @@ export function BillingCard({
         const userBalance = await wallet.getBalance();
         setUserBalance(userBalance[0]['quantity']);
       } catch (error) {
-        console.error(error);
+        // Error getting user balance
       }
     }
 
@@ -91,7 +90,7 @@ export function BillingCard({
         );
         setExchangeRate(adaUsdMeanRate);
       } catch (error) {
-        console.error(error);
+        // Error fetching exchange rate
       }
     }
     if (!exchangeRate && projectInfo.tokenCurrency) getCoingeckoPrices();
@@ -147,7 +146,6 @@ export function BillingCard({
   };
 
   const validateConditions = () => {
-    console.log(userBalance);
     if (projectInfo.availableAmount < tokenAmount) {
       setValidationError(
         <>
@@ -227,9 +225,6 @@ export function BillingCard({
       const adaPrice =
         parseFloat(projectInfo.tokenPrice) / currencyToCryptoRate;
 
-      console.log('currencyToCryptoRate', currencyToCryptoRate);
-      console.log('adaPrice', adaPrice);
-
       // Get category image from IPFS
 
       const IPFSUrlHash = getIpfsUrlHash(projectInfo.categoryID);
@@ -253,16 +248,9 @@ export function BillingCard({
         mediaType: 'image/png',
       };
 
-      console.log(metadata);
-
       filteredList.forEach((obj2: any) => Object.assign(metadata, obj2));
 
       const truncated_metadata = splitLongValues(metadata);
-      console.log('utxos', utxos);
-      console.log('recipientAddress', recipientAddress);
-      console.log('tokenAmount', tokenAmount);
-      console.log('truncated_metadata', truncated_metadata);
-      console.log('ada Price', Math.round(adaPrice * 1000000));
 
       const createMintTransaction = await createMintingTransaction(
         `/mint/create-tx`,
@@ -277,7 +265,6 @@ export function BillingCard({
         const { maskedTx, originalMetadata, simpleScriptPolicyID, feeAmount } =
           createMintTransaction;
 
-        console.log('feeAmount', feeAmount);
         const signedTx = await wallet.signTx(maskedTx, true);
         setTransactionStatusMessage('Transacción en proceso...');
 
@@ -286,9 +273,6 @@ export function BillingCard({
           signedTx,
           originalMetadata
         );
-
-        console.log(signedTx);
-        console.log(originalMetadata);
 
         const txHash = await wallet.submitTx(appWalletSignedTx);
 
@@ -311,7 +295,6 @@ export function BillingCard({
           txProcessed: true, // Si se proceso en block chain
           type: 'mint',
         };
-        console.log(createTransactionPayload);
         // const createTransactionResult = await createTransaction(
         //   createTransactionPayload
         // );
@@ -327,9 +310,6 @@ export function BillingCard({
           '/api/calls/createTransaction',
           requestOptions
         );
-        console.log('CreateTranscation: ', createTransactionResult);
-        console.log('signedTx', signedTx);
-        console.log('txHash', txHash);
         setTokensBuyed(tokenAmount);
         setTxHash(txHash);
         setTransactionStatusMessage(
@@ -373,7 +353,6 @@ export function BillingCard({
       }
     } catch (error) {
       setStep(PURCHASING_STEPS.ERROR);
-      console.log(error);
     }
   };
   // Preguntar sobre la presición de los decimales a la hora de los pagos
