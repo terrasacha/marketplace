@@ -3,6 +3,139 @@ import { toast } from 'sonner';
 // Usar rutas API de Next.js como proxy para evitar problemas de CORS
 const API_BASE = '/api/wallets';
 
+type WalletApiErrorType = 'client' | 'server' | 'network' | 'unknown';
+
+interface WalletApiErrorInfo {
+  message: string;
+  type: WalletApiErrorType;
+  status?: number;
+  details?: any;
+}
+
+/**
+ * Extrae y normaliza el mensaje de error devuelto por el API de billeteras.
+ * Soporta las formas específicas:
+ * - 422: { detail: [{ loc, msg, type }] }
+ * - 500: { success: false, error, details: [{ code, message, field }] }
+ * - Otros 4xx (400-421, 423-499): { success: false, error, details: [...] }
+ * - Otros 5xx (501-599): { detail: [...] } u otros formatos
+ */
+const parseWalletApiError = (
+  response: Response | null,
+  data: any
+): WalletApiErrorInfo => {
+  const status = response?.status;
+
+  // Errores de red / sin respuesta
+  if (!response) {
+    const message =
+      data?.message ||
+      'Error de red al conectar con el servidor de billeteras';
+    return {
+      message,
+      type: 'network',
+    };
+  }
+
+  // 422 – Unprocessable Entity (validación)
+  // Siempre devuelve: { detail: [{ loc, msg, type }] }
+  if (status === 422) {
+    const firstDetail = Array.isArray(data?.detail) && data.detail.length > 0
+      ? data.detail[0]
+      : null;
+
+    const message =
+      firstDetail?.msg ||
+      data?.message ||
+      'Error de validación en la solicitud';
+
+    return {
+      message,
+      type: 'client',
+      status: 422,
+      details: data?.detail ?? data,
+    };
+  }
+
+  // 500 – Internal Server Error
+  // Siempre devuelve: { success: false, error, details: [{ code, message, field }] }
+  if (status === 500) {
+    const baseMessage =
+      data?.error ||
+      data?.message ||
+      'Error interno del servidor de billeteras';
+
+    const firstDetail =
+      Array.isArray(data?.details) && data.details.length > 0
+        ? data.details[0]
+        : null;
+
+    const message = firstDetail?.message || baseMessage;
+
+    return {
+      message,
+      type: 'server',
+      status: 500,
+      details: data?.details ?? data,
+    };
+  }
+
+  // Otros 4xx (400-421, 423-499) – errores del cliente
+  if (status && status >= 400 && status < 500) {
+    const baseMessage =
+      data?.error ||
+      data?.detail ||
+      data?.message ||
+      'Error al procesar la solicitud de billetera';
+
+    const firstDetail =
+      Array.isArray(data?.details) && data.details.length > 0
+        ? data.details[0]
+        : null;
+
+    const message = firstDetail?.message || baseMessage;
+
+    return {
+      message,
+      type: 'client',
+      status,
+      details: data?.details ?? data,
+    };
+  }
+
+  // Otros 5xx (501-599) – errores del servidor
+  if (status && status >= 500) {
+    // Puede venir como { detail: [...] } u otros formatos
+    const firstDetail = Array.isArray(data?.detail) && data.detail.length > 0
+      ? data.detail[0]
+      : null;
+
+    const message =
+      firstDetail?.msg ||
+      data?.error ||
+      data?.message ||
+      'Error interno del servidor de billeteras';
+
+    return {
+      message,
+      type: 'server',
+      status,
+      details: data?.detail ?? data?.details ?? data,
+    };
+  }
+
+  // Caso genérico / desconocido
+  const genericMessage =
+    data?.detail || data?.message || data?.error || 'Error desconocido';
+
+  return {
+    message: genericMessage,
+    type: 'unknown',
+    status,
+    details: data,
+  };
+};
+
 export interface WalletSession {
   access_token: string;
   refresh_token?: string;
@@ -37,6 +170,24 @@ export const storeWalletSession = (session: WalletSession) => {
   }
 };
 
+/**
+ * Obtiene el access_token almacenado en localStorage
+ * @returns access_token o null si no está disponible
+ */
+const getAccessToken = (): string | null => {
+  if (typeof window === 'undefined') return null;
+  try {
+    const sessionStr = window.localStorage.getItem('wallet_session');
+    if (sessionStr) {
+      const session: WalletSession = JSON.parse(sessionStr);
+      return session.access_token || null;
+    }
+  } catch (err) {
+    console.error('Error al obtener el access_token:', err);
+  }
+  return null;
+};
+
 export const createWallet = async (payload: CreateWalletPayload) => {
   try {
     const response = await fetch(`${API_BASE}/create`, {
@@ -49,8 +200,8 @@ export const createWallet = async (payload: CreateWalletPayload) => {
 
     const data = await response.json();
 
-    if (!data.success) {
-      const message = data.detail || data.message || 'Error al crear la billetera';
+    if (!response.ok || !data.success) {
+      const { message } = parseWalletApiError(response, data);
       toast.error(message);
       return { success: false, data, error: message };
     }
@@ -58,7 +209,7 @@ export const createWallet = async (payload: CreateWalletPayload) => {
     return { success: true, data };
   } catch (error: any) {
     console.error('Error al crear billetera:', error);
-    const message = error.message || 'Error al conectar con el servidor';
+    const { message } = parseWalletApiError(null, error);
     toast.error(message);
     return { success: false, data: null, error: message };
   }
@@ -76,8 +227,8 @@ export const importWallet = async (payload: ImportWalletPayload) => {
 
     const data = await response.json();
 
-    if (!data.success) {
-      const message = data.message || 'Error al importar la billetera';
+    if (!response.ok || !data.success) {
+      const { message } = parseWalletApiError(response, data);
       toast.error(message);
       return { success: false, data, error: message };
     }
@@ -86,7 +237,7 @@ export const importWallet = async (payload: ImportWalletPayload) => {
     return { success: true, data };
   } catch (error: any) {
     console.error('Error al importar billetera:', error);
-    const message = error.message || 'Error al conectar con el servidor';
+    const { message } = parseWalletApiError(null, error);
     toast.error(message);
     return { success: false, data: null, error: message };
   }
@@ -104,18 +255,18 @@ export const unlockWallet = async (walletId: string, password: string) => {
 
     const data = await response.json();
 
-    if (data.success) {
-      storeWalletSession(data);
-      toast.success('Billetera desbloqueada correctamente.');
-      return { success: true, data };
+    if (!response.ok || !data.success) {
+      const { message } = parseWalletApiError(response, data);
+      toast.error(message);
+      return { success: false, data, error: message };
     }
 
-    const message = data.message || 'Error al desbloquear la billetera';
-    toast.error(message);
-    return { success: false, data, error: message };
+    storeWalletSession(data);
+    // Toast removido de aquí - se muestra en el componente que llama a esta función
+    return { success: true, data };
   } catch (error: any) {
     console.error('Error al desbloquear la billetera:', error);
-    const message = error.message || 'Error al conectar con el servidor';
+    const { message } = parseWalletApiError(null, error);
     toast.error(message);
     return { success: false, data: null, error: message };
   }
@@ -132,17 +283,17 @@ export const lockWallet = async (walletId: string) => {
 
     const data = await response.json();
 
-    if (data.success) {
-      toast.success(data.message || 'Billetera bloqueada correctamente.');
-      return { success: true, data };
+    if (!response.ok || !data.success) {
+      const { message } = parseWalletApiError(response, data);
+      toast.error(message);
+      return { success: false, data, error: message };
     }
 
-    const message = data.message || 'Error al bloquear la billetera';
-    toast.error(message);
-    return { success: false, data, error: message };
+    toast.success(data.message || 'Billetera bloqueada correctamente.');
+    return { success: true, data };
   } catch (error: any) {
     console.error('Error al bloquear la billetera:', error);
-    const message = error.message || 'Error al conectar con el servidor';
+    const { message } = parseWalletApiError(null, error);
     toast.error(message);
     return { success: false, data: null, error: message };
   }
@@ -160,17 +311,17 @@ export const refreshWalletToken = async (refreshToken: string) => {
 
     const data = await response.json();
 
-    if (data.success) {
-      toast.success('Token renovado correctamente.');
-      return { success: true, data };
+    if (!response.ok || !data.success) {
+      const { message } = parseWalletApiError(response, data);
+      toast.error(message);
+      return { success: false, data, error: message };
     }
 
-    const message = data.message || 'Error al refrescar el token';
-    toast.error(message);
-    return { success: false, data, error: message };
+    toast.success('Token renovado correctamente.');
+    return { success: true, data };
   } catch (error: any) {
     console.error('Error al refrescar el token:', error);
-    const message = error.message || 'Error al conectar con el servidor';
+    const { message } = parseWalletApiError(null, error);
     toast.error(message);
     return { success: false, data: null, error: message };
   }
@@ -178,28 +329,87 @@ export const refreshWalletToken = async (refreshToken: string) => {
 
 export const revokeWalletToken = async () => {
   try {
+    // Obtener access_token para Authorization header
+    const accessToken = getAccessToken();
+    if (!accessToken) {
+      // Si no hay token, solo limpiar la sesión local y retornar éxito
+      // Esto puede pasar si la sesión ya expiró o fue limpiada
+      console.log('No se encontró access_token, limpiando sesión local');
+      return { success: true, data: null };
+    }
+
     const response = await fetch(`${API_BASE}/token/revoke`, {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
+        'Authorization': `Bearer ${accessToken}`,
       },
     });
 
     const data = await response.json();
 
-    if (data.success) {
-      toast.success(data.message || 'Sesión cerrada correctamente.');
-      return { success: true, data };
+    if (!response.ok || data?.success === false) {
+      // Si el error es 401, probablemente el token ya expiró, solo limpiar localmente
+      if (response.status === 401) {
+        console.log('Token expirado o inválido, limpiando sesión local');
+        return { success: true, data: null };
+      }
+      const { message } = parseWalletApiError(response, data);
+      // No mostrar toast de error si es 401, es esperado cuando el token expiró
+      if (response.status !== 401) {
+        toast.error(message);
+      }
+      return { success: false, data, error: message };
     }
 
-    const message = data.message || 'Error al revocar el token';
-    toast.error(message);
-    return { success: false, data, error: message };
+    toast.success(data.message || 'Sesión cerrada correctamente.');
+    return { success: true, data };
   } catch (error: any) {
     console.error('Error al revocar el token:', error);
-    const message = error.message || 'Error al conectar con el servidor';
-    toast.error(message);
-    return { success: false, data: null, error: message };
+    // En caso de error de red, aún así retornar éxito para limpiar localmente
+    return { success: true, data: null };
+  }
+};
+
+/**
+ * Limpia todos los datos de sesión de wallet del localStorage
+ */
+export const clearWalletSession = () => {
+  if (typeof window === 'undefined') return;
+  try {
+    window.localStorage.removeItem('wallet_session');
+    window.localStorage.removeItem('wallet_session_key');
+    window.localStorage.removeItem('wallet_frontend_session_id');
+    window.localStorage.removeItem('wallet_session_expires_at');
+  } catch (err) {
+    console.error('Error al limpiar la sesión de wallet:', err);
+  }
+};
+
+/**
+ * Función helper para realizar signout completo: revoca token de wallet, limpia sesión y cierra sesión de AWS
+ * @param signOutFn Función de signOut de AWS Amplify (opcional, se importa automáticamente si no se proporciona)
+ * @returns Promise que se resuelve cuando el proceso de signout está completo
+ */
+export const performWalletSignOut = async (signOutFn?: () => Promise<void>) => {
+  try {
+    // 1. Revocar el token de la wallet
+    await revokeWalletToken();
+    
+    // 2. Limpiar datos de sesión de wallet del localStorage
+    clearWalletSession();
+    
+    // 3. Cerrar sesión de AWS Amplify si se proporciona la función
+    if (signOutFn) {
+      await signOutFn();
+    }
+    
+    return { success: true };
+  } catch (error: any) {
+    console.error('Error durante el signout de wallet:', error);
+    // Aún así limpiar la sesión local
+    clearWalletSession();
+    return { success: false, error: error.message };
   }
 };
 
@@ -323,6 +533,585 @@ export const autoUnlockWallet = async (walletId: string) => {
   } catch (error: any) {
     console.error('Error al desbloquear automáticamente la billetera:', error);
     const message = error.message || 'Error al conectar con el servidor';
+    toast.error(message);
+    return { success: false, data: null, error: message };
+  }
+};
+
+export const getWalletBalance = async (
+  walletId: string,
+  limitAddresses?: number
+) => {
+  try {
+    // Obtener access_token para Authorization header
+    const accessToken = getAccessToken();
+    if (!accessToken) {
+      const message = 'No se encontró el token de acceso. Por favor, desbloquea la billetera.';
+      toast.error(message);
+      return { success: false, data: null, error: message };
+    }
+
+    // Construir URL con query parameters
+    let url = `${API_BASE}/${walletId}/balance`;
+    const queryParams = new URLSearchParams();
+    if (limitAddresses !== undefined) {
+      queryParams.append('limit_addresses', limitAddresses.toString());
+    }
+    if (queryParams.toString()) {
+      url += `?${queryParams.toString()}`;
+    }
+
+    const response = await fetch(url, {
+      method: 'GET',
+      headers: {
+        'Content-Type': 'application/json',
+        'Authorization': `Bearer ${accessToken}`,
+      },
+    });
+
+    const data = await response.json();
+
+    if (!response.ok || data?.success === false) {
+      const { message } = parseWalletApiError(response, data);
+      toast.error(message);
+      return { success: false, data, error: message };
+    }
+
+    // Respuesta 2xx correcta (estructura según documentación)
+    return { success: true, data };
+  } catch (error: any) {
+    console.error('Error al obtener el balance de la billetera:', error);
+    const { message } = parseWalletApiError(null, error);
+    toast.error(message);
+    return { success: false, data: null, error: message };
+  }
+};
+
+/**
+ * Obtiene las direcciones de una billetera
+ * @param walletId ID de la billetera
+ * @param count Número de direcciones a obtener (opcional)
+ * @returns Objeto con success, data (wallet_name, addresses, count) o error
+ */
+export const getWalletAddresses = async (
+  walletId: string,
+  count?: number
+) => {
+  try {
+    // Obtener access_token para Authorization header
+    const accessToken = getAccessToken();
+    if (!accessToken) {
+      const message = 'No se encontró el token de acceso. Por favor, desbloquea la billetera.';
+      toast.error(message);
+      return { success: false, data: null, error: message };
+    }
+
+    // Construir URL con query parameters
+    let url = `${API_BASE}/${walletId}/addresses`;
+    const queryParams = new URLSearchParams();
+    if (count !== undefined) {
+      queryParams.append('count', count.toString());
+    }
+    if (queryParams.toString()) {
+      url += `?${queryParams.toString()}`;
+    }
+
+    const response = await fetch(url, {
+      method: 'GET',
+      headers: {
+        'Content-Type': 'application/json',
+        'Authorization': `Bearer ${accessToken}`,
+      },
+    });
+
+    const data = await response.json();
+
+    if (!response.ok || data?.success === false) {
+      const { message } = parseWalletApiError(response, data);
+      toast.error(message);
+      return { success: false, data, error: message };
+    }
+
+    // Respuesta 2xx correcta (estructura según documentación)
+    // { wallet_name, addresses: [{ index, path, enterprise_address, staking_address }], count }
+    return { success: true, data };
+  } catch (error: any) {
+    console.error('Error al obtener las direcciones de la billetera:', error);
+    const { message } = parseWalletApiError(null, error);
+    toast.error(message);
+    return { success: false, data: null, error: message };
+  }
+};
+
+/**
+ * Obtiene los UTXOs (Unspent Transaction Outputs) de una billetera
+ * @param walletId ID de la billetera
+ * @param addressIndex Índice de la dirección (opcional)
+ * @param minAda Cantidad mínima de ADA requerida (opcional)
+ * @returns Objeto con success, data (UTXOs) o error
+ */
+export const getWalletUtxos = async (
+  walletId: string,
+  addressIndex?: number,
+  minAda?: number
+) => {
+  try {
+    // Obtener access_token para Authorization header
+    const accessToken = getAccessToken();
+    if (!accessToken) {
+      const message = 'No se encontró el token de acceso. Por favor, desbloquea la billetera.';
+      toast.error(message);
+      return { success: false, data: null, error: message };
+    }
+
+    // Construir body con parámetros opcionales
+    const body: any = {};
+    if (addressIndex !== undefined) {
+      body.address_index = addressIndex;
+    }
+    if (minAda !== undefined) {
+      body.min_ada = minAda;
+    }
+
+    const response = await fetch(`${API_BASE}/${walletId}/utxos`, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'Authorization': `Bearer ${accessToken}`,
+      },
+      body: JSON.stringify(body),
+    });
+
+    const data = await response.json();
+
+    if (!response.ok || data?.success === false) {
+      const { message } = parseWalletApiError(response, data);
+      toast.error(message);
+      return { success: false, data, error: message };
+    }
+
+    // Respuesta 2xx correcta
+    return { success: true, data };
+  } catch (error: any) {
+    console.error('Error al obtener los UTXOs de la billetera:', error);
+    const { message } = parseWalletApiError(null, error);
+    toast.error(message);
+    return { success: false, data: null, error: message };
+  }
+};
+
+/**
+ * Interfaz para los parámetros de construcción de transacción
+ */
+export interface BuildTransactionPayload {
+  amount_ada: number;
+  to_address: string;
+  from_address_index?: number;
+  metadata?: {
+    [key: string]: any;
+  };
+}
+
+/**
+ * Interfaz para la respuesta exitosa de buildTransaction
+ */
+export interface BuildTransactionResponse {
+  amount_ada: number;
+  amount_lovelace: number;
+  estimated_fee_ada: number;
+  estimated_fee_lovelace: number;
+  from_address: string;
+  status: string;
+  success: boolean;
+  to_address: string;
+  transaction_id: string;
+  tx_cbor: string;
+  tx_hash: string;
+}
+
+/**
+ * Construye una transacción para enviar ADA
+ * @param payload Parámetros de la transacción (amount_ada, to_address, from_address_index opcional, metadata opcional)
+ * @returns Objeto con success, data (transaction_id, tx_cbor, tx_hash, etc.) o error
+ */
+export const buildTransaction = async (
+  payload: BuildTransactionPayload
+) => {
+  try {
+    // Obtener access_token para Authorization header
+    const accessToken = getAccessToken();
+    if (!accessToken) {
+      const message = 'No se encontró el token de acceso. Por favor, desbloquea la billetera.';
+      toast.error(message);
+      return { success: false, data: null, error: message };
+    }
+
+    // Validar campos requeridos
+    if (payload.amount_ada === undefined || payload.to_address === undefined) {
+      const message = 'amount_ada y to_address son campos requeridos';
+      toast.error(message);
+      return { success: false, data: null, error: message };
+    }
+
+    const response = await fetch('/api/transactions/build', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'Authorization': `Bearer ${accessToken}`,
+      },
+      body: JSON.stringify(payload),
+    });
+
+    const data = await response.json();
+
+    if (!response.ok || data?.success === false) {
+      const { message } = parseWalletApiError(response, data);
+      toast.error(message);
+      return { success: false, data, error: message };
+    }
+
+    // Respuesta 2xx correcta
+    return { success: true, data: data as BuildTransactionResponse };
+  } catch (error: any) {
+    console.error('Error al construir la transacción:', error);
+    const { message } = parseWalletApiError(null, error);
+    toast.error(message);
+    return { success: false, data: null, error: message };
+  }
+};
+
+/**
+ * Interfaz para los parámetros de firma y envío de transacción
+ */
+export interface SignAndSubmitTransactionPayload {
+  password: string;
+  transaction_id: string;
+}
+
+/**
+ * Interfaz para la respuesta exitosa de signAndSubmitTransaction
+ */
+export interface SignAndSubmitTransactionResponse {
+  explorer_url: string;
+  signed_at: string;
+  status: string;
+  submitted_at: string;
+  success: boolean;
+  transaction_id: string;
+  tx_hash: string;
+}
+
+/**
+ * Firma y envía una transacción previamente construida
+ * @param payload Parámetros de la transacción (password, transaction_id)
+ * @returns Objeto con success, data (explorer_url, tx_hash, status, etc.) o error
+ */
+export const signAndSubmitTransaction = async (
+  payload: SignAndSubmitTransactionPayload
+) => {
+  try {
+    // Obtener access_token para Authorization header
+    const accessToken = getAccessToken();
+    if (!accessToken) {
+      const message = 'No se encontró el token de acceso. Por favor, desbloquea la billetera.';
+      toast.error(message);
+      return { success: false, data: null, error: message };
+    }
+
+    // Validar campos requeridos
+    if (payload.password === undefined || payload.transaction_id === undefined) {
+      const message = 'password y transaction_id son campos requeridos';
+      toast.error(message);
+      return { success: false, data: null, error: message };
+    }
+
+    const response = await fetch('/api/transactions/sign-and-submit', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'Authorization': `Bearer ${accessToken}`,
+      },
+      body: JSON.stringify(payload),
+    });
+
+    const data = await response.json();
+
+    if (!response.ok || data?.success === false) {
+      const { message } = parseWalletApiError(response, data);
+      // No mostrar toast automáticamente para errores de contraseña
+      // El componente manejará estos casos con mensajes más específicos
+      const isPasswordError = message.toLowerCase().includes('password') || 
+                              message.toLowerCase().includes('contraseña') ||
+                              message.toLowerCase().includes('incorrect') ||
+                              message.toLowerCase().includes('incorrecta');
+      if (!isPasswordError) {
+        toast.error(message);
+      }
+      return { success: false, data, error: message };
+    }
+
+    // Respuesta 2xx correcta
+    return { success: true, data: data as SignAndSubmitTransactionResponse };
+  } catch (error: any) {
+    console.error('Error al firmar y enviar la transacción:', error);
+    const { message } = parseWalletApiError(null, error);
+    toast.error(message);
+    return { success: false, data: null, error: message };
+  }
+};
+
+/**
+ * Interfaz para la respuesta de información de billetera
+ */
+export interface WalletInfoResponse {
+  id: string;
+  name: string;
+  network: string;
+  enterprise_address: string;
+  staking_address: string;
+  role: string;
+  is_locked: boolean;
+  is_default: boolean;
+  created_at: string;
+}
+
+/**
+ * Obtiene la información de una billetera por su ID
+ * @param walletId ID de la billetera
+ * @returns Objeto con success, data (WalletInfoResponse) o error
+ */
+export const getWalletInfo = async (
+  walletId: string
+): Promise<{ success: boolean; data: WalletInfoResponse | null; error?: string }> => {
+  try {
+    // Obtener access_token para Authorization header
+    const accessToken = getAccessToken();
+    if (!accessToken) {
+      const message = 'No se encontró el token de acceso. Por favor, desbloquea la billetera.';
+      return { success: false, data: null, error: message };
+    }
+
+    // Validar que walletId esté presente
+    if (!walletId) {
+      const message = 'walletId es un campo requerido';
+      return { success: false, data: null, error: message };
+    }
+
+    const response = await fetch(`/api/wallets/${walletId}`, {
+      method: 'GET',
+      headers: {
+        'Content-Type': 'application/json',
+        'Authorization': `Bearer ${accessToken}`,
+      },
+    });
+
+    const data = await response.json();
+
+    if (!response.ok || data?.success === false) {
+      const { message } = parseWalletApiError(response, data);
+      return { success: false, data: null, error: message };
+    }
+
+    // Respuesta 2xx correcta
+    return { success: true, data: data as WalletInfoResponse };
+  } catch (error: any) {
+    console.error('Error al obtener información de la billetera:', error);
+    const { message } = parseWalletApiError(null, error);
+    return { success: false, data: null, error: message };
+  }
+};
+
+/**
+ * Interfaz para los parámetros opcionales de historial de transacciones
+ */
+export interface TransactionHistoryParams {
+  tx_type?: string;
+  status?: string;
+  limit?: number;
+  offset?: number;
+}
+
+/**
+ * Interfaz para una transacción en el historial
+ */
+export interface TransactionHistoryItem {
+  id: string;
+  tx_hash: string;
+  tx_type: string;
+  status: string;
+  from_address: string;
+  to_address: string;
+  amount_lovelace: number;
+  amount_ada: number;
+  fee_lovelace: number;
+  explorer_url: string;
+  submitted_at: string;
+  confirmed_at: string | null;
+  metadata?: {
+    [key: string]: any;
+  };
+}
+
+/**
+ * Interfaz para la respuesta exitosa de getTransactionHistory
+ */
+export interface TransactionHistoryResponse {
+  transactions: TransactionHistoryItem[];
+  total: number;
+  limit: number;
+  offset: number;
+  has_more: boolean;
+}
+
+/**
+ * Obtiene el historial de transacciones
+ * @param params Parámetros opcionales (tx_type, status, limit, offset)
+ * @returns Objeto con success, data (transactions, total, limit, offset, has_more) o error
+ */
+export const getTransactionHistory = async (
+  params?: TransactionHistoryParams
+) => {
+  try {
+    // Obtener access_token para Authorization header
+    const accessToken = getAccessToken();
+    if (!accessToken) {
+      const message = 'No se encontró el token de acceso. Por favor, desbloquea la billetera.';
+      toast.error(message);
+      return { success: false, data: null, error: message };
+    }
+
+    // Construir URL con query parameters
+    let url = '/api/transactions/history';
+    const queryParams = new URLSearchParams();
+    if (params?.tx_type !== undefined) {
+      queryParams.append('tx_type', params.tx_type);
+    }
+    if (params?.status !== undefined) {
+      queryParams.append('status', params.status);
+    }
+    if (params?.limit !== undefined) {
+      queryParams.append('limit', params.limit.toString());
+    }
+    if (params?.offset !== undefined) {
+      queryParams.append('offset', params.offset.toString());
+    }
+    if (queryParams.toString()) {
+      url += `?${queryParams.toString()}`;
+    }
+
+    const response = await fetch(url, {
+      method: 'GET',
+      headers: {
+        'Content-Type': 'application/json',
+        'Authorization': `Bearer ${accessToken}`,
+      },
+    });
+
+    const data = await response.json();
+
+    if (!response.ok || data?.success === false) {
+      const { message } = parseWalletApiError(response, data);
+      toast.error(message);
+      return { success: false, data, error: message };
+    }
+
+    // Respuesta 2xx correcta
+    return { success: true, data: data as TransactionHistoryResponse };
+  } catch (error: any) {
+    console.error('Error al obtener el historial de transacciones:', error);
+    const { message } = parseWalletApiError(null, error);
+    toast.error(message);
+    return { success: false, data: null, error: message };
+  }
+};
+
+/**
+ * Interfaz para un input de transacción
+ */
+export interface TransactionInput {
+  tx_id: string;
+  output_index: number;
+  address: string;
+  amount_lovelace: number;
+}
+
+/**
+ * Interfaz para un output de transacción
+ */
+export interface TransactionOutput {
+  address: string;
+  amount_lovelace: number;
+  amount_ada: number;
+  assets?: {
+    [key: string]: any;
+  };
+}
+
+/**
+ * Interfaz para la respuesta exitosa de getTransactionByHash
+ */
+export interface TransactionDetailResponse {
+  tx_hash: string;
+  status: string;
+  tx_type: string;
+  inputs: TransactionInput[];
+  outputs: TransactionOutput[];
+  fee_lovelace: number;
+  fee_ada: number;
+  block_height: number | null;
+  block_time: string | null;
+  confirmations: number;
+  metadata?: {
+    [key: string]: any;
+  };
+  submitted_at: string;
+  confirmed_at: string | null;
+  explorer_url: string;
+}
+
+/**
+ * Obtiene los detalles de una transacción por su hash
+ * @param txHash Hash de la transacción
+ * @returns Objeto con success, data (detalles completos de la transacción) o error
+ */
+export const getTransactionByHash = async (txHash: string) => {
+  try {
+    // Obtener access_token para Authorization header
+    const accessToken = getAccessToken();
+    if (!accessToken) {
+      const message = 'No se encontró el token de acceso. Por favor, desbloquea la billetera.';
+      toast.error(message);
+      return { success: false, data: null, error: message };
+    }
+
+    // Validar que txHash esté presente
+    if (!txHash || txHash.trim() === '') {
+      const message = 'tx_hash es un parámetro requerido';
+      toast.error(message);
+      return { success: false, data: null, error: message };
+    }
+
+    const response = await fetch(`/api/transactions/${txHash}`, {
+      method: 'GET',
+      headers: {
+        'Content-Type': 'application/json',
+        'Authorization': `Bearer ${accessToken}`,
+      },
+    });
+
+    const data = await response.json();
+
+    if (!response.ok || data?.success === false) {
+      const { message } = parseWalletApiError(response, data);
+      toast.error(message);
+      return { success: false, data, error: message };
+    }
+
+    // Respuesta 2xx correcta
+    return { success: true, data: data as TransactionDetailResponse };
+  } catch (error: any) {
+    console.error('Error al obtener los detalles de la transacción:', error);
+    const { message } = parseWalletApiError(null, error);
     toast.error(message);
     return { success: false, data: null, error: message };
   }

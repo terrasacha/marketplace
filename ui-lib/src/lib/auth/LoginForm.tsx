@@ -52,37 +52,37 @@ const VerifyCodeMFA = (props: any) => {
     }
   };
   const marketplaceName =
-  process.env.NEXT_PUBLIC_MARKETPLACE_NAME || 'Marketplace';
-const marketplaceColors: Record<
-  string,
-  {
-    bgColor: string;
-    hoverBgColor: string;
-    bgColorAlternativo: string;
-    fuente: string;
-    fuenteAlterna: string;
-    fuenteVariante:string;
-  }
-> = {
-  Terrasacha: {
-    bgColor: 'bg-custom-marca-boton',
-    hoverBgColor: 'hover:bg-custom-marca-boton-variante',
-    bgColorAlternativo: 'bg-custom-marca-boton-alterno2',
-    fuente: 'font-jostBold',
-    fuenteAlterna: 'font-jostRegular',
-    fuenteVariante: 'font-jostItalic',
-  },
+    process.env.NEXT_PUBLIC_MARKETPLACE_NAME || 'Marketplace';
+  const marketplaceColors: Record<
+    string,
+    {
+      bgColor: string;
+      hoverBgColor: string;
+      bgColorAlternativo: string;
+      fuente: string;
+      fuenteAlterna: string;
+      fuenteVariante: string;
+    }
+  > = {
+    Terrasacha: {
+      bgColor: 'bg-custom-marca-boton',
+      hoverBgColor: 'hover:bg-custom-marca-boton-variante',
+      bgColorAlternativo: 'bg-custom-marca-boton-alterno2',
+      fuente: 'font-jostBold',
+      fuenteAlterna: 'font-jostRegular',
+      fuenteVariante: 'font-jostItalic',
+    },
 
-  // Agrega más marketplaces y colores aquí
-};
-const colors = marketplaceColors[marketplaceName] || {
-  bgColor: 'bg-custom-dark',
-  hoverBgColor: 'hover:bg-custom-dark-hover',
-  bgColorAlternativo: 'bg-amber-400',
-  fuente: 'font-semibold',
-  fuenteAlterna: 'font-medium',
-  fuenteVariante: 'font-normal',
-};
+    // Agrega más marketplaces y colores aquí
+  };
+  const colors = marketplaceColors[marketplaceName] || {
+    bgColor: 'bg-custom-dark',
+    hoverBgColor: 'hover:bg-custom-dark-hover',
+    bgColorAlternativo: 'bg-amber-400',
+    fuente: 'font-semibold',
+    fuenteAlterna: 'font-medium',
+    fuenteVariante: 'font-normal',
+  };
   return (
     <div>
       <h1
@@ -90,10 +90,25 @@ const colors = marketplaceColors[marketplaceName] || {
       >
         Autenticación Multi-factor (MFA){' '}
       </h1>
-      <p className={`pb-1 text-sm  ${colors.fuenteAlterna}` }>
-        Digite el código MFA proporcionado en su Google Authenticator para
-        completar el inicio de sesión:
-      </p>
+      <div className="flex items-center gap-2 pb-1">
+        <p className={`text-sm ${colors.fuenteAlterna} flex-1`}>
+          Digite el código MFA proporcionado en su Google Authenticator para
+          completar el inicio de sesión:
+        </p>
+        {/* Botón de información */}
+        <div className="relative group inline-block flex-shrink-0">
+          <button className={`v text-gray-400`}>
+            <div className="text-yellow-500 p-2 flex items-center">
+              <AiOutlineInfoCircle size={30} className="cursor-pointer text-orange-500" />
+            </div>
+          </button>
+
+          {/* Tooltip */}
+          <div className={`${colors.fuenteVariante} absolute invisible group-hover:visible bg-black text-white text-sm rounded py-2 px-4 bottom-full mb-2 w-80 max-w-sm z-50`}>
+            Debe tener instalado Google Authenticator en su móvil y escanear el código QR.
+          </div>
+        </div>
+      </div>
       <input
         type="text"
         className={` ${colors.fuenteAlterna}  text-sm border border-gray-200 w-full p-4 rounded-md`}
@@ -101,19 +116,6 @@ const colors = marketplaceColors[marketplaceName] || {
         onChange={handleInputChange}
         placeholder="Ingresa el código MFA"
       />
-      {/* Botón de información */}
-      <div className="relative group inline-block">
-      <button className={`v text-gray-400 ml-2`}>
-        <div className="text-yellow-500 p-2 flex items-center">
-          <AiOutlineInfoCircle size={30} className="cursor-pointer text-orange-500" />
-        </div>
-      </button>
-      
-      {/* Tooltip */}
-      <div className={`${colors.fuenteVariante}  absolute invisible group-hover:visible bg-black text-white text-lg rounded py-1 px-2 bottom-full mb-1`}>
-        Debe tener instalado Google Authenticator en su móvil y escanear el código QR.
-      </div>
-    </div>
       <button
         className="relative w-full mt-6 flex items-center h-10 justify-center font-jostBold focus:z-10 focus:outline-none text-white bg-custom-marca-boton border border-transparent enabled:hover:bg-custom-marca-boton-variante  dark:bg-cyan-600 dark:enabled:hover:bg-cyan-700  rounded-lg focus:ring-2 px-8 py-2"
         onClick={() => verifyMFA(code)}
@@ -177,21 +179,21 @@ const LoginForm = (props: LoginFormProps) => {
   const submitForm = async () => {
     setLoading(true);
     setErrors(initialStateErrors); // Resetea errores previos
-  
+
     try {
       const data: SignInResponse = await signInAuth(loginForm);
       console.log("🔹 Respuesta de Cognito:", data);
-  
+
       switch (data.nextStep?.signInStep) {
         case "CONFIRM_SIGN_IN_WITH_NEW_PASSWORD_REQUIRED":
           return router.push(
             `/auth/new-password-required?username=${loginForm.username}`
           );
-  
+
         case "CONFIRM_SIGN_IN_WITH_TOTP_CODE":
           setShowMFA(true);
           return;
-  
+
         default:
           if (data.isSignedIn) {
             const isFromGenerateWallet =
@@ -199,11 +201,11 @@ const LoginForm = (props: LoginFormProps) => {
             return router.push(isFromGenerateWallet ? "/generate-wallet" : "/");
           }
       }
-  
+
       // --- 🔹 Obtener email del usuario si no está confirmado ---
       let email = "";
       let userName = loginForm.username;
-  
+
       console.log("🔍 Buscando email en AppSync para usuario:", userName);
       try {
         const userData = await getUserByName(userName);
@@ -214,24 +216,24 @@ const LoginForm = (props: LoginFormProps) => {
       } catch (error) {
         console.error("❌ Error obteniendo email desde AppSync:", error);
       }
-  
+
       // Si no hay email, usar el username si es un correo válido
       if (!email && userName.includes("@")) {
         email = userName;
         console.log("📩 Usando el username como email:", email);
       }
-  
+
       console.log("✅ Email final recuperado:", email || "No disponible");
-  
+
       // 🔄 Redirigir con el email obtenido
       return router.push(`/auth/confirm-code?email=${encodeURIComponent(email)}`);
-  
+
     } catch (error: any) {
       console.error("❌ Error de autenticación:", error);
-  
+
       let errorMessage = "Error desconocido, cierre su sesión antes de intentar nuevamente";
       let emailFromError = error?.challengeParam?.userAttributes?.email || "";
-  
+
       switch (error.name) {
         case "UserNotFoundException":
           errorMessage = "El usuario no existe";
@@ -248,14 +250,14 @@ const LoginForm = (props: LoginFormProps) => {
         default:
           errorMessage = "Error inesperado, por favor intente más tarde.";
       }
-  
+
       setErrors((prevErrors: { loginError: string }) => ({
         ...prevErrors,
         loginError: errorMessage,
       }));
-  
+
       toast.error(errorMessage);
-  
+
       // Si obtenemos el email del error, redirigir a confirmación
       if (emailFromError) {
         return router.push(`/auth/confirm-code?email=${encodeURIComponent(emailFromError)}`);
@@ -264,42 +266,42 @@ const LoginForm = (props: LoginFormProps) => {
       setLoading(false);
     }
   };
-  
-  
-  
+
+
+
 
   const marketplaceName =
-  process.env.NEXT_PUBLIC_MARKETPLACE_NAME || 'Marketplace';
-const marketplaceColors: Record<
-  string,
-  {
-    bgColor: string;
-    hoverBgColor: string;
-    bgColorAlternativo: string;
-    fuente: string;
-    fuenteAlterna: string;
-    fuenteVariante:string;
-  }
-> = {
-  Terrasacha: {
-    bgColor: 'bg-custom-marca-boton',
-    hoverBgColor: 'hover:bg-custom-marca-boton-variante',
-    bgColorAlternativo: 'bg-custom-marca-boton-alterno2',
-    fuente: 'font-jostBold',
-    fuenteAlterna: 'font-jostRegular',
-    fuenteVariante: 'font-jostItalic',
-  },
+    process.env.NEXT_PUBLIC_MARKETPLACE_NAME || 'Marketplace';
+  const marketplaceColors: Record<
+    string,
+    {
+      bgColor: string;
+      hoverBgColor: string;
+      bgColorAlternativo: string;
+      fuente: string;
+      fuenteAlterna: string;
+      fuenteVariante: string;
+    }
+  > = {
+    Terrasacha: {
+      bgColor: 'bg-custom-marca-boton',
+      hoverBgColor: 'hover:bg-custom-marca-boton-variante',
+      bgColorAlternativo: 'bg-custom-marca-boton-alterno2',
+      fuente: 'font-jostBold',
+      fuenteAlterna: 'font-jostRegular',
+      fuenteVariante: 'font-jostItalic',
+    },
 
-  // Agrega más marketplaces y colores aquí
-};
-const colors = marketplaceColors[marketplaceName] || {
-  bgColor: 'bg-custom-dark',
-  hoverBgColor: 'hover:bg-custom-dark-hover',
-  bgColorAlternativo: 'bg-amber-400',
-  fuente: 'font-semibold',
-  fuenteAlterna: 'font-medium',
-  fuenteVariante: 'font-normal',
-};
+    // Agrega más marketplaces y colores aquí
+  };
+  const colors = marketplaceColors[marketplaceName] || {
+    bgColor: 'bg-custom-dark',
+    hoverBgColor: 'hover:bg-custom-dark-hover',
+    bgColorAlternativo: 'bg-amber-400',
+    fuente: 'font-semibold',
+    fuenteAlterna: 'font-medium',
+    fuenteVariante: 'font-normal',
+  };
   return (
     <div className="bg-white rounded-2xl w-[35rem] max-w-[35rem] 2xl:w-[38%] py-10 px-12 sm:px-20 h-auto flex flex-col justify-center">
       <div className="w-full flex justify-center mb-8">
@@ -315,30 +317,31 @@ const colors = marketplaceColors[marketplaceName] || {
           <h2 className="font-jostBold text-3xl font-jostBold pb-3 flex justify-center text-center">
             ¡Bienvenido al Marketplace de {appName}!
           </h2>
-          <h4 className="font-jostRegular text-1xl font-jostRegular">
-            Ingrese sus datos:
-          </h4>
-          <p
-            className={`${
-              errors.loginError === '' && 'hidden'
-            } font-jostRegular text-red-400 text-xs`}
-          >
-            {errors.loginError}
-          </p>
-                            {/* Botón de información */}
-      <div className="relative group inline-block">
-      <button className={`v text-gray-400 ml-2`}>
-        <div className="text-yellow-500 p-2 flex items-center">
-          <AiOutlineInfoCircle size={30} className="cursor-pointer text-orange-500" />
-        </div>
-      </button>
-      
-      {/* Tooltip */}
-      <div className={`${colors.fuenteVariante}  absolute invisible group-hover:visible bg-black text-white text-lg rounded py-1 px-2 bottom-full mb-1`}>
-      El username-nombre de usuario no puede contener espacios ni caracteres especiales. El password, contraseña debe tener más de 8 caracteres y poseer al menos un valor numérico
-      </div>
-    </div>
-          <form className="pt-10" onSubmit={(e) => e.preventDefault()}>
+          <div className="flex items-center gap-2 flex-wrap">
+            <h4 className="font-jostRegular text-1xl font-jostRegular">
+              Ingrese sus datos:
+            </h4>
+            <p
+              className={`${errors.loginError === '' && 'hidden'
+                } font-jostRegular text-red-400 text-xs`}
+            >
+              {errors.loginError}
+            </p>
+            {/* Botón de información */}
+            <div className="relative group inline-block">
+              <button className={`v text-gray-400`}>
+                <div className="text-yellow-500 p-2 flex items-center">
+                  <AiOutlineInfoCircle size={30} className="cursor-pointer text-orange-500" />
+                </div>
+              </button>
+
+            {/* Tooltip */}
+            <div className={`${colors.fuenteVariante} absolute invisible group-hover:visible bg-black text-white text-sm rounded py-2 px-4 bottom-full mb-2 w-80 max-w-sm z-50`}>
+              El nombre de usuario no puede contener espacios ni caracteres especiales. El password, contraseña debe tener más de 8 caracteres y poseer al menos un valor numérico
+            </div>
+            </div>
+          </div>
+          <form onSubmit={(e) => e.preventDefault()}>
             <div className="relative z-0 w-full mb-4 group">
               <input
                 type="text"
@@ -349,7 +352,7 @@ const colors = marketplaceColors[marketplaceName] || {
                 placeholder="username"
                 required
               />
-              
+
             </div>
 
 

@@ -29,19 +29,6 @@ export default function SignTransaction(props: SignTransactionProps) {
   
   router.events.on('routeChangeStart', handleRouteChangeStart);
 
-  const validateWalletPassword = async () => {
-    const response = await fetch('/api/calls/backend/validateWalletPassword', {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-      },
-      body: JSON.stringify({ password, wallet_id: walletID }),
-    });
-    const passwordValidation = await response.json();
-
-    return passwordValidation.isValidUser;
-  };
-
   const handleSignTransactionDistributeTokens = async () => {
     const confirmSubmitData = {
       wallet_id: walletID,
@@ -139,24 +126,32 @@ export default function SignTransaction(props: SignTransactionProps) {
   };
 
   const handleSignTransactionSendTransaction = async () => {
-    const confirmSubmitData = {
-      wallet_id: walletID,
-      cbor: pendingTx.cbor,
-      scriptIds: [],
-      metadata_cbor: pendingTx.metadata_cbor,
-      redeemers_cbor: [],
-      transaction_id: pendingTx.transaction_id
-    };
-    const response = await fetch('/api/transactions/sign-submit', {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-      },
-      body: JSON.stringify(confirmSubmitData),
+    // Usar el nuevo endpoint sign-and-submit
+    const { signAndSubmitTransaction } = await import('../../common/walletApi');
+    
+    const signResult = await signAndSubmitTransaction({
+      password: password,
+      transaction_id: pendingTx.transaction_id,
     });
-    const signSubmitResponse = await response.json();
-    console.log('Firmado de transacción: ', signSubmitResponse);
-    return signSubmitResponse;
+
+    if (!signResult.success) {
+      return {
+        txSubmit: {
+          success: false,
+          error: signResult.error,
+        },
+      };
+    }
+
+    // Adaptar la respuesta al formato esperado
+    return {
+      txSubmit: {
+        success: true,
+        tx_hash: signResult.data?.tx_hash,
+        explorer_url: signResult.data?.explorer_url,
+        status: signResult.data?.status,
+      },
+    };
   };
 
   const handleSignTransactionCreateOrder = async () => {
@@ -294,12 +289,13 @@ export default function SignTransaction(props: SignTransactionProps) {
 
   const handleSign = async () => {
     setIsLoading(true);
+    setPasswordError(false); // Resetear el error de contraseña
 
-    const isValidUser = await validateWalletPassword();
-
-    if (!isValidUser) {
+    // Validar que la contraseña no esté vacía
+    if (!password || password.trim() === '') {
       setPasswordError(true);
       setIsLoading(false);
+      toast.error('Por favor ingrese la contraseña de su billetera');
       return;
     }
 
@@ -359,6 +355,20 @@ export default function SignTransaction(props: SignTransactionProps) {
         });
       }, 3000);
     } else {
+      // Manejar errores de firma
+      const errorMessage = signSubmitResponse?.txSubmit?.error || signSubmitResponse?.error || 'Ha ocurrido un error al intentar realizar la transacción';
+      
+      // Verificar si es un error de contraseña
+      if (errorMessage.toLowerCase().includes('contraseña') || 
+          errorMessage.toLowerCase().includes('password') ||
+          errorMessage.toLowerCase().includes('incorrecta') ||
+          errorMessage.toLowerCase().includes('invalid')) {
+        setPasswordError(true);
+        toast.error('Contraseña incorrecta. Por favor, intente nuevamente.');
+      } else {
+        toast.error(errorMessage);
+      }
+
       if (signType === 'buyTokens') {
         let success = false;
         const maxRetries = 2; // 3 minutes / 20 seconds = 9 retries
@@ -443,7 +453,6 @@ export default function SignTransaction(props: SignTransactionProps) {
           }
         }
       }
-      toast.error('Ha ocurrido un error al intentar realizar la transacción');
     }
 
     setIsLoading(false);

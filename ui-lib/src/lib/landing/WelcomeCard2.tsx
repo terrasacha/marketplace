@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import Link from 'next/link';
 import { getCurrentUser, signOut } from 'aws-amplify/auth';
 import Image from 'next/image';
@@ -57,6 +57,8 @@ const WelcomeCard2 = (props: WelcomeCard2Props) => {
   const { checkingWallet, handleSetCheckingWallet, appName, poweredby } = props;
   const router = useRouter();
   const [userData, setUserData] = useState(null) as any;
+  const [hasWallet, setHasWallet] = useState<boolean | null>(null);
+  const [isCheckingWallet, setIsCheckingWallet] = useState<boolean>(true);
   const [viewMode, setViewMode] = useState<'create' | 'import'>('create');
   
   // Estados para errores de validación
@@ -79,19 +81,47 @@ const WelcomeCard2 = (props: WelcomeCard2Props) => {
   const [isImportingWallet, setIsImportingWallet] = useState(false);
   const [importWalletError, setImportWalletError] = useState<string | null>(null);
 
-  useEffect(() => {
-    currentAuthenticatedUser().then((res) => {
-      setUserData(res);
-    });
+  // Función para verificar si el usuario tiene wallet
+  const checkUserWallet = useCallback(async (userId: string) => {
+    try {
+      const response = await fetch('/api/calls/backend/getWalletByUser', {
+        method: 'POST',
+        body: userId,
+      });
+      const wallets = await response.json();
+      const hasWalletResult = Array.isArray(wallets) && wallets.length > 0;
+      setHasWallet(hasWalletResult);
+      return hasWalletResult;
+    } catch (error) {
+      console.error('Error al verificar wallet del usuario:', error);
+      setHasWallet(false);
+      return false;
+    } finally {
+      setIsCheckingWallet(false);
+    }
   }, []);
 
   useEffect(() => {
-    if (checkingWallet === 'unauthorized') {
+    const init = async () => {
+      const user = await currentAuthenticatedUser();
+      if (user) {
+        setUserData(user);
+        setIsCheckingWallet(true);
+        await checkUserWallet(user.userId);
+      } else {
+        setIsCheckingWallet(false);
+      }
+    };
+    init();
+  }, [checkUserWallet]);
+
+  useEffect(() => {
+    if (checkingWallet === 'unauthorized' && handleSetCheckingWallet) {
       setTimeout(() => {
         handleSetCheckingWallet('uncheck');
       }, 1500);
     }
-  }, [checkingWallet]);
+  }, [checkingWallet, handleSetCheckingWallet]);
 
   const currentAuthenticatedUser = async () => {
     try {
@@ -104,10 +134,18 @@ const WelcomeCard2 = (props: WelcomeCard2Props) => {
 
   const handleSignOut = async () => {
     try {
-      await signOut();
+      const { performWalletSignOut } = await import('@marketplaces/ui-lib/src/lib/common/walletApi');
+      await performWalletSignOut(signOut);
       router.reload();
     } catch (err) {
       console.error('Error al cerrar sesión:', err);
+      // Aún así intentar cerrar sesión de AWS Amplify
+      try {
+        await signOut();
+        router.reload();
+      } catch (signOutError) {
+        console.error('Error al cerrar sesión de AWS Amplify:', signOutError);
+      }
     }
   };
 
@@ -186,6 +224,11 @@ const WelcomeCard2 = (props: WelcomeCard2Props) => {
       setNewWalletName('');
       setNewPassword('');
       setNewConfirmPassword('');
+      
+      // Actualizar estado de wallet después de crear
+      if (userId) {
+        await checkUserWallet(userId);
+      }
     } else if (result.error) {
       setCreateWalletError(result.error);
     }
@@ -236,7 +279,12 @@ const WelcomeCard2 = (props: WelcomeCard2Props) => {
 
     if (result.success && result.data) {
       await unlockWallet(result.data.wallet_id, importPassword);
-      router.push('/restore-wallet');
+      
+      // Actualizar estado de wallet después de importar
+      const userId = userData?.userId || null;
+      if (userId) {
+        await checkUserWallet(userId);
+      }
     } else if (result.error) {
       setImportWalletError(result.error);
     }
@@ -280,21 +328,40 @@ const WelcomeCard2 = (props: WelcomeCard2Props) => {
         </h3>
       )}
 
-      <h2 className="font-jostBold text-xl pb-2 flex justify-center text-center mt-4">
-        {userData
-          ? 'Crea tu billetera o utiliza una preexistente'
-          : '¡Bienvenido a nuestro Marketplace!'}
-      </h2>
-      {userData ? (
-        <p className="font-jostRegular text-xs text-center mb-4 text-gray-600">
-          El siguiente paso es crear tu billetera virtual o utilizar una que hayas creado previamente (asegúrate de tener tus mnemonics o grupo secreto de palabras).
-        </p>
+      {isCheckingWallet ? (
+        <div className="flex flex-col items-center justify-center py-8">
+          <p className="font-jostRegular text-sm text-center text-gray-600">
+            Verificando billetera...
+          </p>
+        </div>
+      ) : hasWallet ? (
+        <>
+          <h2 className="font-jostBold text-xl pb-2 flex justify-center text-center mt-4">
+            Bienvenido de vuelta
+          </h2>
+          <p className="font-jostRegular text-xs text-center mb-4 text-gray-600">
+            Ya tienes una billetera asociada. Puedes continuar al marketplace o cerrar sesión.
+          </p>
+        </>
       ) : (
-        <p className="text-xs pb-2 text-center font-jostRegular text-gray-600 mb-4">
-          Para comenzar a usar la aplicación, necesitas una billetera virtual
-          con el token de acceso de nuestra organización. Puedes crear tu
-          billetera y usuario directamente en nuestra plataforma.
-        </p>
+        <>
+          <h2 className="font-jostBold text-xl pb-2 flex justify-center text-center mt-4">
+            {userData
+              ? 'Crea tu billetera o utiliza una preexistente'
+              : '¡Bienvenido a nuestro Marketplace!'}
+          </h2>
+          {userData ? (
+            <p className="font-jostRegular text-xs text-center mb-4 text-gray-600">
+              El siguiente paso es crear tu billetera virtual o utilizar una que hayas creado previamente (asegúrate de tener tus mnemonics o grupo secreto de palabras).
+            </p>
+          ) : (
+            <p className="text-xs pb-2 text-center font-jostRegular text-gray-600 mb-4">
+              Para comenzar a usar la aplicación, necesitas una billetera virtual
+              con el token de acceso de nuestra organización. Puedes crear tu
+              billetera y usuario directamente en nuestra plataforma.
+            </p>
+          )}
+        </>
       )}
 
       {(checkingWallet === 'checking' ||
@@ -311,12 +378,34 @@ const WelcomeCard2 = (props: WelcomeCard2Props) => {
         </p>
       )}
 
-      {!userData ? (
+      {isCheckingWallet ? null : !userData ? (
         <Link href={'/auth/login'}>
           <button className="font-jostBold relative w-full flex items-center justify-center font-jostBold focus:z-10 focus:outline-none text-white bg-custom-marca-boton border border-transparent enabled:hover:bg-custom-marca-boton-variante dark:bg-cyan-600 dark:enabled:hover:bg-cyan-700 rounded-lg focus:ring-2 px-8 py-2">
             Ingresar
           </button>
         </Link>
+      ) : hasWallet ? (
+        /* Usuario con wallet - mostrar opciones de continuar o cerrar sesión */
+        <div className="w-full space-y-3">
+          <button
+            onClick={() => router.push('/home')}
+            onKeyDown={(e) => handleKeyDown(e, () => router.push('/home'))}
+            className="font-jostBold relative w-full flex items-center justify-center font-jostBold focus:z-10 focus:outline-none text-white bg-custom-marca-boton border border-transparent enabled:hover:bg-custom-marca-boton-variante dark:bg-cyan-600 dark:enabled:hover:bg-cyan-700 rounded-lg focus:ring-2 px-8 py-2"
+            tabIndex={0}
+            aria-label="Continuar al Marketplace"
+          >
+            Continuar al Marketplace
+          </button>
+          <button
+            onClick={handleSignOut}
+            onKeyDown={(e) => handleKeyDown(e, handleSignOut)}
+            className="font-jostBold relative w-full flex items-center justify-center font-jostBold focus:z-10 focus:outline-none text-white bg-custom-marca-boton border border-transparent enabled:hover:bg-custom-marca-boton-variante dark:bg-cyan-600 dark:enabled:hover:bg-cyan-700 rounded-lg focus:ring-2 px-8 py-2"
+            tabIndex={0}
+            aria-label="Cerrar sesión"
+          >
+            Cerrar sesión
+          </button>
+        </div>
       ) : createdWallet ? (
         /* Interfaz de billetera creada - completamente separada */
         <div className="w-full mb-3">

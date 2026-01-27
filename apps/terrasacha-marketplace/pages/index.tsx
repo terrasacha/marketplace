@@ -36,7 +36,8 @@ const LandingPage: MyPage = (props: any) => {
                 process.env.NEXT_PUBLIC_MARKETPLACE_NAME?.toLowerCase()
             ) {
               setWalletcount(walletData.length);
-              return setCheckingWallet('hasTokenAuth');
+              // Usuario admin, redirigir directamente a home
+              return router.push('/home');
             }
             setWalletcount(walletData.length);
           }
@@ -83,7 +84,7 @@ const LandingPage: MyPage = (props: any) => {
 
         if (walletExists.data.claimed_token) {
           if (hasTokenAuthFunction) {
-            setCheckingWallet('hasTokenAuth');
+            router.push('/home');
           } else {
             walletExists.data.claimed_token
               ? setCheckingWallet('alreadyClaimToken')

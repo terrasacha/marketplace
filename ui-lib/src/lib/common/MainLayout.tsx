@@ -3,10 +3,13 @@ import React, {
   useContext,
   useEffect,
   useState,
+  useCallback,
+  useMemo,
+  useRef,
 } from 'react';
 import Sidebar from '@marketplaces/ui-lib/src/lib/layout/Sidebar';
 import Navbar from '@marketplaces/ui-lib/src/lib/layout/Navbar';
-import { useWallet, useAddress, useLovelace } from '@meshsdk/react';
+import { useWallet } from '@meshsdk/react';
 import { useRouter } from 'next/router';
 import { getCurrentUser, fetchUserAttributes } from 'aws-amplify/auth';
 import WalletContext from '@marketplaces/utils-2/src/lib/context/wallet-context';
@@ -14,202 +17,374 @@ import HomeSkeleton from "@marketplaces/ui-lib/src/lib/common/skeleton/HomeSkele
 import { autoUnlockWallet } from '@marketplaces/ui-lib/src/lib/common/walletApi';
 import WalletUnlockModal from '@marketplaces/ui-lib/src/lib/modals/WalletUnlockModal';
 
-const getRates = async () => {
-  const response = await fetch('/api/calls/getRates')
-  const data = await response.json()
-  let dataFormatted: any = {}
-  data.map((item: any) => {
-      let obj = `ADArate${item.currency}`
-      dataFormatted[obj] = parseFloat(item.value.toFixed(4))
-  });
-  return dataFormatted
-}
+// Constantes
+const WALLET_SESSION_KEYS = {
+  SESSION_KEY: 'wallet_session_key',
+  FRONTEND_SESSION_ID: 'wallet_frontend_session_id',
+  EXPIRES_AT: 'wallet_session_expires_at',
+} as const;
 
 const initialStatewalletInfo = {
   name: '',
   addr: '',
   externalWallet: false,
 };
+
+// Cache para rates (evitar múltiples llamadas)
+let ratesCache: any = null;
+let ratesCacheTimestamp: number = 0;
+const RATES_CACHE_DURATION = 5 * 60 * 1000; // 5 minutos
+
+// Utilidades para manejo de sesión de billetera
+const getWalletSession = () => {
+  if (typeof window === 'undefined') return null;
+  
+  const sessionKey = window.localStorage.getItem(WALLET_SESSION_KEYS.SESSION_KEY);
+  const frontendSessionId = window.localStorage.getItem(WALLET_SESSION_KEYS.FRONTEND_SESSION_ID);
+  const expiresAt = window.localStorage.getItem(WALLET_SESSION_KEYS.EXPIRES_AT);
+  
+  if (!sessionKey || !frontendSessionId || !expiresAt) return null;
+  
+  const isSessionValid = new Date(expiresAt) > new Date();
+  
+  return {
+    sessionKey,
+    frontendSessionId,
+    expiresAt,
+    isSessionValid,
+  };
+};
+
+const clearWalletSession = () => {
+  if (typeof window === 'undefined') return;
+  window.localStorage.removeItem(WALLET_SESSION_KEYS.SESSION_KEY);
+  window.localStorage.removeItem(WALLET_SESSION_KEYS.FRONTEND_SESSION_ID);
+  window.localStorage.removeItem(WALLET_SESSION_KEYS.EXPIRES_AT);
+};
+
+const getRates = async (): Promise<any> => {
+  const now = Date.now();
+  
+  // Retornar cache si está válido
+  if (ratesCache && (now - ratesCacheTimestamp) < RATES_CACHE_DURATION) {
+    return ratesCache;
+  }
+  
+  try {
+    const response = await fetch('/api/calls/getRates');
+    const data = await response.json();
+    const dataFormatted: any = {};
+    
+    data.forEach((item: any) => {
+      const obj = `ADArate${item.currency}`;
+      dataFormatted[obj] = parseFloat(item.value.toFixed(4));
+    });
+    
+    ratesCache = dataFormatted;
+    ratesCacheTimestamp = now;
+    return dataFormatted;
+  } catch (error) {
+    console.error('Error fetching rates:', error);
+    // Retornar cache anterior si hay error
+    return ratesCache || {};
+  }
+};
+
+interface WalletInfo {
+  id: string;
+  name: string;
+  address: string;
+  isAdmin: boolean;
+}
+
 const MainLayout = ({ children }: PropsWithChildren) => {
-  const { connect, connected, disconnect, name, wallet } = useWallet();
-  const { walletData } = useContext<any>(WalletContext);
-  const [allowAccess, setAllowAccess] = useState<boolean>(false);
+  const { connect } = useWallet();
+  const { walletData, handleWalletData } = useContext<any>(WalletContext);
+  const router = useRouter();
+  
+  // Estados de autenticación Cognito
   const [user, setUser] = useState<any>(null);
+  const [cognitoAuthenticated, setCognitoAuthenticated] = useState<boolean>(false);
+  
+  // Estados de billetera
   const [walletInfo, setWalletInfo] = useState<any>(initialStatewalletInfo);
   const [balance, setBalance] = useState<any>(0);
   const [balanceUSD, setBalanceUSD] = useState<number>(0);
+  
+  // Estados de UI
+  const [allowAccess, setAllowAccess] = useState<boolean>(false);
   const [isOpen, setIsOpen] = useState<boolean>(false);
   const [isUnlockModalOpen, setIsUnlockModalOpen] = useState<boolean>(false);
   const [currentWalletId, setCurrentWalletId] = useState<string | null>(null);
   const [currentWalletName, setCurrentWalletName] = useState<string | null>(null);
-  const router = useRouter();
+  
+  // Refs para evitar re-ejecuciones
+  const initializationRef = useRef<boolean>(false);
+  const walletInitializedRef = useRef<boolean>(false);
 
-  const { handleWalletData } = useContext<any>(WalletContext);
+  // Función para verificar y manejar auto-unlock de billetera
+  const handleWalletAutoUnlock = useCallback(async (walletId: string): Promise<boolean> => {
+    const session = getWalletSession();
+    
+    if (!session) {
+      console.log('🔒 No hay sesión de auto-unlock almacenada');
+      return false;
+    }
+    
+    if (!session.isSessionValid) {
+      console.log('⏰ Sesión expirada - Limpiando datos de sesión');
+      clearWalletSession();
+      return false;
+    }
+    
+    try {
+      const autoUnlockResult = await autoUnlockWallet(walletId);
+      if (autoUnlockResult.success) {
+        console.log('✅ Sesión válida - Auto-unlock exitoso para wallet:', walletId);
+        return true;
+      } else {
+        console.log('❌ Sesión inválida - Auto-unlock falló');
+        clearWalletSession();
+        return false;
+      }
+    } catch (autoUnlockError) {
+      console.log('❌ Sesión inválida - Error en auto-unlock:', autoUnlockError);
+      clearWalletSession();
+      return false;
+    }
+  }, []);
 
-  useEffect(() => {
-    if (walletData) {
-      getRates().then((rates) => {
-        console.log(rates, 'rates 47');
-        setBalance((walletData.balance / 1000000).toFixed(4));
-        setBalanceUSD((walletData.balance / 1000000) * rates.ADArateUSD);
+  // Función para inicializar datos de billetera (sin intentar auto-unlock)
+  const initializeWalletData = useCallback(async (wallet: WalletInfo): Promise<boolean> => {
+    try {
+      const walletDataResult = await handleWalletData({
+        walletID: wallet.id,
+        walletName: wallet.name,
+        walletAddress: wallet.address,
+        isWalletBySuan: true,
+        isWalletAdmin: wallet.isAdmin,
       });
+      
+      if (walletDataResult) {
+        setWalletInfo({
+          name: wallet.name,
+          addr: wallet.address,
+        });
+        
+        // Calcular balance con rates
+        const rates = await getRates();
+        const balanceADA = (parseInt(walletDataResult.balance) / 1000000).toFixed(4);
+        setBalance(balanceADA);
+        setBalanceUSD(parseFloat(balanceADA) * (rates.ADArateUSD || 0));
+      }
+      
+      return true; // Billetera inicializada
+    } catch (error) {
+      console.error('Error inicializando datos de billetera:', error);
+      return false;
     }
-  }, [walletData]);
+  }, [handleWalletData]);
 
-  useEffect(() => {
-    if (window.sessionStorage.getItem('hasTokenAuth') === 'true') {
-      setAllowAccess(true);
+  // Función para inicializar billetera después de autenticación exitosa (intenta auto-unlock primero)
+  const initializeWallet = useCallback(async (wallet: WalletInfo): Promise<boolean> => {
+    if (walletInitializedRef.current) return false;
+    walletInitializedRef.current = true;
+    
+    const walletId = wallet.id;
+    const autoUnlockSuccess = await handleWalletAutoUnlock(walletId);
+    
+    // Si no hay auto-unlock exitoso, mostrar modal y retornar false
+    if (!autoUnlockSuccess) {
+      setCurrentWalletId(walletId);
+      setCurrentWalletName(wallet.name || null);
+      setIsUnlockModalOpen(true);
+      return false; // Billetera no desbloqueada aún
     }
-    console.log('entro');
-    const fetchData = async () => {
-      let access = false;
+    
+    // Si auto-unlock fue exitoso, inicializar datos
+    return await initializeWalletData(wallet);
+  }, [handleWalletAutoUnlock, initializeWalletData]);
 
-      try {
-        const res = await accessHomeWithWallet();
-        if (res) {
-          const response = await fetch('/api/calls/backend/getWalletByUser', {
-            method: 'POST',
-            body: res,
-          });
-          const wallet = await response.json();
-          console.log('wallettt', wallet);
-          if (wallet.length < 0) return router.push('/');
-          if (wallet.length > 0) {
-            const walletId = wallet[0].id; // Este es el wallet_id del API externo
-            console.log('walletId', walletId);
-            // Validar sesión de auto-unlock
-            let autoUnlockSuccess = false;
-            let shouldShowModal = false;
-          
-            const sessionKey = window.localStorage.getItem('wallet_session_key');
-            const frontendSessionId = window.localStorage.getItem('wallet_frontend_session_id');
-            const expiresAt = window.localStorage.getItem('wallet_session_expires_at');
-            
-            // Verificar si la sesión no ha expirado
-            const isSessionValid = expiresAt && new Date(expiresAt) > new Date();
-            
-            if (sessionKey && frontendSessionId && isSessionValid) {
-              // Sesión válida - intentar auto-unlock
-              try {
-                const autoUnlockResult = await autoUnlockWallet(walletId);
-                if (autoUnlockResult.success) {
-                  autoUnlockSuccess = true;
-                  console.log('✅ Sesión válida - Auto-unlock exitoso para wallet:', walletId);
-                } else {
-                  // Auto-unlock falló - sesión inválida
-                  console.log('❌ Sesión inválida - Auto-unlock falló');
-                  window.localStorage.removeItem('wallet_session_key');
-                  window.localStorage.removeItem('wallet_frontend_session_id');
-                  window.localStorage.removeItem('wallet_session_expires_at');
-                  shouldShowModal = true;
-                }
-              } catch (autoUnlockError) {
-                console.log('❌ Sesión inválida - Error en auto-unlock:', autoUnlockError);
-                // Limpiar sesión inválida si falla
-                window.localStorage.removeItem('wallet_session_key');
-                window.localStorage.removeItem('wallet_frontend_session_id');
-                window.localStorage.removeItem('wallet_session_expires_at');
-                shouldShowModal = true;
-              }
-            } else if (sessionKey && frontendSessionId && !isSessionValid) {
-              // Sesión expirada
-              console.log('⏰ Sesión expirada - Limpiando datos de sesión');
-              window.localStorage.removeItem('wallet_session_key');
-              window.localStorage.removeItem('wallet_frontend_session_id');
-              window.localStorage.removeItem('wallet_session_expires_at');
-              shouldShowModal = true;
-            } else {
-              // No hay sesión almacenada
-              console.log('🔒 No hay sesión de auto-unlock almacenada');
-              // Si no hay sesión, redirigir a "/" en lugar de mostrar modal
-              return router.push('/');
-            }
+  // Función para verificar autenticación de Cognito
+  const checkCognitoAuth = useCallback(async (): Promise<string | null> => {
+    try {
+      const currentUser = await getCurrentUser();
+      setUser(currentUser);
+      setCognitoAuthenticated(true);
+      return currentUser.userId;
+    } catch (error) {
+      console.error('Error verificando autenticación Cognito:', error);
+      setCognitoAuthenticated(false);
+      return null;
+    }
+  }, []);
 
-            // Si necesitamos mostrar el modal, configurarlo y retornar
-            if (shouldShowModal && !autoUnlockSuccess) {
-              setCurrentWalletId(walletId);
-              setCurrentWalletName(wallet[0].name || null);
-              setIsUnlockModalOpen(true);
-              return;
-            }
-            access = true;
+  // Función para verificar permisos de usuario
+  const checkUserPermissions = useCallback(async (): Promise<boolean> => {
+    try {
+      const userData = await fetchUserAttributes();
+      const isMarketplaceAdmin = 
+        userData['custom:role'] === 'marketplace_admin' &&
+        userData['custom:subrole'] === process.env.NEXT_PUBLIC_MARKETPLACE_NAME?.toLowerCase();
+      
+      return isMarketplaceAdmin;
+    } catch (error) {
+      console.error('Error verificando permisos:', error);
+      return false;
+    }
+  }, []);
 
-            // Si auto-unlock fue exitoso, continuar con el flujo normal
-            /* const walletData = await handleWalletData({
-              walletID: walletId,
-              walletName: wallet[0].name,
-              walletAddress: wallet[0].address,
-              isWalletBySuan: true,
-              isWalletAdmin: wallet[0].isAdmin,
-            });
-            console.log(walletData, 'walletData mainlayout');
-            const userData = await fetchUserAttributes();
-            if (
-              (userData['custom:role'] === 'marketplace_admin' &&
-                userData['custom:subrole'] ===
-                  process.env.NEXT_PUBLIC_MARKETPLACE_NAME?.toLowerCase()) ||
-              autoUnlockSuccess // Permitir acceso si auto-unlock fue exitoso
-            ) {
-              window.sessionStorage.setItem('hasTokenAuth', 'true');
-              const address = wallet[0].address;
-              setAllowAccess(true);
-              setWalletInfo({
-                name: (wallet[0] as any)?.name,
-                addr: address,
-              });
-              const balance: any =
-                (parseInt(walletData.balance) / 1000000).toFixed(4) || 0;
-              getRates().then((rates) => {
-                setBalance(balance);
-                setBalanceUSD(balance * rates.ADArateUSD);
-              });
-              access = true;
-            } else {
-              sessionStorage.removeItem('preferredWalletSuan');
-              return router.push('/');
-            } */
-          }
+  // Función principal de inicialización
+  const initializeApp = useCallback(async () => {
+    if (initializationRef.current) return;
+    initializationRef.current = true;
+    
+    try {
+      // 1. Verificar autenticación Cognito
+      const userId = await checkCognitoAuth();
+      if (!userId) {
+        router.push('/');
+        return;
+      }
+      
+      // 2. Obtener billetera del usuario
+      const response = await fetch('/api/calls/backend/getWalletByUser', {
+        method: 'POST',
+        body: userId,
+      });
+      
+      const wallets: WalletInfo[] = await response.json();
+      
+      if (!wallets || wallets.length === 0) {
+        // Intentar conectar billetera externa
+        const walletName = sessionStorage.getItem('preferredWalletSuan');
+        if (walletName) {
+          connect(walletName);
+        } else {
+          sessionStorage.removeItem('preferredWalletSuan');
+          router.push('/');
         }
+        return;
+      }
+      
+      const wallet = wallets[0];
+      
+      // 3. Inicializar billetera (intenta auto-unlock o muestra modal)
+      try {
+        const walletInitialized = await initializeWallet(wallet);
+        
+        // 4. Si la billetera no se inicializó (modal abierto), no permitir acceso aún
+        // El acceso se permitirá cuando el usuario desbloquee la billetera exitosamente
+        if (!walletInitialized) {
+          // El modal está abierto, esperar a que el usuario desbloquee
+          // No redirigir, solo no permitir acceso todavía
+          console.log('Modal de desbloqueo abierto, esperando desbloqueo del usuario');
+          return;
+        }
+        
+        // 5. Verificar permisos solo después de que la billetera esté desbloqueada
+        const hasPermissions = await checkUserPermissions();
+        const session = getWalletSession();
+        const hasValidWalletSession = session?.isSessionValid || false;
+        
+        if (!hasPermissions && !hasValidWalletSession) {
+          console.log('Usuario sin permisos y sin sesión válida, redirigiendo');
+          sessionStorage.removeItem('preferredWalletSuan');
+          router.push('/');
+          return;
+        }
+        
+        // 6. Permitir acceso
+        setAllowAccess(true);
+      } catch (walletError) {
+        // Si hay error al inicializar billetera, mostrar modal si es posible
+        console.error('Error al inicializar billetera:', walletError);
+        // Intentar mostrar modal de desbloqueo como fallback
+        if (wallet.id) {
+          setCurrentWalletId(wallet.id);
+          setCurrentWalletName(wallet.name || null);
+          setIsUnlockModalOpen(true);
+          return;
+        }
+        // Si no podemos mostrar modal, redirigir
+        router.push('/');
+        return;
+      }
+      
+    } catch (error) {
+      console.error('Error en inicialización:', error);
+      router.push('/');
+    }
+  }, [checkCognitoAuth, checkUserPermissions, initializeWallet, connect, router]);
 
-        if (!access) {
-          let walletName: any = sessionStorage.getItem('preferredWalletSuan');
-          if (walletName) {
-            connect(walletName);
+  // Efecto para actualizar balance cuando cambia walletData
+  useEffect(() => {
+    if (!walletData?.balance) return;
+    
+    getRates().then((rates) => {
+      const balanceADA = (walletData.balance / 1000000).toFixed(4);
+      setBalance(balanceADA);
+      setBalanceUSD(parseFloat(balanceADA) * (rates.ADArateUSD || 0));
+    });
+  }, [walletData?.balance]); // Solo dependencia del balance, no de todo walletData
+
+  // Efecto de inicialización (solo una vez)
+  useEffect(() => {
+    initializeApp();
+  }, []); // eslint-disable-line react-hooks/exhaustive-deps
+
+  // Handlers
+  const handleSidebarStatus = useCallback(() => {
+    setIsOpen((prev) => !prev);
+  }, []);
+
+  const handleUnlockSuccess = useCallback(async () => {
+    setIsUnlockModalOpen(false);
+    
+    // Obtener la billetera nuevamente para inicializarla
+    try {
+      const userId = await checkCognitoAuth();
+      if (!userId) {
+        router.push('/');
+        return;
+      }
+      
+      const response = await fetch('/api/calls/backend/getWalletByUser', {
+        method: 'POST',
+        body: userId,
+      });
+      
+      const wallets: WalletInfo[] = await response.json();
+      
+      if (wallets && wallets.length > 0) {
+        const wallet = wallets[0];
+        
+        // Inicializar datos de billetera directamente (sin intentar auto-unlock)
+        // porque ya se hizo unlock manual
+        const walletInitialized = await initializeWalletData(wallet);
+        
+        if (walletInitialized) {
+          // Verificar permisos
+          const hasPermissions = await checkUserPermissions();
+          const session = getWalletSession();
+          const hasValidWalletSession = session?.isSessionValid || false;
+          
+          if (hasPermissions || hasValidWalletSession) {
+            setAllowAccess(true);
+            setCurrentWalletId(null);
+            setCurrentWalletName(null);
+            walletInitializedRef.current = true; // Marcar como inicializada
           } else {
             sessionStorage.removeItem('preferredWalletSuan');
             router.push('/');
           }
         }
-      } catch (error) {
-        console.error('Error:', error);
-        router.push('/');
       }
-    };
-
-    fetchData();
-  }, []);
-
-  const accessHomeWithWallet = async () => {
-    try {
-      const user = await getCurrentUser();
-      setUser(user);
-      return user.userId;
-    } catch {
-      return false;
+    } catch (error) {
+      console.error('Error después de unlock:', error);
+      router.push('/');
     }
-  };
-
-  const handleSidebarStatus = () => {
-    setIsOpen(!isOpen);
-  };
-
-  const handleUnlockSuccess = () => {
-    setIsUnlockModalOpen(false);
-    setCurrentWalletId(null);
-    setCurrentWalletName(null);
-    // Recargar la página para aplicar los cambios
-    window.location.reload();
-  };
+  }, [checkCognitoAuth, checkUserPermissions, initializeWalletData, router]);
 
   return (
     <>
@@ -247,13 +422,5 @@ const MainLayout = ({ children }: PropsWithChildren) => {
     </>
   );
 };
-
-export async function getServerSideProps() {
-  const res = await fetch(`https://.../data`);
-  const data = await res.json();
-
-  // Pass data to the page via props
-  return { props: { data } };
-}
 
 export default MainLayout;

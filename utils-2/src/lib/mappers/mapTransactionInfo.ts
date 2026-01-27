@@ -105,54 +105,134 @@ export async function mapBuildTransactionInfo({
   buildTxResponse,
   metadata,
 }: MapBuildTransactionInfoProps) {
-  const cbor = buildTxResponse.cbor;
-  const redeemer_cbor = buildTxResponse.redeemer_cbor;
-  const metadata_cbor = buildTxResponse.metadata_cbor;
-  const tx_id = buildTxResponse.build_tx.tx_id;
-  const tx_fee = lovelaceToAda(buildTxResponse.build_tx.fee);
-  const tx_size = buildTxResponse.tx_size;
-  const input_utxo = buildTxResponse.utxos_info.map((utxo: any) => {
-    const lovelace =
-      utxo.amount.find((a: any) => a.unit === 'lovelace')?.quantity || '0';
+  // Detectar si es la nueva estructura o la antigua
+  const isNewStructure = buildTxResponse.tx_cbor !== undefined || buildTxResponse.tx_hash !== undefined;
+  
+  // Extraer datos según la estructura
+  const cbor = isNewStructure ? buildTxResponse.tx_cbor : buildTxResponse.cbor;
+  const redeemer_cbor = buildTxResponse.redeemer_cbor || null;
+  const metadata_cbor = buildTxResponse.metadata_cbor || null;
+  const tx_id = isNewStructure 
+    ? (buildTxResponse.tx_hash || buildTxResponse.transaction_id)
+    : buildTxResponse.build_tx?.tx_id;
+  const tx_fee = isNewStructure
+    ? lovelaceToAda(buildTxResponse.fee_lovelace || buildTxResponse.estimated_fee_lovelace || 0)
+    : lovelaceToAda(buildTxResponse.build_tx?.fee || 0);
+  const tx_size = buildTxResponse.tx_size || 0;
 
-    const mappedAssetList = utxo.amount
-      .filter((asset: any) => asset.unit !== 'lovelace')
-      .map((asset: any) => {
-        const policyId = asset.unit.substring(0, 56);
-        const name = asset.unit.substring(56);
-        return {
-          asset_name: hexToText(name),
-          fingerprint: asset.unit, // Asumo que no hay fingerprint en la nueva estructura
-          policy_id: policyId, // Asumo que no hay policy_id en la nueva estructura
-          quantity: parseInt(asset.quantity),
-        };
-      });
+  // Mapear inputs según la estructura
+  let input_utxo: any[] = [];
+  if (isNewStructure && buildTxResponse.inputs) {
+    // Nueva estructura: inputs es un array directo
+    input_utxo = buildTxResponse.inputs.map((utxo: any) => {
+      const lovelace =
+        utxo.amount?.find((a: any) => a.unit === 'lovelace')?.quantity || '0';
 
-    const isOwnerAddress = walletAddress === utxo.address ? true : false;
+      const mappedAssetList = (utxo.amount || [])
+        .filter((asset: any) => asset.unit !== 'lovelace')
+        .map((asset: any) => {
+          const policyId = asset.unit.substring(0, 56);
+          const name = asset.unit.substring(56);
+          return {
+            asset_name: hexToText(name),
+            fingerprint: asset.unit,
+            policy_id: policyId,
+            quantity: parseInt(asset.quantity),
+          };
+        });
 
-    return {
-      tx_index: utxo.output_index,
-      tx_hash: utxo.tx_hash,
-      address: utxo.address,
-      isOwnerAddress: isOwnerAddress,
-      asset_list: mappedAssetList,
-      lovelace: parseInt(lovelace),
-      formatedADAValue: getNumberParts(lovelaceToAda(parseInt(lovelace))),
-    };
-  });
-  const output_utxo = Object.values(buildTxResponse.build_tx.outputs).map(
-    (utxo: any) => {
-      const asset_list = getAssetList(utxo.amount.multi_asset);
+      const isOwnerAddress = walletAddress === utxo.address ? true : false;
+
+      return {
+        tx_index: utxo.output_index,
+        tx_hash: utxo.tx_hash,
+        address: utxo.address,
+        isOwnerAddress: isOwnerAddress,
+        asset_list: mappedAssetList,
+        lovelace: parseInt(lovelace),
+        formatedADAValue: getNumberParts(lovelaceToAda(parseInt(lovelace))),
+      };
+    });
+  } else if (!isNewStructure && buildTxResponse.utxos_info) {
+    // Estructura antigua: utxos_info
+    input_utxo = buildTxResponse.utxos_info.map((utxo: any) => {
+      const lovelace =
+        utxo.amount.find((a: any) => a.unit === 'lovelace')?.quantity || '0';
+
+      const mappedAssetList = utxo.amount
+        .filter((asset: any) => asset.unit !== 'lovelace')
+        .map((asset: any) => {
+          const policyId = asset.unit.substring(0, 56);
+          const name = asset.unit.substring(56);
+          return {
+            asset_name: hexToText(name),
+            fingerprint: asset.unit,
+            policy_id: policyId,
+            quantity: parseInt(asset.quantity),
+          };
+        });
+
+      const isOwnerAddress = walletAddress === utxo.address ? true : false;
+
+      return {
+        tx_index: utxo.output_index,
+        tx_hash: utxo.tx_hash,
+        address: utxo.address,
+        isOwnerAddress: isOwnerAddress,
+        asset_list: mappedAssetList,
+        lovelace: parseInt(lovelace),
+        formatedADAValue: getNumberParts(lovelaceToAda(parseInt(lovelace))),
+      };
+    });
+  }
+
+  // Mapear outputs según la estructura
+  let output_utxo: any[] = [];
+  if (isNewStructure && buildTxResponse.outputs) {
+    // Nueva estructura: outputs es un array directo
+    output_utxo = buildTxResponse.outputs.map((utxo: any) => {
+      const lovelace =
+        utxo.amount?.find((a: any) => a.unit === 'lovelace')?.quantity || '0';
+
+      const mappedAssetList = (utxo.amount || [])
+        .filter((asset: any) => asset.unit !== 'lovelace')
+        .map((asset: any) => {
+          const policyId = asset.unit.substring(0, 56);
+          const name = asset.unit.substring(56);
+          return {
+            asset_name: hexToText(name),
+            fingerprint: asset.unit,
+            policy_id: policyId,
+            quantity: parseInt(asset.quantity),
+          };
+        });
+
       const isOwnerAddress = walletAddress === utxo.address ? true : false;
       return {
         address: utxo.address,
         isOwnerAddress: isOwnerAddress,
-        asset_list: asset_list,
-        lovelace: utxo.lovelace,
-        formatedADAValue: getNumberParts(lovelaceToAda(utxo.lovelace)),
+        asset_list: mappedAssetList,
+        lovelace: parseInt(lovelace),
+        formatedADAValue: getNumberParts(lovelaceToAda(parseInt(lovelace))),
+        tx_index: utxo.output_index,
       };
-    }
-  );
+    });
+  } else if (!isNewStructure && buildTxResponse.build_tx?.outputs) {
+    // Estructura antigua: build_tx.outputs
+    output_utxo = Object.values(buildTxResponse.build_tx.outputs).map(
+      (utxo: any) => {
+        const asset_list = getAssetList(utxo.amount?.multi_asset || {});
+        const isOwnerAddress = walletAddress === utxo.address ? true : false;
+        return {
+          address: utxo.address,
+          isOwnerAddress: isOwnerAddress,
+          asset_list: asset_list,
+          lovelace: utxo.lovelace,
+          formatedADAValue: getNumberParts(lovelaceToAda(utxo.lovelace)),
+        };
+      }
+    );
+  }
 
   // Calcular movimiento de saldo relacionado al address
 
@@ -236,7 +316,10 @@ export async function mapBuildTransactionInfo({
     subtitle = '???';
   } else if (tx_type === TRANSACTION_TYPES.PREVIEW) {
     title = 'Vista previa: Envio de fondos';
-    subtitle = 'Valido hasta: ' + getTTLDate(buildTxResponse.build_tx.ttl);
+    const ttl = isNewStructure 
+      ? (buildTxResponse.ttl || null)
+      : (buildTxResponse.build_tx?.ttl || null);
+    subtitle = ttl ? 'Valido hasta: ' + getTTLDate(ttl) : 'Transacción lista para firmar';
   }
 
   const tx_assets = assetDifference(

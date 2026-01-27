@@ -3,38 +3,39 @@ import CoreWalletPage from '@marketplaces/ui-lib/src/lib/corewallet/CoreWalletPa
 import { WalletContext } from '@marketplaces/utils-2';
 import { MyPage } from '@cauca/components/common/types';
 import { useContext, useEffect, useState} from 'react';
-import { fetchUserAttributes } from 'aws-amplify/auth';
 import { useRouter } from 'next/router';
 //import WalletDashboard from '@suan//components/wallet/WalletDashboard';
 const CoreWallet: MyPage = (props: any) => {
   const router = useRouter();
-  const [allowAccessCW, setAllowAccessCW] = useState(true);
+  const { walletRole, walletID } = useContext<any>(WalletContext);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    fetchUserAttributes()
-      .then((data: any) => {
-        if (
-          data['custom:role'] === 'marketplace_admin' &&
-          data['custom:subrole'] === process.env.NEXT_PUBLIC_MARKETPLACE_NAME?.toLocaleLowerCase()
-        ) {
-          setAllowAccessCW(true);
-        } else {
-          setAllowAccessCW(false);
-        }
-      })
-      .catch((error) => {
-        setAllowAccessCW(false);
-      })
-      .finally(() => {
+    // Esperar a que el walletRole esté disponible
+    // Si walletID existe pero walletRole es null, puede estar cargando
+    if (walletID && walletRole === null) {
+      // Esperar un poco más para que se cargue el role
+      const timer = setTimeout(() => {
         setLoading(false);
-      });
-  }, []);
+      }, 1000);
+      return () => clearTimeout(timer);
+    }
+    
+    setLoading(false);
+  }, [walletID, walletRole]);
+
+  // Verificar acceso basado en el role de la wallet
+  const allowAccessCW = walletRole === 'core';
+
+  useEffect(() => {
+    if (!loading && !allowAccessCW) {
+      router.push('/home');
+    }
+  }, [loading, allowAccessCW, router]);
 
   if (loading) return null;
 
   if (!allowAccessCW) {
-    router.push('/home')
     return null; // Return null while redirection happens
   }
 

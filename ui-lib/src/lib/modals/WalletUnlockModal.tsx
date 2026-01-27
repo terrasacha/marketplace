@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useRef, useEffect } from 'react';
 import { toast } from 'sonner';
 import { unlockWallet, generateSessionKey, storeSession } from '../common/walletApi';
 import { EyeIcon } from '../icons/EyeIcon';
@@ -25,14 +25,29 @@ const WalletUnlockModal: React.FC<WalletUnlockModalProps> = ({
   const [showPassword, setShowPassword] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [isUnlocking, setIsUnlocking] = useState(false);
+  const toastShownRef = useRef(false);
+
+  // Resetear el ref cuando el modal se abre o cierra
+  useEffect(() => {
+    if (!isOpen) {
+      toastShownRef.current = false;
+    }
+  }, [isOpen]);
 
   const handleUnlock = async () => {
+    // Prevenir múltiples ejecuciones simultáneas
+    if (isLoading || isUnlocking) {
+      return;
+    }
+
     if (!password.trim()) {
       setError('Por favor ingresa la contraseña de tu billetera');
       return;
     }
 
     setIsLoading(true);
+    setIsUnlocking(true);
     setError(null);
 
     try {
@@ -69,18 +84,26 @@ const WalletUnlockModal: React.FC<WalletUnlockModalProps> = ({
           }
         }
 
-        toast.success('Billetera desbloqueada correctamente');
+        // Mostrar toast solo una vez
+        if (!toastShownRef.current) {
+          toast.success('Billetera desbloqueada correctamente');
+          toastShownRef.current = true;
+        }
         setPassword('');
+        setIsUnlocking(false);
+        setIsLoading(false);
         onSuccess();
       } else {
         setError(unlockResult.error || 'Contraseña incorrecta');
         toast.error(unlockResult.error || 'Error al desbloquear la billetera');
+        setIsUnlocking(false);
+        setIsLoading(false);
       }
     } catch (err: any) {
       const errorMessage = err.message || 'Error al conectar con el servidor';
       setError(errorMessage);
       toast.error(errorMessage);
-    } finally {
+      setIsUnlocking(false);
       setIsLoading(false);
     }
   };
@@ -99,14 +122,14 @@ const WalletUnlockModal: React.FC<WalletUnlockModalProps> = ({
         <div className="mb-4">
           <h2 className="font-jostBold text-xl text-gray-900 mb-2">
             Desbloquear Billetera
+            {walletName && (
+              <span className="font-jostRegular text-sm text-gray-600 ml-2">
+                {walletName}
+              </span>
+            )}
           </h2>
-          {walletName && (
-            <p className="font-jostRegular text-sm text-gray-600">
-              {walletName}
-            </p>
-          )}
           <p className="font-jostRegular text-xs text-gray-500 mt-2">
-            Tu sesión de auto-unlock ha expirado. Por favor ingresa tu contraseña para continuar.
+            La sesión de tu billetera ha expirado. Por favor ingresa tu contraseña para continuar.
           </p>
         </div>
 
