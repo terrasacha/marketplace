@@ -62,6 +62,30 @@ const clearWalletSession = () => {
   window.localStorage.removeItem(WALLET_SESSION_KEYS.EXPIRES_AT);
 };
 
+const getWalletIdFromSession = (): string | null => {
+  if (typeof window === 'undefined') return null;
+  try {
+    const sessionStr = window.localStorage.getItem('wallet_session');
+    if (sessionStr) {
+      const session = JSON.parse(sessionStr);
+      return session?.wallet_id ?? null;
+    }
+  } catch (_) {}
+  return null;
+};
+
+/** True si ya hay sesión de billetera desbloqueada (p. ej. desde login) para ese wallet_id */
+const hasValidWalletSessionForWallet = (walletId: string): boolean => {
+  if (typeof window === 'undefined') return false;
+  try {
+    const sessionStr = window.localStorage.getItem('wallet_session');
+    if (!sessionStr) return false;
+    const session = JSON.parse(sessionStr);
+    return !!(session?.access_token && session?.wallet_id === walletId);
+  } catch (_) {}
+  return false;
+};
+
 const getRates = async (): Promise<any> => {
   const now = Date.now();
   
@@ -185,12 +209,17 @@ const MainLayout = ({ children }: PropsWithChildren) => {
     }
   }, [handleWalletData]);
 
-  // Función para inicializar billetera después de autenticación exitosa (intenta auto-unlock primero)
+  // Función para inicializar billetera después de autenticación exitosa (intenta auto-unlock o usa sesión existente)
   const initializeWallet = useCallback(async (wallet: WalletInfo): Promise<boolean> => {
     if (walletInitializedRef.current) return false;
     walletInitializedRef.current = true;
     
     const walletId = wallet.id;
+    // Si el usuario ya desbloqueó desde WelcomeCard2 (wallet_session con access_token), no pedir de nuevo
+    if (hasValidWalletSessionForWallet(walletId)) {
+      return await initializeWalletData(wallet);
+    }
+    
     const autoUnlockSuccess = await handleWalletAutoUnlock(walletId);
     
     // Si no hay auto-unlock exitoso, mostrar modal y retornar false
@@ -266,8 +295,11 @@ const MainLayout = ({ children }: PropsWithChildren) => {
         }
         return;
       }
-      
-      const wallet = wallets[0];
+
+      const sessionWalletId = getWalletIdFromSession();
+      const wallet =
+        (sessionWalletId && wallets.find((w: WalletInfo) => w.id === sessionWalletId)) ||
+        wallets[0];
       
       // 3. Inicializar billetera (intenta auto-unlock o muestra modal)
       try {
@@ -285,7 +317,8 @@ const MainLayout = ({ children }: PropsWithChildren) => {
         // 5. Verificar permisos solo después de que la billetera esté desbloqueada
         const hasPermissions = await checkUserPermissions();
         const session = getWalletSession();
-        const hasValidWalletSession = session?.isSessionValid || false;
+        const hasValidWalletSession =
+          session?.isSessionValid || hasValidWalletSessionForWallet(wallet.id);
         
         if (!hasPermissions && !hasValidWalletSession) {
           console.log('Usuario sin permisos y sin sesión válida, redirigiendo');
@@ -317,16 +350,16 @@ const MainLayout = ({ children }: PropsWithChildren) => {
     }
   }, [checkCognitoAuth, checkUserPermissions, initializeWallet, connect, router]);
 
-  // Efecto para actualizar balance cuando cambia walletData
+  // Efecto para actualizar balance cuando cambia walletData (o la billetera activa)
   useEffect(() => {
-    if (!walletData?.balance) return;
-    
+    if (walletData == null) return;
+
+    const balanceADA = ((walletData.balance ?? 0) / 1000000).toFixed(4);
     getRates().then((rates) => {
-      const balanceADA = (walletData.balance / 1000000).toFixed(4);
       setBalance(balanceADA);
       setBalanceUSD(parseFloat(balanceADA) * (rates.ADArateUSD || 0));
     });
-  }, [walletData?.balance]); // Solo dependencia del balance, no de todo walletData
+  }, [walletData?.balance, walletData?.address]); // address para que al cambiar de billetera siempre se actualice
 
   // Efecto de inicialización (solo una vez)
   useEffect(() => {
@@ -357,8 +390,11 @@ const MainLayout = ({ children }: PropsWithChildren) => {
       const wallets: WalletInfo[] = await response.json();
       
       if (wallets && wallets.length > 0) {
-        const wallet = wallets[0];
-        
+        const sessionWalletId = getWalletIdFromSession();
+        const wallet =
+          (sessionWalletId && wallets.find((w: WalletInfo) => w.id === sessionWalletId)) ||
+          wallets[0];
+
         // Inicializar datos de billetera directamente (sin intentar auto-unlock)
         // porque ya se hizo unlock manual
         const walletInitialized = await initializeWalletData(wallet);

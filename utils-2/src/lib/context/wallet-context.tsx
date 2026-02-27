@@ -111,13 +111,16 @@ export function WalletContextProvider({
       const blockedLovelace = 0;
       setWalletData(responseData);
 
+      setWalletTotalBalance(responseData.balance);
       if (blockedLovelace && responseData.balance) {
-        setWalletTotalBalance(responseData.balance);
         const availableBalance = responseData.balance - blockedLovelace;
         setWalletAvailableBalance(availableBalance >= 0 ? availableBalance : 0);
         setWalletLockedBalance(
           responseData.assets.length > 0 ? blockedLovelace : 0
         );
+      } else {
+        setWalletAvailableBalance(responseData.balance);
+        setWalletLockedBalance(0);
       }
 
       setIsLoading(false);
@@ -133,6 +136,9 @@ export function WalletContextProvider({
         assets: [],
       };
       setWalletData(errorResponseData);
+      setWalletTotalBalance(0);
+      setWalletAvailableBalance(0);
+      setWalletLockedBalance(0);
       setIsLoading(false);
       setLastSyncDate(Date.now());
       return errorResponseData;
@@ -156,10 +162,11 @@ export function WalletContextProvider({
     setWalletAddress(walletAddress);
     setWalletBySuan(isWalletBySuan);
     setWalletAdmin(isWalletAdmin);
-    
+
     // Actualizar refs para evitar dependencias en callbacks
     walletIDRef.current = walletID;
     walletBySuanRef.current = isWalletBySuan;
+    prevBalanceRef.current = null; // reset para que el nuevo balance se tome como referencia al cambiar de billetera
 
     // Obtener información de la wallet (incluyendo role) si hay walletID
     if (walletID) {

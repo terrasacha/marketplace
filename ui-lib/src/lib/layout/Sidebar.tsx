@@ -14,6 +14,7 @@ import WalletIcon from '../icons/WalletIcon';
 import { WalletContext } from '@marketplaces/utils-2';
 import { InfoIcon, LoadingIcon, SquareArrowUpIcon } from '../ui-lib';
 import SideBarBalanceSkeleton from '../common/skeleton/SideBarBalanceSkeleton';
+import WalletSwitcherCard from './WalletSwitcherCard';
 import { fetchUserAttributes } from 'aws-amplify/auth';
 import { useWallet } from '@meshsdk/react';
 interface SidebarProps {
@@ -186,6 +187,9 @@ export default function Sidebar(props: SidebarProps) {
       </div>
 
       <div className="pt-4 border-t border-gray-200"></div>
+      <div className="py-2">
+        <WalletSwitcherCard onCloseSidebar={onClose} />
+      </div>
       {balance ? (
         <div>
           <label className={`${colors.fuenteAlterna}  block text-sm font-semibold text-gray-400`}>Tu saldo</label>

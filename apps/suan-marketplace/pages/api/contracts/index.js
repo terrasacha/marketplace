@@ -27,8 +27,9 @@ export default async function handler(req, res) {
       });
     }
 
-    // Construir URL del endpoint externo
-    const url = `${WALLET_API_BASE}/contracts/`;
+    // Reenviar query enrich al upstream (ej. ?enrich=true para lista de protocolo)
+    const enrich = req.query.enrich === 'true' || req.query.enrich === true;
+    const url = `${WALLET_API_BASE}/contracts/${enrich ? '?enrich=true' : ''}`;
 
     const response = await fetch(url, {
       method: 'GET',

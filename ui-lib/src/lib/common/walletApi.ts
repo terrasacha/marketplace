@@ -1117,4 +1117,445 @@ export const getTransactionByHash = async (txHash: string) => {
   }
 };
 
+// --- Compile protocol (contracts/compile-protocol) ---
+
+/**
+ * Payload para compilar el protocolo (POST /api/contracts/compile-protocol)
+ */
+export interface CompileProtocolPayload {
+  /** Referencia UTxO opcional (ej. "txHash:index") */
+  utxo_ref?: string;
+}
+
+/**
+ * UTxO usado para la compilación en la respuesta exitosa
+ */
+export interface CompilationUtxo {
+  amount_ada: number;
+  amount_lovelace: number;
+  index: number;
+  tx_id: string;
+}
+
+/**
+ * Contrato compilado (protocol o protocol_nfts) en la respuesta
+ */
+export interface CompiledContractInfo {
+  cbor_hex: string;
+  compiled_at: string;
+  contract_name: string;
+  contract_type: string;
+  policy_id: string;
+  version: number;
+  mainnet_address?: string;
+  testnet_address?: string;
+}
+
+/**
+ * Respuesta exitosa de compile-protocol
+ */
+export interface CompileProtocolResponse {
+  compilation_utxo: CompilationUtxo;
+  message: string;
+  protocol: CompiledContractInfo;
+  protocol_nfts: CompiledContractInfo;
+  skipped: boolean;
+  success: true;
+}
+
+/**
+ * Compila el protocolo (contratos protocol y protocol_nfts).
+ * Llama a POST /api/contracts/compile-protocol (opcional: utxo_ref).
+ *
+ * @param payload - { utxo_ref? }
+ * @returns Objeto con success, data (CompileProtocolResponse) o error
+ */
+export const compileProtocol = async (
+  payload: CompileProtocolPayload = {}
+): Promise<{
+  success: boolean;
+  data: CompileProtocolResponse | null;
+  error?: string;
+}> => {
+  try {
+    const accessToken = getAccessToken();
+    if (!accessToken) {
+      const message =
+        'No se encontró el token de acceso. Por favor, desbloquea la billetera.';
+      toast.error(message);
+      return { success: false, data: null, error: message };
+    }
+
+    const body: { utxo_ref?: string } = {};
+    if (payload.utxo_ref != null && payload.utxo_ref.trim() !== '') {
+      body.utxo_ref = payload.utxo_ref;
+    }
+
+    const response = await fetch('/api/contracts/compile-protocol', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        Authorization: `Bearer ${accessToken}`,
+      },
+      body: JSON.stringify(body),
+    });
+
+    const data = await response.json();
+
+    if (!response.ok) {
+      const { message } = parseWalletApiError(response, data);
+      toast.error(message);
+      return { success: false, data: null, error: message };
+    }
+
+    if (data?.success !== true) {
+      const message =
+        data?.error || data?.message || 'Error al compilar el protocolo';
+      toast.error(message);
+      return { success: false, data: null, error: message };
+    }
+
+    return { success: true, data: data as CompileProtocolResponse };
+  } catch (error: any) {
+    console.error('Error al compilar protocolo:', error);
+    const { message } = parseWalletApiError(null, error);
+    toast.error(message);
+    return { success: false, data: null, error: message };
+  }
+};
+
+// --- Compile project (contracts/compile-project) ---
+
+/**
+ * Payload para compilar un proyecto (POST /api/contracts/compile-project)
+ */
+export interface CompileProjectPayload {
+  /** Nombre del proyecto (ej. reforestation_guaviare) */
+  project_name: string;
+  /** Policy ID de los NFTs del protocolo */
+  protocol_nfts_policy_id: string;
+}
+
+/**
+ * Respuesta exitosa de compile-project
+ */
+export interface CompileProjectResponse {
+  compilation_utxo: CompilationUtxo;
+  message: string;
+  project: CompiledContractInfo;
+  project_name: string;
+  project_nfts: CompiledContractInfo;
+  protocol_nfts_policy_id: string;
+  skipped: boolean;
+  success: true;
+}
+
+/**
+ * Compila los contratos de un proyecto (project + project_nfts) para el protocolo indicado.
+ * Llama a POST /api/contracts/compile-project con project_name y protocol_nfts_policy_id.
+ *
+ * @param payload - { project_name, protocol_nfts_policy_id }
+ * @returns Objeto con success, data (CompileProjectResponse) o error
+ */
+export const compileProject = async (
+  payload: CompileProjectPayload
+): Promise<{
+  success: boolean;
+  data: CompileProjectResponse | null;
+  error?: string;
+}> => {
+  try {
+    const accessToken = getAccessToken();
+    if (!accessToken) {
+      const message =
+        'No se encontró el token de acceso. Por favor, desbloquea la billetera.';
+      toast.error(message);
+      return { success: false, data: null, error: message };
+    }
+
+    const project_name = payload.project_name?.trim() ?? '';
+    const protocol_nfts_policy_id = payload.protocol_nfts_policy_id?.trim() ?? '';
+
+    if (!project_name) {
+      const message = 'project_name es un parámetro requerido';
+      toast.error(message);
+      return { success: false, data: null, error: message };
+    }
+    if (!protocol_nfts_policy_id) {
+      const message = 'protocol_nfts_policy_id es un parámetro requerido';
+      toast.error(message);
+      return { success: false, data: null, error: message };
+    }
+
+    const response = await fetch('/api/contracts/compile-project', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        Authorization: `Bearer ${accessToken}`,
+      },
+      body: JSON.stringify({
+        project_name,
+        protocol_nfts_policy_id,
+      }),
+    });
+
+    const data = await response.json();
+
+    if (!response.ok) {
+      const { message } = parseWalletApiError(response, data);
+      toast.error(message);
+      return { success: false, data: null, error: message };
+    }
+
+    if (data?.success !== true) {
+      const message =
+        data?.error || data?.message || 'Error al compilar el proyecto';
+      toast.error(message);
+      return { success: false, data: null, error: message };
+    }
+
+    return { success: true, data: data as CompileProjectResponse };
+  } catch (error: any) {
+    console.error('Error al compilar proyecto:', error);
+    const { message } = parseWalletApiError(null, error);
+    toast.error(message);
+    return { success: false, data: null, error: message };
+  }
+};
+
+// --- Deploy reference script (contracts/deploy-reference-script) ---
+
+/**
+ * Payload para desplegar un reference script (POST /api/contracts/deploy-reference-script)
+ */
+export interface DeployReferenceScriptPayload {
+  /** Dirección destino donde quedará el UTxO de referencia */
+  destination_address: string;
+  /** Policy ID del contrato a usar como reference script */
+  policy_id: string;
+}
+
+/**
+ * Respuesta exitosa de deploy-reference-script
+ */
+export interface DeployReferenceScriptResponse {
+  contract_name: string;
+  contract_policy_id: string;
+  destination_address: string;
+  fee_lovelace: number;
+  inputs: any[];
+  min_lovelace: number;
+  outputs: any[];
+  reference_output_index: number;
+  success: true;
+  transaction_id: string;
+  tx_cbor: string;
+}
+
+/**
+ * Despliega un reference script para un contrato ya compilado.
+ * Llama a POST /api/contracts/deploy-reference-script con destination_address y policy_id.
+ *
+ * @param payload - { destination_address, policy_id }
+ * @returns Objeto con success, data (DeployReferenceScriptResponse) o error
+ */
+export const deployReferenceScript = async (
+  payload: DeployReferenceScriptPayload
+): Promise<{
+  success: boolean;
+  data: DeployReferenceScriptResponse | null;
+  error?: string;
+}> => {
+  try {
+    const accessToken = getAccessToken();
+    if (!accessToken) {
+      const message =
+        'No se encontró el token de acceso. Por favor, desbloquea la billetera.';
+      toast.error(message);
+      return { success: false, data: null, error: message };
+    }
+
+    const destination_address = payload.destination_address?.trim() ?? '';
+    const policy_id = payload.policy_id?.trim() ?? '';
+
+    if (!destination_address) {
+      const message = 'destination_address es un parámetro requerido';
+      toast.error(message);
+      return { success: false, data: null, error: message };
+    }
+    if (!policy_id) {
+      const message = 'policy_id es un parámetro requerido';
+      toast.error(message);
+      return { success: false, data: null, error: message };
+    }
+
+    const response = await fetch('/api/contracts/deploy-reference-script', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        Authorization: `Bearer ${accessToken}`,
+      },
+      body: JSON.stringify({
+        destination_address,
+        policy_id,
+      }),
+    });
+
+    const data = await response.json();
+
+    if (!response.ok) {
+      const { message } = parseWalletApiError(response, data);
+      toast.error(message);
+      return { success: false, data: null, error: message };
+    }
+
+    if (data?.success !== true) {
+      const message =
+        data?.error ||
+        data?.message ||
+        'Error al desplegar el reference script';
+      toast.error(message);
+      return { success: false, data: null, error: message };
+    }
+
+    return { success: true, data: data as DeployReferenceScriptResponse };
+  } catch (error: any) {
+    console.error('Error al desplegar reference script:', error);
+    const { message } = parseWalletApiError(null, error);
+    toast.error(message);
+    return { success: false, data: null, error: message };
+  }
+};
+
+// --- Mint protocol (contracts/[policyId]/mint-protocol) ---
+
+/**
+ * Payload para mintear el protocolo (POST /api/contracts/{policy_id}/mint-protocol)
+ */
+export interface MintProtocolPayload {
+  /** ID del oráculo (opcional) */
+  oracle_id?: string;
+  /** Lista de proyectos (opcional) */
+  projects?: any[];
+  /** Lista de hashes de admins del protocolo */
+  protocol_admins: string[];
+  /** Fee del protocolo en lovelace */
+  protocol_fee: number;
+  /** Dirección de destino (opcional) */
+  destination_address?: string;
+}
+
+/**
+ * Respuesta exitosa de mint-protocol
+ */
+export interface MintProtocolResponse {
+  compilation_utxo: CompilationUtxo;
+  fee_lovelace: number;
+  inputs: any[];
+  minting_policy_id: string;
+  outputs: any[];
+  protocol_contract_address: string;
+  protocol_token_name: string;
+  success: true;
+  transaction_id: string;
+  tx_cbor: string;
+  user_token_name: string;
+}
+
+/**
+ * Mintea el protocolo para el policy_id indicado.
+ * Llama a POST /api/contracts/{policyId}/mint-protocol con oracle_id, projects, protocol_admins, protocol_fee y opcionalmente destination_address.
+ *
+ * @param policyId - Policy ID del contrato (obligatorio)
+ * @param payload - Body: oracle_id?, projects?, protocol_admins, protocol_fee, destination_address?
+ * @returns Objeto con success, data (MintProtocolResponse) o error
+ */
+export const mintProtocol = async (
+  policyId: string,
+  payload: MintProtocolPayload
+): Promise<{
+  success: boolean;
+  data: MintProtocolResponse | null;
+  error?: string;
+}> => {
+  try {
+    const accessToken = getAccessToken();
+    if (!accessToken) {
+      const message =
+        'No se encontró el token de acceso. Por favor, desbloquea la billetera.';
+      toast.error(message);
+      return { success: false, data: null, error: message };
+    }
+
+    if (!policyId || policyId.trim() === '') {
+      const message = 'policy_id es un parámetro requerido';
+      toast.error(message);
+      return { success: false, data: null, error: message };
+    }
+
+    if (!Array.isArray(payload.protocol_admins)) {
+      const message = 'protocol_admins debe ser un array';
+      toast.error(message);
+      return { success: false, data: null, error: message };
+    }
+
+    const body: {
+      oracle_id?: string;
+      projects?: any[];
+      protocol_admins: string[];
+      protocol_fee: number;
+      destination_address?: string;
+    } = {
+      protocol_admins: payload.protocol_admins,
+      protocol_fee: payload.protocol_fee,
+    };
+    if (payload.oracle_id != null && payload.oracle_id !== '') {
+      body.oracle_id = payload.oracle_id;
+    }
+    if (payload.projects != null && payload.projects.length > 0) {
+      body.projects = payload.projects;
+    }
+    if (
+      payload.destination_address != null &&
+      payload.destination_address.trim() !== ''
+    ) {
+      body.destination_address = payload.destination_address;
+    }
+
+    const response = await fetch(
+      `/api/contracts/${encodeURIComponent(policyId)}/mint-protocol`,
+      {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          Authorization: `Bearer ${accessToken}`,
+        },
+        body: JSON.stringify(body),
+      }
+    );
+
+    const data = await response.json();
+
+    if (!response.ok) {
+      const { message } = parseWalletApiError(response, data);
+      toast.error(message);
+      return { success: false, data: null, error: message };
+    }
+
+    if (data?.success !== true) {
+      const message =
+        data?.error || data?.message || 'Error al mintear el protocolo';
+      toast.error(message);
+      return { success: false, data: null, error: message };
+    }
+
+    return { success: true, data: data as MintProtocolResponse };
+  } catch (error: any) {
+    console.error('Error al mintear protocolo:', error);
+    const { message } = parseWalletApiError(null, error);
+    toast.error(message);
+    return { success: false, data: null, error: message };
+  }
+};
+
 

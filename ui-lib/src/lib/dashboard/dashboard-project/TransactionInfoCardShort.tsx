@@ -228,15 +228,16 @@ export default function TransactionInfoCard(props: TransactionInfoCardProps) {
               <p>{inputUTxOs.length + ' UTxO Input(s)'}</p>
               <div className="flex flex-col space-y-1">
                 {inputUTxOs.map((utxo: any, index: number) => {
+                  const ada = utxo?.formatedADAValue;
                   return (
                     <UtxoInfoCard
                       key={index}
-                      address={utxo.address}
-                      isOwnerAddress={utxo.isOwnerAddress}
-                      intValuePart={utxo.formatedADAValue.intPart}
-                      floatValuePart={utxo.formatedADAValue.floatPart}
-                      asset_list={utxo.asset_list}
-                      tx_hash={utxo.tx_hash}
+                      address={utxo?.address ?? ''}
+                      isOwnerAddress={utxo?.isOwnerAddress ?? false}
+                      intValuePart={ada?.intPart ?? ''}
+                      floatValuePart={ada?.floatPart ?? ''}
+                      asset_list={Array.isArray(utxo?.asset_list) ? utxo.asset_list : []}
+                      tx_hash={utxo?.tx_hash}
                     />
                   );
                 })}
@@ -247,14 +248,15 @@ export default function TransactionInfoCard(props: TransactionInfoCardProps) {
               <p>{outputUTxOs.length + ' UTxO Output(s)'}</p>
               <div className="flex flex-col space-y-1">
                 {outputUTxOs.map((utxo: any, index: number) => {
+                  const ada = utxo?.formatedADAValue;
                   return (
                     <UtxoInfoCard
                       key={index}
-                      address={utxo.address}
-                      isOwnerAddress={utxo.isOwnerAddress}
-                      intValuePart={utxo.formatedADAValue.intPart}
-                      floatValuePart={utxo.formatedADAValue.floatPart}
-                      asset_list={utxo.asset_list}
+                      address={utxo?.address ?? ''}
+                      isOwnerAddress={utxo?.isOwnerAddress ?? false}
+                      intValuePart={ada?.intPart ?? ''}
+                      floatValuePart={ada?.floatPart ?? ''}
+                      asset_list={Array.isArray(utxo?.asset_list) ? utxo.asset_list : []}
                     />
                   );
                 })}

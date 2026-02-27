@@ -53,13 +53,22 @@ const importWalletSchema = z.object({
   path: ['confirmPassword'],
 });
 
+export type LinkedWalletItem = { id: string; name?: string; address?: string; stake_address?: string };
+
 const WelcomeCard2 = (props: WelcomeCard2Props) => {
   const { checkingWallet, handleSetCheckingWallet, appName, poweredby } = props;
   const router = useRouter();
   const [userData, setUserData] = useState(null) as any;
+  const [linkedWallets, setLinkedWallets] = useState<LinkedWalletItem[]>([]);
   const [hasWallet, setHasWallet] = useState<boolean | null>(null);
   const [isCheckingWallet, setIsCheckingWallet] = useState<boolean>(true);
-  const [viewMode, setViewMode] = useState<'create' | 'import'>('create');
+  const [viewMode, setViewMode] = useState<'select' | 'create' | 'import'>('select');
+  const [selectedWalletId, setSelectedWalletId] = useState<string | null>(null);
+  const [showPasswordModalForContinue, setShowPasswordModalForContinue] = useState(false);
+  const [unlockPassword, setUnlockPassword] = useState('');
+  const [isUnlocking, setIsUnlocking] = useState(false);
+  const [unlockError, setUnlockError] = useState<string | null>(null);
+  const [walletSessionReady, setWalletSessionReady] = useState<boolean>(false);
   
   // Estados para errores de validación
   const [createValidationErrors, setCreateValidationErrors] = useState<Record<string, string>>({});
@@ -81,19 +90,22 @@ const WelcomeCard2 = (props: WelcomeCard2Props) => {
   const [isImportingWallet, setIsImportingWallet] = useState(false);
   const [importWalletError, setImportWalletError] = useState<string | null>(null);
 
-  // Función para verificar si el usuario tiene wallet
+  // Función para obtener billeteras vinculadas al usuario
   const checkUserWallet = useCallback(async (userId: string) => {
     try {
       const response = await fetch('/api/calls/backend/getWalletByUser', {
         method: 'POST',
-        body: userId,
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ userId }),
       });
-      const wallets = await response.json();
-      const hasWalletResult = Array.isArray(wallets) && wallets.length > 0;
-      setHasWallet(hasWalletResult);
-      return hasWalletResult;
+      const raw = await response.json();
+      const wallets: LinkedWalletItem[] = Array.isArray(raw) ? raw : [];
+      setLinkedWallets(wallets);
+      setHasWallet(wallets.length > 0);
+      return wallets.length > 0;
     } catch (error) {
       console.error('Error al verificar wallet del usuario:', error);
+      setLinkedWallets([]);
       setHasWallet(false);
       return false;
     } finally {
@@ -114,6 +126,32 @@ const WelcomeCard2 = (props: WelcomeCard2Props) => {
     };
     init();
   }, [checkUserWallet]);
+
+  // Sincronizar tab con query (?tab=create | ?tab=import) para abrir el tab correcto al llegar desde el sidebar
+  useEffect(() => {
+    if (!router.isReady) return;
+    const tab = router.query.tab;
+    if (tab === 'create' || tab === 'import') {
+      setViewMode(tab);
+    }
+  }, [router.isReady, router.query.tab]);
+
+  useEffect(() => {
+    if (!userData || isCheckingWallet) return;
+    const sessionStr = typeof window !== 'undefined' ? window.localStorage.getItem('wallet_session') : null;
+    if (sessionStr) {
+      try {
+        const session = JSON.parse(sessionStr);
+        if (session?.access_token) setWalletSessionReady(true);
+      } catch (_) {}
+    }
+  }, [userData, isCheckingWallet]);
+
+  useEffect(() => {
+    if (linkedWallets.length === 1 && !selectedWalletId) {
+      setSelectedWalletId(linkedWallets[0].id);
+    }
+  }, [linkedWallets, selectedWalletId]);
 
   useEffect(() => {
     if (checkingWallet === 'unauthorized' && handleSetCheckingWallet) {
@@ -278,13 +316,28 @@ const WelcomeCard2 = (props: WelcomeCard2Props) => {
     });
 
     if (result.success && result.data) {
-      await unlockWallet(result.data.wallet_id, importPassword);
-      
-      // Actualizar estado de wallet después de importar
       const userId = userData?.userId || null;
       if (userId) {
+        try {
+          await fetch('/api/wallets/link', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+              userId,
+              wallet_id: result.data.wallet_id,
+              name: result.data.name ?? importWalletName,
+              enterprise_address: result.data.enterprise_address ?? result.data.address ?? '',
+              staking_address: result.data.staking_address ?? '',
+            }),
+          });
+        } catch (linkErr) {
+          console.error('Error al vincular billetera importada:', linkErr);
+        }
         await checkUserWallet(userId);
       }
+      await unlockWallet(result.data.wallet_id, importPassword);
+      setWalletSessionReady(true);
+      setViewMode('select');
     } else if (result.error) {
       setImportWalletError(result.error);
     }
@@ -307,6 +360,57 @@ const WelcomeCard2 = (props: WelcomeCard2Props) => {
       e.preventDefault();
       handleToggleView();
     }
+  };
+
+  const handleContinueToMarketplace = () => {
+    if (canContinueToMarketplace()) {
+      router.push('/home');
+      return;
+    }
+    if (!selectedWalletId) {
+      toast.error('Selecciona una billetera de la lista para continuar.');
+      return;
+    }
+    setShowPasswordModalForContinue(true);
+    setUnlockPassword('');
+    setUnlockError(null);
+  };
+
+  const handleUnlockAndContinue = async () => {
+    if (!selectedWalletId || !unlockPassword.trim()) {
+      setUnlockError('Ingresa la contraseña de la billetera.');
+      return;
+    }
+    setUnlockError(null);
+    setIsUnlocking(true);
+    try {
+      const result = await unlockWallet(selectedWalletId, unlockPassword.trim());
+      if (result.success) {
+        setWalletSessionReady(true);
+        setShowPasswordModalForContinue(false);
+        setUnlockPassword('');
+        toast.success('Listo. Redirigiendo al marketplace...');
+        router.push('/home');
+      } else {
+        setUnlockError(result.error || 'Error al desbloquear.');
+      }
+    } catch (err) {
+      setUnlockError('Error al desbloquear la billetera.');
+    } finally {
+      setIsUnlocking(false);
+    }
+  };
+
+  const canContinueToMarketplace = (): boolean => {
+    if (typeof window === 'undefined') return walletSessionReady;
+    try {
+      const sessionStr = window.localStorage.getItem('wallet_session');
+      if (sessionStr) {
+        const session = JSON.parse(sessionStr);
+        if (session?.access_token) return true;
+      }
+    } catch (_) {}
+    return walletSessionReady;
   };
 
   return (
@@ -334,33 +438,57 @@ const WelcomeCard2 = (props: WelcomeCard2Props) => {
             Verificando billetera...
           </p>
         </div>
-      ) : hasWallet ? (
+      ) : userData && (hasWallet || viewMode !== 'select') ? (
+        <>
+          {viewMode === 'select' && (
+            <>
+              <h2 className="font-jostBold text-xl pb-2 flex justify-center text-center mt-4">
+                {hasWallet ? 'Selecciona una billetera' : 'Bienvenido'}
+              </h2>
+              <p className="font-jostRegular text-xs text-center mb-4 text-gray-600">
+                Selecciona una de tus billeteras para continuar. Luego pulsa Continuar al Marketplace e ingresa la contraseña.
+              </p>
+            </>
+          )}
+          {viewMode === 'create' && (
+            <>
+              <h2 className="font-jostBold text-xl pb-2 flex justify-center text-center mt-4">
+                Crear nueva billetera
+              </h2>
+              <p className="font-jostRegular text-xs text-center mb-4 text-gray-600">
+                La billetera quedará vinculada a tu cuenta.
+              </p>
+            </>
+          )}
+          {viewMode === 'import' && (
+            <>
+              <h2 className="font-jostBold text-xl pb-2 flex justify-center text-center mt-4">
+                Importar billetera
+              </h2>
+              <p className="font-jostRegular text-xs text-center mb-4 text-gray-600">
+                Usa tu frase de recuperación de 24 palabras. Quedará vinculada a tu cuenta.
+              </p>
+            </>
+          )}
+        </>
+      ) : userData ? (
         <>
           <h2 className="font-jostBold text-xl pb-2 flex justify-center text-center mt-4">
-            Bienvenido de vuelta
+            ¡Bienvenido a nuestro Marketplace!
           </h2>
           <p className="font-jostRegular text-xs text-center mb-4 text-gray-600">
-            Ya tienes una billetera asociada. Puedes continuar al marketplace o cerrar sesión.
+            El siguiente paso es crear tu billetera virtual o importar una existente.
           </p>
         </>
       ) : (
         <>
           <h2 className="font-jostBold text-xl pb-2 flex justify-center text-center mt-4">
-            {userData
-              ? 'Crea tu billetera o utiliza una preexistente'
-              : '¡Bienvenido a nuestro Marketplace!'}
+            ¡Bienvenido a nuestro Marketplace!
           </h2>
-          {userData ? (
-            <p className="font-jostRegular text-xs text-center mb-4 text-gray-600">
-              El siguiente paso es crear tu billetera virtual o utilizar una que hayas creado previamente (asegúrate de tener tus mnemonics o grupo secreto de palabras).
-            </p>
-          ) : (
-            <p className="text-xs pb-2 text-center font-jostRegular text-gray-600 mb-4">
-              Para comenzar a usar la aplicación, necesitas una billetera virtual
-              con el token de acceso de nuestra organización. Puedes crear tu
-              billetera y usuario directamente en nuestra plataforma.
-            </p>
-          )}
+          <p className="text-xs pb-2 text-center font-jostRegular text-gray-600 mb-4">
+            Para comenzar a usar la aplicación, necesitas una billetera virtual.
+            Inicia sesión para continuar.
+          </p>
         </>
       )}
 
@@ -384,22 +512,72 @@ const WelcomeCard2 = (props: WelcomeCard2Props) => {
             Ingresar
           </button>
         </Link>
-      ) : hasWallet ? (
-        /* Usuario con wallet - mostrar opciones de continuar o cerrar sesión */
-        <div className="w-full space-y-3">
-          <button
-            onClick={() => router.push('/home')}
-            onKeyDown={(e) => handleKeyDown(e, () => router.push('/home'))}
-            className="font-jostBold relative w-full flex items-center justify-center font-jostBold focus:z-10 focus:outline-none text-white bg-custom-marca-boton border border-transparent enabled:hover:bg-custom-marca-boton-variante dark:bg-cyan-600 dark:enabled:hover:bg-cyan-700 rounded-lg focus:ring-2 px-8 py-2"
-            tabIndex={0}
-            aria-label="Continuar al Marketplace"
-          >
-            Continuar al Marketplace
-          </button>
+      ) : userData && viewMode === 'select' ? (
+        /* Listado de billeteras vinculadas + opción importar/crear + continuar solo si hay sesión */
+        <div className="w-full space-y-4">
+          {linkedWallets.length > 0 && (
+            <div className="rounded-lg border border-gray-200 divide-y divide-gray-100 max-h-48 overflow-y-auto">
+              {linkedWallets.map((w) => {
+                const isSelected = selectedWalletId === w.id;
+                return (
+                  <button
+                    key={w.id}
+                    type="button"
+                    onClick={() => setSelectedWalletId(w.id)}
+                    className={`w-full flex items-center gap-2 p-3 text-left hover:bg-gray-50 transition-colors rounded-none border-l-4 ${
+                      isSelected
+                        ? 'bg-custom-marca-boton/10 border-custom-marca-boton'
+                        : 'border-transparent'
+                    }`}
+                    aria-pressed={isSelected}
+                    aria-label={`Seleccionar billetera ${w.name || w.id}`}
+                  >
+                    <span className={`flex-shrink-0 w-4 h-4 rounded-full border-2 flex items-center justify-center ${isSelected ? 'border-custom-marca-boton bg-custom-marca-boton' : 'border-gray-400'}`}>
+                      {isSelected && <span className="w-1.5 h-1.5 rounded-full bg-white" />}
+                    </span>
+                    <div className="min-w-0 flex-1">
+                      <p className="font-jostBold text-sm text-gray-900 truncate">{w.name || 'Sin nombre'}</p>
+                      <p className="text-xs text-gray-500 font-mono truncate" title={w.id}>{w.id}</p>
+                    </div>
+                  </button>
+                );
+              })}
+            </div>
+          )}
+          {linkedWallets.length === 0 && (
+            <p className="text-sm text-gray-500 text-center py-2">No tienes billeteras vinculadas. Crea una o importa una existente.</p>
+          )}
+          <div className="flex gap-2">
+            <button
+              type="button"
+              onClick={() => setViewMode('create')}
+              className="font-jostRegular flex-1 text-sm text-custom-marca-boton hover:text-custom-marca-boton-variante border border-custom-marca-boton rounded-lg px-3 py-2"
+            >
+              Crear nueva billetera
+            </button>
+            <button
+              type="button"
+              onClick={() => setViewMode('import')}
+              className="font-jostRegular flex-1 text-sm text-custom-marca-boton hover:text-custom-marca-boton-variante border border-custom-marca-boton rounded-lg px-3 py-2"
+            >
+              Importar billetera
+            </button>
+          </div>
+          {(linkedWallets.length > 0 || canContinueToMarketplace()) && (
+            <button
+              onClick={handleContinueToMarketplace}
+              onKeyDown={(e) => handleKeyDown(e, handleContinueToMarketplace)}
+              className="font-jostBold relative w-full flex items-center justify-center text-white bg-custom-marca-boton border border-transparent enabled:hover:bg-custom-marca-boton-variante rounded-lg focus:ring-2 px-8 py-2"
+              tabIndex={0}
+              aria-label="Continuar al Marketplace"
+            >
+              Continuar al Marketplace
+            </button>
+          )}
           <button
             onClick={handleSignOut}
             onKeyDown={(e) => handleKeyDown(e, handleSignOut)}
-            className="font-jostBold relative w-full flex items-center justify-center font-jostBold focus:z-10 focus:outline-none text-white bg-custom-marca-boton border border-transparent enabled:hover:bg-custom-marca-boton-variante dark:bg-cyan-600 dark:enabled:hover:bg-cyan-700 rounded-lg focus:ring-2 px-8 py-2"
+            className="font-jostBold relative w-full flex items-center justify-center text-white bg-custom-marca-boton border-transparent hover:bg-custom-marca-boton-variante rounded-lg focus:ring-2 px-8 py-2"
             tabIndex={0}
             aria-label="Cerrar sesión"
           >
@@ -457,6 +635,7 @@ const WelcomeCard2 = (props: WelcomeCard2Props) => {
                   onClick={async () => {
                     if (createdWallet?.wallet_id && createdWallet?._password) {
                       await unlockWallet(createdWallet.wallet_id, createdWallet._password);
+                      setWalletSessionReady(true);
                     }
                     setCreatedWallet(null);
                     router.push('/home');
@@ -474,6 +653,15 @@ const WelcomeCard2 = (props: WelcomeCard2Props) => {
       ) : (
         /* Interfaces de crear/importar billetera */
         <>
+          {linkedWallets.length > 0 && (
+            <button
+              type="button"
+              onClick={() => setViewMode('select')}
+              className="font-jostRegular text-sm text-custom-marca-boton hover:text-custom-marca-boton-variante mb-2"
+            >
+              ← Volver a lista de billeteras
+            </button>
+          )}
           <div className="w-full mb-3">
             {viewMode === 'create' ? (
               /* Sección: Create New Wallet */
@@ -774,6 +962,46 @@ const WelcomeCard2 = (props: WelcomeCard2Props) => {
             </button>
           )}
         </>
+      )}
+
+      {/* Modal contraseña al continuar al marketplace */}
+      {showPasswordModalForContinue && selectedWalletId && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 p-4" role="dialog" aria-modal="true" aria-labelledby="unlock-modal-title">
+          <div className="bg-white rounded-xl shadow-xl w-full max-w-md p-6">
+            <h3 id="unlock-modal-title" className="font-jostBold text-lg mb-2">Contraseña de la billetera</h3>
+            <p className="text-sm text-gray-600 mb-3">
+              {linkedWallets.find((w) => w.id === selectedWalletId)?.name || selectedWalletId}
+            </p>
+            <p className="text-xs text-gray-500 mb-3">Ingresa la contraseña de esta billetera para continuar al marketplace.</p>
+            <label className="block text-xs font-jostRegular mb-1 text-gray-700">Contraseña</label>
+            <input
+              type="password"
+              value={unlockPassword}
+              onChange={(e) => { setUnlockPassword(e.target.value); setUnlockError(null); }}
+              placeholder="Contraseña de la billetera"
+              className="w-full px-3 py-2 rounded-lg text-sm border border-gray-300 focus:ring-2 focus:ring-custom-marca-boton mb-2"
+              aria-label="Contraseña"
+            />
+            {unlockError && <p className="text-red-500 text-xs mb-2">{unlockError}</p>}
+            <div className="flex gap-2 justify-end mt-4">
+              <button
+                type="button"
+                onClick={() => { setShowPasswordModalForContinue(false); setUnlockPassword(''); setUnlockError(null); }}
+                className="font-jostRegular px-4 py-2 border border-gray-300 rounded-lg text-sm hover:bg-gray-50"
+              >
+                Cancelar
+              </button>
+              <button
+                type="button"
+                onClick={handleUnlockAndContinue}
+                disabled={isUnlocking || !unlockPassword.trim()}
+                className="font-jostBold px-4 py-2 text-white bg-custom-marca-boton hover:bg-custom-marca-boton-variante rounded-lg text-sm disabled:opacity-50"
+              >
+                {isUnlocking ? 'Verificando...' : 'Continuar'}
+              </button>
+            </div>
+          </div>
+        </div>
       )}
 
       {poweredby && (

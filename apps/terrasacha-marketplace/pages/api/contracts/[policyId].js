@@ -1,13 +1,11 @@
 export default async function handler(req, res) {
-  if (req.method !== 'GET' && req.method !== 'POST') {
+  if (req.method !== 'GET' && req.method !== 'POST' && req.method !== 'DELETE') {
     return res.status(405).json({ error: 'Método no permitido' });
   }
 
   try {
-    // Obtener policy_id de query (GET) o body (POST)
-    const policyId = req.method === 'GET' 
-      ? req.query.policyId 
-      : req.body?.policy_id || req.body?.policyId;
+    // Obtener policy_id SIEMPRE desde el parámetro de ruta
+    const policyId = req.query.policyId;
 
     // Validar que policy_id esté presente
     if (!policyId) {
@@ -18,7 +16,7 @@ export default async function handler(req, res) {
           {
             code: 'missing_parameter',
             message: 'policy_id es un parámetro requerido',
-            field: req.method === 'GET' ? 'query' : 'body',
+            field: 'query',
           },
         ],
       });
@@ -50,8 +48,9 @@ export default async function handler(req, res) {
     // Construir URL del endpoint externo
     const url = `${WALLET_API_BASE}/contracts/${policyId}`;
 
+    const upstreamMethod = req.method === 'DELETE' ? 'DELETE' : 'GET';
     const response = await fetch(url, {
-      method: 'GET',
+      method: upstreamMethod,
       headers: {
         'Content-Type': 'application/json',
         ...(WALLET_API_KEY && { 'x-api-key': WALLET_API_KEY }),
@@ -59,7 +58,16 @@ export default async function handler(req, res) {
       },
     });
 
-    const data = await response.json();
+    // DELETE puede responder sin body (204). Leer de forma segura.
+    const text = await response.text();
+    let data = {};
+    if (text) {
+      try {
+        data = JSON.parse(text);
+      } catch {
+        data = { raw: text };
+      }
+    }
 
     // Reenviar la respuesta del API externo tal cual (con su status code)
     res.status(response.status).json(data);
