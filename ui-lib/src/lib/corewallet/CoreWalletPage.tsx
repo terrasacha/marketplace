@@ -18,8 +18,14 @@ import {
   compileProtocol,
   compileProject,
   mintProtocol,
+  mintProject,
+  updateProtocol,
+  updateProject,
   deployReferenceScript,
+  promoteWallet,
+  unpromoteWallet,
   type CompileProtocolResponse,
+  getWalletUtxos,
 } from '../common/walletApi';
 
 // Función helper para obtener access token (wallet_session en localStorage)
@@ -77,6 +83,91 @@ const getPolicyIdFromContract = (c: any): string | null => {
 
 const getContractNameFromContract = (c: any): string | null => {
   return c?.contract_name || c?.contractName || c?.name || c?.title || null;
+};
+
+type DecodedAssetName = {
+  policyId: string;
+  assetNameHex: string;
+  fullUtf8: string | null;
+  readablePrefix: string | null;
+  binaryHex: string | null;
+  hasBinary: boolean;
+};
+
+const hexToBytes = (hex: string): Uint8Array => {
+  const clean = hex.trim().toLowerCase();
+  if (!clean) return new Uint8Array(0);
+  if (clean.length % 2 !== 0) {
+    throw new Error(`assetNameHex debe tener longitud par, recibido: ${clean.length}`);
+  }
+  const out = new Uint8Array(clean.length / 2);
+  for (let i = 0; i < clean.length; i += 2) {
+    const byte = parseInt(clean.slice(i, i + 2), 16);
+    if (Number.isNaN(byte)) {
+      throw new Error(`Hex inválido en posición ${i}: "${clean.slice(i, i + 2)}"`);
+    }
+    out[i / 2] = byte;
+  }
+  return out;
+};
+
+const decodeCardanoAsset = (assetId: string): DecodedAssetName => {
+  const clean = assetId.trim().toLowerCase();
+  if (!clean || clean.length <= 56) {
+    throw new Error('Asset ID inválido, se esperan al menos 56 caracteres (policyId + assetName).');
+  }
+
+  const policyId = clean.slice(0, 56);
+  const assetNameHex = clean.slice(56);
+  const bytes = hexToBytes(assetNameHex);
+
+  let readablePart = '';
+  let binaryHex = '';
+
+  for (const byte of bytes) {
+    if (byte >= 32 && byte <= 126) {
+      readablePart += String.fromCharCode(byte);
+    } else {
+      binaryHex += byte.toString(16).padStart(2, '0');
+    }
+  }
+
+  let fullUtf8: string | null = null;
+  if (typeof TextDecoder !== 'undefined' && bytes.length > 0) {
+    try {
+      const decoder = new TextDecoder('utf-8', { fatal: false });
+      fullUtf8 = decoder.decode(bytes).replace(/\0+$/g, '') || null;
+    } catch {
+      fullUtf8 = null;
+    }
+  }
+
+  return {
+    policyId,
+    assetNameHex,
+    fullUtf8,
+    readablePrefix: readablePart || null,
+    binaryHex: binaryHex || null,
+    hasBinary: binaryHex.length > 0,
+  };
+};
+
+type ProtocolUtxo = {
+  utxoRef: string;
+  txHash: string;
+  index: number;
+  /** ADA en unidades ADA (no lovelace) si viene del API, o calculada */
+  ada: number | null;
+  address?: string;
+  tokensCount?: number;
+  tokens?: {
+    id: string;
+    policyId: string;
+    assetNameHex: string;
+    assetName: string;
+    quantity: number;
+  }[];
+  raw: any;
 };
 
 /** compilation_params suele contener el policy_id del protocolo del que proviene el proyecto */
@@ -198,6 +289,600 @@ function MintProtocolFormContent(props: {
   );
 }
 
+/** Formulario para mintear tokens de un proyecto específico */
+function MintProjectFormContent(props: {
+  projectNameLabel: string;
+  policyIdLabel: string;
+  onClose: () => void;
+  onSubmit: (formData: {
+    investment_tokens: number;
+    project_id: string;
+    destination_address: string;
+    stakeholders: { participation: number; pkh: string; stakeholder: string }[];
+  }) => void;
+  loading: boolean;
+  colors: { fuente: string; bgColor: string; hoverBgColor: string };
+}) {
+  const [investmentTokens, setInvestmentTokens] = useState('');
+  const [projectId, setProjectId] = useState('');
+  const [destinationAddress, setDestinationAddress] = useState('');
+  const [stakeholderPkh, setStakeholderPkh] = useState('');
+  const [stakeholderParticipation, setStakeholderParticipation] = useState('');
+  const [stakeholderHex, setStakeholderHex] = useState('');
+  const { onClose, onSubmit, loading, colors } = props;
+
+  const handleSubmit = () => {
+    const invTokensNum = parseInt(investmentTokens, 10);
+    if (Number.isNaN(invTokensNum) || invTokensNum <= 0) {
+      toast.error('investment_tokens debe ser un número entero positivo.');
+      return;
+    }
+    const participationNum = parseInt(stakeholderParticipation, 10);
+    if (Number.isNaN(participationNum) || participationNum <= 0) {
+      toast.error('La participación del stakeholder debe ser un número entero positivo.');
+      return;
+    }
+    const projId = projectId.trim();
+    if (!projId) {
+      toast.error('project_id es un parámetro requerido.');
+      return;
+    }
+    const destAddr = destinationAddress.trim();
+    if (!destAddr) {
+      toast.error('destination_address es un parámetro requerido.');
+      return;
+    }
+    const pkh = stakeholderPkh.trim();
+    if (!pkh) {
+      toast.error('pkh del stakeholder es requerido.');
+      return;
+    }
+    const stakeholder = stakeholderHex.trim();
+    if (!stakeholder) {
+      toast.error('stakeholder (nombre en hex) es requerido.');
+      return;
+    }
+
+    onSubmit({
+      investment_tokens: invTokensNum,
+      project_id: projId,
+      destination_address: destAddr,
+      stakeholders: [
+        {
+          participation: participationNum,
+          pkh,
+          stakeholder,
+        },
+      ],
+    });
+  };
+
+  return (
+    <>
+      <Modal.Body className="space-y-4 pt-4">
+        <p className="text-sm text-gray-600">
+          Configura los parámetros para mintear los tokens de este proyecto. Los campos numéricos se expresan en unidades enteras (por ejemplo, lovelace).
+        </p>
+        <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+          <div>
+            <label className="block mb-1 text-sm font-medium text-gray-700">
+              investment_tokens
+            </label>
+            <input
+              type="text"
+              className="w-full border border-gray-300 rounded-lg p-2 text-sm focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+              placeholder="100000"
+              value={investmentTokens}
+              onChange={(e) => setInvestmentTokens(e.target.value)}
+            />
+          </div>
+          <div>
+            <label className="block mb-1 text-sm font-medium text-gray-700">
+              project_id
+            </label>
+            <input
+              type="text"
+              className="w-full border border-gray-300 rounded-lg p-2 text-sm font-mono focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+              placeholder="0a1b2c3d..."
+              value={projectId}
+              onChange={(e) => setProjectId(e.target.value)}
+            />
+          </div>
+        </div>
+        <div>
+          <label className="block mb-1 text-sm font-medium text-gray-700">
+            destination_address
+          </label>
+          <input
+            type="text"
+            className="w-full border border-gray-300 rounded-lg p-2 text-sm font-mono focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+            placeholder="addr_test1..."
+            value={destinationAddress}
+            onChange={(e) => setDestinationAddress(e.target.value)}
+          />
+        </div>
+        <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
+          <div>
+            <label className="block mb-1 text-sm font-medium text-gray-700">
+              Stakeholder pkh
+            </label>
+            <input
+              type="text"
+              className="w-full border border-gray-300 rounded-lg p-2 text-sm font-mono focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+              placeholder="fe2d2b5b..."
+              value={stakeholderPkh}
+              onChange={(e) => setStakeholderPkh(e.target.value)}
+            />
+          </div>
+          <div>
+            <label className="block mb-1 text-sm font-medium text-gray-700">
+              Participación (lovelace)
+            </label>
+            <input
+              type="text"
+              className="w-full border border-gray-300 rounded-lg p-2 text-sm focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+              placeholder="500000"
+              value={stakeholderParticipation}
+              onChange={(e) => setStakeholderParticipation(e.target.value)}
+            />
+          </div>
+          <div>
+            <label className="block mb-1 text-sm font-medium text-gray-700">
+              stakeholder (nombre en hex)
+            </label>
+            <input
+              type="text"
+              className="w-full border border-gray-300 rounded-lg p-2 text-sm font-mono focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+              placeholder="6c616e646f776e6572"
+              value={stakeholderHex}
+              onChange={(e) => setStakeholderHex(e.target.value)}
+            />
+          </div>
+        </div>
+        <div className="bg-gray-50 border border-dashed border-gray-300 rounded-md p-2 text-[11px] text-gray-600 flex flex-col gap-1">
+          <div>
+            <span className="font-semibold">Proyecto:</span>{' '}
+            <span>{props.projectNameLabel || '—'}</span>
+          </div>
+          <div>
+            <span className="font-semibold">policy_id:</span>{' '}
+            <code className="bg-gray-100 px-1 py-0.5 rounded text-[10px]">
+              {props.policyIdLabel}
+            </code>
+          </div>
+        </div>
+      </Modal.Body>
+      <Modal.Footer className="border-t border-gray-200 pt-4 flex gap-2 justify-end">
+        <button
+          type="button"
+          className="font-medium rounded-lg text-sm px-4 py-2 border border-gray-300 text-gray-700 hover:bg-gray-100 focus:outline-none focus:ring-2 focus:ring-gray-200"
+          onClick={onClose}
+          disabled={loading}
+        >
+          Cancelar
+        </button>
+        <button
+          type="button"
+          className={`${colors.fuente} text-white ${colors.bgColor} ${colors.hoverBgColor} focus:outline-none focus:ring-2 focus:ring-offset-2 font-medium rounded-lg text-sm px-4 py-2 disabled:opacity-50`}
+          onClick={handleSubmit}
+          disabled={loading}
+        >
+          {loading ? <LoadingIcon className="w-5 h-5 inline" /> : 'Mintear tokens'}
+        </button>
+      </Modal.Footer>
+    </>
+  );
+}
+
+function UpdateProtocolFormContent(props: {
+  policyIdLabel: string;
+  onClose: () => void;
+  onSubmit: (formData: {
+    oracle_id: string;
+    protocol_fee: number;
+    protocol_admins: string[];
+  }) => void;
+  loading: boolean;
+  colors: { fuente: string; bgColor: string; hoverBgColor: string };
+}) {
+  const { onClose, onSubmit, loading, colors } = props;
+  const [oracleId, setOracleId] = useState('');
+  const [protocolFee, setProtocolFee] = useState('');
+  const [adminsRaw, setAdminsRaw] = useState('');
+
+  const handleSubmit = () => {
+    const feeNum = parseInt(protocolFee, 10);
+    if (Number.isNaN(feeNum) || feeNum <= 0) {
+      toast.error('protocol_fee debe ser un número entero positivo (en lovelace).');
+      return;
+    }
+    const admins = adminsRaw
+      .split('\n')
+      .map((l) => l.trim())
+      .filter((l) => l.length > 0);
+    if (admins.length === 0) {
+      toast.error('Debes indicar al menos un protocol_admin (uno por línea).');
+      return;
+    }
+    onSubmit({
+      oracle_id: oracleId.trim(),
+      protocol_fee: feeNum,
+      protocol_admins: admins,
+    });
+  };
+
+  return (
+    <>
+      <Modal.Body className="space-y-4 pt-4">
+        <p className="text-sm text-gray-600">
+          Actualiza los parámetros del protocolo. El monto de <code>protocol_fee</code> se expresa en lovelace.
+        </p>
+        <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+          <div className="sm:col-span-2">
+            <label className="block mb-1 text-sm font-medium text-gray-700">
+              oracle_id (opcional)
+            </label>
+            <input
+              type="text"
+              className="w-full border border-gray-300 rounded-lg p-2 text-sm font-mono focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+              placeholder="oracle id..."
+              value={oracleId}
+              onChange={(e) => setOracleId(e.target.value)}
+            />
+          </div>
+          <div>
+            <label className="block mb-1 text-sm font-medium text-gray-700">
+              protocol_fee (lovelace)
+            </label>
+            <input
+              type="text"
+              className="w-full border border-gray-300 rounded-lg p-2 text-sm focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+              placeholder="3000000"
+              value={protocolFee}
+              onChange={(e) => setProtocolFee(e.target.value)}
+            />
+          </div>
+          <div>
+            <label className="block mb-1 text-sm font-medium text-gray-700">
+              protocol_admins (uno por línea)
+            </label>
+            <textarea
+              className="w-full border border-gray-300 rounded-lg p-2 text-sm font-mono focus:ring-2 focus:ring-blue-500 focus:border-blue-500 min-h-[96px]"
+              placeholder="fe2d2b5b..."
+              value={adminsRaw}
+              onChange={(e) => setAdminsRaw(e.target.value)}
+            />
+          </div>
+          <div className="sm:col-span-2">
+            <div className="bg-gray-50 border border-dashed border-gray-300 rounded-md p-2 text-[11px] text-gray-600 flex flex-col gap-1">
+              <div>
+                <span className="font-semibold">policy_id:</span>{' '}
+                <code className="bg-gray-100 px-1 py-0.5 rounded text-[10px]">
+                  {props.policyIdLabel}
+                </code>
+              </div>
+            </div>
+          </div>
+        </div>
+      </Modal.Body>
+      <Modal.Footer className="border-t border-gray-200 pt-4 flex gap-2 justify-end">
+        <button
+          type="button"
+          className="font-medium rounded-lg text-sm px-4 py-2 border border-gray-300 text-gray-700 hover:bg-gray-100 focus:outline-none focus:ring-2 focus:ring-gray-200"
+          onClick={onClose}
+          disabled={loading}
+        >
+          Cancelar
+        </button>
+        <button
+          type="button"
+          className={`${colors.fuente} text-white ${colors.bgColor} ${colors.hoverBgColor} focus:outline-none focus:ring-2 focus:ring-offset-2 font-medium rounded-lg text-sm px-4 py-2 disabled:opacity-50`}
+          onClick={handleSubmit}
+          disabled={loading}
+        >
+          {loading ? <LoadingIcon className="w-5 h-5 inline" /> : 'Actualizar protocolo'}
+        </button>
+      </Modal.Footer>
+    </>
+  );
+}
+
+function UpdateProjectFormContent(props: {
+  projectNameLabel: string;
+  policyIdLabel: string;
+  defaultProjectTokenPolicyId?: string;
+  onClose: () => void;
+  onSubmit: (formData: {
+    project_id: string;
+    project_metadata: string;
+    project_state: number;
+    project_token_name: string;
+    project_token_policy_id: string;
+    total_supply: number;
+    certification_date: number;
+    quantity: number;
+    real_certification_date: number;
+    real_quantity: number;
+    stakeholder_pkh: string;
+    stakeholder_hex: string;
+    stakeholder_participation: number;
+  }) => void;
+  loading: boolean;
+  colors: { fuente: string; bgColor: string; hoverBgColor: string };
+}) {
+  const { onClose, onSubmit, loading, colors } = props;
+  const [projectId, setProjectId] = useState('');
+  const [projectMetadata, setProjectMetadata] = useState('');
+  const [projectState, setProjectState] = useState('');
+  const [projectTokenName, setProjectTokenName] = useState('');
+  const [projectTokenPolicyId, setProjectTokenPolicyId] = useState(
+    props.defaultProjectTokenPolicyId || ''
+  );
+  const [totalSupply, setTotalSupply] = useState('');
+  const [certificationDate, setCertificationDate] = useState('');
+  const [quantity, setQuantity] = useState('');
+  const [realCertificationDate, setRealCertificationDate] = useState('');
+  const [realQuantity, setRealQuantity] = useState('');
+  const [stakeholderPkh, setStakeholderPkh] = useState('');
+  const [stakeholderParticipation, setStakeholderParticipation] = useState('');
+  const [stakeholderHex, setStakeholderHex] = useState('');
+
+  const handleSubmit = () => {
+    const projId = projectId.trim();
+    if (!projId) {
+      toast.error('project_id es obligatorio.');
+      return;
+    }
+    const tokenName = projectTokenName.trim();
+    if (!tokenName) {
+      toast.error('project_token_name es obligatorio (en hex).');
+      return;
+    }
+    const tokenPolicyId = projectTokenPolicyId.trim();
+    if (!tokenPolicyId) {
+      toast.error('project_token_policy_id es obligatorio.');
+      return;
+    }
+    const totalSupplyNum = parseInt(totalSupply, 10);
+    if (Number.isNaN(totalSupplyNum) || totalSupplyNum <= 0) {
+      toast.error('total_supply debe ser un entero positivo.');
+      return;
+    }
+    const stateNum = parseInt(projectState, 10);
+    if (Number.isNaN(stateNum)) {
+      toast.error('project_state debe ser un número entero.');
+      return;
+    }
+    const certDateNum = parseInt(certificationDate || '0', 10);
+    const qtyNum = parseInt(quantity || '0', 10);
+    const realCertDateNum = parseInt(realCertificationDate || '0', 10);
+    const realQtyNum = parseInt(realQuantity || '0', 10);
+    const pkh = stakeholderPkh.trim();
+    const stakeholder = stakeholderHex.trim();
+    const participationNum = parseInt(stakeholderParticipation || '0', 10);
+    if (!pkh || !stakeholder || Number.isNaN(participationNum) || participationNum <= 0) {
+      toast.error('Debes indicar un stakeholder válido (pkh, nombre en hex y participación).');
+      return;
+    }
+
+    onSubmit({
+      project_id: projId,
+      project_metadata: projectMetadata,
+      project_state: stateNum,
+      project_token_name: tokenName,
+      project_token_policy_id: tokenPolicyId,
+      total_supply: totalSupplyNum,
+      certification_date: Number.isNaN(certDateNum) ? 0 : certDateNum,
+      quantity: Number.isNaN(qtyNum) ? 0 : qtyNum,
+      real_certification_date: Number.isNaN(realCertDateNum) ? 0 : realCertDateNum,
+      real_quantity: Number.isNaN(realQtyNum) ? 0 : realQtyNum,
+      stakeholder_pkh: pkh,
+      stakeholder_hex: stakeholder,
+      stakeholder_participation: participationNum,
+    });
+  };
+
+  return (
+    <>
+      <Modal.Body className="space-y-4 pt-4">
+        <p className="text-sm text-gray-600">
+          Actualiza los parámetros on-chain de este proyecto. Los campos numéricos se expresan en unidades enteras.
+        </p>
+        <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+          <div>
+            <label className="block mb-1 text-sm font-medium text-gray-700">
+              project_id
+            </label>
+            <input
+              type="text"
+              className="w-full border border-gray-300 rounded-lg p-2 text-sm font-mono focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+              placeholder="0a1b2c3d..."
+              value={projectId}
+              onChange={(e) => setProjectId(e.target.value)}
+            />
+          </div>
+          <div>
+            <label className="block mb-1 text-sm font-medium text-gray-700">
+              project_state
+            </label>
+            <input
+              type="text"
+              className="w-full border border-gray-300 rounded-lg p-2 text-sm focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+              placeholder="1"
+              value={projectState}
+              onChange={(e) => setProjectState(e.target.value)}
+            />
+          </div>
+          <div>
+            <label className="block mb-1 text-sm font-medium text-gray-700">
+              total_supply
+            </label>
+            <input
+              type="text"
+              className="w-full border border-gray-300 rounded-lg p-2 text-sm focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+              placeholder="500000"
+              value={totalSupply}
+              onChange={(e) => setTotalSupply(e.target.value)}
+            />
+          </div>
+          <div>
+            <label className="block mb-1 text-sm font-medium text-gray-700">
+              project_metadata (opcional)
+            </label>
+            <input
+              type="text"
+              className="w-full border border-gray-300 rounded-lg p-2 text-sm focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+              placeholder="{}"
+              value={projectMetadata}
+              onChange={(e) => setProjectMetadata(e.target.value)}
+            />
+          </div>
+          <div>
+            <label className="block mb-1 text-sm font-medium text-gray-700">
+              project_token_name (hex)
+            </label>
+            <input
+              type="text"
+              className="w-full border border-gray-300 rounded-lg p-2 text-sm font-mono focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+              placeholder="475245595f..."
+              value={projectTokenName}
+              onChange={(e) => setProjectTokenName(e.target.value)}
+            />
+          </div>
+          <div>
+            <label className="block mb-1 text-sm font-medium text-gray-700">
+              project_token_policy_id
+            </label>
+            <input
+              type="text"
+              className="w-full border border-gray-300 rounded-lg p-2 text-sm font-mono focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+              placeholder="abc123..."
+              value={projectTokenPolicyId}
+              onChange={(e) => setProjectTokenPolicyId(e.target.value)}
+            />
+          </div>
+          <div>
+            <label className="block mb-1 text-sm font-medium text-gray-700">
+              certification_date (epoch, opcional)
+            </label>
+            <input
+              type="text"
+              className="w-full border border-gray-300 rounded-lg p-2 text-sm focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+              placeholder="1700000000"
+              value={certificationDate}
+              onChange={(e) => setCertificationDate(e.target.value)}
+            />
+          </div>
+          <div>
+            <label className="block mb-1 text-sm font-medium text-gray-700">
+              quantity (certificación, opcional)
+            </label>
+            <input
+              type="text"
+              className="w-full border border-gray-300 rounded-lg p-2 text-sm focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+              placeholder="1000"
+              value={quantity}
+              onChange={(e) => setQuantity(e.target.value)}
+            />
+          </div>
+          <div>
+            <label className="block mb-1 text-sm font-medium text-gray-700">
+              real_certification_date (opcional)
+            </label>
+            <input
+              type="text"
+              className="w-full border border-gray-300 rounded-lg p-2 text-sm focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+              placeholder="0"
+              value={realCertificationDate}
+              onChange={(e) => setRealCertificationDate(e.target.value)}
+            />
+          </div>
+          <div>
+            <label className="block mb-1 text-sm font-medium text-gray-700">
+              real_quantity (opcional)
+            </label>
+            <input
+              type="text"
+              className="w-full border border-gray-300 rounded-lg p-2 text-sm focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+              placeholder="0"
+              value={realQuantity}
+              onChange={(e) => setRealQuantity(e.target.value)}
+            />
+          </div>
+          <div>
+            <label className="block mb-1 text-sm font-medium text-gray-700">
+              Stakeholder pkh
+            </label>
+            <input
+              type="text"
+              className="w-full border border-gray-300 rounded-lg p-2 text-sm font-mono focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+              placeholder="fe2d2b5b..."
+              value={stakeholderPkh}
+              onChange={(e) => setStakeholderPkh(e.target.value)}
+            />
+          </div>
+          <div>
+            <label className="block mb-1 text-sm font-medium text-gray-700">
+              Stakeholder participación (lovelace)
+            </label>
+            <input
+              type="text"
+              className="w-full border border-gray-300 rounded-lg p-2 text-sm focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+              placeholder="500000"
+              value={stakeholderParticipation}
+              onChange={(e) => setStakeholderParticipation(e.target.value)}
+            />
+          </div>
+          <div>
+            <label className="block mb-1 text-sm font-medium text-gray-700">
+              stakeholder (nombre en hex)
+            </label>
+            <input
+              type="text"
+              className="w-full border border-gray-300 rounded-lg p-2 text-sm font-mono focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+              placeholder="6c616e646f776e6572"
+              value={stakeholderHex}
+              onChange={(e) => setStakeholderHex(e.target.value)}
+            />
+          </div>
+          <div className="sm:col-span-2">
+            <div className="bg-gray-50 border border-dashed border-gray-300 rounded-md p-2 text-[11px] text-gray-600 flex flex-col gap-1">
+              <div>
+                <span className="font-semibold">Proyecto:</span>{' '}
+                <span>{props.projectNameLabel || '—'}</span>
+              </div>
+              <div>
+                <span className="font-semibold">policy_id (contrato):</span>{' '}
+                <code className="bg-gray-100 px-1 py-0.5 rounded text-[10px]">
+                  {props.policyIdLabel}
+                </code>
+              </div>
+            </div>
+          </div>
+        </div>
+      </Modal.Body>
+      <Modal.Footer className="border-t border-gray-200 pt-4 flex gap-2 justify-end">
+        <button
+          type="button"
+          className="font-medium rounded-lg text-sm px-4 py-2 border border-gray-300 text-gray-700 hover:bg-gray-100 focus:outline-none focus:ring-2 focus:ring-gray-200"
+          onClick={onClose}
+          disabled={loading}
+        >
+          Cancelar
+        </button>
+        <button
+          type="button"
+          className={`${colors.fuente} text-white ${colors.bgColor} ${colors.hoverBgColor} focus:outline-none focus:ring-2 focus:ring-offset-2 font-medium rounded-lg text-sm px-4 py-2 disabled:opacity-50`}
+          onClick={handleSubmit}
+          disabled={loading}
+        >
+          {loading ? <LoadingIcon className="w-5 h-5 inline" /> : 'Actualizar proyecto'}
+        </button>
+      </Modal.Footer>
+    </>
+  );
+}
+
 /** Formulario con estado local para no re-renderizar el modal al escribir y evitar pérdida de foco */
 function CreateProjectFormContent(props: {
   protocolPolicyIdLabel: string;
@@ -284,10 +969,19 @@ export default function CoreWallet(props: any) {
   const [protocolCompileResult, setProtocolCompileResult] = useState<CompileProtocolResponse | null>(null);
   const [protocolCompileLoading, setProtocolCompileLoading] = useState(false);
   const [protocolMintLoading, setProtocolMintLoading] = useState(false);
+  const [protocolUtxoModalOpen, setProtocolUtxoModalOpen] = useState(false);
+  const [protocolUtxosLoading, setProtocolUtxosLoading] = useState(false);
+  const [protocolUtxos, setProtocolUtxos] = useState<ProtocolUtxo[]>([]);
+  const [selectedProtocolUtxoRef, setSelectedProtocolUtxoRef] = useState<string | null>(null);
+  const [protocolUtxosError, setProtocolUtxosError] = useState<string | null>(null);
   const [signType, setSignType] = useState<string>('sendTransaction');
   const [mintedProtocolPolicyIds, setMintedProtocolPolicyIds] = useState<Set<string>>(new Set());
   const [selectedProtocolPolicyId, setSelectedProtocolPolicyId] = useState<string | null>(null);
   const lastMintPolicyIdRef = useRef<string | null>(null);
+  const [mintedProjectPolicyIds, setMintedProjectPolicyIds] = useState<Set<string>>(new Set());
+  const lastMintProjectPolicyIdRef = useRef<string | null>(null);
+  const [updateProtocolModalPolicyId, setUpdateProtocolModalPolicyId] = useState<string | null>(null);
+  const [updateProtocolLoading, setUpdateProtocolLoading] = useState(false);
   // Crear contrato de proyecto a partir de un protocolo minteado
   const [protocolPolicyIdForNewProject, setProtocolPolicyIdForNewProject] = useState<string | null>(null);
   const [compileProjectLoading, setCompileProjectLoading] = useState(false);
@@ -298,6 +992,13 @@ export default function CoreWallet(props: any) {
   // Modal Deploy: contrato seleccionado y dirección destino (se pide en el modal)
   const [deployModalContract, setDeployModalContract] = useState<any | null>(null);
   const [deployModalDestinationAddress, setDeployModalDestinationAddress] = useState<string>('');
+  // Mint project tokens: contrato seleccionado y loading por policy_id
+  const [mintProjectModalContract, setMintProjectModalContract] = useState<any | null>(null);
+  const [mintProjectLoadingPolicyId, setMintProjectLoadingPolicyId] = useState<string | null>(null);
+  const [updateProjectModalContract, setUpdateProjectModalContract] = useState<any | null>(null);
+  const [updateProjectLoadingPolicyId, setUpdateProjectLoadingPolicyId] = useState<string | null>(null);
+  // Core wallet management: wallet_id arbitrario que se quiere promover / despromover
+  const [coreWalletIdInput, setCoreWalletIdInput] = useState<string>('');
 
   useEffect(() => {
     if (!hasTokenAcces && walletData) {
@@ -401,10 +1102,16 @@ export default function CoreWallet(props: any) {
   };
 
   const handleOpenSignTransactionModal = (signStatus?: boolean) => {
-    if (signStatus === true && lastMintPolicyIdRef.current) {
+  if (signStatus === true) {
+    if (lastMintPolicyIdRef.current) {
       setMintedProtocolPolicyIds((prev) => new Set(prev).add(lastMintPolicyIdRef.current!));
       lastMintPolicyIdRef.current = null;
     }
+    if (lastMintProjectPolicyIdRef.current) {
+      setMintedProjectPolicyIds((prev) => new Set(prev).add(lastMintProjectPolicyIdRef.current!));
+      lastMintProjectPolicyIdRef.current = null;
+    }
+  }
     setSignTransactionModal((open) => !open);
   };
 
@@ -477,16 +1184,104 @@ export default function CoreWallet(props: any) {
     }));
   };
 
-  const handleCompileProtocol = async () => {
+  const openProtocolCompileModal = async () => {
+    if (!walletID) {
+      toast.error('Debes tener una billetera activa para compilar el protocolo.');
+      return;
+    }
+
+    setProtocolUtxoModalOpen(true);
+    setProtocolUtxos([]);
+    setSelectedProtocolUtxoRef(null);
+    setProtocolUtxosError(null);
+    setProtocolUtxosLoading(true);
+
+    try {
+      const result = await getWalletUtxos(walletID);
+      if (!result.success || !result.data) {
+        setProtocolUtxos([]);
+        return;
+      }
+
+      const rawUtxos = (result.data as any).utxos ?? result.data;
+      const asArray = normalizeToArray(rawUtxos);
+
+      const mapped: ProtocolUtxo[] = asArray
+        .map((u: any) => {
+          const txHash: string = u.tx_hash ?? '';
+          const index: number = u.output_index ?? 0;
+          const utxoRef: string | undefined =
+            u.utxo_ref || (txHash ? `${txHash}:${index}` : undefined);
+
+          const ada: number | null =
+            typeof u.amount_ada === 'number' ? u.amount_ada : null;
+
+          if (!utxoRef) return null;
+
+          let tokens:
+            | {
+                id: string;
+                policyId: string;
+                assetNameHex: string;
+                assetName: string;
+                quantity: number;
+              }[]
+            | undefined;
+          let tokensCount: number | undefined;
+          if (u.tokens && typeof u.tokens === 'object') {
+            const entries = Object.entries(u.tokens as Record<string, any>);
+            tokens = entries.map(([id, qty]) => {
+              const decoded = decodeCardanoAsset(id);
+              const displayName =
+                decoded.readablePrefix ||
+                decoded.fullUtf8 ||
+                (decoded.assetNameHex ? decoded.assetNameHex.slice(0, 10) + '…' : '');
+              return {
+                id,
+                policyId: decoded.policyId,
+                assetNameHex: decoded.assetNameHex,
+                assetName: displayName,
+                quantity: typeof qty === 'number' ? qty : Number(qty ?? 0),
+              };
+            });
+            tokensCount = tokens.length;
+          }
+
+          return {
+            utxoRef,
+            txHash,
+            index,
+            ada,
+            address: u.address,
+            tokensCount,
+            tokens,
+            raw: u,
+          } as ProtocolUtxo;
+        })
+        .filter(Boolean) as ProtocolUtxo[];
+
+      setProtocolUtxos(mapped);
+    } catch (error) {
+      console.error('Error al cargar UTXOs para compilar protocolo:', error);
+      setProtocolUtxos([]);
+      setProtocolUtxosError('No se pudieron cargar los UTXOs de la billetera.');
+    } finally {
+      setProtocolUtxosLoading(false);
+    }
+  };
+
+  const handleCompileProtocol = async (utxoRef: string): Promise<boolean> => {
     setProtocolCompileLoading(true);
     setProtocolCompileResult(null);
     try {
-      const result = await compileProtocol({});
+      const result = await compileProtocol({ utxo_ref: utxoRef });
       if (result.success && result.data) {
         setProtocolCompileResult(result.data);
         toast.success(result.data.message || 'Protocolo compilado correctamente.');
         refreshContracts(true);
+        return true;
       }
+      return false;
     } finally {
       setProtocolCompileLoading(false);
     }
@@ -542,6 +1337,179 @@ export default function CoreWallet(props: any) {
       }
     } finally {
       setProtocolMintLoading(false);
+    }
+  };
+
+  const handleMintProject = async (
+    projectContract: any,
+    formData: {
+      investment_tokens: number;
+      project_id: string;
+      destination_address: string;
+      stakeholders: { participation: number; pkh: string; stakeholder: string }[];
+    }
+  ) => {
+    const policyId =
+      getPolicyIdFromContract(projectContract) || projectContract?.policy_id;
+    if (!policyId) {
+      toast.error('No se pudo determinar el policy_id del contrato de proyecto.');
+      return;
+    }
+
+    setMintProjectLoadingPolicyId(policyId);
+    try {
+      const result = await mintProject(policyId, {
+        investment_tokens: formData.investment_tokens,
+        project_id: formData.project_id,
+        destination_address: formData.destination_address,
+        stakeholders: formData.stakeholders,
+      });
+
+      if (result.success && result.data) {
+        const d = result.data;
+        lastMintProjectPolicyIdRef.current = policyId;
+        setNewTransactionBuild({
+          transaction_id: d.transaction_id,
+          title: 'Mint proyecto',
+          subtitle: d.project_contract_address || d.transaction_id,
+          tx_id: d.transaction_id,
+          tx_type: 'mint_project',
+          tx_fee: (d.fee_lovelace / 1_000_000).toFixed(6),
+          tx_value: '0',
+          tx_assets: [],
+          block: 0,
+          tx_size: 0,
+          inputUTxOs: Array.isArray(d.inputs) ? d.inputs : [],
+          outputUTxOs: Array.isArray(d.outputs) ? d.outputs : [],
+          metadata: {},
+        });
+        setSignType('sendTransaction');
+        setSignTransactionModal(true);
+        toast.success('Transacción de mint de proyecto construida. Revisa el detalle y firma en el modal.');
+      }
+    } finally {
+      setMintProjectLoadingPolicyId(null);
+    }
+  };
+
+  const handleUpdateProtocol = async (
+    protocolPolicyId: string,
+    formData: {
+      oracle_id: string;
+      protocol_fee: number;
+      protocol_admins: string[];
+    }
+  ) => {
+    setUpdateProtocolLoading(true);
+    try {
+      const result = await updateProtocol(protocolPolicyId, {
+        oracle_id: formData.oracle_id,
+        projects: [],
+        protocol_admins: formData.protocol_admins,
+        protocol_fee: formData.protocol_fee,
+      });
+      if (result.success && result.data) {
+        const d = result.data;
+        setNewTransactionBuild({
+          transaction_id: d.transaction_id,
+          title: 'Actualizar protocolo',
+          subtitle: d.protocol_contract_address || d.transaction_id,
+          tx_id: d.transaction_id,
+          tx_type: 'update_protocol',
+          tx_fee: (d.fee_lovelace / 1_000_000).toFixed(6),
+          tx_value: '0',
+          tx_assets: [],
+          block: 0,
+          tx_size: 0,
+          inputUTxOs: Array.isArray(d.inputs) ? d.inputs : [],
+          outputUTxOs: Array.isArray(d.outputs) ? d.outputs : [],
+          metadata: {},
+        });
+        setSignType('sendTransaction');
+        setSignTransactionModal(true);
+        toast.success('Transacción de actualización de protocolo construida. Revisa el detalle y firma en el modal.');
+      }
+    } finally {
+      setUpdateProtocolLoading(false);
+      setUpdateProtocolModalPolicyId(null);
+    }
+  };
+
+  const handleUpdateProject = async (
+    projectContract: any,
+    formData: {
+      project_id: string;
+      project_metadata: string;
+      project_state: number;
+      project_token_name: string;
+      project_token_policy_id: string;
+      total_supply: number;
+      certification_date: number;
+      quantity: number;
+      real_certification_date: number;
+      real_quantity: number;
+      stakeholder_pkh: string;
+      stakeholder_hex: string;
+      stakeholder_participation: number;
+    }
+  ) => {
+    const policyId =
+      getPolicyIdFromContract(projectContract) || projectContract?.policy_id;
+    if (!policyId) {
+      toast.error('No se pudo determinar el policy_id del contrato de proyecto.');
+      return;
+    }
+
+    setUpdateProjectLoadingPolicyId(policyId);
+    try {
+      const result = await updateProject(policyId, {
+        certifications: [
+          {
+            certification_date: formData.certification_date,
+            quantity: formData.quantity,
+            real_certification_date: formData.real_certification_date,
+            real_quantity: formData.real_quantity,
+          },
+        ],
+        project_id: formData.project_id,
+        project_metadata: formData.project_metadata,
+        project_state: formData.project_state,
+        project_token_name: formData.project_token_name,
+        project_token_policy_id: formData.project_token_policy_id,
+        stakeholders: [
+          {
+            participation: formData.stakeholder_participation,
+            pkh: formData.stakeholder_pkh,
+            stakeholder: formData.stakeholder_hex,
+          },
+        ],
+        total_supply: formData.total_supply,
+      });
+
+      if (result.success && result.data) {
+        const d = result.data;
+        setNewTransactionBuild({
+          transaction_id: d.transaction_id,
+          title: 'Actualizar proyecto',
+          subtitle: d.project_contract_address || d.transaction_id,
+          tx_id: d.transaction_id,
+          tx_type: 'update_project',
+          tx_fee: (d.fee_lovelace / 1_000_000).toFixed(6),
+          tx_value: '0',
+          tx_assets: [],
+          block: 0,
+          tx_size: 0,
+          inputUTxOs: Array.isArray(d.inputs) ? d.inputs : [],
+          outputUTxOs: Array.isArray(d.outputs) ? d.outputs : [],
+          metadata: {},
+        });
+        setSignType('sendTransaction');
+        setSignTransactionModal(true);
+        toast.success('Transacción de actualización de proyecto construida. Revisa el detalle y firma en el modal.');
+      }
+    } finally {
+      setUpdateProjectLoadingPolicyId(null);
+      setUpdateProjectModalContract(null);
     }
   };
 
@@ -874,7 +1842,7 @@ export default function CoreWallet(props: any) {
       }
 
       toast.success('Contrato compilado correctamente.');
-      await refreshContracts();
+      await refreshContracts(true);
     } catch (err: any) {
       console.error('Error compilando contrato:', err);
       toast.error(err?.message || 'Error compilando contrato');
@@ -923,7 +1891,7 @@ export default function CoreWallet(props: any) {
       }
 
       toast.success('Contrato eliminado correctamente.');
-      await refreshContracts();
+      await refreshContracts(true);
     } catch (err: any) {
       console.error('Error eliminando contrato:', err);
       toast.error(err?.message || 'Error eliminando contrato');
@@ -1148,6 +2116,66 @@ export default function CoreWallet(props: any) {
           </Card>
         </div> */}
 
+        <div className="col-span-2">
+          <Card>
+            <Card.Header title="Agregar o remover rol de core wallet" />
+            <Card.Body>
+              <div className="flex flex-col gap-3 text-sm text-gray-700">
+                <p>
+                  Usa estos botones para <strong>promover</strong> la billetera activa como
+                  core wallet del marketplace o para <strong>revocar</strong> ese rol.
+                </p>
+                <div className="bg-gray-50 border border-dashed border-gray-300 rounded-md p-3 flex flex-col gap-2 text-xs">
+                  <div className="flex flex-col gap-1">
+                    <span className="font-semibold text-gray-800">
+                      Wallet ID a gestionar (puede ser cualquiera):
+                    </span>
+                    <input
+                      type="text"
+                      className="w-full border border-gray-300 rounded-lg p-1.5 text-xs font-mono focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                      placeholder="wallet_id..."
+                      value={coreWalletIdInput}
+                      onChange={(e) => setCoreWalletIdInput(e.target.value)}
+                    />
+                  </div>
+                </div>
+                <div className="flex flex-wrap gap-2 mt-1">
+                  <button
+                    type="button"
+                    className={`${colors.fuente} text-white ${colors.bgColor} ${colors.hoverBgColor} focus:outline-none focus:ring-4 focus:ring-gray-300 font-medium rounded text-xs px-3 py-1.5 disabled:opacity-50`}
+                    onClick={async () => {
+                      const targetId = coreWalletIdInput.trim();
+                      if (!targetId) {
+                        toast.error('Ingresa un wallet_id para promover como core wallet.');
+                        return;
+                      }
+                      await promoteWallet(targetId);
+                    }}
+                    disabled={!coreWalletIdInput.trim()}
+                  >
+                    Promover como core wallet
+                  </button>
+                  <button
+                    type="button"
+                    className="inline-flex items-center gap-1 rounded text-xs px-3 py-1.5 border border-red-200 bg-red-50 text-red-700 hover:bg-red-100 focus:outline-none focus:ring-2 focus:ring-red-200 disabled:opacity-50"
+                    onClick={async () => {
+                      const targetId = coreWalletIdInput.trim();
+                      if (!targetId) {
+                        toast.error('Ingresa un wallet_id para quitar el rol de core wallet.');
+                        return;
+                      }
+                      await unpromoteWallet(targetId);
+                    }}
+                    disabled={!coreWalletIdInput.trim()}
+                  >
+                    Quitar rol de core wallet
+                  </button>
+                </div>
+              </div>
+            </Card.Body>
+          </Card>
+        </div>
+
         <div className={`${colors.fuenteAlterna} col-span-2`}>
           <Card>
             <Card.Header
@@ -1169,7 +2197,7 @@ export default function CoreWallet(props: any) {
                   <button
                     type="button"
                     className={`${colors.fuente} text-white ${colors.bgColor} ${colors.hoverBgColor} focus:outline-none focus:ring-4 focus:ring-gray-300 font-medium rounded text-sm px-4 py-2 disabled:opacity-50`}
-                    onClick={handleCompileProtocol}
+                    onClick={openProtocolCompileModal}
                     disabled={protocolCompileLoading}
                   >
                     {protocolCompileLoading ? <LoadingIcon className="w-5 h-5 inline" /> : 'Compilar protocolo'}
@@ -1308,6 +2336,14 @@ export default function CoreWallet(props: any) {
                                       )}
                                       <button
                                         type="button"
+                                        className="inline-flex items-center gap-1 rounded text-xs px-3 py-1.5 border border-blue-200 bg-blue-50 text-blue-700 hover:bg-blue-100 focus:outline-none focus:ring-2 focus:ring-blue-200 disabled:opacity-50 disabled:cursor-not-allowed"
+                                        onClick={() => setUpdateProtocolModalPolicyId(mintPolicyId)}
+                                        disabled={!mintPolicyId}
+                                      >
+                                        Actualizar protocolo
+                                      </button>
+                                      <button
+                                        type="button"
                                         className="inline-flex items-center gap-1 rounded text-xs px-3 py-1.5 border border-red-200 bg-red-50 text-red-700 hover:bg-red-100 focus:outline-none focus:ring-2 focus:ring-red-200 disabled:opacity-50 disabled:cursor-not-allowed"
                                         onClick={() => handleDeleteContract(c)}
                                         disabled={!mintPolicyId || contractActionLoadingKey === deleteKey}
@@ -1327,6 +2363,12 @@ export default function CoreWallet(props: any) {
                                             const projMintPolicyId = getPolicyIdFromContract(proj) || proj?.policy_id || '—';
                                             const projName = getContractNameFromContract(proj) || proj?.name || '—';
                                             const isDeploying = deployLoadingPolicyId === projMintPolicyId;
+                                            const projDeleteKey = projMintPolicyId ? `delete:${projMintPolicyId}` : '';
+                                            const isProjectMinted =
+                                              mintedProjectPolicyIds.has(projMintPolicyId) ||
+                                              proj?.minted === true ||
+                                              proj?.is_minted === true ||
+                                              proj?.has_minted_tokens === true;
 
                                             const projSpendingContract = (projectContractsList || []).find((sc: any) => {
                                               const scType = getContractTypeFromContract(sc);
@@ -1343,8 +2385,19 @@ export default function CoreWallet(props: any) {
                                                 key={projMintPolicyId || projName}
                                                 className="flex flex-col gap-1.5 rounded border border-gray-200 bg-white p-2 text-xs shadow-sm"
                                               >
-                                                <div className="flex items-center gap-1.5 flex-wrap">
-                                                  <span className="font-medium text-gray-900">{projName}</span>
+                                                <div className="flex items-center gap-2 flex-wrap justify-between">
+                                                  <span className="font-medium text-gray-900 truncate max-w-[12rem]">
+                                                    {projName}
+                                                  </span>
+                                                  <span
+                                                    className={`inline-flex px-2 py-0.5 rounded-full text-[11px] font-medium ${
+                                                      isProjectMinted
+                                                        ? 'bg-green-100 text-green-800'
+                                                        : 'bg-amber-100 text-amber-800'
+                                                    }`}
+                                                  >
+                                                    {isProjectMinted ? 'Minteado' : 'Sin mintear'}
+                                                  </span>
                                                 </div>
                                                 <div className="flex flex-col gap-1 mt-1">
                                                   <div className="flex items-center gap-1.5">
@@ -1376,16 +2429,46 @@ export default function CoreWallet(props: any) {
                                                     )}
                                                   </div>
                                                 </div>
-                                                <div className="flex justify-end mt-1.5">
+                                                <div className="flex justify-end mt-1.5 gap-2">
+                                                  <button
+                                                    type="button"
+                                                    className={`${colors.fuente} text-white ${colors.bgColor} ${colors.hoverBgColor} focus:outline-none focus:ring-2 focus:ring-gray-300 font-medium rounded text-xs px-2.5 py-1 disabled:opacity-50 flex items-center gap-1`}
+                                                    onClick={() => setMintProjectModalContract(proj)}
+                                                    disabled={!projMintPolicyId || mintProjectLoadingPolicyId === projMintPolicyId}
+                                                    title="Mintear tokens del proyecto"
+                                                  >
+                                                    {mintProjectLoadingPolicyId === projMintPolicyId ? (
+                                                      <LoadingIcon className="w-3.5 h-3.5" />
+                                                    ) : null}
+                                                    {mintProjectLoadingPolicyId === projMintPolicyId
+                                                      ? 'Minteando...'
+                                                      : 'Mintear tokens'}
+                                                  </button>
+                                                  <button
+                                                    type="button"
+                                                    className="inline-flex items-center gap-1 rounded text-xs px-2.5 py-1 border border-blue-200 bg-blue-50 text-blue-700 hover:bg-blue-100 focus:outline-none focus:ring-2 focus:ring-blue-200 disabled:opacity-50 disabled:cursor-not-allowed"
+                                                    onClick={() => setUpdateProjectModalContract(proj)}
+                                                    disabled={!projMintPolicyId}
+                                                  >
+                                                    Actualizar proyecto
+                                                  </button>
                                                   <button
                                                     type="button"
                                                     className={`${colors.fuente} text-white ${colors.bgColor} ${colors.hoverBgColor} focus:outline-none focus:ring-2 focus:ring-gray-300 font-medium rounded text-xs px-2.5 py-1 disabled:opacity-50 flex items-center gap-1`}
                                                     onClick={() => openDeployModal(proj)}
-                                                    disabled={isDeploying}
+                                                    disabled={isDeploying || !isProjectMinted}
                                                     title="Abrir modal para indicar dirección destino y construir tx"
                                                   >
                                                     {isDeploying ? <LoadingIcon className="w-3.5 h-3.5" /> : null}
                                                     Deploy
+                                                  </button>
+                                                  <button
+                                                    type="button"
+                                                    className="inline-flex items-center gap-1 rounded text-xs px-2.5 py-1 border border-red-200 bg-red-50 text-red-700 hover:bg-red-100 focus:outline-none focus:ring-2 focus:ring-red-200 disabled:opacity-50 disabled:cursor-not-allowed"
+                                                    onClick={() => handleDeleteContract(proj)}
+                                                    disabled={!projMintPolicyId || contractActionLoadingKey === projDeleteKey}
+                                                  >
+                                                    {contractActionLoadingKey === projDeleteKey ? 'Eliminando...' : 'Eliminar'}
                                                   </button>
                                                 </div>
                                               </li>
@@ -1412,7 +2495,7 @@ export default function CoreWallet(props: any) {
           <Projects />
         </div> */}
 
-        <div className="col-span-2">
+        {/* <div className="col-span-2">
           <Card>
             <Card.Header
               title="Contratos disponibles"
@@ -1736,7 +2819,7 @@ export default function CoreWallet(props: any) {
               </div>
             </Card.Body>
           </Card>
-        </div>
+        </div> */}
 
         {/* <div className="col-span-2">
           <Scripts />
@@ -1748,8 +2831,196 @@ export default function CoreWallet(props: any) {
         createPortal(
           <div key="core-wallet-modals" data-portal-root>
             <Modal
+              key="select-protocol-utxo-modal"
+              show={protocolUtxoModalOpen}
+              onClose={() => {
+                if (protocolCompileLoading) return;
+                setProtocolUtxoModalOpen(false);
+                setProtocolUtxos([]);
+                setSelectedProtocolUtxoRef(null);
+                setProtocolUtxosError(null);
+              }}
+              size="2xl"
+              position="center"
+              className="z-[60]"
+            >
+              <Modal.Header className="border-b border-gray-200">
+                Seleccionar UTXO para compilar protocolo
+              </Modal.Header>
+              <Modal.Body className="space-y-4 pt-4">
+                <p className="text-sm text-gray-600">
+                  Elige el UTXO de tu billetera que se utilizará para pagar las fees de la compilación del protocolo.
+                </p>
+
+                {protocolUtxosLoading && (
+                  <div className="flex items-center justify-center py-4">
+                    <LoadingIcon className="w-6 h-6" />
+                  </div>
+                )}
+
+                {!protocolUtxosLoading && protocolUtxosError && (
+                  <div className="rounded-md border border-red-200 bg-red-50 px-3 py-2 text-sm text-red-700">
+                    {protocolUtxosError}
+                  </div>
+                )}
+
+                {!protocolUtxosLoading && !protocolUtxosError && protocolUtxos.length === 0 && (
+                  <div className="rounded-md border border-yellow-200 bg-yellow-50 px-3 py-2 text-sm text-yellow-800">
+                    No se encontraron UTXOs disponibles para esta billetera.
+                  </div>
+                )}
+
+                {!protocolUtxosLoading && !protocolUtxosError && protocolUtxos.length > 0 && (
+                  <div className="max-h-96 overflow-y-auto space-y-3 pr-1">
+                    {protocolUtxos.map((u) => {
+                      const isSelected = selectedProtocolUtxoRef === u.utxoRef;
+                      return (
+                        <button
+                          key={u.utxoRef}
+                          type="button"
+                          onClick={() => setSelectedProtocolUtxoRef(u.utxoRef)}
+                          className={`w-full text-left border rounded-lg px-3 py-3 text-xs transition bg-white hover:bg-gray-50 ${
+                            isSelected ? 'ring-2 ring-blue-500 border-blue-400' : 'border-gray-200'
+                          }`}
+                        >
+                          <div className="flex items-start justify-between gap-3">
+                            <div className="flex items-center gap-2">
+                              <input
+                                type="radio"
+                                className="text-blue-600 focus:ring-blue-500 mt-0.5"
+                                checked={isSelected}
+                                onChange={() => setSelectedProtocolUtxoRef(u.utxoRef)}
+                              />
+                              <div>
+                                <div className="text-[11px] text-gray-500">Tx hash</div>
+                                <div className="font-mono text-[11px] text-gray-900 break-all max-w-xs">
+                                  {u.txHash || '—'}
+                                </div>
+                              </div>
+                            </div>
+                            <div className="flex flex-col items-end gap-1 shrink-0">
+                              <div className="text-[11px] text-gray-500">Índice</div>
+                              <div className="text-[11px] text-gray-900 font-medium">{u.index}</div>
+                              <div className="text-[11px] text-gray-500 mt-2">ADA</div>
+                              <div className="text-[11px] text-emerald-700 font-semibold">
+                                {u.ada != null ? u.ada.toFixed(6) : '—'}
+                              </div>
+                            </div>
+                          </div>
+
+                          <div className="mt-2 border-t border-dashed border-gray-200 pt-2">
+                            <details className="text-xs text-gray-700 group">
+                              <summary className="flex items-center justify-between cursor-pointer list-none">
+                                <span className="text-[11px] text-gray-500">Ver dirección y tokens</span>
+                                <span className="text-[13px] text-gray-500 transition-transform group-open:rotate-180">
+                                  ▾
+                                </span>
+                              </summary>
+
+                              <div className="mt-2 flex flex-col gap-2">
+                                <div className="flex flex-col gap-1">
+                                  <span className="text-[11px] text-gray-500">Dirección completa</span>
+                                  <span className="font-mono text-[11px] text-gray-800 break-all">
+                                    {u.address || '—'}
+                                  </span>
+                                </div>
+
+                                <div className="border-t border-dashed border-gray-200 pt-2">
+                                  <div className="flex items-center justify-between mb-1">
+                                    <span className="text-[11px] text-gray-500">Tokens</span>
+                                    {u.tokens && u.tokens.length > 0 ? (
+                                      <span className="text-[11px] text-gray-700">
+                                        {u.tokens.length} token{u.tokens.length > 1 ? 's' : ''}
+                                      </span>
+                                    ) : (
+                                      <span className="text-[11px] text-gray-400">Sin tokens nativos</span>
+                                    )}
+                                  </div>
+
+                                  {u.tokens && u.tokens.length > 0 && (
+                                    <div className="mt-1 space-y-1 max-h-28 overflow-y-auto pr-0.5">
+                                      {u.tokens.map((t) => (
+                                        <div key={t.id} className="flex flex-col">
+                                          <div className="flex items-center justify-between gap-2">
+                                            <span
+                                              className="text-[11px] text-gray-800 font-medium truncate max-w-[10rem]"
+                                              title={t.assetName}
+                                            >
+                                              {t.assetName}
+                                            </span>
+                                            <span className="text-[11px] text-gray-600 shrink-0">
+                                              x {t.quantity}
+                                            </span>
+                                          </div>
+                                          <code
+                                            className="bg-gray-100 rounded px-1 py-0.5 text-[10px] text-gray-600 truncate max-w-[11rem]"
+                                            title={t.policyId}
+                                          >
+                                            {t.policyId.slice(0, 24)}…
+                                          </code>
+                                        </div>
+                                      ))}
+                                    </div>
+                                  )}
+                                </div>
+                              </div>
+                            </details>
+                          </div>
+                        </button>
+                      );
+                    })}
+                  </div>
+                )}
+              </Modal.Body>
+              <Modal.Footer className="border-t border-gray-200 pt-4 flex gap-2 justify-end">
+                <button
+                  type="button"
+                  className="font-medium rounded-lg text-sm px-4 py-2 border border-gray-300 text-gray-700 hover:bg-gray-100 focus:outline-none focus:ring-2 focus:ring-gray-200"
+                  onClick={() => {
+                    if (protocolCompileLoading) return;
+                    setProtocolUtxoModalOpen(false);
+                    setProtocolUtxos([]);
+                    setSelectedProtocolUtxoRef(null);
+                    setProtocolUtxosError(null);
+                  }}
+                  disabled={protocolCompileLoading}
+                >
+                  Cancelar
+                </button>
+                <button
+                  type="button"
+                  className={`${colors.fuente} text-white ${colors.bgColor} ${colors.hoverBgColor} focus:outline-none focus:ring-2 focus:ring-offset-2 font-medium rounded-lg text-sm px-4 py-2 disabled:opacity-50`}
+                  onClick={async () => {
+                    if (!selectedProtocolUtxoRef) {
+                      toast.error('Selecciona un UTXO para compilar el protocolo.');
+                      return;
+                    }
+                    const ok = await handleCompileProtocol(selectedProtocolUtxoRef);
+                    if (ok) {
+                      setProtocolUtxoModalOpen(false);
+                      setProtocolUtxos([]);
+                      setSelectedProtocolUtxoRef(null);
+                      setProtocolUtxosError(null);
+                    }
+                  }}
+                  disabled={
+                    protocolCompileLoading ||
+                    !selectedProtocolUtxoRef ||
+                    protocolUtxos.length === 0
+                  }
+                >
+                  {protocolCompileLoading ? (
+                    <LoadingIcon className="w-5 h-5 inline" />
+                  ) : (
+                    'Compilar protocolo'
+                  )}
+                </button>
+              </Modal.Footer>
+            </Modal>
+
+            <Modal
               key="mint-protocol-modal"
-              show={!!(selectedProtocolPolicyId || protocolCompileResult?.protocol_nfts?.policy_id)}
+              show={!!selectedProtocolPolicyId}
               onClose={() => {
                 setSelectedProtocolPolicyId(null);
                 setProtocolCompileResult(null);
@@ -1760,14 +3031,17 @@ export default function CoreWallet(props: any) {
             >
               <Modal.Header className="border-b border-gray-200">
                 Mintear protocolo
-                {(selectedProtocolPolicyId || protocolCompileResult?.protocol_nfts?.policy_id) && (
+                {selectedProtocolPolicyId && (
                   <span className="text-gray-500 font-normal text-sm ml-2">
-                    policy_id: <code className="bg-gray-100 px-1.5 py-0.5 rounded text-xs">{String(selectedProtocolPolicyId || protocolCompileResult?.protocol_nfts?.policy_id).slice(0, 20)}…</code>
+                    policy_id:{' '}
+                    <code className="bg-gray-100 px-1.5 py-0.5 rounded text-xs">
+                      {String(selectedProtocolPolicyId).slice(0, 20)}…
+                    </code>
                   </span>
                 )}
               </Modal.Header>
               <MintProtocolFormContent
-                policyIdLabel={String(selectedProtocolPolicyId || protocolCompileResult?.protocol_nfts?.policy_id || '').slice(0, 20)}
+                policyIdLabel={String(selectedProtocolPolicyId || '').slice(0, 20)}
                 onClose={() => {
                   setSelectedProtocolPolicyId(null);
                   setProtocolCompileResult(null);
@@ -1776,6 +3050,143 @@ export default function CoreWallet(props: any) {
                 loading={protocolMintLoading}
                 colors={colors}
               />
+            </Modal>
+
+            <Modal
+              key="mint-project-modal"
+              show={!!mintProjectModalContract}
+              onClose={() => setMintProjectModalContract(null)}
+              size="lg"
+              position="center"
+              className="z-[60]"
+            >
+              <Modal.Header className="border-b border-gray-200">
+                Mintear tokens de proyecto
+                {mintProjectModalContract && (
+                  <span className="text-gray-500 font-normal text-sm ml-2">
+                    policy_id:{' '}
+                    <code className="bg-gray-100 px-1.5 py-0.5 rounded text-xs">
+                      {String(
+                        getPolicyIdFromContract(mintProjectModalContract) ||
+                          mintProjectModalContract?.policy_id ||
+                          ''
+                      ).slice(0, 20)}
+                      …
+                    </code>
+                  </span>
+                )}
+              </Modal.Header>
+              {mintProjectModalContract && (
+                <MintProjectFormContent
+                  projectNameLabel={
+                    getContractNameFromContract(mintProjectModalContract) ||
+                    mintProjectModalContract?.name ||
+                    ''
+                  }
+                  policyIdLabel={String(
+                    getPolicyIdFromContract(mintProjectModalContract) ||
+                      mintProjectModalContract?.policy_id ||
+                      ''
+                  ).slice(0, 20)}
+                  onClose={() => setMintProjectModalContract(null)}
+                  onSubmit={(formData) =>
+                    handleMintProject(mintProjectModalContract, formData)
+                  }
+                  loading={
+                    !!mintProjectModalContract &&
+                    mintProjectLoadingPolicyId ===
+                      (getPolicyIdFromContract(mintProjectModalContract) ||
+                        mintProjectModalContract?.policy_id)
+                  }
+                  colors={colors}
+                />
+              )}
+            </Modal>
+
+            <Modal
+              key="update-protocol-modal"
+              show={!!updateProtocolModalPolicyId}
+              onClose={() => setUpdateProtocolModalPolicyId(null)}
+              size="lg"
+              position="center"
+              className="z-[60]"
+            >
+              <Modal.Header className="border-b border-gray-200">
+                Actualizar protocolo
+                {updateProtocolModalPolicyId && (
+                  <span className="text-gray-500 font-normal text-sm ml-2">
+                    policy_id:{' '}
+                    <code className="bg-gray-100 px-1.5 py-0.5 rounded text-xs">
+                      {String(updateProtocolModalPolicyId).slice(0, 20)}…
+                    </code>
+                  </span>
+                )}
+              </Modal.Header>
+              {updateProtocolModalPolicyId && (
+                <UpdateProtocolFormContent
+                  policyIdLabel={updateProtocolModalPolicyId.slice(0, 20)}
+                  onClose={() => setUpdateProtocolModalPolicyId(null)}
+                  onSubmit={(formData) => handleUpdateProtocol(updateProtocolModalPolicyId, formData)}
+                  loading={updateProtocolLoading}
+                  colors={colors}
+                />
+              )}
+            </Modal>
+
+            <Modal
+              key="update-project-modal"
+              show={!!updateProjectModalContract}
+              onClose={() => setUpdateProjectModalContract(null)}
+              size="lg"
+              position="center"
+              className="z-[60]"
+            >
+              <Modal.Header className="border-b border-gray-200">
+                Actualizar proyecto
+                {updateProjectModalContract && (
+                  <span className="text-gray-500 font-normal text-sm ml-2">
+                    policy_id:{' '}
+                    <code className="bg-gray-100 px-1.5 py-0.5 rounded text-xs">
+                      {String(
+                        getPolicyIdFromContract(updateProjectModalContract) ||
+                          updateProjectModalContract?.policy_id ||
+                          ''
+                      ).slice(0, 20)}
+                      …
+                    </code>
+                  </span>
+                )}
+              </Modal.Header>
+              {updateProjectModalContract && (
+                <UpdateProjectFormContent
+                  projectNameLabel={
+                    getContractNameFromContract(updateProjectModalContract) ||
+                    updateProjectModalContract?.name ||
+                    ''
+                  }
+                  policyIdLabel={String(
+                    getPolicyIdFromContract(updateProjectModalContract) ||
+                      updateProjectModalContract?.policy_id ||
+                      ''
+                  ).slice(0, 20)}
+                  defaultProjectTokenPolicyId={
+                    (getPolicyIdFromContract(updateProjectModalContract) ||
+                      updateProjectModalContract?.policy_id ||
+                      '') as string
+                  }
+                  onClose={() => setUpdateProjectModalContract(null)}
+                  onSubmit={(formData) =>
+                    handleUpdateProject(updateProjectModalContract, formData)
+                  }
+                  loading={
+                    !!updateProjectModalContract &&
+                    updateProjectLoadingPolicyId ===
+                      (getPolicyIdFromContract(updateProjectModalContract) ||
+                        updateProjectModalContract?.policy_id)
+                  }
+                  colors={colors}
+                />
+              )}
             </Modal>
 
             <Modal

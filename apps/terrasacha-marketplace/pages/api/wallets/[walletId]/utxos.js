@@ -30,7 +30,7 @@ export default async function handler(req, res) {
     }
 
     const response = await fetch(url, {
-      method: 'POST',
+      method: 'GET',
       headers: {
         'Content-Type': 'application/json',
         ...(WALLET_API_KEY && { 'x-api-key': WALLET_API_KEY }),

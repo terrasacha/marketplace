@@ -299,6 +299,88 @@ export const lockWallet = async (walletId: string) => {
   }
 };
 
+/**
+ * Promueve una wallet a core wallet (rol elevado) usando
+ * PUT /api/wallets/{wallet_id}/promote.
+ */
+export const promoteWallet = async (walletId: string) => {
+  try {
+    const accessToken = getAccessToken();
+    if (!accessToken) {
+      const message =
+        'No se encontró el token de acceso. Por favor, desbloquea la billetera.';
+      toast.error(message);
+      return { success: false, data: null, error: message };
+    }
+
+    const response = await fetch(`${API_BASE}/${walletId}/promote`, {
+      method: 'PUT',
+      headers: {
+        'Content-Type': 'application/json',
+        Authorization: `Bearer ${accessToken}`,
+      },
+    });
+
+    const data = await response.json();
+
+    if (!response.ok || data?.success === false) {
+      const { message } = parseWalletApiError(response, data);
+      toast.error(message);
+      return { success: false, data, error: message };
+    }
+
+    const message = data.message || 'Core wallet habilitada correctamente.';
+    toast.success(message);
+    return { success: true, data };
+  } catch (error: any) {
+    console.error('Error al promover la wallet:', error);
+    const { message } = parseWalletApiError(null, error);
+    toast.error(message);
+    return { success: false, data: null, error: message };
+  }
+};
+
+/**
+ * Revoca el rol de core wallet usando
+ * PUT /api/wallets/{wallet_id}/unpromote.
+ */
+export const unpromoteWallet = async (walletId: string) => {
+  try {
+    const accessToken = getAccessToken();
+    if (!accessToken) {
+      const message =
+        'No se encontró el token de acceso. Por favor, desbloquea la billetera.';
+      toast.error(message);
+      return { success: false, data: null, error: message };
+    }
+
+    const response = await fetch(`${API_BASE}/${walletId}/unpromote`, {
+      method: 'PUT',
+      headers: {
+        'Content-Type': 'application/json',
+        Authorization: `Bearer ${accessToken}`,
+      },
+    });
+
+    const data = await response.json();
+
+    if (!response.ok || data?.success === false) {
+      const { message } = parseWalletApiError(response, data);
+      toast.error(message);
+      return { success: false, data, error: message };
+    }
+
+    const message = data.message || 'Rol de core wallet revocado correctamente.';
+    toast.success(message);
+    return { success: true, data };
+  } catch (error: any) {
+    console.error('Error al revocar core wallet:', error);
+    const { message } = parseWalletApiError(null, error);
+    toast.error(message);
+    return { success: false, data: null, error: message };
+  }
+};
+
 export const refreshWalletToken = async (refreshToken: string) => {
   try {
     const response = await fetch(`${API_BASE}/token/refresh`, {
@@ -1552,6 +1634,427 @@ export const mintProtocol = async (
     return { success: true, data: data as MintProtocolResponse };
   } catch (error: any) {
     console.error('Error al mintear protocolo:', error);
+    const { message } = parseWalletApiError(null, error);
+    toast.error(message);
+    return { success: false, data: null, error: message };
+  }
+};
+
+// --- Update protocol (contracts/[policyId]/update-protocol) ---
+
+/**
+ * Payload para actualizar el protocolo (POST /api/contracts/{policy_id}/update-protocol)
+ */
+export interface UpdateProtocolPayload {
+  oracle_id?: string;
+  projects?: any[];
+  protocol_admins: string[];
+  protocol_fee: number;
+}
+
+/**
+ * Respuesta exitosa de update-protocol
+ */
+export interface UpdateProtocolResponse {
+  fee_lovelace: number;
+  inputs: any[];
+  new_datum: {
+    oracle_id: string;
+    project_admins: string[];
+    projects: any[];
+    protocol_fee: number;
+    [key: string]: any;
+  };
+  old_datum: {
+    oracle_id: string;
+    project_admins: string[];
+    projects: any[];
+    protocol_fee: number;
+    [key: string]: any;
+  };
+  outputs: any[];
+  protocol_contract_address: string;
+  success: true;
+  transaction_id: string;
+  tx_cbor: string;
+}
+
+/**
+ * Actualiza los parámetros de un contrato protocolo existente.
+ * Llama a POST /api/contracts/{policyId}/update-protocol con oracle_id, projects, protocol_admins y protocol_fee.
+ *
+ * @param policyId - Policy ID del contrato protocolo (obligatorio)
+ * @param payload - Body: oracle_id?, projects?, protocol_admins, protocol_fee
+ * @returns Objeto con success, data (UpdateProtocolResponse) o error
+ */
+export const updateProtocol = async (
+  policyId: string,
+  payload: UpdateProtocolPayload
+): Promise<{
+  success: boolean;
+  data: UpdateProtocolResponse | null;
+  error?: string;
+}> => {
+  try {
+    const accessToken = getAccessToken();
+    if (!accessToken) {
+      const message =
+        'No se encontró el token de acceso. Por favor, desbloquea la billetera.';
+      toast.error(message);
+      return { success: false, data: null, error: message };
+    }
+
+    if (!policyId || policyId.trim() === '') {
+      const message = 'policy_id es un parámetro requerido';
+      toast.error(message);
+      return { success: false, data: null, error: message };
+    }
+
+    if (!Array.isArray(payload.protocol_admins)) {
+      const message = 'protocol_admins debe ser un array';
+      toast.error(message);
+      return { success: false, data: null, error: message };
+    }
+
+    const body: {
+      oracle_id?: string;
+      projects?: any[];
+      protocol_admins: string[];
+      protocol_fee: number;
+    } = {
+      protocol_admins: payload.protocol_admins,
+      protocol_fee: payload.protocol_fee,
+    };
+
+    if (payload.oracle_id != null && payload.oracle_id !== '') {
+      body.oracle_id = payload.oracle_id;
+    }
+    if (payload.projects != null && payload.projects.length > 0) {
+      body.projects = payload.projects;
+    }
+
+    const response = await fetch(
+      `/api/contracts/${encodeURIComponent(policyId)}/update-protocol`,
+      {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          Authorization: `Bearer ${accessToken}`,
+        },
+        body: JSON.stringify(body),
+      }
+    );
+
+    const data = await response.json();
+
+    if (!response.ok) {
+      const { message } = parseWalletApiError(response, data);
+      toast.error(message);
+      return { success: false, data: null, error: message };
+    }
+
+    if (data?.success !== true) {
+      const message =
+        data?.error || data?.message || 'Error al actualizar el protocolo';
+      toast.error(message);
+      return { success: false, data: null, error: message };
+    }
+
+    return { success: true, data: data as UpdateProtocolResponse };
+  } catch (error: any) {
+    console.error('Error al actualizar protocolo:', error);
+    const { message } = parseWalletApiError(null, error);
+    toast.error(message);
+    return { success: false, data: null, error: message };
+  }
+};
+
+// --- Update project (contracts/[policyId]/update-project) ---
+
+/**
+ * Payload para actualizar un proyecto (POST /api/contracts/{policy_id}/update-project)
+ */
+export interface UpdateProjectPayload {
+  certifications: {
+    certification_date: number;
+    quantity: number;
+    real_certification_date: number;
+    real_quantity: number;
+  }[];
+  project_id: string;
+  project_metadata: string;
+  project_state: number;
+  project_token_name: string;
+  project_token_policy_id: string;
+  stakeholders: {
+    participation: number;
+    pkh: string;
+    stakeholder: string;
+  }[];
+  total_supply: number;
+}
+
+/**
+ * Respuesta exitosa de update-project
+ */
+export interface UpdateProjectResponse {
+  fee_lovelace: number;
+  inputs: any[];
+  new_datum: {
+    certifications: {
+      certification_date: number;
+      quantity: number;
+      real_certification_date: number;
+      real_quantity: number;
+    }[];
+    params: {
+      project_id: string;
+      project_metadata: string;
+      project_state: number;
+      [key: string]: any;
+    };
+    project_token: {
+      policy_id: string;
+      token_name: string;
+      total_supply: number;
+      [key: string]: any;
+    };
+    stakeholders: any[];
+    [key: string]: any;
+  };
+  old_datum: {
+    certifications: {
+      certification_date: number;
+      quantity: number;
+      real_certification_date: number;
+      real_quantity: number;
+    }[];
+    params: {
+      project_id: string;
+      project_metadata: string;
+      project_state: number;
+      [key: string]: any;
+    };
+    project_token: {
+      policy_id: string;
+      token_name: string;
+      total_supply: number;
+      [key: string]: any;
+    };
+    stakeholders: any[];
+    [key: string]: any;
+  };
+  outputs: any[];
+  project_contract_address: string;
+  success: true;
+  transaction_id: string;
+  tx_cbor: string;
+}
+
+/**
+ * Actualiza los parámetros de un contrato de proyecto existente.
+ * Llama a POST /api/contracts/{policyId}/update-project con los campos indicados.
+ *
+ * @param policyId - Policy ID del contrato de proyecto (obligatorio)
+ * @param payload - Body: certifications[], project_id, project_metadata, project_state, project_token_name, project_token_policy_id, stakeholders[], total_supply
+ * @returns Objeto con success, data (UpdateProjectResponse) o error
+ */
+export const updateProject = async (
+  policyId: string,
+  payload: UpdateProjectPayload
+): Promise<{
+  success: boolean;
+  data: UpdateProjectResponse | null;
+  error?: string;
+}> => {
+  try {
+    const accessToken = getAccessToken();
+    if (!accessToken) {
+      const message =
+        'No se encontró el token de acceso. Por favor, desbloquea la billetera.';
+      toast.error(message);
+      return { success: false, data: null, error: message };
+    }
+
+    if (!policyId || policyId.trim() === '') {
+      const message = 'policy_id es un parámetro requerido';
+      toast.error(message);
+      return { success: false, data: null, error: message };
+    }
+
+    if (!Array.isArray(payload.certifications)) {
+      const message = 'certifications debe ser un array';
+      toast.error(message);
+      return { success: false, data: null, error: message };
+    }
+
+    if (!Array.isArray(payload.stakeholders)) {
+      const message = 'stakeholders debe ser un array';
+      toast.error(message);
+      return { success: false, data: null, error: message };
+    }
+
+    const body = {
+      certifications: payload.certifications,
+      project_id: payload.project_id,
+      project_metadata: payload.project_metadata,
+      project_state: payload.project_state,
+      project_token_name: payload.project_token_name,
+      project_token_policy_id: payload.project_token_policy_id,
+      stakeholders: payload.stakeholders,
+      total_supply: payload.total_supply,
+    };
+
+    const response = await fetch(
+      `/api/contracts/${encodeURIComponent(policyId)}/update-project`,
+      {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          Authorization: `Bearer ${accessToken}`,
+        },
+        body: JSON.stringify(body),
+      }
+    );
+
+    const data = await response.json();
+
+    if (!response.ok) {
+      const { message } = parseWalletApiError(response, data);
+      toast.error(message);
+      return { success: false, data: null, error: message };
+    }
+
+    if (data?.success !== true) {
+      const message =
+        data?.error || data?.message || 'Error al actualizar el proyecto';
+      toast.error(message);
+      return { success: false, data: null, error: message };
+    }
+
+    return { success: true, data: data as UpdateProjectResponse };
+  } catch (error: any) {
+    console.error('Error al actualizar proyecto:', error);
+    const { message } = parseWalletApiError(null, error);
+    toast.error(message);
+    return { success: false, data: null, error: message };
+  }
+};
+
+// --- Mint project (contracts/[policyId]/mint-project) ---
+
+/**
+ * Payload para mintear un proyecto (POST /api/contracts/{policy_id}/mint-project)
+ */
+export interface MintProjectPayload {
+  /** Cantidad de tokens de inversión a mintear */
+  investment_tokens: number;
+  /** ID del proyecto en la plataforma principal */
+  project_id: string;
+  /** Dirección de destino donde quedará el UTxO del proyecto */
+  destination_address: string;
+  /** Lista de stakeholders (participation en lovelace, pkh, stakeholder en hex) */
+  stakeholders: {
+    participation: number;
+    pkh: string;
+    stakeholder: string;
+  }[];
+}
+
+/**
+ * Respuesta exitosa de mint-project
+ */
+export interface MintProjectResponse {
+  compilation_utxo: CompilationUtxo;
+  fee_lovelace: number;
+  inputs: any[];
+  minting_policy_id: string;
+  outputs: any[];
+  project_contract_address: string;
+  project_token_name: string;
+  success: true;
+  transaction_id: string;
+  tx_cbor: string;
+  user_token_name: string;
+}
+
+/**
+ * Mintea un proyecto para el policy_id indicado.
+ * Llama a POST /api/contracts/{policyId}/mint-project con investment_tokens, project_id, stakeholders y destination_address.
+ *
+ * @param policyId - Policy ID del contrato de proyecto (obligatorio)
+ * @param payload - Body: investment_tokens, project_id, stakeholders[], destination_address
+ * @returns Objeto con success, data (MintProjectResponse) o error
+ */
+export const mintProject = async (
+  policyId: string,
+  payload: MintProjectPayload
+): Promise<{
+  success: boolean;
+  data: MintProjectResponse | null;
+  error?: string;
+}> => {
+  try {
+    const accessToken = getAccessToken();
+    if (!accessToken) {
+      const message =
+        'No se encontró el token de acceso. Por favor, desbloquea la billetera.';
+      toast.error(message);
+      return { success: false, data: null, error: message };
+    }
+
+    if (!policyId || policyId.trim() === '') {
+      const message = 'policy_id es un parámetro requerido';
+      toast.error(message);
+      return { success: false, data: null, error: message };
+    }
+
+    if (
+      !Array.isArray(payload.stakeholders) ||
+      payload.stakeholders.length === 0
+    ) {
+      const message = 'Debe haber al menos un stakeholder';
+      toast.error(message);
+      return { success: false, data: null, error: message };
+    }
+
+    const body = {
+      investment_tokens: payload.investment_tokens,
+      project_id: payload.project_id,
+      stakeholders: payload.stakeholders,
+      destination_address: payload.destination_address,
+    };
+
+    const response = await fetch(
+      `/api/contracts/${encodeURIComponent(policyId)}/mint-project`,
+      {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          Authorization: `Bearer ${accessToken}`,
+        },
+        body: JSON.stringify(body),
+      }
+    );
+
+    const data = await response.json();
+
+    if (!response.ok) {
+      const { message } = parseWalletApiError(response, data);
+      toast.error(message);
+      return { success: false, data: null, error: message };
+    }
+
+    if (data?.success !== true) {
+      const message =
+        data?.error || data?.message || 'Error al mintear el proyecto';
+      toast.error(message);
+      return { success: false, data: null, error: message };
+    }
+
+    return { success: true, data: data as MintProjectResponse };
+  } catch (error: any) {
+    console.error('Error al mintear proyecto:', error);
     const { message } = parseWalletApiError(null, error);
     toast.error(message);
     return { success: false, data: null, error: message };
