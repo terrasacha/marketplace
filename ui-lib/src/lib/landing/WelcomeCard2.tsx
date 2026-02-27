@@ -364,7 +364,7 @@ const WelcomeCard2 = (props: WelcomeCard2Props) => {
 
   const handleContinueToMarketplace = () => {
     if (canContinueToMarketplace()) {
-      router.push('/home');
+      router.push('/wallet');
       return;
     }
     if (!selectedWalletId) {
@@ -390,7 +390,7 @@ const WelcomeCard2 = (props: WelcomeCard2Props) => {
         setShowPasswordModalForContinue(false);
         setUnlockPassword('');
         toast.success('Listo. Redirigiendo al marketplace...');
-        router.push('/home');
+        router.push('/wallet');
       } else {
         setUnlockError(result.error || 'Error al desbloquear.');
       }
@@ -638,7 +638,7 @@ const WelcomeCard2 = (props: WelcomeCard2Props) => {
                       setWalletSessionReady(true);
                     }
                     setCreatedWallet(null);
-                    router.push('/home');
+                    router.push('/wallet');
                   }}
                   className="font-jostBold w-full flex items-center justify-center text-white bg-custom-marca-boton border border-transparent enabled:hover:bg-custom-marca-boton-variante dark:bg-cyan-600 dark:enabled:hover:bg-cyan-700 rounded-lg focus:ring-2 px-4 py-2.5 text-sm mt-3"
                   tabIndex={0}

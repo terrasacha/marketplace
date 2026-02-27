@@ -96,7 +96,8 @@ export default function WalletSwitcherCard({ className = '', onCloseSidebar }: W
   const goToLanding = (tab: 'create' | 'import') => {
     setModalOpen(false);
     onCloseSidebar?.();
-    router.push(`/?tab=${tab}`);
+    // Panel de gestión de billeteras en la app Terrasacha
+    router.push(`/wallets?tab=${tab}`);
   };
 
   const displayName = walletName || walletID || 'Billetera';

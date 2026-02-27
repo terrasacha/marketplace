@@ -41,7 +41,8 @@ const VerifyCodeMFA = (props: any) => {
     setLoading(true);
     try {
       const result2 = await confirmSignIn({ challengeResponse: codeMFA });
-      return router.replace('/');
+      // Luego de verificar el MFA redirigimos al panel de billeteras
+      return router.replace('/wallets');
     } catch (error) {
       toast.error(
         <span className={colors.fuente}>Código inválido</span>
@@ -198,7 +199,7 @@ const LoginForm = (props: LoginFormProps) => {
           if (data.isSignedIn) {
             const isFromGenerateWallet =
               router.query.fromGenerateWallet === "true";
-            return router.push(isFromGenerateWallet ? "/generate-wallet" : "/");
+            return router.push(isFromGenerateWallet ? "/generate-wallet" : "/wallets");
           }
       }
 
