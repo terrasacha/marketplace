@@ -1,11 +1,12 @@
 export default async function handler(req, res) {
-  if (req.method !== 'POST') {
+  if (req.method !== 'GET') {
     return res.status(405).json({ error: 'Método no permitido' });
   }
 
   try {
     const { walletId } = req.query;
-    const { address_index, min_ada } = req.body || {};
+    // Solo min_ada según documentación (parámetro opcional en query)
+    const min_ada = req.query.min_ada;
 
     const WALLET_API_ROOT =
       process.env.NEXT_PUBLIC_WALLET_API_BASE ||
@@ -13,16 +14,10 @@ export default async function handler(req, res) {
     const WALLET_API_BASE = `${WALLET_API_ROOT}/api/v1`;
     const WALLET_API_KEY = process.env.NEXT_PUBLIC_WALLET_API_KEY || '';
 
-    // Obtener Authorization header del request
-    const authHeader = req.headers.authorization || req.headers.Authorization;
-
-    // Construir URL con query parameters (los parámetros opcionales vienen del body)
+    // Construir URL con query parameters
     let url = `${WALLET_API_BASE}/wallets/${walletId}/utxos`;
     const queryParams = new URLSearchParams();
-    if (address_index !== undefined) {
-      queryParams.append('address_index', address_index.toString());
-    }
-    if (min_ada !== undefined) {
+    if (min_ada !== undefined && min_ada !== null) {
       queryParams.append('min_ada', min_ada.toString());
     }
     if (queryParams.toString()) {
@@ -34,7 +29,7 @@ export default async function handler(req, res) {
       headers: {
         'Content-Type': 'application/json',
         ...(WALLET_API_KEY && { 'x-api-key': WALLET_API_KEY }),
-        ...(authHeader && { 'Authorization': authHeader }),
+        // NO requiere Authorization header según documentación
       },
     });
 

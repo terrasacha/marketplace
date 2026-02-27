@@ -734,34 +734,26 @@ export const getWalletAddresses = async (
  */
 export const getWalletUtxos = async (
   walletId: string,
-  addressIndex?: number,
   minAda?: number
 ) => {
   try {
-    // Obtener access_token para Authorization header
-    const accessToken = getAccessToken();
-    if (!accessToken) {
-      const message = 'No se encontró el token de acceso. Por favor, desbloquea la billetera.';
-      toast.error(message);
-      return { success: false, data: null, error: message };
-    }
-
-    // Construir body con parámetros opcionales
-    const body: any = {};
-    if (addressIndex !== undefined) {
-      body.address_index = addressIndex;
-    }
+    // Construir URL con query parameters
+    // NOTA: Este endpoint solo requiere API key, NO Authorization header según documentación
+    let url = `${API_BASE}/${walletId}/utxos`;
+    const queryParams = new URLSearchParams();
     if (minAda !== undefined) {
-      body.min_ada = minAda;
+      queryParams.append('min_ada', minAda.toString());
+    }
+    if (queryParams.toString()) {
+      url += `?${queryParams.toString()}`;
     }
 
-    const response = await fetch(`${API_BASE}/${walletId}/utxos`, {
-      method: 'POST',
+    const response = await fetch(url, {
+      method: 'GET',
       headers: {
         'Content-Type': 'application/json',
-        'Authorization': `Bearer ${accessToken}`,
+        // NO requiere Authorization header, solo API key (manejado por el proxy)
       },
-      body: JSON.stringify(body),
     });
 
     const data = await response.json();
@@ -783,6 +775,79 @@ export const getWalletUtxos = async (
 };
 
 /**
+ * Obtiene los detalles de todos los assets bajo un policy_id
+ * @param policyId Policy ID (56 caracteres hexadecimales)
+ * @param page Número de página (opcional, default: 1)
+ * @param limit Resultados por página (opcional, default: 10, máximo: 20)
+ * @returns Objeto con success, data (policy assets) o error
+ */
+export const getPolicyAssetsDetails = async (
+  policyId: string,
+  page: number = 1,
+  limit: number = 10
+): Promise<{ success: boolean; data: any | null; error?: string }> => {
+  try {
+    // Obtener access_token para Authorization header
+    const accessToken = getAccessToken();
+    if (!accessToken) {
+      const message = 'No se encontró el token de acceso. Por favor, desbloquea la billetera.';
+      return { success: false, data: null, error: message };
+    }
+
+    // Validar formato de policyId
+    if (!policyId || policyId.length !== 56 || !/^[0-9a-fA-F]+$/.test(policyId)) {
+      const message = 'policy_id debe tener exactamente 56 caracteres hexadecimales';
+      return { success: false, data: null, error: message };
+    }
+
+    // Construir URL con query parameters
+    let url = `/api/assets/policy/${policyId}/details`;
+    const queryParams = new URLSearchParams();
+    if (page !== undefined) {
+      queryParams.append('page', page.toString());
+    }
+    if (limit !== undefined) {
+      queryParams.append('limit', Math.min(limit, 20).toString()); // Máximo 20
+    }
+    if (queryParams.toString()) {
+      url += `?${queryParams.toString()}`;
+    }
+
+    const response = await fetch(url, {
+      method: 'GET',
+      headers: {
+        'Content-Type': 'application/json',
+        'Authorization': `Bearer ${accessToken}`,
+      },
+    });
+
+    const data = await response.json();
+
+    if (!response.ok || data?.success === false) {
+      const { message } = parseWalletApiError(response, data);
+      return { success: false, data: null, error: message };
+    }
+
+    // Respuesta 2xx correcta
+    return { success: true, data };
+  } catch (error: any) {
+    console.error('Error al obtener detalles de assets por policy:', error);
+    const { message } = parseWalletApiError(null, error);
+    return { success: false, data: null, error: message };
+  }
+};
+
+/**
+ * Interfaz para un asset individual en la transacción
+ */
+export interface TransactionAsset {
+  policyid: string;
+  tokens: {
+    [tokenName: string]: number; // Nombre del token -> cantidad
+  };
+}
+
+/**
  * Interfaz para los parámetros de construcción de transacción
  */
 export interface BuildTransactionPayload {
@@ -792,6 +857,7 @@ export interface BuildTransactionPayload {
   metadata?: {
     [key: string]: any;
   };
+  assets?: TransactionAsset[]; // Campo opcional para enviar assets nativos
 }
 
 /**
@@ -812,8 +878,8 @@ export interface BuildTransactionResponse {
 }
 
 /**
- * Construye una transacción para enviar ADA
- * @param payload Parámetros de la transacción (amount_ada, to_address, from_address_index opcional, metadata opcional)
+ * Construye una transacción para enviar ADA y/o assets nativos
+ * @param payload Parámetros de la transacción (amount_ada, to_address, from_address_index opcional, metadata opcional, assets opcional)
  * @returns Objeto con success, data (transaction_id, tx_cbor, tx_hash, etc.) o error
  */
 export const buildTransaction = async (
@@ -833,6 +899,45 @@ export const buildTransaction = async (
       const message = 'amount_ada y to_address son campos requeridos';
       toast.error(message);
       return { success: false, data: null, error: message };
+    }
+
+    // Validación opcional de assets en el cliente (validación adicional)
+    if (payload.assets !== undefined) {
+      if (!Array.isArray(payload.assets)) {
+        const message = 'assets debe ser un array';
+        toast.error(message);
+        return { success: false, data: null, error: message };
+      }
+
+      for (let i = 0; i < payload.assets.length; i++) {
+        const asset = payload.assets[i];
+        if (!asset.policyid || typeof asset.policyid !== 'string') {
+          const message = `assets[${i}].policyid es requerido y debe ser un string`;
+          toast.error(message);
+          return { success: false, data: null, error: message };
+        }
+
+        if (!asset.tokens || typeof asset.tokens !== 'object' || Array.isArray(asset.tokens)) {
+          const message = `assets[${i}].tokens es requerido y debe ser un objeto`;
+          toast.error(message);
+          return { success: false, data: null, error: message };
+        }
+
+        if (Object.keys(asset.tokens).length === 0) {
+          const message = `assets[${i}].tokens debe contener al menos un token`;
+          toast.error(message);
+          return { success: false, data: null, error: message };
+        }
+
+        // Validar que las cantidades sean números positivos
+        for (const [tokenName, quantity] of Object.entries(asset.tokens)) {
+          if (typeof quantity !== 'number' || quantity <= 0 || !Number.isInteger(quantity)) {
+            const message = `assets[${i}].tokens["${tokenName}"] debe ser un número entero positivo`;
+            toast.error(message);
+            return { success: false, data: null, error: message };
+          }
+        }
+      }
     }
 
     const response = await fetch('/api/transactions/build', {

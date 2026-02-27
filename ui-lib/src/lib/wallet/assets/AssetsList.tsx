@@ -55,8 +55,8 @@ export default function AssetsList(props: AssesListProps) {
   };
   return (
     <>
-      {/* Tus activos serán listados acá */}
-      <div className={`${colors.fuenteAlterna} space-y-2`}>
+      {/* Grid de cards horizontales */}
+      <div className={`${colors.fuenteAlterna} grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6 gap-4`}>
         {currentItems?.map((asset, index) => (
           <div key={index} onClick={() => handleOpenAssetModal(asset)}>
             <AssetRow
@@ -64,9 +64,13 @@ export default function AssetsList(props: AssesListProps) {
               index={index}
               asset_name={asset.asset_name}
               quantity={asset.quantity}
+              total_quantity={asset.total_quantity}
               price={asset.price}
               total={asset.total}
-              // Agrega onClick para abrir la modal
+              metadata={asset.metadata}
+              onchain_metadata={asset.onchain_metadata}
+              mint_or_burn_count={asset.mint_or_burn_count}
+              initial_mint_tx_hash={asset.initial_mint_tx_hash}
             />
           </div>
         ))}
