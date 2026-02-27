@@ -11,6 +11,10 @@ import { mapBuildTransactionInfo } from '@marketplaces/utils-2';
 import { deserializeTx } from '@meshsdk/core-cst';
 import { useWallet } from '@meshsdk/react';
 import {
+  buildTransaction,
+  signAndSubmitTransaction,
+} from '../common/walletApi';
+import {
   BlockfrostProvider,
   MeshTxBuilder,
   MeshTxBuilderBody,
@@ -485,6 +489,118 @@ export default function WalletSend(props: AccountProps) {
     setIsLoading(false);
   };
 
+  const handleSendTransactionNew = async () => {
+    console.log('Transaccion (nuevo método): ', newTransactionGroup);
+    
+    // Validar destinatarios
+    if (!validateRecipients()) {
+      toast.error('Complete todos los campos para poder continuar ...');
+      return;
+    }
+    
+    // Validar mensaje si hay errores
+    if (newTransactionGroup.messageError) {
+      toast.error(
+        'Corrija los errores en el cuerpo del mensaje para poder continuar ...'
+      );
+      return;
+    }
+
+    // Verificar que haya walletID disponible
+    if (!walletID) {
+      toast.error('No se encontró la billetera. Por favor, desbloquea tu billetera.');
+      return;
+    }
+
+    // Verificar si hay múltiples destinatarios (el nuevo endpoint solo acepta uno)
+    if (newTransactionGroup.recipients.length > 1) {
+      toast.warning(
+        'El nuevo método solo soporta un destinatario a la vez. Se procesará el primer destinatario.'
+      );
+    }
+
+    setIsLoading(true);
+
+    try {
+      // Obtener el primer destinatario
+      const firstRecipient = newTransactionGroup.recipients[0];
+      
+      // Validar que tenga dirección y cantidad
+      if (!firstRecipient.walletAddress.trim() || !firstRecipient.adaAmount.trim()) {
+        toast.error('Complete la dirección y cantidad del destinatario');
+        setIsLoading(false);
+        return;
+      }
+
+      // Verificar si hay tokens seleccionados (el nuevo endpoint solo maneja ADA por ahora)
+      if (firstRecipient.selectedAssets && firstRecipient.selectedAssets.length > 0) {
+        toast.warning(
+          'El nuevo método solo soporta transacciones de ADA. Los tokens seleccionados serán ignorados.'
+        );
+      }
+
+      // Preparar metadata si hay mensaje
+      const messageArray = newTransactionGroup.message
+        .split('\n')
+        .map((elemento) => elemento.trim())
+        .filter((elemento) => elemento !== '');
+
+      const metadata = messageArray.length > 0
+        ? { msg: messageArray.join(' ') }
+        : undefined;
+
+      // Construir la transacción
+      const buildPayload = {
+        amount_ada: parseFloat(firstRecipient.adaAmount),
+        to_address: firstRecipient.walletAddress.trim(),
+        from_address_index: 0, // Usar el índice 0 por defecto
+        ...(metadata && { metadata }),
+      };
+
+      console.log('Build Transaction Payload:', buildPayload);
+
+      const buildResult = await buildTransaction(buildPayload);
+
+      if (!buildResult.success || !buildResult.data) {
+        toast.error(
+          buildResult.error || 'Error al construir la transacción'
+        );
+        setIsLoading(false);
+        return;
+      }
+
+      console.log('Build Transaction Result:', buildResult.data);
+
+      // Mapear la transacción para mostrar en el modal
+      const mappedTransactionData = await mapBuildTransactionInfo({
+        tx_type: 'preview',
+        walletAddress: walletAddress,
+        buildTxResponse: buildResult.data,
+        metadata: metadata || {},
+      });
+
+      console.log('Mapped Transaction Data:', mappedTransactionData);
+
+      // Configurar la transacción para el modal
+      setNewTransactionBuild({
+        ...mappedTransactionData,
+        transaction_id: buildResult.data.transaction_id,
+        cbor: buildResult.data.tx_cbor, // Asegurar que cbor esté disponible
+      });
+
+      // Abrir el modal de firma
+      handleOpenSignTransactionModal();
+
+    } catch (error: any) {
+      console.error('Error en handleSendTransactionNew:', error);
+      toast.error(
+        error.message || 'Ha ocurrido un error al procesar la transacción'
+      );
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
   const calculateRows = (content: any) => {
     const rows = content.split('\n').length;
     return Math.min(Math.max(rows, 1), 5); // Ajusta el máximo número de filas según tus necesidades
@@ -597,7 +713,7 @@ export default function WalletSend(props: AccountProps) {
               <button
                 type="button"
                 className={`col-span-4 sm:col-span-1 text-white ${colors.bgColor} ${colors.hoverBgColor} focus:outline-none focus:ring-4 focus:ring-gray-300 font-medium rounded text-sm px-5 py-2.5 `}
-                onClick={handleSendTransactionMesh}
+                onClick={handleSendTransactionNew}
               >
                 {isLoading ? <LoadingIcon className="w-4 h-4" /> : 'Enviar'}
               </button>

@@ -735,7 +735,7 @@ export async function getWalletByUser(userId: string): Promise<[id: string]> {
   return output;
 }
 
-export async function checkWalletAddressOnDB(data: string, userID: string) {
+export async function checkAndCreateWalletOnDB(data: string, userID: string) {
   const existWallet = await verifyWallet(data);
   if (!existWallet) {
     try {

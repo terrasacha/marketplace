@@ -11,6 +11,7 @@ import { useRouter } from 'next/router';
 import { fetchUserAttributes, getCurrentUser } from 'aws-amplify/auth';
 import WalletContext from '@marketplaces/utils-2/src/lib/context/wallet-context';
 import HomeSkeleton from '@marketplaces/ui-lib/src/lib/common/skeleton/HomeSkeleton';
+import { autoUnlockWallet } from '@marketplaces/ui-lib/src/lib/common/walletApi';
 
 const getRates = async () => {
   const response = await fetch('/api/calls/getRates');
@@ -49,9 +50,6 @@ const MainLayout = ({ children }: PropsWithChildren) => {
     }
   }, [walletData]);
   useEffect(() => {
-    if (window.sessionStorage.getItem('hasTokenAuth') === 'true') {
-      setAllowAccess(true);
-    }
     const fetchData = async () => {
       let access = false;
 
@@ -65,8 +63,45 @@ const MainLayout = ({ children }: PropsWithChildren) => {
           const wallet = await response.json();
           if (wallet.length < 0) return router.push('/');
           if (wallet.length > 0) {
+            const walletId = wallet[0].id; // Este es el wallet_id del API externo
+            
+            // Intentar auto-unlock primero (si hay sesión almacenada y no ha expirado)
+            let autoUnlockSuccess = false;
+            if (typeof window !== 'undefined') {
+              const sessionKey = window.localStorage.getItem('wallet_session_key');
+              const frontendSessionId = window.localStorage.getItem('wallet_frontend_session_id');
+              const expiresAt = window.localStorage.getItem('wallet_session_expires_at');
+              
+              // Verificar si la sesión no ha expirado
+              const isSessionValid = expiresAt && new Date(expiresAt) > new Date();
+              
+              if (sessionKey && frontendSessionId && isSessionValid) {
+                try {
+                  const autoUnlockResult = await autoUnlockWallet(walletId);
+                  if (autoUnlockResult.success) {
+                    autoUnlockSuccess = true;
+                    console.log('Auto-unlock exitoso para wallet:', walletId);
+                  }
+                } catch (autoUnlockError) {
+                  console.log('Auto-unlock no disponible o falló:', autoUnlockError);
+                  // Limpiar sesión inválida si falla
+                  if (typeof window !== 'undefined') {
+                    window.localStorage.removeItem('wallet_session_key');
+                    window.localStorage.removeItem('wallet_frontend_session_id');
+                    window.localStorage.removeItem('wallet_session_expires_at');
+                  }
+                }
+              } else if (sessionKey && frontendSessionId && !isSessionValid) {
+                // Limpiar sesión expirada
+                window.localStorage.removeItem('wallet_session_key');
+                window.localStorage.removeItem('wallet_frontend_session_id');
+                window.localStorage.removeItem('wallet_session_expires_at');
+                console.log('Sesión de auto-unlock expirada, limpiando...');
+              }
+            }
+
             const walletData = await handleWalletData({
-              walletID: wallet[0].id,
+              walletID: walletId,
               walletName: wallet[0].name,
               walletAddress: wallet[0].address,
               isWalletBySuan: true,
@@ -81,9 +116,9 @@ const MainLayout = ({ children }: PropsWithChildren) => {
               hasTokenAuthFunction ||
               (userData['custom:role'] === 'marketplace_admin' &&
                 userData['custom:subrole'] ===
-                  process.env.NEXT_PUBLIC_MARKETPLACE_NAME?.toLowerCase())
+                  process.env.NEXT_PUBLIC_MARKETPLACE_NAME?.toLowerCase()) ||
+              autoUnlockSuccess // Permitir acceso si auto-unlock fue exitoso
             ) {
-              window.sessionStorage.setItem('hasTokenAuth', 'true');
               const address = wallet[0].address;
               setAllowAccess(true);
               setWalletInfo({
@@ -124,9 +159,7 @@ const MainLayout = ({ children }: PropsWithChildren) => {
 
   useEffect(() => {
     if (connected) {
-      if (window.sessionStorage.getItem('hasTokenAuth') === 'true') {
-        setAllowAccess(true);
-      }
+      console.log('entro');
       const fetchData = async () => {
         const changeAddress = await wallet.getChangeAddress();
         const rewardAddresses = await wallet.getRewardAddresses();
@@ -142,7 +175,6 @@ const MainLayout = ({ children }: PropsWithChildren) => {
           true
         );
         if (hasTokenAuthFunction) {
-          window.sessionStorage.setItem('hasTokenAuth', 'true');
           setWalletInfo({
             name: name,
             addr: changeAddress,
@@ -162,9 +194,6 @@ const MainLayout = ({ children }: PropsWithChildren) => {
   }, [connected]);
 
   const checkTokenStakeAddress = async (rewardAddresses: any) => {
-    let tokenAuthOnSessionStorage =
-      window.sessionStorage.getItem('hasTokenAuth');
-    if (tokenAuthOnSessionStorage === 'true') return true;
     const response = await fetch('/api/calls/backend/checkTokenStakeAddress', {
       method: 'POST',
       headers: {

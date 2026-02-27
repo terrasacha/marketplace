@@ -2,11 +2,11 @@
   "name": "@marketplaces/source",
   "version": "0.0.0",
   "license": "MIT",
- "scripts": {
-  "dev": "next dev",
-  "build": "next build",
-  "start": "next start",
-  "lint": "next lint"
+  "scripts": {
+    "dev": "next dev",
+    "build": "next build",
+    "start": "next start",
+    "lint": "next lint"
   },
   "private": true,
   "dependencies": {
@@ -74,7 +74,8 @@
     "tailwindcss-ripple": "^0.7.1",
     "tslib": "^2.3.0",
     "typescript": "4.9.5",
-    "uuid": "^9.0.0"
+    "uuid": "^9.0.0",
+    "zod": "^4.2.1"
   },
   "devDependencies": {
     "@faker-js/faker": "^8.0.2",

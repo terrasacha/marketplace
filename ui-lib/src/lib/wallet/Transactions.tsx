@@ -13,6 +13,21 @@ import { toast } from 'sonner';
 import { mapAccountTxData } from '@marketplaces/utils-2/src/lib/mappers/mapTransactionInfo';
 import { MessageList } from '../ui-lib';
 
+// Función helper para obtener access token
+const getAccessToken = (): string | null => {
+  if (typeof window === 'undefined') return null;
+  try {
+    const sessionStr = window.localStorage.getItem('wallet_session');
+    if (sessionStr) {
+      const session = JSON.parse(sessionStr);
+      return session.access_token || null;
+    }
+  } catch (err) {
+    console.error('Error al obtener el access_token:', err);
+  }
+  return null;
+};
+
 interface TransactionsProps {
   txPerPage: number;
 }
@@ -77,7 +92,7 @@ export default function Transactions(props: TransactionsProps) {
   useEffect(() => {
     const clearAllCaches = () => {
       Object.keys(localStorage).forEach((key) => {
-        if (key.startsWith('/api/transactions/address-tx')) {
+        if (key.startsWith('/api/transactions/address-history')) {
           localStorage.removeItem(key);
         }
       });
@@ -95,7 +110,8 @@ export default function Transactions(props: TransactionsProps) {
   const fetchWithCache = async (
     url: string,
     payload: any,
-    invalidateCache: boolean = false
+    invalidateCache: boolean = false,
+    accessToken: string | null = null
   ) => {
     const cacheKey = `${url}-${JSON.stringify(payload)}`;
 
@@ -110,11 +126,18 @@ export default function Transactions(props: TransactionsProps) {
       }
     }
 
+    const headers: Record<string, string> = {
+      'Content-Type': 'application/json',
+    };
+
+    // Agregar Authorization header si hay access token
+    if (accessToken) {
+      headers['Authorization'] = `Bearer ${accessToken}`;
+    }
+
     const response = await fetch(url, {
       method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-      },
+      headers,
       body: JSON.stringify(payload),
     });
     const data = await response.json();
@@ -132,53 +155,98 @@ export default function Transactions(props: TransactionsProps) {
   ) => {
     setIsLoading(true);
 
+    // Obtener access token para Authorization header
+    const accessToken = getAccessToken();
+    if (!accessToken) {
+      toast.error('No se encontró el token de acceso. Por favor, desbloquea la billetera.');
+      setIsLoading(false);
+      return;
+    }
+
     const payload = {
       address: walletAddress,
-      page_number: page,
+      page: page,
       limit: txPerPage,
     };
     console.log(payload);
 
-    const responseData = await fetchWithCache(
-      '/api/transactions/address-tx',
-      payload,
-      invalidateCache
-    );
-
-    if (responseData?.error) {
-      toast.error('Hubo un error sincronizando el historial de transacciones');
-      return;
-    }
-
-    if (pendingTransaction) {
-      const isPendingTxOk = responseData?.find(
-        (tx: any) => tx.hash === pendingTransaction.tx_id
+    try {
+      const responseData = await fetchWithCache(
+        '/api/transactions/address-history',
+        payload,
+        invalidateCache,
+        accessToken
       );
 
-      if (isPendingTxOk) {
-        localStorage.removeItem('pendingTx');
-        setPendingTransaction(null);
+      console.log('responseData completo:', responseData);
+
+      // Verificar si hay error en la respuesta
+      if (responseData?.error || responseData?.success === false) {
+        const errorMessage = responseData?.error || responseData?.details?.[0]?.message || 'Hubo un error sincronizando el historial de transacciones';
+        toast.error(errorMessage);
+        setIsLoading(false);
+        return;
       }
+
+      // El nuevo endpoint devuelve { transactions: [...], total, page, limit, has_more }
+      // Si no hay campo success, asumimos que es exitoso si tiene transactions
+      const transactions = responseData.transactions || [];
+
+      if (!Array.isArray(transactions)) {
+        console.error('Las transacciones no son un array:', transactions);
+        toast.error('Formato de respuesta inválido');
+        setIsLoading(false);
+        return;
+      }
+
+      console.log('transactions recibidas:', transactions.length);
+
+      if (pendingTransaction) {
+        const isPendingTxOk = transactions.find(
+          (tx: any) => tx.hash === pendingTransaction.tx_id
+        );
+
+        if (isPendingTxOk) {
+          localStorage.removeItem('pendingTx');
+          setPendingTransaction(null);
+        }
+      }
+
+      const paginationMetadataItem = {
+        currentPage: responseData.page || page,
+        pageSize: responseData.limit || txPerPage,
+        totalItems: responseData.total || 0,
+        hasMore: responseData.has_more || false,
+      };
+
+      console.log('Mapeando transacciones, walletAddress:', walletData?.address);
+      console.log('Datos de transacciones antes del mapeo:', transactions);
+      
+      if (!walletData?.address) {
+        console.error('walletAddress no está disponible');
+        toast.error('No se pudo obtener la dirección de la billetera');
+        setIsLoading(false);
+        return;
+      }
+
+      const mappedTransactionListData = await mapAccountTxData({
+        walletAddress: walletData.address,
+        data: transactions, // Pasar solo el array de transacciones
+      });
+
+      console.log('mappedTransactionListData:', mappedTransactionListData);
+      console.log('Cantidad de transacciones mapeadas:', mappedTransactionListData?.length);
+      console.log('Tipo de mappedTransactionListData:', typeof mappedTransactionListData, Array.isArray(mappedTransactionListData));
+
+      //getPendingTransaction(mappedTransactionListData);
+      setTransactionsList(Array.isArray(mappedTransactionListData) ? mappedTransactionListData : []);
+      setPaginationMetadata(paginationMetadataItem);
+    } catch (error: any) {
+      console.error('Error al obtener transacciones:', error);
+      toast.error(error?.message || 'Error al obtener el historial de transacciones');
+    } finally {
+      setIsLoading(false);
     }
-
-    const paginationMetadataItem = {
-      currentPage: page,
-      pageSize: 0,
-      totalItems: 0,
-    };
-
-    console.log('responseData', responseData);
-    const mappedTransactionListData = await mapAccountTxData({
-      walletAddress: walletData?.address,
-      data: responseData,
-    });
-
-    console.log('mappedTransactionListData', mappedTransactionListData);
-
-    //getPendingTransaction(mappedTransactionListData);
-    setTransactionsList(mappedTransactionListData);
-    setPaginationMetadata(paginationMetadataItem);
-    setIsLoading(false);
   };
 
   /* const checkTxConfirmations = async () => {
@@ -241,7 +309,7 @@ export default function Transactions(props: TransactionsProps) {
   // );
 
   const canShowPrevious = paginationMetadata.currentPage > 1;
-  const canShowNext = true;
+  const canShowNext = paginationMetadata.hasMore || false;
 
   const changePage = async (changeValue: number) => {
     setIsLoading(true);
@@ -322,13 +390,17 @@ export default function Transactions(props: TransactionsProps) {
           {/* <MessageList/> */}
           <p>Historial de transacciones de billetera</p>
           <LoadingOverlay visible={isLoading} className="space-y-2">
-            {transactionsList &&
+            {Array.isArray(transactionsList) && transactionsList.length > 0 ? (
               transactionsList
-                .filter((tx: any) => tx.tx_id !== pendingTransaction?.tx_id)
+                .filter((tx: any) => tx && tx.tx_id !== pendingTransaction?.tx_id)
                 .map((tx: any, index: number) => {
+                  if (!tx || !tx.tx_id) {
+                    console.warn('Transacción inválida en índice:', index, tx);
+                    return null;
+                  }
                   return (
                     <TransactionInfoCard
-                      key={index}
+                      key={tx.tx_id || index}
                       title={tx.title}
                       subtitle={tx.subtitle}
                       tx_id={tx.tx_id}
@@ -344,7 +416,11 @@ export default function Transactions(props: TransactionsProps) {
                       metadata={tx.metadata}
                     />
                   );
-                })}
+                })
+                .filter((item: any) => item !== null)
+            ) : (
+              !isLoading && <p className="text-gray-500 text-sm">No hay transacciones para mostrar</p>
+            )}
           </LoadingOverlay>
           {/* <div className="relative space-y-2 min-h-20">
             {isLoading && (

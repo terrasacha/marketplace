@@ -14,6 +14,7 @@ import WalletIcon from '../icons/WalletIcon';
 import { WalletContext } from '@marketplaces/utils-2';
 import { InfoIcon, LoadingIcon, SquareArrowUpIcon } from '../ui-lib';
 import SideBarBalanceSkeleton from '../common/skeleton/SideBarBalanceSkeleton';
+import WalletSwitcherCard from './WalletSwitcherCard';
 import { fetchUserAttributes } from 'aws-amplify/auth';
 import { useWallet } from '@meshsdk/react';
 interface SidebarProps {
@@ -52,13 +53,12 @@ export default function Sidebar(props: SidebarProps) {
     balance,
     balanceUSD
   } = props;
-  const { walletAdmin, isLoading, lastSyncDate, balanceChanged, walletAvailableBalance, walletLockedBalance } =
+  const { walletAdmin, walletRole, isLoading, lastSyncDate, balanceChanged, walletAvailableBalance, walletLockedBalance } =
     useContext<any>(WalletContext);
   const router = useRouter();
   const { connected } = useWallet();
   const [walletStakeID, setWalletStakeID] = useState<any>(undefined);
   const [copied, setCopied] = useState(false);
-  const [allowAccessCW, setAllowAccessCW] = useState(false)
   const sidebarRef = useRef<HTMLDivElement | null>(null);
   const [displayWalletOptions, setDisplayWalletOptions] = useState(false);
   const [displayMarketOptions, setDisplayMarketOptions] = useState(false);
@@ -67,17 +67,13 @@ export default function Sidebar(props: SidebarProps) {
   const [changeOnBalanceDetected, setChangeOnBalanceDetected] =
     useState<boolean>(false);
   const [env, setEnv] = useState('')
+  
+  // Determinar si se permite acceso a CoreWallet basado en el role de la wallet
+  const allowAccessCW = walletRole === 'core';
+  
   useEffect(() =>{
     const env = process.env.NEXT_PUBLIC_ENV || ''
     setEnv(env)
-    fetchUserAttributes().then((data :any)=>{
-      if(data['custom:role'] === 'marketplace_admin' && data['custom:subrole'] === process.env.NEXT_PUBLIC_MARKETPLACE_NAME?.toLocaleLowerCase()){
-        setAllowAccessCW(true)
-      }
-    }).catch((err) => {
-      console.log(err);
-      setAllowAccessCW(false)
-    });
   },[])
   useEffect(() => {
     const handleClickOutside = (event: MouseEvent) => {
@@ -191,6 +187,9 @@ export default function Sidebar(props: SidebarProps) {
       </div>
 
       <div className="pt-4 border-t border-gray-200"></div>
+      <div className="py-2">
+        <WalletSwitcherCard onCloseSidebar={onClose} />
+      </div>
       {balance ? (
         <div>
           <label className={`${colors.fuenteAlterna}  block text-sm font-semibold text-gray-400`}>Tu saldo</label>
@@ -204,7 +203,13 @@ export default function Sidebar(props: SidebarProps) {
                   : 'text-black'
               }`}
             >
-              {!isLoading ? balanceUSD.toFixed(4) : <LoadingIcon className="h-5 w-5" />}{' '}
+              {!isLoading ? (
+                balanceUSD.toFixed(4)
+              ) : (
+                <span className="inline-flex items-center">
+                  <LoadingIcon className="h-5 w-5" />
+                </span>
+              )}{' '}
               <span className={`${colors.fuenteAlterna}  font-bold text-gray-400 text-base`}>USD</span>
               {changeOnBalanceDetected && (
                 <>
@@ -227,7 +232,13 @@ export default function Sidebar(props: SidebarProps) {
               }`}
             >
               <span>Total: </span>
-              {!isLoading ? balance : <LoadingIcon className="h-5 w-5" />}{' '}
+              {!isLoading ? (
+                balance
+              ) : (
+                <span className="inline-flex items-center">
+                  <LoadingIcon className="h-5 w-5" />
+                </span>
+              )}{' '}
               <span className="text-gray-400 text-xs">ADA</span>
               {changeOnBalanceDetected && (
                 <>
@@ -254,7 +265,13 @@ export default function Sidebar(props: SidebarProps) {
               </div>
               <Tooltip id="available-tooltip" />
               <span>Disponible: </span>
-              {!isLoading ? (walletAvailableBalance / 1000000).toFixed(4) : <LoadingIcon className="h-5 w-5" />}{' '}
+              {!isLoading ? (
+                (walletAvailableBalance / 1000000).toFixed(4)
+              ) : (
+                <span className="inline-flex items-center">
+                  <LoadingIcon className="h-5 w-5" />
+                </span>
+              )}{' '}
               <span className="text-gray-400 text-xs">ADA</span>
             </p>
             <p
@@ -271,7 +288,13 @@ export default function Sidebar(props: SidebarProps) {
               </div>
               <Tooltip id="blocked-tooltip" style={{zIndex: 1000}}/>
               <span>Bloqueado: </span>
-              {!isLoading ? (walletLockedBalance / 1000000).toFixed(4) : <LoadingIcon className="h-5 w-5" />}{' '}
+              {!isLoading ? (
+                (walletLockedBalance / 1000000).toFixed(4)
+              ) : (
+                <span className="inline-flex items-center">
+                  <LoadingIcon className="h-5 w-5" />
+                </span>
+              )}{' '}
               <span className="text-gray-400 text-xs">ADA</span>
             </p>
             <label className={`${colors.fuenteAlterna}  block text-xs font-light text-gray-500 pt-2`}>

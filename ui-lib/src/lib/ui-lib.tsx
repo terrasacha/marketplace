@@ -5,12 +5,14 @@ import ConfirmPassword from './auth/ConfirmPassword';
 import ConfirmCode from './auth/ConfirmationCode';
 import Sidebar from './layout/Sidebar';
 import WelcomeCard from './landing/WelcomeCard';
+import WelcomeCard2 from './landing/WelcomeCard2';
 import CardanoWallet from './cardano-wallet/CardanoWallet';
 import NavbarLanding from './landing/NavbarLanding';
 import LoadingPage from './common/LoadingPage';
 import RedirectToHome from './landing/RedirectToHome';
 import CardanoWalletGeneric from './cardano-wallet/CardanoWalletGenericButton';
 import SelectWalletModal from './modals/SelectWalletModal';
+import WalletUnlockModal from './modals/WalletUnlockModal';
 import SelectTokensModal from './wallet/select-assets/SelectTokensModal';
 import SignTransactionModal from './wallet/sign-transaction/SignTransactionModal';
 import SignTransaction from './wallet/sign-transaction/SignTransaction';
@@ -109,6 +111,7 @@ export {
   Assets,
   PendingVerificationMessage,
   WelcomeCard,
+  WelcomeCard2,
   WalletCreatedSucessfully,
   RestoreWalletContext,
   PieChartCustom,
@@ -118,6 +121,7 @@ export {
   CardanoWallet,
   CardanoWalletGeneric,
   SelectWalletModal,
+  WalletUnlockModal,
   NavbarLanding,
   LoadingPage,
   Navbar,
