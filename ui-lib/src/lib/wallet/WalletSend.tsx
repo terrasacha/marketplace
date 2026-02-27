@@ -149,21 +149,50 @@ export default function WalletSend(props: AccountProps) {
         multiAsset: payloadMultiAsset,
       };
 
-      const request = await fetch('/api/helpers/min-lovelace', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify(payload),
-      });
-      const minLovelaceValue = await request.json();
+      try {
+        const request = await fetch('/api/helpers/min-lovelace', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify(payload),
+        });
 
-      if (minLovelaceValue) {
-        handleInputChange(
-          index,
-          'adaAmount',
-          String(minLovelaceValue / 1000000)
-        );
+        if (!request.ok) {
+          const errorData = await request.json().catch(() => ({}));
+          console.error('Error al calcular min lovelace:', errorData);
+          toast.error(
+            errorData.error || 'Error al calcular el mínimo de ADA requerido'
+          );
+          return;
+        }
+
+        const responseData = await request.json();
+
+        // Manejar respuesta: puede ser { min_lovelace, min_ada } o un número
+        let minLovelaceValue;
+        if (typeof responseData === 'object' && responseData !== null) {
+          // Si es un objeto, extraer min_lovelace
+          minLovelaceValue = responseData.min_lovelace || responseData.minLovelace;
+        } else if (typeof responseData === 'number') {
+          // Si es un número, usarlo directamente
+          minLovelaceValue = responseData;
+        } else {
+          console.warn('Formato de respuesta inesperado:', responseData);
+          return;
+        }
+
+        if (minLovelaceValue && typeof minLovelaceValue === 'number' && minLovelaceValue > 0) {
+          const minAdaValue = minLovelaceValue / 1000000;
+          handleInputChange(
+            index,
+            'adaAmount',
+            String(minAdaValue)
+          );
+        }
+      } catch (error) {
+        console.error('Error al obtener min lovelace:', error);
+        toast.error('Error al calcular el mínimo de ADA requerido');
       }
     }
 
@@ -532,11 +561,116 @@ export default function WalletSend(props: AccountProps) {
         return;
       }
 
-      // Verificar si hay tokens seleccionados (el nuevo endpoint solo maneja ADA por ahora)
+      // Inicializar amount_ada final (puede ser actualizado si hay assets)
+      let finalAdaAmount = parseFloat(firstRecipient.adaAmount) || 0;
+
+      // Preparar assets si hay tokens seleccionados
+      let assetsArray: Array<{ policyid: string; tokens: { [key: string]: number } }> = [];
+
       if (firstRecipient.selectedAssets && firstRecipient.selectedAssets.length > 0) {
-        toast.warning(
-          'El nuevo método solo soporta transacciones de ADA. Los tokens seleccionados serán ignorados.'
-        );
+        // Agrupar assets por policy_id según el formato esperado por el API
+        const assetsByPolicy = firstRecipient.selectedAssets.reduce((acc: any, asset: any) => {
+          const policyId = asset.policy_id;
+          
+          if (!policyId) {
+            console.warn('Asset sin policy_id:', asset);
+            return acc;
+          }
+          
+          if (!acc[policyId]) {
+            acc[policyId] = {
+              policyid: policyId,
+              tokens: {}
+            };
+          }
+          
+          // Agregar token al policy (puede haber múltiples tokens del mismo policy)
+          const tokenName = asset.assetName;
+          const tokenQuantity = parseInt(asset.selectedSupply, 10);
+          
+          if (tokenName && !isNaN(tokenQuantity) && tokenQuantity > 0) {
+            // Si ya existe el token, sumar las cantidades
+            if (acc[policyId].tokens[tokenName]) {
+              acc[policyId].tokens[tokenName] += tokenQuantity;
+            } else {
+              acc[policyId].tokens[tokenName] = tokenQuantity;
+            }
+          }
+          
+          return acc;
+        }, {});
+        
+        // Convertir objeto a array
+        assetsArray = Object.values(assetsByPolicy);
+        
+        console.log('Assets a enviar:', assetsArray);
+
+        // Validar que el amount_ada sea suficiente cuando hay assets
+        
+        try {
+          const currentAdaAmount = finalAdaAmount;
+          const currentLovelaceValue = Math.floor(currentAdaAmount * 1000000);
+
+          // Calcular min lovelace requerido
+          const minLovelacePayload = {
+            address: firstRecipient.walletAddress.trim(),
+            lovelace: currentLovelaceValue,
+            multiAsset: assetsArray,
+          };
+
+          const minLovelaceRequest = await fetch('/api/helpers/min-lovelace', {
+            method: 'POST',
+            headers: {
+              'Content-Type': 'application/json',
+            },
+            body: JSON.stringify(minLovelacePayload),
+          });
+
+          if (minLovelaceRequest.ok) {
+            const minLovelaceResponse = await minLovelaceRequest.json();
+            
+            // Manejar respuesta: puede ser { min_lovelace, min_ada } o un número
+            let minLovelaceValue;
+            if (typeof minLovelaceResponse === 'object' && minLovelaceResponse !== null) {
+              minLovelaceValue = minLovelaceResponse.min_lovelace || minLovelaceResponse.minLovelace;
+            } else if (typeof minLovelaceResponse === 'number') {
+              minLovelaceValue = minLovelaceResponse;
+            }
+
+            if (minLovelaceValue && typeof minLovelaceValue === 'number') {
+              const minAdaRequired = minLovelaceValue / 1000000;
+              
+              // Si el amount_ada actual es menor al mínimo requerido, usar el mínimo
+              if (currentAdaAmount < minAdaRequired) {
+                console.log(`Actualizando amount_ada de ${currentAdaAmount} a ${minAdaRequired} (mínimo requerido)`);
+                
+                // Actualizar el estado del destinatario para reflejar el cambio en la UI
+                setNewTransactionGroup((prevState) => {
+                  const updatedRecipients = [...prevState.recipients];
+                  updatedRecipients[0] = {
+                    ...updatedRecipients[0],
+                    adaAmount: String(minAdaRequired),
+                  };
+                  return {
+                    ...prevState,
+                    recipients: updatedRecipients,
+                  };
+                });
+
+                // Usar el min ada requerido para la transacción (importante: usar este valor directamente)
+                finalAdaAmount = minAdaRequired;
+              }
+            }
+          } else {
+            const errorData = await minLovelaceRequest.json().catch(() => ({}));
+            console.warn('No se pudo calcular min lovelace:', errorData);
+            toast.warning('No se pudo validar el mínimo de ADA requerido. La transacción podría fallar.');
+          }
+        } catch (error) {
+          console.error('Error al validar min lovelace:', error);
+          toast.warning('Error al validar el mínimo de ADA. La transacción podría fallar.');
+          // Continuar con el amount_ada actual si falla la validación
+        }
       }
 
       // Preparar metadata si hay mensaje
@@ -549,12 +683,15 @@ export default function WalletSend(props: AccountProps) {
         ? { msg: messageArray.join(' ') }
         : undefined;
 
-      // Construir la transacción
+      // Construir la transacción con assets si están presentes
+      // IMPORTANTE: Usar finalAdaAmount que puede haber sido actualizado por la validación
       const buildPayload = {
-        amount_ada: parseFloat(firstRecipient.adaAmount),
+        amount_ada: finalAdaAmount,
         to_address: firstRecipient.walletAddress.trim(),
         from_address_index: 0, // Usar el índice 0 por defecto
         ...(metadata && { metadata }),
+        // Incluir assets si hay alguno seleccionado
+        ...(assetsArray.length > 0 && { assets: assetsArray }),
       };
 
       console.log('Build Transaction Payload:', buildPayload);

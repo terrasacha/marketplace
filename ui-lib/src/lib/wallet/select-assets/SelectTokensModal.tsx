@@ -1,7 +1,8 @@
-import { useContext, useEffect, useState } from 'react';
+import { useContext, useEffect, useState, useCallback } from 'react';
 import AssetCard from '../../wallet/select-assets/AssetCard';
 import Modal from '../../common/Modal';
-import { textToHex, WalletContext } from '@marketplaces/utils-2';
+import { textToHex, WalletContext, hexToText } from '@marketplaces/utils-2';
+import { getWalletUtxos } from '../../common/walletApi';
 
 interface SelectTokensModalProps {
   selectTokensModal: { visible: boolean; data: any; recipientID: number };
@@ -29,7 +30,7 @@ export default function SelectTokensModal(props: SelectTokensModalProps) {
     handleRemoveCheckedAsset,
   } = props;
 
-  const { walletData } = useContext<any>(WalletContext);
+  const { walletData, walletID } = useContext<any>(WalletContext);
 
   const [assetsFilter, setAssetsFilter] = useState<{
     search: string;
@@ -40,49 +41,179 @@ export default function SelectTokensModal(props: SelectTokensModalProps) {
   });
 
   const [assetsList, setAssetsList] = useState<Array<any>>([]);
+  const [isLoadingAssets, setIsLoadingAssets] = useState<boolean>(false);
 
   // Función para generar fingerprints
   const generateFingerprint = (asset: any) => {
     return `${asset.policy_id}${textToHex(asset.asset_name)}`;
   };
 
-  useEffect(() => {
-    // Al abrir el modal, asegurarse de que los fingerprints se calculan y se asignan correctamente
-    if(walletData) {
-      const assetsWithFingerprint = walletData.assets.map((asset: any) => ({
-        ...asset,
-        fingerprint: generateFingerprint(asset),
-      }));
-      setAssetsList(assetsWithFingerprint);
+  /**
+   * Extrae assets directamente de UTXOs (misma lógica que WalletAssets)
+   */
+  const extractAssetsFromUtxos = useCallback((utxos: any[]): any[] => {
+    const assetsMap = new Map<string, { quantity: number; fingerprint: string }>();
+
+    if (!utxos || !Array.isArray(utxos)) {
+      return [];
     }
-  }, [walletData?.assets, selectTokensModal.visible]);
+
+    utxos.forEach((utxo: any) => {
+      // Estructura: utxo.tokens donde las claves son fingerprints completos (policy_id + asset_name en hex)
+      if (utxo.tokens && typeof utxo.tokens === 'object') {
+        Object.keys(utxo.tokens).forEach((fingerprint) => {
+          if (fingerprint && typeof fingerprint === 'string' && fingerprint.length >= 56) {
+            const quantity = parseInt(utxo.tokens[fingerprint] || '0');
+
+            if (quantity > 0) {
+              const existing = assetsMap.get(fingerprint);
+              if (existing) {
+                existing.quantity += quantity;
+              } else {
+                assetsMap.set(fingerprint, { quantity, fingerprint });
+              }
+            }
+          }
+        });
+      }
+
+      // Estructura alternativa: utxo.amount es array con { unit, quantity }
+      if (Array.isArray(utxo.amount)) {
+        utxo.amount.forEach((item: any) => {
+          if (item.unit && item.unit !== 'lovelace' && typeof item.unit === 'string' && item.unit.length >= 56) {
+            const quantity = parseInt(item.quantity || '0');
+            if (quantity > 0) {
+              const existing = assetsMap.get(item.unit);
+              if (existing) {
+                existing.quantity += quantity;
+              } else {
+                assetsMap.set(item.unit, { quantity, fingerprint: item.unit });
+              }
+            }
+          }
+        });
+      }
+    });
+
+    // Convertir Map a array y extraer información
+    return Array.from(assetsMap.entries()).map(([fingerprint, data]) => {
+      // Extraer policy_id (primeros 56 caracteres)
+      const policyId = fingerprint.substring(0, 56);
+
+      // Extraer asset_name en hex (resto del string después de los 56 caracteres)
+      const assetNameHex = fingerprint.substring(56);
+
+      // Convertir hex a UTF-8 para obtener el nombre legible
+      let assetName = '';
+      try {
+        assetName = hexToText(assetNameHex);
+      } catch (error) {
+        // Si falla la conversión, usar el hex como fallback
+        console.warn(`No se pudo convertir hex a texto: ${assetNameHex}`, error);
+        assetName = assetNameHex;
+      }
+
+      return {
+        fingerprint, // Fingerprint completo (para identificar el asset único)
+        policy_id: policyId, // Policy ID (56 caracteres)
+        asset_name: assetName, // Nombre del asset en UTF-8
+        asset_name_hex: assetNameHex, // Nombre en hex (para búsqueda en API)
+        quantity: data.quantity.toString(), // Cantidad que tiene el usuario
+        user_quantity: data.quantity.toString(), // Alias para compatibilidad
+      };
+    });
+  }, []);
+
+  // Función para obtener assets desde UTXOs
+  const fetchAssetsFromUtxos = useCallback(async () => {
+    if (!walletID) {
+      return;
+    }
+
+    setIsLoadingAssets(true);
+
+    try {
+      // 1. Obtener UTXOs de la wallet
+      const utxosResult = await getWalletUtxos(walletID);
+
+      if (!utxosResult.success || !utxosResult.data) {
+        console.error('Error al obtener UTXOs:', utxosResult.error);
+        setAssetsList([]);
+        setIsLoadingAssets(false);
+        return;
+      }
+
+      // 2. Extraer UTXOs de la respuesta
+      let utxos: any[] = [];
+      if (Array.isArray(utxosResult.data)) {
+        utxos = utxosResult.data;
+      } else if (utxosResult.data?.utxos && Array.isArray(utxosResult.data.utxos)) {
+        utxos = utxosResult.data.utxos;
+      } else if (utxosResult.data?.data && Array.isArray(utxosResult.data.data)) {
+        utxos = utxosResult.data.data;
+      }
+
+      if (utxos.length === 0) {
+        setAssetsList([]);
+        setIsLoadingAssets(false);
+        return;
+      }
+
+      // 3. Extraer assets directamente de UTXOs
+      const assets = extractAssetsFromUtxos(utxos);
+
+      // 4. Mapear assets al formato esperado por el modal
+      const mappedAssets = assets.map((asset: any) => ({
+        fingerprint: asset.fingerprint,
+        policy_id: asset.policy_id,
+        asset_name: asset.asset_name,
+        asset_name_hex: asset.asset_name_hex,
+        quantity: asset.user_quantity,
+        user_quantity: asset.user_quantity,
+      }));
+
+      setAssetsList(mappedAssets);
+    } catch (error) {
+      console.error('Error al obtener assets desde UTXOs:', error);
+      setAssetsList([]);
+    } finally {
+      setIsLoadingAssets(false);
+    }
+  }, [walletID, extractAssetsFromUtxos]);
 
   useEffect(() => {
-    if (checkedAssetList.length > 0) {
+    // Cargar assets cuando se abre el modal
+    if (selectTokensModal.visible && walletID) {
+      fetchAssetsFromUtxos();
+    } else if (!selectTokensModal.visible) {
+      // Limpiar lista al cerrar el modal
+      setAssetsList([]);
+    }
+  }, [selectTokensModal.visible, walletID, fetchAssetsFromUtxos]);
+
+  useEffect(() => {
+    // Actualizar assets con información de checkedAssetList cuando hay assets seleccionados
+    if (checkedAssetList.length > 0 && assetsList.length > 0) {
       setAssetsList((prevState) => {
         return prevState.map((asset) => {
-          const originalAsset = walletData.assets.find(
-            (originalAsset: any) =>
-              generateFingerprint(originalAsset) === asset.fingerprint
-          );
-
-          if (!originalAsset) {
-            console.error('No matching asset found for fingerprint:', asset.fingerprint);
-            return asset;
-          }
-
+          // Calcular cantidad usada por otros destinatarios
           const usedSupply = checkedAssetList.reduce((acc, current) => {
             if (current.fingerprint === asset.fingerprint) {
               const selectedSupply = parseInt(current.selectedSupply, 10);
-              acc += selectedSupply;
+              if (!isNaN(selectedSupply)) {
+                acc += selectedSupply;
+              }
             }
             return acc;
           }, 0);
 
+          // Calcular cantidad disponible (usar quantity original del asset)
+          const originalQuantity = parseInt(asset.quantity || asset.user_quantity || '0', 10);
           const availableSupply = String(
-            parseInt(originalAsset.quantity) - usedSupply
+            Math.max(0, originalQuantity - usedSupply)
           );
 
+          // Verificar si este asset está seleccionado para este destinatario
           const checkedAsset = checkedAssetList
             .filter(
               (checkedAsset: any) =>
@@ -97,7 +228,7 @@ export default function SelectTokensModal(props: SelectTokensModalProps) {
             return {
               ...asset,
               quantity: availableSupply,
-              selectedSupply: checkedAsset.selectedSupply,
+              selectedSupply: checkedAsset.selectedSupply || '',
               checked: true,
             };
           }
@@ -110,8 +241,17 @@ export default function SelectTokensModal(props: SelectTokensModalProps) {
           };
         });
       });
+    } else if (assetsList.length > 0 && checkedAssetList.length === 0) {
+      // Si no hay assets seleccionados, resetear el estado checked
+      setAssetsList((prevState) => {
+        return prevState.map((asset) => ({
+          ...asset,
+          selectedSupply: '',
+          checked: false,
+        }));
+      });
     }
-  }, [walletData?.assets, checkedAssetList, selectTokensModal]);
+  }, [checkedAssetList, selectTokensModal.recipientID, assetsList]);
 
   const handleFilterInputChange = (field: string, value: string) => {
     setAssetsFilter((prevState) => ({
@@ -158,7 +298,14 @@ export default function SelectTokensModal(props: SelectTokensModalProps) {
       </Modal.Header>
       <Modal.Body>
         <div>
-          {assetsList.length > 0 ? (
+          {isLoadingAssets ? (
+            <div className="flex items-center justify-center h-96">
+              <div className="text-center">
+                <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-gray-900 mx-auto"></div>
+                <p className="mt-4 text-gray-600">Cargando activos...</p>
+              </div>
+            </div>
+          ) : assetsList.length > 0 ? (
             <>
               <p>Tús Activos</p>
               <div className="grid grid-cols-1 md:grid-cols-4 gap-2">

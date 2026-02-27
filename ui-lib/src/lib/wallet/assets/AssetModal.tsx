@@ -1,3 +1,4 @@
+import React, { useEffect, useState } from 'react';
 import { Button, Modal } from 'flowbite-react';
 import { XIcon } from '../../icons/XIcon';
 import CopyToClipboard from '../../common/CopyToClipboard';
@@ -7,8 +8,22 @@ import {
   darkStyles,
   defaultStyles,
 } from 'react-json-view-lite';
-import { useEffect, useState } from 'react';
 import { getDateFromTimeStamp, hexToText, textToHex } from '@marketplaces/utils-2';
+
+// Función para obtener access token (copiada de walletApi.ts)
+const getAccessToken = (): string | null => {
+  if (typeof window === 'undefined') return null;
+  try {
+    const sessionStr = window.localStorage.getItem('wallet_session');
+    if (sessionStr) {
+      const session = JSON.parse(sessionStr);
+      return session.access_token || null;
+    }
+  } catch (err) {
+    // Silenciar errores de acceso al token en localStorage
+  }
+  return null;
+};
 
 interface AssetModalProps {
   assetData: any;
@@ -20,6 +35,10 @@ export default function AssetModal(props: AssetModalProps) {
   const { assetData, handleOpenAssetModal, openModal } = props;
   const [assetMetadata, setAssetMetadata] = useState<any>(null);
   const [assetInfo, setAssetInfo] = useState<any>({});
+  const [isLoadingDetails, setIsLoadingDetails] = useState<boolean>(false);
+  const [imageGatewayIndex, setImageGatewayIndex] = useState<number>(0);
+  const [imageError, setImageError] = useState<boolean>(false);
+  const [activeSection, setActiveSection] = useState<'blockchain' | 'metadata'>('blockchain');
 
   const extractInnerObject: any = (obj: any) => {
     if (typeof obj === 'object' && obj !== null) {
@@ -36,81 +55,149 @@ export default function AssetModal(props: AssetModalProps) {
   };
 
   useEffect(() => {
-    const handleAssetInfo = async () => {
-      const response = await fetch(
-        `/api/wallet/asset-info?policy_id=${assetData.policy_id}`
-      );
-      const policyIdAssetsInfoResponse = await response.json();
-
-      console.log('policyIdAssetsInfoResponse', policyIdAssetsInfoResponse)
-      console.log('assetData', assetData)
-      // Filtrar asset_name
-      const assetInfo = policyIdAssetsInfoResponse.find(
-        (asset: any) => asset.asset === assetData.policy_id + textToHex(assetData.asset_name)
-      );
-
-      let metadata = {};
-
-      if (assetInfo && assetInfo.metadata) {
-        /* Object.entries(assetInfo.minting_tx_metadata).forEach(
-          ([key, value]: any) => {
-            const metadataInfo = value;
-            metadata = {
-              ...metadata,
-              ...metadataInfo,
-            };
-          }
-        ); */
-        metadata = extractInnerObject(assetInfo.metadata);
+    const loadAssetDetails = async () => {
+      if (!assetData?.policy_id || !openModal) {
+        return;
       }
 
-      /* const cases = {
-        '2fa3f8b68cd8f4bb95ebc0e24ee5ee7629081e094cab8319caf0453f': {
-          '0x53616e64626f785375616e41636365737331': {
-            name: 'Token NFT SandBox',
-            description: 'NFT con acceso a marketplace en Sandbox',
-          },
-        },
-      };
+      setIsLoadingDetails(true);
 
-      const hardTestCase = {
-        area: '4990',
-        files: [
+      try {
+        const accessToken = getAccessToken();
+        if (!accessToken) {
+          setIsLoadingDetails(false);
+          return;
+        }
+
+        // Llamar al endpoint de detalles del policy
+        // Nota: El API tiene un límite máximo de 20 items por página
+        const response = await fetch(
+          `/api/assets/policy/${assetData.policy_id}/details?page=1&limit=20`,
           {
-            src: 'ipfs://QmaLUqr86WwpnSrLwAUVUuWSXzViGsy9uLoUrTJ3ApTq2T',
-            mediaType: 'image/png',
-          },
-        ],
-        image: 'ipfs://QmaLUqr86WwpnSrLwAUVUuWSXzViGsy9uLoUrTJ3ApTq2T',
-        category: 'MIXTO',
-        location: '4.272969755061237, -72.79084537151759 0 0',
-        createdAt: '15/12/2023',
-        mediaType: 'image/png',
-        project_id: '99d0f2a1-61e5-4bf5-b6ef-1f7aea6097c3',
-        token_name: 'SUAN-1F7AEA6097C3',
-        description: [
-          'Este Proyecto está ubicado en la región de la sabana',
-          'colombiana conocida como los Llanos Orientales; en un conjunto',
-          'de 88 predios que se encuentran ubicados en la región sur del',
-          'rio meta, entre los afluentes rio metica y el rio yucao; y',
-          'suman un área aproximada de 4.990 Ha, como zona buffer de 100',
-          'mts de las rondas hídrica.  Con este proyecto se pretende',
-          'aumentar el área de protección mediante regeneración natural',
-          'asistida para el establecimiento de especies nativas de la',
-          'zona.',
-        ],
-        project_name: 'Polígono Meta Ecosistemas Estrategicos',
-      }; */
-      // console.log('hardTestCase', hardTestCase);
-      setAssetMetadata(metadata);
-      setAssetInfo(assetInfo);
+            headers: {
+              'Content-Type': 'application/json',
+              'Authorization': `Bearer ${accessToken}`,
+            },
+          }
+        );
 
-      console.log('AssetInfo obtenido: ', assetInfo);
+        if (!response.ok) {
+          setIsLoadingDetails(false);
+          return;
+        }
+
+        const data = await response.json();
+
+        // Verificar directamente si hay assets disponibles
+        if (data && data.assets && Array.isArray(data.assets) && data.assets.length > 0) {
+          
+          // Buscar el asset específico con múltiples estrategias
+          let assetDetail = null;
+
+          // Estrategia 1: Buscar por fingerprint completo en hex (asset.asset)
+          // Este es el método más confiable ya que asset.asset es el fingerprint completo
+          if (assetData.fingerprint) {
+            assetDetail = data.assets.find((asset: any) => {
+              return asset.asset === assetData.fingerprint;
+            });
+          }
+
+          // Estrategia 2: Construir fingerprint desde policy_id + asset_name_hex
+          // Esto es útil si el fingerprint no coincide exactamente
+          if (!assetDetail && assetData.policy_id && assetData.asset_name_hex) {
+            const constructedFingerprint = `${assetData.policy_id}${assetData.asset_name_hex}`;
+            assetDetail = data.assets.find((asset: any) => {
+              return asset.asset === constructedFingerprint;
+            });
+          }
+
+          // Estrategia 3: Buscar por fingerprint bech32 (si está disponible)
+          if (!assetDetail && assetData.fingerprint) {
+            assetDetail = data.assets.find((asset: any) => {
+              return asset.fingerprint === assetData.fingerprint;
+            });
+          }
+
+          // Estrategia 4: Buscar por nombre (UTF-8 o hex) dentro del mismo policy
+          if (!assetDetail && assetData.policy_id && assetData.asset_name) {
+            assetDetail = data.assets.find((asset: any) => {
+              // Debe estar en el mismo policy
+              if (asset.policy_id !== assetData.policy_id) return false;
+              
+              // Comparar por nombre en diferentes formatos
+              return asset.asset_name_decoded === assetData.asset_name ||
+                     asset.asset_name === assetData.asset_name_hex ||
+                     (asset.onchain_metadata?.name && asset.onchain_metadata.name === assetData.asset_name) ||
+                     (asset.metadata?.name && asset.metadata.name === assetData.asset_name) ||
+                     (asset.metadata?.raw?.name && asset.metadata.raw.name === assetData.asset_name);
+            });
+          }
+          
+          // Estrategia 5: Si solo hay un asset en el policy, usarlo (útil cuando hay un solo asset)
+          if (!assetDetail && data.assets.length === 1) {
+            assetDetail = data.assets[0];
+          }
+
+          if (assetDetail) {
+            setAssetInfo(assetDetail);
+            
+            // Extraer metadata - combinar onchain_metadata y metadata.raw
+            let metadata: any = {};
+            
+            // Priorizar onchain_metadata (más completo y confiable)
+            if (assetDetail.onchain_metadata && typeof assetDetail.onchain_metadata === 'object' && assetDetail.onchain_metadata !== null) {
+              // Usar directamente onchain_metadata (ya es un objeto plano)
+              metadata = { ...assetDetail.onchain_metadata };
+            }
+            
+            // Agregar campos de metadata.raw que no estén ya en metadata
+            if (assetDetail.metadata?.raw && typeof assetDetail.metadata.raw === 'object' && assetDetail.metadata.raw !== null) {
+              Object.keys(assetDetail.metadata.raw).forEach(key => {
+                if (!metadata[key]) {
+                  metadata[key] = assetDetail.metadata.raw[key];
+                }
+              });
+            }
+            
+            // Agregar otros campos de metadata (name, description, ticker, etc.) que no estén ya incluidos
+            if (assetDetail.metadata && typeof assetDetail.metadata === 'object') {
+              Object.keys(assetDetail.metadata).forEach(key => {
+                // Omitir 'raw' ya que lo procesamos arriba
+                if (key !== 'raw' && !metadata[key]) {
+                  const value = assetDetail.metadata[key];
+                  if (value !== null && value !== undefined) {
+                    metadata[key] = value;
+                  }
+                }
+              });
+            }
+            
+            setAssetMetadata(Object.keys(metadata).length > 0 ? metadata : null);
+          } else {
+            setAssetInfo({});
+            setAssetMetadata(null);
+          }
+        } else {
+          setAssetInfo({});
+          setAssetMetadata(null);
+        }
+      } catch (error) {
+        // Silenciar errores de red en el modal
+      } finally {
+        setIsLoadingDetails(false);
+      }
     };
-    if (assetData) {
-      handleAssetInfo();
+
+    if (openModal && assetData) {
+      loadAssetDetails();
     }
-  }, [assetData]);
+  }, [openModal, assetData]);
+
+  // Resetear estados de imagen cuando cambia el asset
+  useEffect(() => {
+    setImageGatewayIndex(0);
+    setImageError(false);
+  }, [assetData?.fingerprint]);
 
   return (
     <Modal
@@ -129,18 +216,88 @@ export default function AssetModal(props: AssetModalProps) {
             <XIcon />
           </button>
         </div>
-        <div className="flex flex-col lg:flex-row text-white rounded-lg p-6 justify-evenly">
-          {/* Primera columna (30% de ancho) */}
-          <div className="flex flex-col items-center lg:w-30 p-3 pt-10">
-            {assetMetadata?.image ? (
+        <div className="flex flex-col lg:flex-row text-white rounded-lg px-4 py-4 sm:p-6 gap-6 lg:gap-10 justify-evenly max-h-[80vh] overflow-y-auto">
+          {/* Primera columna (imagen y título) */}
+          <div className="flex flex-col items-center w-full lg:w-1/3 p-3 pt-4 lg:pt-8">
+            {(() => {
+              // Buscar imagen en múltiples lugares con prioridad clara
+              // Prioridad: assetInfo.onchain_metadata.image > assetInfo.metadata.raw.image > assetMetadata.image > assetInfo.metadata.logo
+              let imageUrl: string | null = null;
+              
+              if (assetInfo.onchain_metadata && typeof assetInfo.onchain_metadata === 'object' && assetInfo.onchain_metadata.image) {
+                imageUrl = assetInfo.onchain_metadata.image;
+              } else if (assetInfo.metadata?.raw && typeof assetInfo.metadata.raw === 'object' && assetInfo.metadata.raw.image) {
+                imageUrl = assetInfo.metadata.raw.image;
+              } else if (assetMetadata && typeof assetMetadata === 'object' && assetMetadata.image) {
+                imageUrl = assetMetadata.image;
+              } else if (assetInfo.metadata?.logo) {
+                imageUrl = assetInfo.metadata.logo;
+              }
+              
+              // Convertir IPFS a gateway URL con múltiples fallbacks
+              let ipfsHash: string | null = null;
+              let finalImageUrl: string | null = null;
+              
+              if (imageUrl && typeof imageUrl === 'string') {
+                if (imageUrl.startsWith('ipfs://')) {
+                  ipfsHash = imageUrl.replace('ipfs://', '').trim();
+                } else if (imageUrl.startsWith('http://') || imageUrl.startsWith('https://')) {
+                  finalImageUrl = imageUrl;
+                } else if (imageUrl.startsWith('Qm') || imageUrl.startsWith('baf')) {
+                  ipfsHash = imageUrl;
+                } else {
+                  finalImageUrl = imageUrl;
+                }
+                
+                // Si tenemos un hash IPFS, generar URLs con múltiples gateways
+                if (ipfsHash) {
+                  const gateways = [
+                    `https://coffee-dry-barnacle-850.mypinata.cloud/ipfs/${ipfsHash}`, // Gateway personalizado de Pinata
+                    `https://gateway.pinata.cloud/ipfs/${ipfsHash}`, // Gateway público de Pinata
+                    `https://ipfs.io/ipfs/${ipfsHash}`, // Gateway público de IPFS
+                    `https://cloudflare-ipfs.com/ipfs/${ipfsHash}`, // Gateway de Cloudflare
+                    `https://dweb.link/ipfs/${ipfsHash}`, // Gateway de Protocol Labs
+                  ];
+                  
+                  // Usar el gateway actual según el índice
+                  finalImageUrl = gateways[imageGatewayIndex] || gateways[0];
+                }
+              } else {
+              }
+              
+              // Handler para errores de carga de imagen con fallback automático
+              const handleImageError = (e: React.SyntheticEvent<HTMLImageElement, Event>) => {
+                const img = e.currentTarget;
+                
+                if (ipfsHash) {
+                  const gateways = [
+                    `https://coffee-dry-barnacle-850.mypinata.cloud/ipfs/${ipfsHash}`,
+                    `https://gateway.pinata.cloud/ipfs/${ipfsHash}`,
+                    `https://ipfs.io/ipfs/${ipfsHash}`,
+                    `https://cloudflare-ipfs.com/ipfs/${ipfsHash}`,
+                    `https://dweb.link/ipfs/${ipfsHash}`,
+                  ];
+                  
+                  if (imageGatewayIndex < gateways.length - 1) {
+                    const nextIndex = imageGatewayIndex + 1;
+                    setImageGatewayIndex(nextIndex);
+                    img.src = gateways[nextIndex];
+                  } else {
+                    setImageError(true);
+                    img.style.display = 'none';
+                  }
+                } else {
+                  setImageError(true);
+                  img.style.display = 'none';
+                }
+              };
+              
+              return finalImageUrl && !imageError ? (
               <img
-                src={`https://coffee-dry-barnacle-850.mypinata.cloud/ipfs/${
-                  assetMetadata?.image
-                    ? assetMetadata.image.replace('ipfs://', '')
-                    : ''
-                }`}
+                src={finalImageUrl}
                 alt="Asset Image"
-                className="w-80 h-auto"
+                className="w-full max-w-xs sm:max-w-sm md:max-w-md h-auto rounded-lg shadow-lg object-contain"
+                onError={handleImageError}
               />
             ) : (
               <div
@@ -160,150 +317,262 @@ export default function AssetModal(props: AssetModalProps) {
                 </div>
                 <span className="sr-only">Loading...</span>
               </div>
-            )}
-            <h1 className="text-white text-center my-4 text-2xl">
-              {assetData.asset_name}
+            );
+            })()}
+            <h1 className="text-white text-center my-4 text-xl sm:text-2xl break-words">
+              {assetInfo.onchain_metadata?.name || 
+               assetInfo.metadata?.name || 
+               assetInfo.metadata?.raw?.name ||
+               assetInfo.asset_name_decoded || 
+               assetData.asset_name || 
+               'Asset'}
             </h1>
+            {(assetInfo.onchain_metadata?.description || 
+              assetInfo.metadata?.description || 
+              assetInfo.metadata?.raw?.description ||
+              assetMetadata?.description) ? (
+              <p className="text-white text-center text-xs sm:text-sm mt-2 opacity-80 line-clamp-3">
+                {assetInfo.onchain_metadata?.description || 
+                 assetInfo.metadata?.description || 
+                 assetInfo.metadata?.raw?.description ||
+                 assetMetadata?.description}
+              </p>
+            ) : null}
           </div>
-          {/* Segunda columna (70% de ancho) */}
-          <div className="lg:w-70 p-3">
-            <table className="w-full">
-              <tbody className="activos fila_activos">
-                <tr className="bg-gray-600">
-                  {/* <td>Decimals: </td>
-                  <td className="mr-3">{assetData.decimals}</td> */}
-                  <td>En billetera: </td>
-                  <td>{assetData.quantity}</td>
-                  <td>En circulación: </td>
-                  <td>
-                    {assetInfo.quantity
-                      ? assetInfo.quantity
-                      : 'Loading ...'}
-                  </td>
-                </tr>
-              </tbody>
-            </table>
-            <hr className="my-2" />
-            <h3 className="font-extrabold">Blockchain Data</h3>
-            <div className="relative overflow-x-auto">
-              <table className="w-full">
-                <tbody className="fila_activos">
-                  <tr>
-                    <td>Policy ID:</td>
-                    <td className="flex">
-                      <div className="truncate w-[60%]">
-                        {assetData.policy_id}
-                      </div>
-                      <CopyToClipboard
-                        iconClassName="h-5 w-5 ml-2"
-                        copyValue={assetData.policy_id}
-                        tooltipLabel="Copiar !"
-                      />
-                    </td>
-                  </tr>
-                  <tr className="bg-gray-600">
-                    <td>Fingerprint:</td>
-                    <td className="flex">
-                      <div className="truncate w-[60%]">
-                        {assetInfo.fingerprint
-                          ? assetInfo.fingerprint
-                          : 'Loading ...'}
-                      </div>
-                      <CopyToClipboard
-                        iconClassName="h-5 w-5 ml-2"
-                        copyValue={assetInfo.fingerprint}
-                        tooltipLabel="Copiar !"
-                      />
-                    </td>
-                  </tr>
-                  <tr>
-                    <td>Nombre del activo:</td>
-                    <td>
-                      {assetData.asset_name
-                        ? assetData.asset_name
-                        : 'Loading ...'}
-                    </td>
-                  </tr>
-                  {/* <tr className="bg-gray-600">
-                    <td>Fecha de creación:</td>
-                    <td>
-                      {assetInfo.creation_time
-                        ? getDateFromTimeStamp(assetInfo.creation_time)
-                        : 'Loading ...'}
-                    </td>
-                  </tr> */}
-                </tbody>
-              </table>
-            </div>
-            <hr className="my-2" />
-            {/* Información adicional: Metadata */}
-            <h3 className="font-extrabold">Metadata</h3>
-            <div className="relative overflow-x-auto">
-              <table className="w-full">
-                {assetMetadata ? (
-                  <tbody className="fila_activos">
-                    {Object.keys(assetMetadata).length > 0
-                      ? Object.entries(assetMetadata).map(
-                          ([key, value]: any, idx: number) => {
-                            if (Array.isArray(value)) {
-                              return (
-                                <>
-                                  <tr>
-                                    <td>{key}:</td>
-                                  </tr>
-                                  {value.map((item: any, index: number) => {
-                                    if (typeof item === 'object') {
-                                      return Object.entries(item).map(
-                                        ([key2, value2]: any) => (
-                                          <tr key={key2}>
-                                            <td>{'-> ' + key2}</td>
-                                            <td>{value2}</td>
-                                          </tr>
-                                        )
-                                      );
-                                    } else {
-                                      return (
-                                        <tr>
-                                          <td>{'-> ' + index}</td>
-                                          <td>{item}</td>
-                                        </tr>
-                                      );
-                                    }
-                                  })}
-                                </>
-                              );
-                            } else {
-                              return (
-                                <tr
-                                  className={`${
-                                    idx % 2 === 0 && 'bg-gray-600'
-                                  }`}
-                                >
-                                  <td>{key}</td>
-                                  <td>{value}</td>
-                                </tr>
-                              );
-                            }
-                          }
-                        )
-                      : 'No se ha encontrado metadatos'}
-                  </tbody>
-                ) : (
-                  'Loading ...'
-                )}
-              </table>
-            </div>
-            <hr className="my-2" />
-            {/* Información adicional: Raw JSON */}
-            {assetMetadata && Object.keys(assetMetadata).length > 0 && (
-              <div className="">
-                <h2 className="font-extrabold	">Raw JSON</h2>
-                <JsonView
-                  data={assetMetadata}
-                  shouldExpandNode={allExpanded}
-                  style={defaultStyles}
-                />
+          {/* Segunda columna (detalles y metadata) */}
+          <div className="w-full lg:w-2/3 p-3 space-y-4">
+            {isLoadingDetails ? (
+              <div className="flex items-center justify-center p-8">
+                <div className="text-center">
+                  <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-white mx-auto"></div>
+                  <p className="mt-4 text-white">Cargando detalles del asset...</p>
+                </div>
               </div>
+            ) : (
+              <>
+                {/* Resumen superior siempre visible */}
+                <table className="w-full text-xs sm:text-sm">
+                  <tbody className="activos fila_activos">
+                    <tr className="bg-gray-600">
+                      <td>En billetera: </td>
+                      <td>{assetData.user_quantity || assetData.quantity || '0'}</td>
+                      <td>En circulación: </td>
+                      <td>
+                        {assetInfo.quantity
+                          ? assetInfo.quantity
+                          : 'No disponible'}
+                      </td>
+                    </tr>
+                  </tbody>
+                </table>
+
+                {/* Tabs para cambiar de sección */}
+                <div className="mt-3 border-b border-gray-600 flex text-xs sm:text-sm">
+                  <button
+                    type="button"
+                    className={`px-4 py-2 -mb-px border-b-2 transition-colors ${
+                      activeSection === 'blockchain'
+                        ? 'border-white text-white'
+                        : 'border-transparent text-gray-400 hover:text-white'
+                    }`}
+                    onClick={() => setActiveSection('blockchain')}
+                  >
+                    Blockchain Data
+                  </button>
+                  <button
+                    type="button"
+                    className={`px-4 py-2 -mb-px border-b-2 transition-colors ${
+                      activeSection === 'metadata'
+                        ? 'border-white text-white'
+                        : 'border-transparent text-gray-400 hover:text-white'
+                    }`}
+                    onClick={() => setActiveSection('metadata')}
+                  >
+                    Metadata
+                  </button>
+                </div>
+
+                {/* Contenido según la sección activa */}
+                {activeSection === 'blockchain' ? (
+                  <>
+                    <h3 className="font-extrabold mt-3">Blockchain Data</h3>
+                    <div className="relative overflow-x-auto">
+                      <table className="w-full text-xs sm:text-sm">
+                        <tbody className="fila_activos">
+                          <tr>
+                            <td>Policy ID:</td>
+                            <td className="flex">
+                              <div className="truncate w-[60%]">
+                                {assetData.policy_id || 'N/A'}
+                              </div>
+                              <CopyToClipboard
+                                iconClassName="h-5 w-5 ml-2"
+                                copyValue={assetData.policy_id || ''}
+                                tooltipLabel="Copiar !"
+                              />
+                            </td>
+                          </tr>
+                          <tr className="bg-gray-600">
+                            <td>Fingerprint:</td>
+                            <td className="flex">
+                              <div className="truncate w-[60%]">
+                                {assetInfo.fingerprint || assetData.fingerprint || 'No disponible'}
+                              </div>
+                              <CopyToClipboard
+                                iconClassName="h-5 w-5 ml-2"
+                                copyValue={assetInfo.fingerprint || assetData.fingerprint || ''}
+                                tooltipLabel="Copiar !"
+                              />
+                            </td>
+                          </tr>
+                          <tr>
+                            <td>Nombre del activo:</td>
+                            <td>
+                              {assetData.asset_name || assetInfo.asset_name_decoded || 'N/A'}
+                            </td>
+                          </tr>
+                          {assetInfo.mint_or_burn_count !== undefined && (
+                            <tr className="bg-gray-600">
+                              <td>Mints/Burns:</td>
+                              <td>{assetInfo.mint_or_burn_count}</td>
+                            </tr>
+                          )}
+                          {assetInfo.initial_mint_tx_hash && (
+                            <tr>
+                              <td>Hash inicial:</td>
+                              <td className="truncate">{assetInfo.initial_mint_tx_hash}</td>
+                            </tr>
+                          )}
+                        </tbody>
+                      </table>
+                    </div>
+                  </>
+                ) : (
+                  <>
+                    {/* Información adicional: Metadata */}
+                    <h3 className="font-extrabold mt-3">Metadata</h3>
+                    <div className="relative overflow-x-auto">
+                      <table className="w-full text-xs sm:text-sm">
+                        {(() => {
+                          // Usar assetInfo directamente si assetMetadata está vacío
+                          // Prioridad: assetMetadata > assetInfo.onchain_metadata > assetInfo.metadata.raw
+                          let metadataToShow = null;
+                          
+                          if (assetMetadata && typeof assetMetadata === 'object' && Object.keys(assetMetadata).length > 0) {
+                            metadataToShow = assetMetadata;
+                          } else if (assetInfo.onchain_metadata && typeof assetInfo.onchain_metadata === 'object' && Object.keys(assetInfo.onchain_metadata).length > 0) {
+                            metadataToShow = assetInfo.onchain_metadata;
+                          } else if (assetInfo.metadata?.raw && typeof assetInfo.metadata.raw === 'object' && Object.keys(assetInfo.metadata.raw).length > 0) {
+                            metadataToShow = assetInfo.metadata.raw;
+                          }
+                          
+                          return metadataToShow && Object.keys(metadataToShow).length > 0 ? (
+                          <tbody className="fila_activos">
+                            {Object.entries(metadataToShow).map(
+                              ([key, value]: any, idx: number) => {
+                                // Omitir campos que ya se mostraron arriba o que son objetos anidados complejos
+                                if (key === 'raw' && typeof value === 'object') {
+                                  // Mostrar campos de raw individualmente
+                                  return Object.entries(value).map(([rawKey, rawValue]: any, rawIdx: number) => (
+                                    <tr
+                                      key={`raw-${rawKey}`}
+                                      className={`${(idx + rawIdx) % 2 === 0 ? 'bg-gray-600' : ''}`}
+                                    >
+                                      <td>{rawKey}:</td>
+                                      <td>
+                                        {typeof rawValue === 'object' 
+                                          ? JSON.stringify(rawValue, null, 2)
+                                          : String(rawValue)}
+                                      </td>
+                                    </tr>
+                                  ));
+                                }
+                                
+                                if (Array.isArray(value)) {
+                                  return (
+                                    <React.Fragment key={key}>
+                                      <tr>
+                                        <td colSpan={2} className="font-semibold">{key}:</td>
+                                      </tr>
+                                      {value.map((item: any, index: number) => {
+                                        if (typeof item === 'object') {
+                                          return Object.entries(item).map(
+                                            ([key2, value2]: any) => (
+                                              <tr key={`${key}-${index}-${key2}`} className={`${(idx + index) % 2 === 0 ? 'bg-gray-600' : ''}`}>
+                                                <td className="pl-4">{'→ ' + key2}</td>
+                                                <td>{typeof value2 === 'object' ? JSON.stringify(value2) : String(value2)}</td>
+                                              </tr>
+                                            )
+                                          );
+                                        } else {
+                                          return (
+                                            <tr key={`${key}-${index}`} className={`${(idx + index) % 2 === 0 ? 'bg-gray-600' : ''}`}>
+                                              <td className="pl-4">{'→ [' + index + ']'}</td>
+                                              <td>{String(item)}</td>
+                                            </tr>
+                                          );
+                                        }
+                                      })}
+                                    </React.Fragment>
+                                  );
+                                } else if (typeof value === 'object' && value !== null) {
+                                  return (
+                                    <React.Fragment key={key}>
+                                      <tr>
+                                        <td colSpan={2} className="font-semibold">{key}:</td>
+                                      </tr>
+                                      {Object.entries(value).map(([subKey, subValue]: any, subIdx: number) => (
+                                        <tr key={`${key}-${subKey}`} className={`${(idx + subIdx) % 2 === 0 ? 'bg-gray-600' : ''}`}>
+                                          <td className="pl-4">{'→ ' + subKey}</td>
+                                          <td>{typeof subValue === 'object' ? JSON.stringify(subValue) : String(subValue)}</td>
+                                        </tr>
+                                      ))}
+                                    </React.Fragment>
+                                  );
+                                } else {
+                                  return (
+                                    <tr
+                                      key={key}
+                                      className={`${idx % 2 === 0 ? 'bg-gray-600' : ''}`}
+                                    >
+                                      <td className="font-medium">{key}:</td>
+                                      <td>{value !== null && value !== undefined ? String(value) : 'N/A'}</td>
+                                    </tr>
+                                  );
+                                }
+                              }
+                            )}
+                          </tbody>
+                        ) : assetInfo.onchain_metadata || assetInfo.metadata ? (
+                          <tbody className="fila_activos">
+                            <tr>
+                              <td colSpan={2} className="text-center text-gray-400">No se encontró metadata procesada</td>
+                            </tr>
+                          </tbody>
+                        ) : (
+                          <tbody className="fila_activos">
+                            <tr>
+                              <td colSpan={2} className="text-center text-gray-400">No hay metadata disponible</td>
+                            </tr>
+                          </tbody>
+                        );
+                        })()}
+                      </table>
+                    </div>
+                    {/* Raw JSON */}
+                    {assetMetadata && Object.keys(assetMetadata).length > 0 && (
+                      <div>
+                        <h2 className="font-extrabold	">Raw JSON</h2>
+                        <JsonView
+                          data={assetMetadata}
+                          shouldExpandNode={allExpanded}
+                          style={defaultStyles}
+                        />
+                      </div>
+                    )}
+                  </>
+                )}
+              </>
             )}
           </div>
         </div>

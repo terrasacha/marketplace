@@ -1,7 +1,7 @@
 import React, { useContext, useEffect, useState } from 'react';
 import { EyeOffIcon } from '../icons/EyeOffIcon';
 import { EyeIcon } from '../icons/EyeIcon';
-import Assets from '../wallet/assets/Assets';
+import WalletAssets from '../wallet/WalletAssets';
 import ClaimTokens from '../wallet/ClaimTokens';
 import Card from '../common/Card';
 import CopyToClipboard from '../common/CopyToClipboard';
@@ -28,8 +28,6 @@ export default function WalletDashboard(props: WalletDashboardProps) {
   const handleShowAddress = () => {
     setShowAddress(!showAddress);
   };
-
-  console.log(props.userWalletData);
 
   const marketplaceName = process.env.NEXT_PUBLIC_MARKETPLACE_NAME || 'Marketplace';
   const marketplaceColors: Record<string, { bgColor: string; hoverBgColor: string;bgColorAlternativo:string;fuente:string;fuenteAlterna:string;}> = {
@@ -124,10 +122,9 @@ export default function WalletDashboard(props: WalletDashboardProps) {
           </div>
         </div>
         <div className="flex-col col-span-2 space-y-5 mt-5 2xl:mt-0">
-          <Assets
-            assetsData={walletData && walletData.assets}
+          <WalletAssets
             chartActive={true}
-            tableActive={true}
+            tableActive={false}
             tableItemsPerPage={5}
           />
         </div>
