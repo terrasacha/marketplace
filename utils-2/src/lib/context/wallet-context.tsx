@@ -43,6 +43,8 @@ export function WalletContextProvider({
   const walletBySuanRef = useRef<boolean>(false);
   const pollingIntervalRef = useRef<NodeJS.Timeout | null>(null);
   const prevBalanceRef = useRef<any>(null);
+  /** Cache del stake_address para no llamar a getWalletAddresses en cada refresh de balance */
+  const walletStakeAddressRef = useRef<string | null>(null);
 
   // Función auxiliar para obtener stake_address
   const getStakeAddress = useCallback(async (walletId: string): Promise<string> => {
@@ -90,8 +92,12 @@ export function WalletContextProvider({
         balanceResult.data?.balances?.main_addresses.enterprise.balance_lovelace ?? 0
       );
 
-      // 2. Obtener stake_address (no crítico, puede fallar silenciosamente)
-      const stake_address = await getStakeAddress(currentWalletID);
+      // 2. Usar stake_address en caché; solo llamar a addresses si aún no lo tenemos
+      let stake_address = walletStakeAddressRef.current ?? '';
+      if (!stake_address) {
+        stake_address = await getStakeAddress(currentWalletID);
+        walletStakeAddressRef.current = stake_address;
+      }
 
       const responseData = {
         address: wallet_address,
@@ -101,10 +107,15 @@ export function WalletContextProvider({
         assets: [], // Por ahora no tenemos assets desde el API de balance
       };
 
-      // Inicializar prevBalance si es la primera vez
+      // Inicializar prevBalance si es la primera vez; si ya existe y cambió, notificar para UI/sonido
       if (prevBalanceRef.current === null) {
         prevBalanceRef.current = responseData.balance;
         setPrevBalance(responseData.balance);
+      } else if (prevBalanceRef.current !== responseData.balance) {
+        setBalanceChanged(responseData.balance - prevBalanceRef.current);
+        prevBalanceRef.current = responseData.balance;
+        setPrevBalance(responseData.balance);
+        setTimeout(() => setBalanceChanged(0), 2000);
       }
 
       // TODO: Implementar el cálculo de blockedLovelace
@@ -144,6 +155,7 @@ export function WalletContextProvider({
       return errorResponseData;
     }
   }, [walletAddress, getStakeAddress]);
+  // Nota: walletStakeAddressRef no va en deps (es ref estable)
 
   const handleWalletData = useCallback(async ({
     walletID,
@@ -167,6 +179,7 @@ export function WalletContextProvider({
     walletIDRef.current = walletID;
     walletBySuanRef.current = isWalletBySuan;
     prevBalanceRef.current = null; // reset para que el nuevo balance se tome como referencia al cambiar de billetera
+    walletStakeAddressRef.current = null; // forzar fetch de addresses solo la primera vez para esta billetera
 
     // Obtener información de la wallet (incluyendo role) si hay walletID
     if (walletID) {
@@ -212,6 +225,7 @@ export function WalletContextProvider({
     walletIDRef.current = null;
     walletBySuanRef.current = false;
     prevBalanceRef.current = null;
+    walletStakeAddressRef.current = null;
     
     // Limpiar polling
     if (pollingIntervalRef.current) {

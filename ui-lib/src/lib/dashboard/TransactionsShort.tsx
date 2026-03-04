@@ -99,38 +99,31 @@ export default function TransactionShort(props: TransactionsProps) {
   };
 
   const checkTxConfirmations = async () => {
-    if (pendingTransaction) {
-      const pendingTransactionItemRequest = await fetch(
-        '/api/helpers/tx-status',
-        {
-          method: 'POST',
-          headers: {
-            'Content-Type': 'application/json',
-          },
-          body: JSON.stringify(pendingTransaction.tx_id),
-        }
+    if (!pendingTransaction?.tx_id) return;
+    const txHash = pendingTransaction.tx_id;
+    try {
+      const res = await fetch(
+        `/api/transactions/${encodeURIComponent(txHash)}/status`,
+        { method: 'GET', headers: { 'Content-Type': 'application/json' } }
       );
-      const responseData = await pendingTransactionItemRequest.json();
+      const data = await res.json().catch(() => null);
+      const confirmations = data?.confirmations ?? data?.num_confirmations;
+      const status = data?.status;
 
-      if (responseData[0].num_confirmations < 12) {
-        setPendingTransaction((prevState: any) => ({
-          ...prevState,
-          tx_status:
-            responseData[0].num_confirmations !== null &&
-            responseData[0].num_confirmations > 1
-              ? 'on-chain'
-              : 'pending',
-          tx_confirmation_status: 'LOW',
-          tx_confirmation_n: responseData[0].num_confirmations || 0,
-        }));
-      } else {
+      if (confirmations != null && Number(confirmations) >= 12) {
         setPendingTransaction(null);
         await getTransactionsData();
-        // setTransactionsList((prevState) => [
-        //   pendingTransaction,
-        //   ...prevState,
-        // ]);
+      } else if (confirmations != null || status === 'CONFIRMED') {
+        const n = Number(confirmations) ?? (status === 'CONFIRMED' ? 1 : 0);
+        setPendingTransaction((prevState: any) => ({
+          ...prevState,
+          tx_status: n >= 1 ? 'on-chain' : 'pending',
+          tx_confirmation_status: 'LOW',
+          tx_confirmation_n: n,
+        }));
       }
+    } catch (_) {
+      // Ignorar; se reintentará en el siguiente ciclo
     }
   };
 

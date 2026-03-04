@@ -343,17 +343,16 @@ export default function SignTransaction(props: SignTransactionProps) {
         });
       }
       handleOpenSignTransactionModal(true);
-      toast.success('Seras redirigido en unos instantes...');
       localStorage.setItem(
         'pendingTx',
         JSON.stringify({ data: pendingTx, timestamp: Date.now() })
       );
 
-      setTimeout(() => {
+      /* setTimeout(() => {
         router.push({
           pathname: '/wallet/transactions',
         });
-      }, 3000);
+      }, 3000); */
     } else {
       // Manejar errores de firma
       const errorMessage = signSubmitResponse?.txSubmit?.error || signSubmitResponse?.error || 'Ha ocurrido un error al intentar realizar la transacción';
@@ -416,19 +415,10 @@ export default function SignTransaction(props: SignTransactionProps) {
                 });
 
                 handleOpenSignTransactionModal(true);
-                toast.success('Seras redirigido en unos instantes...');
-                // localStorage.setItem('pendingTx', JSON.stringify(pendingTx));
                 localStorage.setItem(
                   'pendingTx',
                   JSON.stringify({ data: pendingTx, timestamp: Date.now() })
                 );
-
-                setTimeout(() => {
-                  router.push({
-                    pathname: '/wallet/transactions',
-                  });
-                }, 3000);
-
                 break;
               } else {
                 toast.error('Reintentando ...');

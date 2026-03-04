@@ -171,21 +171,94 @@ export const storeWalletSession = (session: WalletSession) => {
 };
 
 /**
+ * Obtiene la sesión almacenada de la billetera desde localStorage
+ */
+const getStoredWalletSession = (): WalletSession | null => {
+  if (typeof window === 'undefined') return null;
+  try {
+    const sessionStr = window.localStorage.getItem('wallet_session');
+    if (!sessionStr) return null;
+    return JSON.parse(sessionStr) as WalletSession;
+  } catch (err) {
+    console.error('Error al obtener la sesión de la billetera:', err);
+    return null;
+  }
+};
+
+/**
  * Obtiene el access_token almacenado en localStorage
  * @returns access_token o null si no está disponible
  */
 const getAccessToken = (): string | null => {
-  if (typeof window === 'undefined') return null;
+  const session = getStoredWalletSession();
+  return session?.access_token || null;
+};
+
+/**
+ * Intenta realizar un auto-unlock de la billetera actual de forma silenciosa
+ * (sin mostrar toasts). Solo se usa para renovar la sesión cuando está cerca
+ * de expirar o ha expirado.
+ */
+const silentAutoUnlockCurrentWallet = async (): Promise<void> => {
+  if (typeof window === 'undefined') return;
   try {
-    const sessionStr = window.localStorage.getItem('wallet_session');
-    if (sessionStr) {
-      const session: WalletSession = JSON.parse(sessionStr);
-      return session.access_token || null;
+    const session = getStoredWalletSession();
+    if (!session?.wallet_id) return;
+
+    const sessionKey = window.localStorage.getItem('wallet_session_key');
+    const frontendSessionId = window.localStorage.getItem('wallet_frontend_session_id');
+
+    if (!sessionKey || !frontendSessionId) return;
+
+    const response = await fetch(`${API_BASE}/${session.wallet_id}/auto-unlock`, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'X-Session-Key': sessionKey,
+        'X-Frontend-Session-ID': frontendSessionId,
+      },
+    });
+
+    const data = await response.json();
+
+    if (data?.success) {
+      // Actualizar sesión con el nuevo access_token/expiración
+      storeWalletSession(data);
+    } else {
+      console.warn(
+        'Auto-unlock silencioso falló:',
+        data?.message || data?.error || 'respuesta no exitosa'
+      );
     }
-  } catch (err) {
-    console.error('Error al obtener el access_token:', err);
+  } catch (error: any) {
+    console.error('Error en auto-unlock silencioso de la billetera:', error);
   }
-  return null;
+};
+
+/**
+ * Antes de llamar al Wallet API, verifica si la sesión está próxima a expirar
+ * o expirada, e intenta realizar un auto-unlock para alargarla.
+ *
+ * Se usa de forma transparente en las funciones que requieren Authorization.
+ */
+const ensureWalletSessionFresh = async (): Promise<void> => {
+  if (typeof window === 'undefined') return;
+  try {
+    const session = getStoredWalletSession();
+    if (!session?.expires_at) return;
+
+    const expMs = Date.parse(session.expires_at);
+    if (Number.isNaN(expMs)) return;
+
+    const now = Date.now();
+    // Intentar refrescar si faltan menos de 60 segundos para expirar (o ya expiró)
+    const SAFETY_WINDOW_MS = 60_000;
+    if (now < expMs - SAFETY_WINDOW_MS) return;
+
+    await silentAutoUnlockCurrentWallet();
+  } catch (error: any) {
+    console.error('Error al asegurar la frescura de la sesión de billetera:', error);
+  }
 };
 
 export const createWallet = async (payload: CreateWalletPayload) => {
@@ -305,6 +378,7 @@ export const lockWallet = async (walletId: string) => {
  */
 export const promoteWallet = async (walletId: string) => {
   try {
+    await ensureWalletSessionFresh();
     const accessToken = getAccessToken();
     if (!accessToken) {
       const message =
@@ -346,6 +420,7 @@ export const promoteWallet = async (walletId: string) => {
  */
 export const unpromoteWallet = async (walletId: string) => {
   try {
+    await ensureWalletSessionFresh();
     const accessToken = getAccessToken();
     if (!accessToken) {
       const message =
@@ -375,6 +450,132 @@ export const unpromoteWallet = async (walletId: string) => {
     return { success: true, data };
   } catch (error: any) {
     console.error('Error al revocar core wallet:', error);
+    const { message } = parseWalletApiError(null, error);
+    toast.error(message);
+    return { success: false, data: null, error: message };
+  }
+};
+
+// --- Change wallet name (POST /api/v1/wallets/change-name) ---
+
+/**
+ * Payload para cambiar el nombre de la billetera (POST /api/v1/wallets/change-name)
+ */
+export interface ChangeWalletNamePayload {
+  new_name: string;
+  password: string;
+}
+
+/**
+ * Respuesta exitosa de change-name
+ */
+export interface ChangeWalletNameResponse {
+  message: string;
+  success: true;
+  wallet_id: string;
+  wallet_name: string;
+}
+
+/** Opciones opcionales para changeWalletName (p. ej. para sincronizar nombre en la plataforma). */
+export interface ChangeWalletNameOptions {
+  /** ID del usuario actual; si se envía, tras el cambio externo se actualiza el nombre en DynamoDB. */
+  userId?: string;
+}
+
+/**
+ * Cambia el nombre de la billetera actual usando
+ * POST /api/v1/wallets/change-name y, si se pasa userId, actualiza el nombre en la tabla wallet de la plataforma (DynamoDB).
+ *
+ * @param newName - Nuevo nombre de la billetera
+ * @param password - Contraseña de la billetera
+ * @param options - Opcional; si incluye userId, se llama al backend de la plataforma para actualizar el nombre en DynamoDB
+ * @returns Objeto con success, data (wallet_id, wallet_name, message) o error
+ */
+export const changeWalletName = async (
+  newName: string,
+  password: string,
+  options?: ChangeWalletNameOptions
+): Promise<{
+  success: boolean;
+  data: ChangeWalletNameResponse | null;
+  error?: string;
+}> => {
+  try {
+    await ensureWalletSessionFresh();
+    const accessToken = getAccessToken();
+    if (!accessToken) {
+      const message =
+        'No se encontró el token de acceso. Por favor, desbloquea la billetera.';
+      toast.error(message);
+      return { success: false, data: null, error: message };
+    }
+
+    const new_name = (newName ?? '').trim();
+    if (!new_name) {
+      const message = 'El nuevo nombre no puede estar vacío.';
+      toast.error(message);
+      return { success: false, data: null, error: message };
+    }
+    if (!password || typeof password !== 'string') {
+      const message = 'La contraseña es requerida.';
+      toast.error(message);
+      return { success: false, data: null, error: message };
+    }
+
+    const response = await fetch(`${API_BASE}/change-name`, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        Authorization: `Bearer ${accessToken}`,
+      },
+      body: JSON.stringify({ new_name, password }),
+    });
+
+    const data = await response.json();
+
+    if (!response.ok || data?.success === false) {
+      const { message } = parseWalletApiError(response, data);
+      toast.error(message);
+      return { success: false, data: null, error: message };
+    }
+
+    const result = data as ChangeWalletNameResponse;
+    const wallet_id = result.wallet_id;
+    const wallet_name = result.wallet_name;
+    const user_id = options?.userId;
+
+    if (user_id && wallet_id && wallet_name) {
+      try {
+        const syncRes = await fetch('/api/calls/backend/updateWalletName', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            wallet_id,
+            new_name: wallet_name,
+            password,
+            user_id,
+          }),
+        });
+        const syncData = await syncRes.json().catch(() => ({}));
+        if (!syncRes.ok || syncData?.success !== true) {
+          console.warn(
+            'Nombre actualizado en el servicio de billeteras; no se pudo actualizar en la plataforma:',
+            syncData?.error || syncRes.statusText
+          );
+        }
+      } catch (syncErr: any) {
+        console.warn(
+          'Nombre actualizado en el servicio de billeteras; error al sincronizar con la plataforma:',
+          syncErr?.message || syncErr
+        );
+      }
+    }
+
+    const successMessage = data.message || 'Nombre de la billetera actualizado correctamente.';
+    toast.success(successMessage);
+    return { success: true, data: result };
+  } catch (error: any) {
+    console.error('Error al cambiar el nombre de la wallet:', error);
     const { message } = parseWalletApiError(null, error);
     toast.error(message);
     return { success: false, data: null, error: message };
@@ -625,6 +826,7 @@ export const getWalletBalance = async (
   limitAddresses?: number
 ) => {
   try {
+    await ensureWalletSessionFresh();
     // Obtener access_token para Authorization header
     const accessToken = getAccessToken();
     if (!accessToken) {
@@ -680,6 +882,7 @@ export const getWalletAddresses = async (
   count?: number
 ) => {
   try {
+    await ensureWalletSessionFresh();
     // Obtener access_token para Authorization header
     const accessToken = getAccessToken();
     if (!accessToken) {
@@ -738,6 +941,7 @@ export const getWalletUtxos = async (
   minAda?: number
 ) => {
   try {
+    await ensureWalletSessionFresh();
     // Obtener access_token para Authorization header
     const accessToken = getAccessToken();
     if (!accessToken) {
@@ -930,6 +1134,20 @@ export const signAndSubmitTransaction = async (
         toast.error(message);
       }
       return { success: false, data, error: message };
+    }
+
+    // Mostrar última transacción en el card flotante (sin redirigir al historial)
+    try {
+      const { setLastSubmittedTx } = await import('../wallet/PendingTransactionFloatingCard');
+      const res = data as SignAndSubmitTransactionResponse;
+      setLastSubmittedTx({
+        tx_hash: res.tx_hash ?? res.transaction_id ?? '',
+        explorer_url: res.explorer_url,
+        submitted_at: res.submitted_at ?? new Date().toISOString(),
+        title: 'Transacción en proceso',
+      });
+    } catch (_) {
+      // Ignorar si el helper no está disponible
     }
 
     // Respuesta 2xx correcta
@@ -1519,8 +1737,8 @@ export interface MintProtocolPayload {
   oracle_id?: string;
   /** Lista de proyectos (opcional) */
   projects?: any[];
-  /** Lista de hashes de admins del protocolo */
-  protocol_admins: string[];
+  /** Lista de hashes de admins del protocolo (opcional) */
+  protocol_admins?: string[];
   /** Fee del protocolo en lovelace */
   protocol_fee: number;
   /** Dirección de destino (opcional) */
@@ -1575,12 +1793,6 @@ export const mintProtocol = async (
       return { success: false, data: null, error: message };
     }
 
-    if (!Array.isArray(payload.protocol_admins)) {
-      const message = 'protocol_admins debe ser un array';
-      toast.error(message);
-      return { success: false, data: null, error: message };
-    }
-
     const body: {
       oracle_id?: string;
       projects?: any[];
@@ -1588,7 +1800,7 @@ export const mintProtocol = async (
       protocol_fee: number;
       destination_address?: string;
     } = {
-      protocol_admins: payload.protocol_admins,
+      protocol_admins: Array.isArray(payload.protocol_admins) ? payload.protocol_admins : [],
       protocol_fee: payload.protocol_fee,
     };
     if (payload.oracle_id != null && payload.oracle_id !== '') {
@@ -1648,7 +1860,8 @@ export const mintProtocol = async (
 export interface UpdateProtocolPayload {
   oracle_id?: string;
   projects?: any[];
-  protocol_admins: string[];
+  /** Lista de admins del protocolo (opcional) */
+  protocol_admins?: string[];
   protocol_fee: number;
 }
 
@@ -1710,19 +1923,13 @@ export const updateProtocol = async (
       return { success: false, data: null, error: message };
     }
 
-    if (!Array.isArray(payload.protocol_admins)) {
-      const message = 'protocol_admins debe ser un array';
-      toast.error(message);
-      return { success: false, data: null, error: message };
-    }
-
     const body: {
       oracle_id?: string;
       projects?: any[];
       protocol_admins: string[];
       protocol_fee: number;
     } = {
-      protocol_admins: payload.protocol_admins,
+      protocol_admins: Array.isArray(payload.protocol_admins) ? payload.protocol_admins : [],
       protocol_fee: payload.protocol_fee,
     };
 
@@ -1941,6 +2148,96 @@ export const updateProject = async (
   }
 };
 
+// --- Get contract datum (GET contracts/[policyId]/datum) ---
+
+/**
+ * Respuesta exitosa de GET /api/v1/contracts/{policy_id}/datum
+ */
+export interface GetContractDatumResponse {
+  success: true;
+  contract_name: string;
+  contract_type: string;
+  datum: {
+    project_admins?: string[];
+    protocol_fee?: number;
+    oracle_id?: string;
+    projects?: any[];
+    [key: string]: any;
+  };
+  utxo_ref: string;
+  balance_lovelace: number;
+  balance_ada: number;
+  error: string | null;
+}
+
+/**
+ * Obtiene el datum y metadatos del contrato para el policy_id indicado.
+ * Llama a GET /api/contracts/{policyId}/datum.
+ *
+ * @param policyId - Policy ID del contrato (obligatorio)
+ * @returns Objeto con success, data (GetContractDatumResponse) o error
+ */
+export const getContractDatum = async (
+  policyId: string
+): Promise<{
+  success: boolean;
+  data: GetContractDatumResponse | null;
+  error?: string;
+}> => {
+  try {
+    const accessToken = getAccessToken();
+    if (!accessToken) {
+      const message =
+        'No se encontró el token de acceso. Por favor, desbloquea la billetera.';
+      toast.error(message);
+      return { success: false, data: null, error: message };
+    }
+
+    if (!policyId || policyId.trim() === '') {
+      const message = 'policy_id es un parámetro requerido';
+      toast.error(message);
+      return { success: false, data: null, error: message };
+    }
+
+    const response = await fetch(
+      `/api/contracts/${encodeURIComponent(policyId)}/datum`,
+      {
+        method: 'GET',
+        headers: {
+          Authorization: `Bearer ${accessToken}`,
+        },
+      }
+    );
+
+    const data = await response.json();
+
+    if (!response.ok) {
+      const { message } = parseWalletApiError(response, data);
+      toast.error(message);
+      return { success: false, data: null, error: message };
+    }
+
+    if (data?.success !== true) {
+      const message =
+        data?.error || data?.message || 'Error al obtener el datum del contrato';
+      toast.error(message);
+      return { success: false, data: null, error: message };
+    }
+
+    // Aceptar respuesta plana o anidada en data
+    const datumPayload =
+      data && typeof (data as any).data === 'object' && (data as any).data !== null
+        ? (data as any).data
+        : data;
+    return { success: true, data: datumPayload as GetContractDatumResponse };
+  } catch (error: any) {
+    console.error('Error al obtener datum del contrato:', error);
+    const { message } = parseWalletApiError(null, error);
+    toast.error(message);
+    return { success: false, data: null, error: message };
+  }
+};
+
 // --- Mint project (contracts/[policyId]/mint-project) ---
 
 /**
@@ -1949,12 +2246,12 @@ export const updateProject = async (
 export interface MintProjectPayload {
   /** Cantidad de tokens de inversión a mintear */
   investment_tokens: number;
-  /** ID del proyecto en la plataforma principal */
-  project_id: string;
+  /** ID del proyecto en la plataforma principal (opcional) */
+  project_id?: string;
   /** Dirección de destino donde quedará el UTxO del proyecto */
   destination_address: string;
-  /** Lista de stakeholders (participation en lovelace, pkh, stakeholder en hex) */
-  stakeholders: {
+  /** Lista de stakeholders (opcional; participation en lovelace, pkh, stakeholder en hex) */
+  stakeholders?: {
     participation: number;
     pkh: string;
     stakeholder: string;
@@ -2009,19 +2306,10 @@ export const mintProject = async (
       return { success: false, data: null, error: message };
     }
 
-    if (
-      !Array.isArray(payload.stakeholders) ||
-      payload.stakeholders.length === 0
-    ) {
-      const message = 'Debe haber al menos un stakeholder';
-      toast.error(message);
-      return { success: false, data: null, error: message };
-    }
-
     const body = {
       investment_tokens: payload.investment_tokens,
-      project_id: payload.project_id,
-      stakeholders: payload.stakeholders,
+      project_id: payload.project_id ?? '',
+      stakeholders: Array.isArray(payload.stakeholders) ? payload.stakeholders : [],
       destination_address: payload.destination_address,
     };
 
@@ -2061,4 +2349,237 @@ export const mintProject = async (
   }
 };
 
+// --- Burn protocol (contracts/burn-protocol) ---
+
+export interface BurnProtocolPayload {
+  /** policy_id del protocolo a quemar (minting de protocolo) */
+  protocol_nfts_policy_id: string;
+}
+
+export interface BurnProtocolResponse {
+  fee_lovelace: number;
+  inputs: any[];
+  minting_policy_id: string;
+  outputs: any[];
+  protocol_contract_address: string;
+  protocol_token_name: string;
+  success: true;
+  transaction_id: string;
+  tx_cbor: string;
+  user_token_name: string;
+}
+
+/**
+ * Quita (burn) los tokens de un protocolo dado su policy_id.
+ * Llama a POST /api/contracts/burn-protocol con protocol_nfts_policy_id.
+ */
+export const burnProtocol = async (
+  payload: BurnProtocolPayload
+): Promise<{
+  success: boolean;
+  data: BurnProtocolResponse | null;
+  error?: string;
+}> => {
+  try {
+    const accessToken = getAccessToken();
+    if (!accessToken) {
+      const message =
+        'No se encontró el token de acceso. Por favor, desbloquea la billetera.';
+      toast.error(message);
+      return { success: false, data: null, error: message };
+    }
+
+    if (
+      !payload.protocol_nfts_policy_id ||
+      payload.protocol_nfts_policy_id.trim() === ''
+    ) {
+      const message = 'protocol_nfts_policy_id es un parámetro requerido';
+      toast.error(message);
+      return { success: false, data: null, error: message };
+    }
+
+    const body = {
+      protocol_nfts_policy_id: payload.protocol_nfts_policy_id,
+    };
+
+    const response = await fetch('/api/contracts/burn-protocol', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        Authorization: `Bearer ${accessToken}`,
+      },
+      body: JSON.stringify(body),
+    });
+
+    const data = await response.json();
+
+    if (!response.ok) {
+      const { message } = parseWalletApiError(response, data);
+      toast.error(message);
+      return { success: false, data: null, error: message };
+    }
+
+    if (data?.success !== true) {
+      const message =
+        data?.error || data?.message || 'Error al quemar el protocolo';
+      toast.error(message);
+      return { success: false, data: null, error: message };
+    }
+
+    return { success: true, data: data as BurnProtocolResponse };
+  } catch (error: any) {
+    console.error('Error al quemar protocolo:', error);
+    const { message } = parseWalletApiError(null, error);
+    toast.error(message);
+    return { success: false, data: null, error: message };
+  }
+};
+
+// --- Burn project (contracts/burn-project) ---
+
+export interface BurnProjectPayload {
+  /** policy_id del proyecto a quemar (minting de proyecto) */
+  project_nfts_policy_id: string;
+}
+
+export interface BurnProjectResponse {
+  fee_lovelace: number;
+  inputs: any[];
+  minting_policy_id: string;
+  outputs: any[];
+  project_contract_address: string;
+  project_token_name: string;
+  success: true;
+  transaction_id: string;
+  tx_cbor: string;
+  user_token_name: string;
+}
+
+/**
+ * Quita (burn) los tokens de un proyecto dado su policy_id.
+ * Llama a POST /api/contracts/burn-project con project_nfts_policy_id.
+ */
+export const burnProject = async (
+  payload: BurnProjectPayload
+): Promise<{
+  success: boolean;
+  data: BurnProjectResponse | null;
+  error?: string;
+}> => {
+  try {
+    const accessToken = getAccessToken();
+    if (!accessToken) {
+      const message =
+        'No se encontró el token de acceso. Por favor, desbloquea la billetera.';
+      toast.error(message);
+      return { success: false, data: null, error: message };
+    }
+
+    if (
+      !payload.project_nfts_policy_id ||
+      payload.project_nfts_policy_id.trim() === ''
+    ) {
+      const message = 'project_nfts_policy_id es un parámetro requerido';
+      toast.error(message);
+      return { success: false, data: null, error: message };
+    }
+
+    const body = {
+      project_nfts_policy_id: payload.project_nfts_policy_id,
+    };
+
+    const response = await fetch('/api/contracts/burn-project', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        Authorization: `Bearer ${accessToken}`,
+      },
+      body: JSON.stringify(body),
+    });
+
+    const data = await response.json();
+
+    if (!response.ok) {
+      const { message } = parseWalletApiError(response, data);
+      toast.error(message);
+      return { success: false, data: null, error: message };
+    }
+
+    if (data?.success !== true) {
+      const message =
+        data?.error || data?.message || 'Error al quemar el proyecto';
+      toast.error(message);
+      return { success: false, data: null, error: message };
+    }
+
+    return { success: true, data: data as BurnProjectResponse };
+  } catch (error: any) {
+    console.error('Error al quemar proyecto:', error);
+    const { message } = parseWalletApiError(null, error);
+    toast.error(message);
+    return { success: false, data: null, error: message };
+  }
+};
+
+// --- Delete contract (DELETE /api/contracts/{policy_id}) ---
+
+/**
+ * Elimina un contrato por policy_id (DELETE /api/contracts/{policy_id}).
+ * No muestra toasts; el llamador debe mostrar éxito/error.
+ */
+export const deleteContract = async (
+  policyId: string
+): Promise<{ success: boolean; error?: string }> => {
+  try {
+    const accessToken = getAccessToken();
+    if (!accessToken) {
+      return {
+        success: false,
+        error: 'No se encontró el token de acceso. Por favor, desbloquea la billetera.',
+      };
+    }
+
+    if (!policyId || policyId.trim() === '') {
+      return { success: false, error: 'policy_id es requerido' };
+    }
+
+    const response = await fetch(
+      `/api/contracts/${encodeURIComponent(policyId.trim())}`,
+      {
+        method: 'DELETE',
+        headers: {
+          'Content-Type': 'application/json',
+          Authorization: `Bearer ${accessToken}`,
+        },
+      }
+    );
+
+    const text = await response.text();
+    const data = text ? (() => { try { return JSON.parse(text); } catch { return { raw: text }; } })() : null;
+
+    if (!response.ok) {
+      const msg =
+        data?.error ||
+        data?.details?.[0]?.message ||
+        (response.status === 422 && data?.detail?.[0]?.msg) ||
+        'Error al eliminar el contrato';
+      return { success: false, error: msg };
+    }
+
+    if (data?.success === false) {
+      return {
+        success: false,
+        error: data?.error || data?.message || 'Error al eliminar el contrato',
+      };
+    }
+
+    return { success: true };
+  } catch (error: any) {
+    console.error('Error al eliminar contrato:', error);
+    return {
+      success: false,
+      error: error?.message || 'Error al eliminar el contrato',
+    };
+  }
+};
 
