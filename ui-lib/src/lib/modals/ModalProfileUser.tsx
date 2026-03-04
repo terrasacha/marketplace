@@ -13,14 +13,17 @@ interface ModalProfileUserProps {
   walletInfo: any;
 }
 const ModalProfileUser = (props: ModalProfileUserProps) => {
-  const { handleClearData, walletID } = useContext<any>(WalletContext);
+  const { handleClearData, walletID, walletData: contextWalletData, walletName: contextWalletName } = useContext<any>(WalletContext);
   /* const { disconnect } = useWallet(); */
 
   const { closeModal, walletInfo, openDeleteModal } = props;
   const { Canvas } = useQRCode();
   const [copied, setCopied] = useState<boolean>(false);
   const router = useRouter();
-  const walletChar = walletInfo.name.charAt(0).toUpperCase();
+  // Usar billetera activa del contexto al cambiar de billetera; fallback a props
+  const displayAddr = contextWalletData?.address ?? walletInfo?.addr ?? '';
+  const displayName = contextWalletName ?? walletInfo?.name ?? '';
+  const walletChar = (displayName && displayName.charAt(0).toUpperCase()) || '';
   const modalRef = useRef(null);
 
   useEffect(() => {
@@ -91,17 +94,15 @@ const ModalProfileUser = (props: ModalProfileUserProps) => {
             className={`relative ${colorByLetter[walletChar]} text-white font-normal rounded-lg w-10 h-10`}
           >
             <p className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2">
-              {walletInfo.name.charAt(0).toUpperCase() || ''}
+              {walletChar || ''}
             </p>
           </div>
           {!copied ? (
             <p
               className="text-xs font-normal text-gray-500 w-3/5  break-words text-left pt-2 cursor-pointer"
-              onClick={() => copyToClipboard(walletInfo.addr)}
+              onClick={() => copyToClipboard(displayAddr)}
             >
-              {`${walletInfo.addr.slice(0, 20)}...${walletInfo.addr.slice(
-                -10
-              )}` || ''}
+              {displayAddr ? `${displayAddr.slice(0, 20)}...${displayAddr.slice(-10)}` : ''}
             </p>
           ) : (
             <p className="text-xs font-semibold text-emerald-600 w-3/5  break-words text-left pt-2 cursor-pointer animate-fade animate-infinite animate-ease-out animate-alternate animate-duration-1000">
@@ -133,7 +134,7 @@ const ModalProfileUser = (props: ModalProfileUserProps) => {
         </div>
         <div className="w-full flex flex-col items-center justify-center pb-4 pt-2">
           <Canvas
-            text={`${walletInfo.addr}` || 'loading'}
+            text={displayAddr || 'loading'}
             options={{
               errorCorrectionLevel: 'M',
               margin: 5,
@@ -149,7 +150,7 @@ const ModalProfileUser = (props: ModalProfileUserProps) => {
             Scan this code with multisig wallet mobile app to sign Transaction
             with mobile device
           </p>
-          {!walletInfo.externalWallet ? (
+          {!(walletInfo?.externalWallet) ? (
             <button
               onClick={async () => {
                 try {

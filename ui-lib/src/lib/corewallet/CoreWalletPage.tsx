@@ -24,9 +24,15 @@ import {
   deployReferenceScript,
   promoteWallet,
   unpromoteWallet,
+  getContractDatum,
+  burnProtocol,
+  burnProject,
+  deleteContract,
   type CompileProtocolResponse,
+  type GetContractDatumResponse,
   getWalletUtxos,
 } from '../common/walletApi';
+import { TRANSACTION_CONFIRMED_EVENT } from '../wallet/PendingTransactionFloatingCard';
 
 // Función helper para obtener access token (wallet_session en localStorage)
 const getAccessToken = (): string | null => {
@@ -177,6 +183,15 @@ const getCompilationParamsFromContract = (c: any): string[] => {
   return [];
 };
 
+/** Extrae la dirección testnet del contrato (testnet_address o testnetAddr, string u objeto con .address) */
+const getTestnetAddressFromContract = (c: any): string | null => {
+  if (!c) return null;
+  const raw = c.testnet_address ?? c.testnetAddr;
+  if (typeof raw === 'string' && raw.trim()) return raw.trim();
+  if (raw && typeof (raw as any).address === 'string') return (raw as any).address.trim();
+  return null;
+};
+
 const getContractTypeFromContract = (c: any): string | null => {
   // en available viene como "minting" o "spending" (lo vamos a inyectar como contract_type)
   return c?.contract_type || c?.contractType || c?.type || null;
@@ -209,28 +224,39 @@ type AvailableContractsByType = {
 function MintProtocolFormContent(props: {
   policyIdLabel: string;
   onClose: () => void;
-  onSubmit: (formData: { protocol_admins: string[]; protocol_fee: number; destination_address?: string }) => void;
+  onSubmit: (formData: { protocol_admins?: string[]; protocol_fee: number; destination_address?: string }) => void;
   loading: boolean;
   colors: { fuente: string; bgColor: string; hoverBgColor: string };
 }) {
-  const [protocolAdmins, setProtocolAdmins] = useState('');
+  const [adminsList, setAdminsList] = useState<string[]>([]);
+  const [newAdminInput, setNewAdminInput] = useState('');
   const [protocolFee, setProtocolFee] = useState('');
   const [protocolDestinationAddress, setProtocolDestinationAddress] = useState('');
   const { onClose, onSubmit, loading, colors } = props;
 
-  const handleSubmit = () => {
-    const adminsParsed = protocolAdmins.split(/[\n,]+/).map((s) => s.trim()).filter(Boolean);
-    if (adminsParsed.length === 0) {
-      toast.error('Ingresa al menos un admin (hash) en protocol_admins.');
+  const addAdmin = () => {
+    const value = newAdminInput.trim();
+    if (!value) return;
+    if (adminsList.includes(value)) {
+      setNewAdminInput('');
       return;
     }
+    setAdminsList((prev) => [...prev, value]);
+    setNewAdminInput('');
+  };
+
+  const removeAdmin = (index: number) => {
+    setAdminsList((prev) => prev.filter((_, i) => i !== index));
+  };
+
+  const handleSubmit = () => {
     const feeNum = parseInt(protocolFee, 10);
     if (Number.isNaN(feeNum) || feeNum < 0) {
       toast.error('protocol_fee debe ser un número válido (lovelace).');
       return;
     }
     onSubmit({
-      protocol_admins: adminsParsed,
+      protocol_admins: adminsList,
       protocol_fee: feeNum,
       destination_address: protocolDestinationAddress.trim() || undefined,
     });
@@ -240,14 +266,54 @@ function MintProtocolFormContent(props: {
     <>
       <Modal.Body className="space-y-4 pt-4">
         <div>
-          <label className="block mb-1 text-sm font-medium text-gray-700">protocol_admins (un hash por línea o separados por coma)</label>
-          <textarea
-            className="w-full border border-gray-300 rounded-lg p-2 text-sm font-mono focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
-            rows={3}
-            placeholder="hash1, hash2"
-            value={protocolAdmins}
-            onChange={(e) => setProtocolAdmins(e.target.value)}
-          />
+          <label className="block mb-1 text-sm font-medium text-gray-700">protocol_admins (opcional)</label>
+          <div className="w-full border border-gray-300 rounded-lg p-2 min-h-[52px] bg-white focus-within:ring-2 focus-within:ring-blue-500 focus-within:border-blue-500">
+            <div className="flex flex-wrap gap-2 mb-2">
+              {adminsList.map((admin, index) => (
+                <span
+                  key={`${admin}-${index}`}
+                  className="inline-flex items-center gap-1 pl-2.5 pr-1 py-1 rounded-md bg-blue-50 text-blue-800 text-xs font-mono border border-blue-200"
+                >
+                  <span className="max-w-[140px] truncate" title={admin}>
+                    {admin}
+                  </span>
+                  <button
+                    type="button"
+                    onClick={() => removeAdmin(index)}
+                    className="p-0.5 rounded hover:bg-blue-200/80 text-blue-600 hover:text-blue-900 focus:outline-none focus:ring-1 focus:ring-blue-400"
+                    aria-label="Eliminar admin"
+                  >
+                    <svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+                    </svg>
+                  </button>
+                </span>
+              ))}
+            </div>
+            <div className="flex gap-2">
+              <input
+                type="text"
+                className="flex-1 min-w-0 border-0 p-1.5 text-sm font-mono focus:ring-0 focus:outline-none"
+                placeholder="Agregar admin (hash)..."
+                value={newAdminInput}
+                onChange={(e) => setNewAdminInput(e.target.value)}
+                onKeyDown={(e) => {
+                  if (e.key === 'Enter') {
+                    e.preventDefault();
+                    addAdmin();
+                  }
+                }}
+              />
+              <button
+                type="button"
+                onClick={addAdmin}
+                disabled={!newAdminInput.trim()}
+                className="shrink-0 px-3 py-1.5 text-xs font-medium rounded border border-gray-300 text-gray-700 bg-gray-50 hover:bg-gray-100 disabled:opacity-50 disabled:cursor-not-allowed"
+              >
+                Agregar
+              </button>
+            </div>
+          </div>
         </div>
         <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
           <div>
@@ -317,43 +383,22 @@ function MintProjectFormContent(props: {
       toast.error('investment_tokens debe ser un número entero positivo.');
       return;
     }
-    const participationNum = parseInt(stakeholderParticipation, 10);
-    if (Number.isNaN(participationNum) || participationNum <= 0) {
-      toast.error('La participación del stakeholder debe ser un número entero positivo.');
-      return;
-    }
     const projId = projectId.trim();
-    if (!projId) {
-      toast.error('project_id es un parámetro requerido.');
-      return;
-    }
     const destAddr = destinationAddress.trim();
-    if (!destAddr) {
-      toast.error('destination_address es un parámetro requerido.');
-      return;
-    }
+
+    const stakeholders: { participation: number; pkh: string; stakeholder: string }[] = [];
     const pkh = stakeholderPkh.trim();
-    if (!pkh) {
-      toast.error('pkh del stakeholder es requerido.');
-      return;
-    }
     const stakeholder = stakeholderHex.trim();
-    if (!stakeholder) {
-      toast.error('stakeholder (nombre en hex) es requerido.');
-      return;
+    const participationNum = parseInt(stakeholderParticipation, 10);
+    if (pkh && stakeholder && !Number.isNaN(participationNum) && participationNum > 0) {
+      stakeholders.push({ participation: participationNum, pkh, stakeholder });
     }
 
     onSubmit({
       investment_tokens: invTokensNum,
       project_id: projId,
       destination_address: destAddr,
-      stakeholders: [
-        {
-          participation: participationNum,
-          pkh,
-          stakeholder,
-        },
-      ],
+      stakeholders,
     });
   };
 
@@ -378,7 +423,7 @@ function MintProjectFormContent(props: {
           </div>
           <div>
             <label className="block mb-1 text-sm font-medium text-gray-700">
-              project_id
+              project_id (opcional)
             </label>
             <input
               type="text"
@@ -402,9 +447,12 @@ function MintProjectFormContent(props: {
           />
         </div>
         <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
+          <p className="sm:col-span-3 text-xs text-gray-500">
+            Stakeholders (opcional): si completas los tres campos se agregará uno; si los dejas vacíos se minteará sin stakeholders.
+          </p>
           <div>
             <label className="block mb-1 text-sm font-medium text-gray-700">
-              Stakeholder pkh
+              Stakeholder pkh (opcional)
             </label>
             <input
               type="text"
@@ -416,7 +464,7 @@ function MintProjectFormContent(props: {
           </div>
           <div>
             <label className="block mb-1 text-sm font-medium text-gray-700">
-              Participación (lovelace)
+              Participación (lovelace, opcional)
             </label>
             <input
               type="text"
@@ -428,7 +476,7 @@ function MintProjectFormContent(props: {
           </div>
           <div>
             <label className="block mb-1 text-sm font-medium text-gray-700">
-              stakeholder (nombre en hex)
+              stakeholder (nombre en hex, opcional)
             </label>
             <input
               type="text"
@@ -480,15 +528,41 @@ function UpdateProtocolFormContent(props: {
   onSubmit: (formData: {
     oracle_id: string;
     protocol_fee: number;
-    protocol_admins: string[];
+    protocol_admins?: string[];
   }) => void;
   loading: boolean;
   colors: { fuente: string; bgColor: string; hoverBgColor: string };
+  /** Datum actual del contrato (project_admins = protocol_admins en backend) para pre-rellenar el formulario */
+  initialDatum?: { oracle_id?: string; protocol_fee?: number; project_admins?: string[] };
 }) {
-  const { onClose, onSubmit, loading, colors } = props;
-  const [oracleId, setOracleId] = useState('');
-  const [protocolFee, setProtocolFee] = useState('');
-  const [adminsRaw, setAdminsRaw] = useState('');
+  const { onClose, onSubmit, loading, colors, initialDatum } = props;
+  const [oracleId, setOracleId] = useState(initialDatum?.oracle_id ?? '');
+  const [protocolFee, setProtocolFee] = useState(String(initialDatum?.protocol_fee ?? ''));
+  const [adminsList, setAdminsList] = useState<string[]>(initialDatum?.project_admins ?? []);
+  const [newAdminInput, setNewAdminInput] = useState('');
+
+  useEffect(() => {
+    if (initialDatum) {
+      setOracleId(initialDatum.oracle_id ?? '');
+      setProtocolFee(String(initialDatum.protocol_fee ?? ''));
+      setAdminsList(initialDatum.project_admins ?? []);
+    }
+  }, [initialDatum]);
+
+  const addAdmin = () => {
+    const value = newAdminInput.trim();
+    if (!value) return;
+    if (adminsList.includes(value)) {
+      setNewAdminInput('');
+      return;
+    }
+    setAdminsList((prev) => [...prev, value]);
+    setNewAdminInput('');
+  };
+
+  const removeAdmin = (index: number) => {
+    setAdminsList((prev) => prev.filter((_, i) => i !== index));
+  };
 
   const handleSubmit = () => {
     const feeNum = parseInt(protocolFee, 10);
@@ -496,18 +570,10 @@ function UpdateProtocolFormContent(props: {
       toast.error('protocol_fee debe ser un número entero positivo (en lovelace).');
       return;
     }
-    const admins = adminsRaw
-      .split('\n')
-      .map((l) => l.trim())
-      .filter((l) => l.length > 0);
-    if (admins.length === 0) {
-      toast.error('Debes indicar al menos un protocol_admin (uno por línea).');
-      return;
-    }
     onSubmit({
       oracle_id: oracleId.trim(),
       protocol_fee: feeNum,
-      protocol_admins: admins,
+      protocol_admins: adminsList,
     });
   };
 
@@ -542,16 +608,57 @@ function UpdateProtocolFormContent(props: {
               onChange={(e) => setProtocolFee(e.target.value)}
             />
           </div>
-          <div>
+          <div className="sm:col-span-2">
             <label className="block mb-1 text-sm font-medium text-gray-700">
-              protocol_admins (uno por línea)
+              protocol_admins (opcional)
             </label>
-            <textarea
-              className="w-full border border-gray-300 rounded-lg p-2 text-sm font-mono focus:ring-2 focus:ring-blue-500 focus:border-blue-500 min-h-[96px]"
-              placeholder="fe2d2b5b..."
-              value={adminsRaw}
-              onChange={(e) => setAdminsRaw(e.target.value)}
-            />
+            <div className="w-full border border-gray-300 rounded-lg p-2 min-h-[52px] bg-white focus-within:ring-2 focus-within:ring-blue-500 focus-within:border-blue-500">
+              <div className="flex flex-wrap gap-2 mb-2">
+                {adminsList.map((admin, index) => (
+                  <span
+                    key={`${admin}-${index}`}
+                    className="inline-flex items-center gap-1 pl-2.5 pr-1 py-1 rounded-md bg-blue-50 text-blue-800 text-xs font-mono border border-blue-200"
+                  >
+                    <span className="max-w-[140px] truncate" title={admin}>
+                      {admin}
+                    </span>
+                    <button
+                      type="button"
+                      onClick={() => removeAdmin(index)}
+                      className="p-0.5 rounded hover:bg-blue-200/80 text-blue-600 hover:text-blue-900 focus:outline-none focus:ring-1 focus:ring-blue-400"
+                      aria-label="Eliminar admin"
+                    >
+                      <svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+                      </svg>
+                    </button>
+                  </span>
+                ))}
+              </div>
+              <div className="flex gap-2">
+                <input
+                  type="text"
+                  className="flex-1 min-w-0 border-0 p-1.5 text-sm font-mono focus:ring-0 focus:outline-none"
+                  placeholder="Agregar admin (hash)..."
+                  value={newAdminInput}
+                  onChange={(e) => setNewAdminInput(e.target.value)}
+                  onKeyDown={(e) => {
+                    if (e.key === 'Enter') {
+                      e.preventDefault();
+                      addAdmin();
+                    }
+                  }}
+                />
+                <button
+                  type="button"
+                  onClick={addAdmin}
+                  disabled={!newAdminInput.trim()}
+                  className="shrink-0 px-3 py-1.5 text-xs font-medium rounded border border-gray-300 text-gray-700 bg-gray-50 hover:bg-gray-100 disabled:opacity-50 disabled:cursor-not-allowed"
+                >
+                  Agregar
+                </button>
+              </div>
+            </div>
           </div>
           <div className="sm:col-span-2">
             <div className="bg-gray-50 border border-dashed border-gray-300 rounded-md p-2 text-[11px] text-gray-600 flex flex-col gap-1">
@@ -587,6 +694,13 @@ function UpdateProtocolFormContent(props: {
   );
 }
 
+type ProjectDatumForForm = {
+  params?: { project_id?: string; project_metadata?: string; project_state?: number };
+  project_token?: { policy_id?: string; token_name?: string; total_supply?: number };
+  certifications?: Array<{ certification_date?: number; quantity?: number; real_certification_date?: number; real_quantity?: number }>;
+  stakeholders?: Array<{ pkh?: string; stakeholder?: string; participation?: number }>;
+};
+
 function UpdateProjectFormContent(props: {
   projectNameLabel: string;
   policyIdLabel: string;
@@ -609,23 +723,59 @@ function UpdateProjectFormContent(props: {
   }) => void;
   loading: boolean;
   colors: { fuente: string; bgColor: string; hoverBgColor: string };
+  /** Datum actual del contrato de proyecto para pre-rellenar el formulario */
+  initialDatum?: ProjectDatumForForm;
 }) {
-  const { onClose, onSubmit, loading, colors } = props;
-  const [projectId, setProjectId] = useState('');
-  const [projectMetadata, setProjectMetadata] = useState('');
-  const [projectState, setProjectState] = useState('');
-  const [projectTokenName, setProjectTokenName] = useState('');
+  const { onClose, onSubmit, loading, colors, initialDatum } = props;
+  const p = initialDatum?.params;
+  const pt = initialDatum?.project_token;
+  const cert0 = initialDatum?.certifications?.[0];
+  const stake0 = initialDatum?.stakeholders?.[0];
+  const [projectId, setProjectId] = useState(p?.project_id ?? '');
+  const [projectMetadata, setProjectMetadata] = useState(p?.project_metadata ?? '');
+  const [projectState, setProjectState] = useState(String(p?.project_state ?? ''));
+  const [projectTokenName, setProjectTokenName] = useState(pt?.token_name ?? '');
   const [projectTokenPolicyId, setProjectTokenPolicyId] = useState(
-    props.defaultProjectTokenPolicyId || ''
+    pt?.policy_id ?? props.defaultProjectTokenPolicyId ?? ''
   );
-  const [totalSupply, setTotalSupply] = useState('');
-  const [certificationDate, setCertificationDate] = useState('');
-  const [quantity, setQuantity] = useState('');
-  const [realCertificationDate, setRealCertificationDate] = useState('');
-  const [realQuantity, setRealQuantity] = useState('');
-  const [stakeholderPkh, setStakeholderPkh] = useState('');
-  const [stakeholderParticipation, setStakeholderParticipation] = useState('');
-  const [stakeholderHex, setStakeholderHex] = useState('');
+  const [totalSupply, setTotalSupply] = useState(String(pt?.total_supply ?? ''));
+  const [certificationDate, setCertificationDate] = useState(String(cert0?.certification_date ?? ''));
+  const [quantity, setQuantity] = useState(String(cert0?.quantity ?? ''));
+  const [realCertificationDate, setRealCertificationDate] = useState(String(cert0?.real_certification_date ?? ''));
+  const [realQuantity, setRealQuantity] = useState(String(cert0?.real_quantity ?? ''));
+  const [stakeholderPkh, setStakeholderPkh] = useState(stake0?.pkh ?? '');
+  const [stakeholderParticipation, setStakeholderParticipation] = useState(String(stake0?.participation ?? ''));
+  const [stakeholderHex, setStakeholderHex] = useState(stake0?.stakeholder ?? '');
+
+  useEffect(() => {
+    if (initialDatum) {
+      const p0 = initialDatum.params;
+      const pt0 = initialDatum.project_token;
+      const c0 = initialDatum.certifications?.[0];
+      const s0 = initialDatum.stakeholders?.[0];
+      if (p0) {
+        setProjectId(p0.project_id ?? '');
+        setProjectMetadata(p0.project_metadata ?? '');
+        setProjectState(String(p0.project_state ?? ''));
+      }
+      if (pt0) {
+        setProjectTokenName(pt0.token_name ?? '');
+        setProjectTokenPolicyId(pt0.policy_id ?? props.defaultProjectTokenPolicyId ?? '');
+        setTotalSupply(String(pt0.total_supply ?? ''));
+      }
+      if (c0) {
+        setCertificationDate(String(c0.certification_date ?? ''));
+        setQuantity(String(c0.quantity ?? ''));
+        setRealCertificationDate(String(c0.real_certification_date ?? ''));
+        setRealQuantity(String(c0.real_quantity ?? ''));
+      }
+      if (s0) {
+        setStakeholderPkh(s0.pkh ?? '');
+        setStakeholderParticipation(String(s0.participation ?? ''));
+        setStakeholderHex(s0.stakeholder ?? '');
+      }
+    }
+  }, [initialDatum, props.defaultProjectTokenPolicyId]);
 
   const handleSubmit = () => {
     const projId = projectId.trim();
@@ -980,6 +1130,7 @@ export default function CoreWallet(props: any) {
   const lastMintPolicyIdRef = useRef<string | null>(null);
   const [mintedProjectPolicyIds, setMintedProjectPolicyIds] = useState<Set<string>>(new Set());
   const lastMintProjectPolicyIdRef = useRef<string | null>(null);
+  const pendingDeleteAfterSignRef = useRef<{ policyIdToDelete: string; burnTxId: string } | null>(null);
   const [updateProtocolModalPolicyId, setUpdateProtocolModalPolicyId] = useState<string | null>(null);
   const [updateProtocolLoading, setUpdateProtocolLoading] = useState(false);
   // Crear contrato de proyecto a partir de un protocolo minteado
@@ -997,6 +1148,14 @@ export default function CoreWallet(props: any) {
   const [mintProjectLoadingPolicyId, setMintProjectLoadingPolicyId] = useState<string | null>(null);
   const [updateProjectModalContract, setUpdateProjectModalContract] = useState<any | null>(null);
   const [updateProjectLoadingPolicyId, setUpdateProjectLoadingPolicyId] = useState<string | null>(null);
+  // Datum del contrato spending (protocolo): por policy_id (carga al listar) y modal para detalle
+  const [datumByPolicyId, setDatumByPolicyId] = useState<
+    Record<string, { data: GetContractDatumResponse | null; loading: boolean; error: string | null }>
+  >({});
+  const [datumModalSpendingPolicyId, setDatumModalSpendingPolicyId] = useState<string | null>(null);
+  const [datumLoading, setDatumLoading] = useState(false);
+  const [datumData, setDatumData] = useState<GetContractDatumResponse | null>(null);
+  const [datumError, setDatumError] = useState<string | null>(null);
   // Core wallet management: wallet_id arbitrario que se quiere promover / despromover
   const [coreWalletIdInput, setCoreWalletIdInput] = useState<string>('');
 
@@ -1010,6 +1169,43 @@ export default function CoreWallet(props: any) {
       }
     }
   }, [walletData])
+
+  // Al abrir el modal de datum, usar dato ya cargado o cargar bajo demanda
+  useEffect(() => {
+    if (!datumModalSpendingPolicyId) {
+      setDatumData(null);
+      setDatumError(null);
+      return;
+    }
+    const cached = datumByPolicyId[datumModalSpendingPolicyId];
+    if (cached?.data) {
+      setDatumData(cached.data);
+      setDatumError(null);
+      setDatumLoading(false);
+      return;
+    }
+    if (cached?.error) {
+      setDatumData(null);
+      setDatumError(cached.error);
+      setDatumLoading(false);
+      return;
+    }
+    let cancelled = false;
+    setDatumLoading(true);
+    setDatumError(null);
+    getContractDatum(datumModalSpendingPolicyId).then((result) => {
+      if (cancelled) return;
+      setDatumLoading(false);
+      if (result.success && result.data) {
+        setDatumData(result.data);
+        setDatumError(null);
+      } else {
+        setDatumData(null);
+        setDatumError(result.error || 'Error al obtener el datum');
+      }
+    });
+    return () => { cancelled = true; };
+  }, [datumModalSpendingPolicyId, datumByPolicyId]);
 
   const getWalletBalanceByAddress = async (address: any) => {
     const balanceFetchResponse = await fetch(
@@ -1102,18 +1298,42 @@ export default function CoreWallet(props: any) {
   };
 
   const handleOpenSignTransactionModal = (signStatus?: boolean) => {
-  if (signStatus === true) {
-    if (lastMintPolicyIdRef.current) {
-      setMintedProtocolPolicyIds((prev) => new Set(prev).add(lastMintPolicyIdRef.current!));
-      lastMintPolicyIdRef.current = null;
+    if (signStatus === true) {
+      if (lastMintPolicyIdRef.current) {
+        setMintedProtocolPolicyIds((prev) => new Set(prev).add(lastMintPolicyIdRef.current!));
+        lastMintPolicyIdRef.current = null;
+      }
+      if (lastMintProjectPolicyIdRef.current) {
+        setMintedProjectPolicyIds((prev) => new Set(prev).add(lastMintProjectPolicyIdRef.current!));
+        lastMintProjectPolicyIdRef.current = null;
+      }
+      // No llamar DELETE aquí: se ejecutará cuando la tx de burn esté confirmada (TRANSACTION_CONFIRMED_EVENT)
+    } else {
+      pendingDeleteAfterSignRef.current = null;
     }
-    if (lastMintProjectPolicyIdRef.current) {
-      setMintedProjectPolicyIds((prev) => new Set(prev).add(lastMintProjectPolicyIdRef.current!));
-      lastMintProjectPolicyIdRef.current = null;
-    }
-  }
     setSignTransactionModal((open) => !open);
   };
+
+  // Cuando la tx de burn se confirma en blockchain, ejecutar DELETE del contrato
+  useEffect(() => {
+    const onTransactionConfirmed = (e: Event) => {
+      const txHash = (e as CustomEvent<{ tx_hash?: string }>)?.detail?.tx_hash;
+      const pending = pendingDeleteAfterSignRef.current;
+      if (!pending || !txHash || pending.burnTxId !== txHash) return;
+      pendingDeleteAfterSignRef.current = null;
+      (async () => {
+        const result = await deleteContract(pending.policyIdToDelete);
+        if (result.success) {
+          toast.success('Contrato eliminado correctamente.');
+          await refreshContracts(true);
+        } else {
+          toast.error(result.error || 'Error al eliminar el contrato');
+        }
+      })();
+    };
+    window.addEventListener(TRANSACTION_CONFIRMED_EVENT, onTransactionConfirmed);
+    return () => window.removeEventListener(TRANSACTION_CONFIRMED_EVENT, onTransactionConfirmed);
+  }, []);
 
   const handleSendTransaction = async () => {
     setIsLoading((prevState: any) => ({
@@ -1289,15 +1509,15 @@ export default function CoreWallet(props: any) {
 
   const handleMintProtocol = async (
     policyIdFromRow?: string,
-    formData?: { protocol_admins: string[]; protocol_fee: number; destination_address?: string }
+    formData?: { protocol_admins?: string[]; protocol_fee: number; destination_address?: string }
   ) => {
     const policyId = policyIdFromRow ?? selectedProtocolPolicyId ?? protocolCompileResult?.protocol_nfts?.policy_id;
     if (!policyId) {
       toast.error('Selecciona un contrato protocolo (policy_id) para mintear.');
       return;
     }
-    if (!formData || formData.protocol_admins.length === 0) {
-      toast.error('Ingresa al menos un admin (hash) en protocol_admins.');
+    if (!formData) {
+      toast.error('Completa el formulario (protocol_fee es obligatorio).');
       return;
     }
     const feeNum = formData.protocol_fee;
@@ -1308,7 +1528,7 @@ export default function CoreWallet(props: any) {
     setProtocolMintLoading(true);
     try {
       const result = await mintProtocol(policyId, {
-        protocol_admins: formData.protocol_admins,
+        protocol_admins: formData.protocol_admins ?? [],
         protocol_fee: feeNum,
         destination_address: formData.destination_address,
       });
@@ -1333,7 +1553,9 @@ export default function CoreWallet(props: any) {
         });
         setSignType('sendTransaction');
         setSignTransactionModal(true);
-        toast.success('Transacción construida. Revisa el detalle y firma en el modal.');
+        // Cerrar modal de minteo de protocolo tras construir la transacción
+        setSelectedProtocolPolicyId(null);
+        setProtocolCompileResult(null);
       }
     } finally {
       setProtocolMintLoading(false);
@@ -1385,7 +1607,6 @@ export default function CoreWallet(props: any) {
         });
         setSignType('sendTransaction');
         setSignTransactionModal(true);
-        toast.success('Transacción de mint de proyecto construida. Revisa el detalle y firma en el modal.');
       }
     } finally {
       setMintProjectLoadingPolicyId(null);
@@ -1397,7 +1618,7 @@ export default function CoreWallet(props: any) {
     formData: {
       oracle_id: string;
       protocol_fee: number;
-      protocol_admins: string[];
+      protocol_admins?: string[];
     }
   ) => {
     setUpdateProtocolLoading(true);
@@ -1405,7 +1626,7 @@ export default function CoreWallet(props: any) {
       const result = await updateProtocol(protocolPolicyId, {
         oracle_id: formData.oracle_id,
         projects: [],
-        protocol_admins: formData.protocol_admins,
+        protocol_admins: formData.protocol_admins ?? [],
         protocol_fee: formData.protocol_fee,
       });
       if (result.success && result.data) {
@@ -1427,7 +1648,6 @@ export default function CoreWallet(props: any) {
         });
         setSignType('sendTransaction');
         setSignTransactionModal(true);
-        toast.success('Transacción de actualización de protocolo construida. Revisa el detalle y firma en el modal.');
       }
     } finally {
       setUpdateProtocolLoading(false);
@@ -1505,7 +1725,6 @@ export default function CoreWallet(props: any) {
         });
         setSignType('sendTransaction');
         setSignTransactionModal(true);
-        toast.success('Transacción de actualización de proyecto construida. Revisa el detalle y firma en el modal.');
       }
     } finally {
       setUpdateProjectLoadingPolicyId(null);
@@ -1579,7 +1798,6 @@ export default function CoreWallet(props: any) {
         setSignTransactionModal(true);
         setDeployModalContract(null);
         setDeployModalDestinationAddress('');
-        toast.success('Transacción construida. Revisa el detalle y firma en el modal.');
       }
     } finally {
       setDeployLoadingPolicyId(null);
@@ -1676,6 +1894,119 @@ export default function CoreWallet(props: any) {
     return map;
   }, [protocolContractsList, projectContractsList]);
 
+  // Datum del protocolo para el modal "Actualizar protocolo" (pre-rellenar protocol_admins, oracle_id, protocol_fee)
+  const updateProtocolModalDatum = useMemo(() => {
+    if (!updateProtocolModalPolicyId) return undefined;
+    const spendingContract = (compiledContracts || []).find((sc: any) => {
+      const type = getContractTypeFromContract(sc);
+      if (type !== 'spending') return false;
+      const params = getCompilationParamsFromContract(sc) || [];
+      return params.includes(updateProtocolModalPolicyId);
+    });
+    const spendingPolicyId = spendingContract
+      ? (getPolicyIdFromContract(spendingContract) || spendingContract.policy_id)
+      : null;
+    if (!spendingPolicyId) return undefined;
+    const datumState = datumByPolicyId[spendingPolicyId];
+    return datumState?.data?.datum as { oracle_id?: string; protocol_fee?: number; project_admins?: string[] } | undefined;
+  }, [updateProtocolModalPolicyId, compiledContracts, datumByPolicyId]);
+
+  // Datum del proyecto para el modal "Actualizar proyecto" (pre-rellenar campos del formulario)
+  const updateProjectModalDatum = useMemo((): ProjectDatumForForm | undefined => {
+    if (!updateProjectModalContract) return undefined;
+    const mintId = getPolicyIdFromContract(updateProjectModalContract) || updateProjectModalContract?.policy_id;
+    if (!mintId) return undefined;
+    const spendingContract = (projectContractsList || []).find((sc: any) => {
+      const type = getContractTypeFromContract(sc);
+      if (type !== 'spending') return false;
+      const params = getCompilationParamsFromContract(sc) || [];
+      return params.includes(mintId);
+    });
+    const spendingPolicyId = spendingContract
+      ? (getPolicyIdFromContract(spendingContract) || spendingContract.policy_id)
+      : null;
+    if (!spendingPolicyId) return undefined;
+    const datumState = datumByPolicyId[spendingPolicyId];
+    return datumState?.data?.datum as ProjectDatumForForm | undefined;
+  }, [updateProjectModalContract, projectContractsList, datumByPolicyId]);
+
+  // policy_ids de contratos spending de protocolo (para cargar datum al listar), solo cuando el protocolo está minteado
+  const protocolSpendingPolicyIds = useMemo(() => {
+    const ids: string[] = [];
+    (protocolContractsList || []).forEach((c: any) => {
+      const mintPolicyId = getPolicyIdFromContract(c) || c?.policy_id;
+      if (!mintPolicyId) return;
+      const isMintedForProtocol =
+        mintedProtocolPolicyIds.has(mintPolicyId) ||
+        c?.minted === true ||
+        c?.is_minted === true ||
+        c?.has_minted_tokens === true;
+      if (!isMintedForProtocol) return;
+      const spendingContract = (compiledContracts || []).find((sc: any) => {
+        const scType = getContractTypeFromContract(sc);
+        if (scType !== 'spending') return false;
+        const scName = (getContractNameFromContract(sc) || '').toLowerCase();
+        if (scName !== 'protocol') return false;
+        const params = getCompilationParamsFromContract(sc) || [];
+        return params.includes(mintPolicyId);
+      });
+      const sid = spendingContract
+        ? (getPolicyIdFromContract(spendingContract) || (spendingContract as any).policy_id)
+        : null;
+      if (sid) ids.push(sid);
+    });
+    return ids;
+  }, [protocolContractsList, compiledContracts, mintedProtocolPolicyIds]);
+
+  // Cargar datum de cada contrato spending de protocolo cuando cambia el listado (fallback por si no se disparó desde refreshContracts)
+  useEffect(() => {
+    const ids = protocolSpendingPolicyIds || [];
+    const toFetch: string[] = [];
+    setDatumByPolicyId((prev) => {
+      const next: Record<string, { data: GetContractDatumResponse | null; loading: boolean; error: string | null }> = {};
+      ids.forEach((pid) => {
+        const existing = prev[pid];
+        const hasResult = existing && (existing.data || existing.error);
+        const alreadyLoading = existing?.loading;
+        if (hasResult) {
+          next[pid] = existing;
+        } else if (!alreadyLoading) {
+          next[pid] = { data: null, loading: true, error: null };
+          toFetch.push(pid);
+        } else {
+          next[pid] = existing;
+        }
+      });
+      return next;
+    });
+    const setDatumResult = (
+      policyId: string,
+      result: { success: boolean; data: GetContractDatumResponse | null; error?: string } | null
+    ) => {
+      setDatumByPolicyId((prev) => ({
+        ...prev,
+        [policyId]: {
+          data: result?.success && result?.data ? result.data : null,
+          loading: false,
+          error: result?.success ? null : (result?.error || 'Error al obtener el datum'),
+        },
+      }));
+    };
+
+    toFetch.forEach((policyId) => {
+      getContractDatum(policyId)
+        .then((result) => setDatumResult(policyId, result))
+        .catch((err) => {
+          console.error('Error cargando datum para', policyId, err);
+          setDatumResult(policyId, {
+            success: false,
+            data: null,
+            error: err?.message || 'Error al obtener el datum',
+          });
+        });
+    });
+  }, [protocolSpendingPolicyIds.join(',')]);
+
   if (!walletData) return null
 
   const refreshContracts = async (enrich?: boolean) => {
@@ -1738,7 +2069,97 @@ export default function CoreWallet(props: any) {
           'Error al obtener contratos compilados';
         toast.error(msg);
       } else {
-        setCompiledContracts(normalizeToArray(compiledData));
+        const compiledList = normalizeToArray(compiledData);
+        setCompiledContracts(compiledList);
+
+        // Obtener policy_ids de contratos spending (protocolo y proyectos) minteados y cargar datum de cada uno
+        const spendingIds: string[] = [];
+        // Protocolos minteados
+        const protocolMintingFromList = compiledList.filter((c: any) => {
+          const type = getContractTypeFromContract(c);
+          const name = (getContractNameFromContract(c) || '').toLowerCase();
+          return type === 'minting' && (name.includes('protocol') || name === 'protocol_nfts');
+        });
+        protocolMintingFromList.forEach((c: any) => {
+          const mintPolicyId = getPolicyIdFromContract(c) || c?.policy_id;
+          if (!mintPolicyId) return;
+          const isMintedForProtocol =
+            mintedProtocolPolicyIds.has(mintPolicyId) ||
+            c?.minted === true ||
+            c?.is_minted === true ||
+            c?.has_minted_tokens === true;
+          if (!isMintedForProtocol) return;
+          const spendingContract = compiledList.find((sc: any) => {
+            const scType = getContractTypeFromContract(sc);
+            if (scType !== 'spending') return false;
+            const scName = (getContractNameFromContract(sc) || '').toLowerCase();
+            if (scName !== 'protocol') return false;
+            const params = getCompilationParamsFromContract(sc) || [];
+            return params.includes(mintPolicyId);
+          });
+          const sid = spendingContract
+            ? (getPolicyIdFromContract(spendingContract) || (spendingContract as any).policy_id)
+            : null;
+          if (sid && !spendingIds.includes(sid)) spendingIds.push(sid);
+        });
+        // Proyectos minteados
+        const projectMintingFromList = compiledList.filter((c: any) => {
+          const type = getContractTypeFromContract(c);
+          const name = (getContractNameFromContract(c) || '').toLowerCase();
+          if (type !== 'minting') return false;
+          if (name === 'protocol' || name === 'protocol_nfts' || name.includes('protocol')) return false;
+          return name.endsWith('_nfts');
+        });
+        projectMintingFromList.forEach((c: any) => {
+          const projMintPolicyId = getPolicyIdFromContract(c) || c?.policy_id;
+          if (!projMintPolicyId) return;
+          const isProjectMinted =
+            mintedProjectPolicyIds.has(projMintPolicyId) ||
+            c?.minted === true ||
+            c?.is_minted === true ||
+            c?.has_minted_tokens === true;
+          if (!isProjectMinted) return;
+          const projSpendingContract = compiledList.find((sc: any) => {
+            const scType = getContractTypeFromContract(sc);
+            if (scType !== 'spending') return false;
+            const params = getCompilationParamsFromContract(sc) || [];
+            return params.includes(projMintPolicyId);
+          });
+          const psid = projSpendingContract
+            ? (getPolicyIdFromContract(projSpendingContract) || (projSpendingContract as any).policy_id)
+            : null;
+          if (psid && !spendingIds.includes(psid)) spendingIds.push(psid);
+        });
+        spendingIds.forEach((policyId) => {
+          setDatumByPolicyId((prev) => ({
+            ...prev,
+            [policyId]: { data: null, loading: true, error: null },
+          }));
+        });
+        spendingIds.forEach((policyId) => {
+          getContractDatum(policyId)
+            .then((result) => {
+              setDatumByPolicyId((prev) => ({
+                ...prev,
+                [policyId]: {
+                  data: result?.success && result?.data ? result.data : null,
+                  loading: false,
+                  error: result?.success ? null : (result?.error || 'Error al obtener el datum'),
+                },
+              }));
+            })
+            .catch((err) => {
+              console.error('Error cargando datum para', policyId, err);
+              setDatumByPolicyId((prev) => ({
+                ...prev,
+                [policyId]: {
+                  data: null,
+                  loading: false,
+                  error: err?.message || 'Error al obtener el datum',
+                },
+              }));
+            });
+        });
       }
 
       setContractsLastSyncAt(Date.now());
@@ -1864,6 +2285,34 @@ export default function CoreWallet(props: any) {
       return;
     }
 
+    const name = (getContractNameFromContract(compiledOrAvailable) || '').toLowerCase();
+    const type = getContractTypeFromContract(compiledOrAvailable);
+    const params = getCompilationParamsFromContract(compiledOrAvailable) || [];
+    const isProtocol = name.includes('protocol') || name === 'protocol_nfts';
+    const isProject = !isProtocol && (name.includes('project') || name.endsWith('_nfts'));
+
+    let mintPolicyIdForBurn: string | null = null;
+    if (type === 'minting') {
+      mintPolicyIdForBurn = policyId;
+    } else if (type === 'spending' && params.length > 0) {
+      mintPolicyIdForBurn =
+        params.find((p: string) =>
+          isProtocol ? mintedProtocolPolicyIds.has(p) : mintedProjectPolicyIds.has(p)
+        ) || params[0];
+    }
+
+    const isMinted =
+      (isProtocol &&
+        (mintedProtocolPolicyIds.has(mintPolicyIdForBurn || policyId) ||
+          compiledOrAvailable?.minted === true ||
+          compiledOrAvailable?.is_minted === true ||
+          compiledOrAvailable?.has_minted_tokens === true)) ||
+      (isProject &&
+        (mintedProjectPolicyIds.has(mintPolicyIdForBurn || policyId) ||
+          compiledOrAvailable?.minted === true ||
+          compiledOrAvailable?.is_minted === true ||
+          compiledOrAvailable?.has_minted_tokens === true));
+
     const ok = typeof window !== 'undefined'
       ? window.confirm(`¿Eliminar el contrato con policy_id ${policyId}?`)
       : true;
@@ -1872,24 +2321,53 @@ export default function CoreWallet(props: any) {
     const loadingKey = `delete:${policyId}`;
     setContractActionLoadingKey(loadingKey);
     try {
-      const res = await fetch(`/api/contracts/${policyId}`, {
-        method: 'DELETE',
-        headers: {
-          'Content-Type': 'application/json',
-          'Authorization': `Bearer ${accessToken}`,
-        },
-      });
+      if ((isProtocol || isProject) && isMinted) {
+        const burnPolicyId = mintPolicyIdForBurn || policyId;
+        if (!burnPolicyId) {
+          toast.error('No se pudo determinar el policy_id de minting para burn.');
+          return;
+        }
+        lastMintPolicyIdRef.current = null;
+        lastMintProjectPolicyIdRef.current = null;
 
-      const data = await safeJson(res);
-      if (!res.ok || data?.success === false) {
-        const msg =
-          data?.error ||
-          data?.details?.[0]?.message ||
-          'Error al eliminar el contrato';
-        toast.error(msg);
+        const burnResult = isProtocol
+          ? await burnProtocol({ protocol_nfts_policy_id: burnPolicyId })
+          : await burnProject({ project_nfts_policy_id: burnPolicyId });
+
+        if (!burnResult.success || !burnResult.data) {
+          toast.error(burnResult.error || 'No se pudo construir la transacción de burn.');
+          return;
+        }
+
+        const d: any = burnResult.data;
+        const burnTxId = d.transaction_id || d.tx_id || '';
+        pendingDeleteAfterSignRef.current = { policyIdToDelete: policyId, burnTxId };
+        setNewTransactionBuild({
+          transaction_id: d.transaction_id,
+          title: isProtocol ? 'Burn protocolo' : 'Burn proyecto',
+          subtitle: d.protocol_contract_address || d.project_contract_address || d.transaction_id,
+          tx_id: d.transaction_id,
+          tx_type: isProtocol ? 'burn_protocol' : 'burn_project',
+          tx_fee: ((d.fee_lovelace ?? 0) / 1_000_000).toFixed(6),
+          tx_value: '0',
+          tx_assets: [],
+          block: 0,
+          tx_size: 0,
+          inputUTxOs: Array.isArray(d.inputs) ? d.inputs : [],
+          outputUTxOs: Array.isArray(d.outputs) ? d.outputs : [],
+          metadata: {},
+          _burnPolicyId: burnPolicyId,
+        });
+        setSignType('sendTransaction');
+        setSignTransactionModal(true);
         return;
       }
 
+      const result = await deleteContract(policyId);
+      if (!result.success) {
+        toast.error(result.error || 'Error al eliminar el contrato');
+        return;
+      }
       toast.success('Contrato eliminado correctamente.');
       await refreshContracts(true);
     } catch (err: any) {
@@ -2243,42 +2721,89 @@ export default function CoreWallet(props: any) {
                               return params.includes(mintPolicyId);
                             });
                             const spendingPolicyId = spendingContract ? (getPolicyIdFromContract(spendingContract) || spendingContract.policy_id) : null;
+                            const spendingTestnetAddress = getTestnetAddressFromContract(spendingContract);
                             return (
                               <React.Fragment key={mintPolicyId}>
                                 <tr
                                   className={`bg-white hover:bg-gray-50 ${isSelected ? 'ring-1 ring-inset ring-blue-200 bg-blue-50/30' : ''}`}
                                 >
                                   <td className="px-4 py-2 font-medium text-gray-900">Protocolo</td>
-                                  <td className="px-4 py-2">
-                                    <div className="flex flex-col gap-1 min-w-0">
-                                      <div className="flex items-center gap-2">
-                                        <span className="text-xs font-semibold text-gray-700">Minting</span>
-                                        <code className="text-xs bg-gray-100 px-2 py-1 rounded truncate max-w-[10rem]" title={mintPolicyId}>
+                                  <td className="px-4 py-2 align-top">
+                                    <div className="flex flex-col gap-1.5 min-w-0 text-xs">
+                                      <div className="flex items-center gap-2 py-0.5 border-b border-gray-100">
+                                        <span className="shrink-0 w-16 font-medium text-gray-500">Minting</span>
+                                        <code className="min-w-0 flex-1 truncate bg-gray-50 px-1.5 py-0.5 rounded font-mono" title={mintPolicyId}>
                                           {mintPolicyId}
                                         </code>
-                                        <CopyToClipboard
-                                          copyValue={mintPolicyId}
-                                          tooltipLabel="Copiar policy_id minting"
-                                          iconClassName="h-4 w-4 shrink-0"
-                                        />
+                                        <CopyToClipboard copyValue={mintPolicyId} tooltipLabel="Copiar" iconClassName="h-3.5 w-3.5 shrink-0" />
                                       </div>
-                                      <div className="flex items-center gap-2">
-                                        <span className="text-xs font-semibold text-gray-700">Spending</span>
+                                      <div className="flex items-center gap-2 py-0.5 border-b border-gray-100">
+                                        <span className="shrink-0 w-16 font-medium text-gray-500">Spending</span>
                                         {spendingPolicyId ? (
                                           <>
-                                            <code className="text-xs bg-gray-100 px-2 py-1 rounded truncate max-w-[10rem]" title={spendingPolicyId}>
+                                            <code className="min-w-0 flex-1 truncate bg-gray-50 px-1.5 py-0.5 rounded font-mono" title={spendingPolicyId}>
                                               {spendingPolicyId}
                                             </code>
-                                            <CopyToClipboard
-                                              copyValue={spendingPolicyId}
-                                              tooltipLabel="Copiar policy_id spending"
-                                              iconClassName="h-4 w-4 shrink-0"
-                                            />
+                                            <CopyToClipboard copyValue={spendingPolicyId} tooltipLabel="Copiar" iconClassName="h-3.5 w-3.5 shrink-0" />
                                           </>
                                         ) : (
-                                          <span className="text-xs text-gray-400">No encontrado</span>
+                                          <span className="text-gray-400">—</span>
                                         )}
                                       </div>
+                                      {spendingTestnetAddress && (
+                                        <div className="flex items-center gap-2 py-0.5">
+                                          <span className="shrink-0 w-16 font-medium text-gray-500">Address</span>
+                                          <code className="min-w-0 flex-1 truncate bg-gray-50 px-1.5 py-0.5 rounded font-mono text-[11px]" title={spendingTestnetAddress}>
+                                            {spendingTestnetAddress}
+                                          </code>
+                                          <CopyToClipboard copyValue={spendingTestnetAddress} tooltipLabel="Copiar" iconClassName="h-3.5 w-3.5 shrink-0" />
+                                        </div>
+                                      )}
+                                      {spendingPolicyId && (() => {
+                                        const datumState = datumByPolicyId[spendingPolicyId];
+                                        if (!datumState) return null;
+                                        if (datumState.loading) {
+                                          return (
+                                            <div className="flex items-center gap-2 py-1 border-t border-gray-100 mt-1">
+                                              <LoadingIcon className="w-3.5 h-3.5 text-gray-400 shrink-0" />
+                                              <span className="text-[11px] text-gray-500">Cargando datum…</span>
+                                            </div>
+                                          );
+                                        }
+                                        if (datumState.error) {
+                                          return (
+                                            <div className="py-1 border-t border-gray-100 mt-1">
+                                              <span className="text-[11px] text-red-600">Datum: {datumState.error}</span>
+                                            </div>
+                                          );
+                                        }
+                                        const d = datumState.data;
+                                        if (!d) return null;
+                                        return (
+                                          <div className="py-1 border-t border-gray-100 mt-1 space-y-1">
+                                            <div className="flex items-center gap-2 flex-wrap">
+                                              <span className="text-[11px] font-medium text-gray-500">Datum</span>
+                                              {d.balance_ada != null && (
+                                                <span className="text-[11px] text-gray-700">{d.balance_ada} ADA</span>
+                                              )}
+                                              {d.utxo_ref && (
+                                                <code className="text-[10px] bg-gray-50 px-1 rounded truncate max-w-[8rem]" title={d.utxo_ref}>
+                                                  {d.utxo_ref}
+                                                </code>
+                                              )}
+                                            </div>
+                                            <details className="group/details">
+                                              <summary className="text-[11px] text-gray-500 cursor-pointer hover:text-gray-700 list-none inline-flex items-center gap-1">
+                                                <span className="group-open/details:rotate-90 transition-transform inline-block">▶</span>
+                                                Ver datum completo
+                                              </summary>
+                                              <pre className="mt-1 bg-gray-50 border border-gray-100 rounded p-1.5 text-[10px] font-mono text-gray-700 overflow-x-auto max-h-32 overflow-y-auto">
+                                                {JSON.stringify(d.datum ?? {}, null, 2)}
+                                              </pre>
+                                            </details>
+                                          </div>
+                                        );
+                                      })()}
                                     </div>
                                   </td>
                                   <td className="px-4 py-2">
@@ -2338,7 +2863,7 @@ export default function CoreWallet(props: any) {
                                         type="button"
                                         className="inline-flex items-center gap-1 rounded text-xs px-3 py-1.5 border border-blue-200 bg-blue-50 text-blue-700 hover:bg-blue-100 focus:outline-none focus:ring-2 focus:ring-blue-200 disabled:opacity-50 disabled:cursor-not-allowed"
                                         onClick={() => setUpdateProtocolModalPolicyId(mintPolicyId)}
-                                        disabled={!mintPolicyId}
+                                        disabled={!mintPolicyId || !isMinted}
                                       >
                                         Actualizar protocolo
                                       </button>
@@ -2379,11 +2904,12 @@ export default function CoreWallet(props: any) {
                                             const projSpendingPolicyId = projSpendingContract
                                               ? (getPolicyIdFromContract(projSpendingContract) || projSpendingContract.policy_id)
                                               : null;
+                                            const projTestnetAddress = getTestnetAddressFromContract(projSpendingContract);
 
                                             return (
                                               <li
                                                 key={projMintPolicyId || projName}
-                                                className="flex flex-col gap-1.5 rounded border border-gray-200 bg-white p-2 text-xs shadow-sm"
+                                                className="flex flex-col gap-2 rounded-lg border border-gray-200 bg-white p-3 text-xs shadow-sm"
                                               >
                                                 <div className="flex items-center gap-2 flex-wrap justify-between">
                                                   <span className="font-medium text-gray-900 truncate max-w-[12rem]">
@@ -2399,37 +2925,83 @@ export default function CoreWallet(props: any) {
                                                     {isProjectMinted ? 'Minteado' : 'Sin mintear'}
                                                   </span>
                                                 </div>
-                                                <div className="flex flex-col gap-1 mt-1">
-                                                  <div className="flex items-center gap-1.5">
-                                                    <span className="text-[11px] font-semibold text-gray-700">Minting</span>
-                                                    <code className="bg-gray-100 px-1.5 py-0.5 rounded truncate max-w-[9rem]" title={projMintPolicyId}>
-                                                      {String(projMintPolicyId || '').slice(0, 20)}…
+                                                <div className="flex flex-col gap-1 min-w-0 text-[11px]">
+                                                  <div className="flex items-center gap-2 py-0.5 border-b border-gray-100">
+                                                    <span className="shrink-0 w-14 font-medium text-gray-500">Minting</span>
+                                                    <code className="min-w-0 flex-1 truncate bg-gray-50 px-1.5 py-0.5 rounded font-mono" title={projMintPolicyId || ''}>
+                                                      {String(projMintPolicyId || '').slice(0, 24)}…
                                                     </code>
-                                                    <CopyToClipboard
-                                                      copyValue={projMintPolicyId || ''}
-                                                      tooltipLabel="Copiar policy_id minting"
-                                                      iconClassName="h-3.5 w-3.5 shrink-0"
-                                                    />
+                                                    <CopyToClipboard copyValue={projMintPolicyId || ''} tooltipLabel="Copiar" iconClassName="h-3.5 w-3.5 shrink-0" />
                                                   </div>
-                                                  <div className="flex items-center gap-1.5">
-                                                    <span className="text-[11px] font-semibold text-gray-700">Spending</span>
+                                                  <div className="flex items-center gap-2 py-0.5 border-b border-gray-100">
+                                                    <span className="shrink-0 w-14 font-medium text-gray-500">Spending</span>
                                                     {projSpendingPolicyId ? (
                                                       <>
-                                                        <code className="bg-gray-100 px-1.5 py-0.5 rounded truncate max-w-[9rem]" title={projSpendingPolicyId}>
-                                                          {String(projSpendingPolicyId || '').slice(0, 20)}…
+                                                        <code className="min-w-0 flex-1 truncate bg-gray-50 px-1.5 py-0.5 rounded font-mono" title={projSpendingPolicyId}>
+                                                          {String(projSpendingPolicyId).slice(0, 24)}…
                                                         </code>
-                                                        <CopyToClipboard
-                                                          copyValue={projSpendingPolicyId || ''}
-                                                          tooltipLabel="Copiar policy_id spending"
-                                                          iconClassName="h-3.5 w-3.5 shrink-0"
-                                                        />
+                                                        <CopyToClipboard copyValue={projSpendingPolicyId} tooltipLabel="Copiar" iconClassName="h-3.5 w-3.5 shrink-0" />
                                                       </>
                                                     ) : (
-                                                      <span className="text-[11px] text-gray-400">No encontrado</span>
+                                                      <span className="text-gray-400">—</span>
                                                     )}
                                                   </div>
+                                                  {projTestnetAddress && (
+                                                    <div className="flex items-center gap-2 py-0.5">
+                                                      <span className="shrink-0 w-14 font-medium text-gray-500">Address</span>
+                                                      <code className="min-w-0 flex-1 truncate bg-gray-50 px-1.5 py-0.5 rounded font-mono" title={projTestnetAddress}>
+                                                        {projTestnetAddress}
+                                                      </code>
+                                                      <CopyToClipboard copyValue={projTestnetAddress} tooltipLabel="Copiar" iconClassName="h-3.5 w-3.5 shrink-0" />
+                                                    </div>
+                                                  )}
+                                                  {projSpendingPolicyId && isProjectMinted && (() => {
+                                                    const projDatumState = datumByPolicyId[projSpendingPolicyId];
+                                                    if (!projDatumState) return null;
+                                                    if (projDatumState.loading) {
+                                                      return (
+                                                        <div className="flex items-center gap-2 py-1 border-t border-gray-100 mt-1">
+                                                          <LoadingIcon className="w-3.5 h-3.5 text-gray-400 shrink-0" />
+                                                          <span className="text-[11px] text-gray-500">Cargando datum…</span>
+                                                        </div>
+                                                      );
+                                                    }
+                                                    if (projDatumState.error) {
+                                                      return (
+                                                        <div className="py-1 border-t border-gray-100 mt-1">
+                                                          <span className="text-[11px] text-red-600">Datum: {projDatumState.error}</span>
+                                                        </div>
+                                                      );
+                                                    }
+                                                    const d = projDatumState.data;
+                                                    if (!d) return null;
+                                                    return (
+                                                      <div className="py-1 border-t border-gray-100 mt-1 space-y-1">
+                                                        <div className="flex items-center gap-2 flex-wrap">
+                                                          <span className="text-[11px] font-medium text-gray-500">Datum</span>
+                                                          {d.balance_ada != null && (
+                                                            <span className="text-[11px] text-gray-700">{d.balance_ada} ADA</span>
+                                                          )}
+                                                          {d.utxo_ref && (
+                                                            <code className="text-[10px] bg-gray-50 px-1 rounded truncate max-w-[8rem]" title={d.utxo_ref}>
+                                                              {d.utxo_ref}
+                                                            </code>
+                                                          )}
+                                                        </div>
+                                                        <details className="group/details">
+                                                          <summary className="text-[11px] text-gray-500 cursor-pointer hover:text-gray-700 list-none inline-flex items-center gap-1">
+                                                            <span className="group-open/details:rotate-90 transition-transform inline-block">▶</span>
+                                                            Ver datum completo
+                                                          </summary>
+                                                          <pre className="mt-1 bg-gray-50 border border-gray-100 rounded p-1.5 text-[10px] font-mono text-gray-700 overflow-x-auto max-h-32 overflow-y-auto">
+                                                            {JSON.stringify(d.datum ?? {}, null, 2)}
+                                                          </pre>
+                                                        </details>
+                                                      </div>
+                                                    );
+                                                  })()}
                                                 </div>
-                                                <div className="flex justify-end mt-1.5 gap-2">
+                                                <div className="flex flex-wrap justify-end gap-2 mt-1">
                                                   <button
                                                     type="button"
                                                     className={`${colors.fuente} text-white ${colors.bgColor} ${colors.hoverBgColor} focus:outline-none focus:ring-2 focus:ring-gray-300 font-medium rounded text-xs px-2.5 py-1 disabled:opacity-50 flex items-center gap-1`}
@@ -2448,7 +3020,7 @@ export default function CoreWallet(props: any) {
                                                     type="button"
                                                     className="inline-flex items-center gap-1 rounded text-xs px-2.5 py-1 border border-blue-200 bg-blue-50 text-blue-700 hover:bg-blue-100 focus:outline-none focus:ring-2 focus:ring-blue-200 disabled:opacity-50 disabled:cursor-not-allowed"
                                                     onClick={() => setUpdateProjectModalContract(proj)}
-                                                    disabled={!projMintPolicyId}
+                                                    disabled={!projMintPolicyId || !isProjectMinted}
                                                   >
                                                     Actualizar proyecto
                                                   </button>
@@ -2460,7 +3032,7 @@ export default function CoreWallet(props: any) {
                                                     title="Abrir modal para indicar dirección destino y construir tx"
                                                   >
                                                     {isDeploying ? <LoadingIcon className="w-3.5 h-3.5" /> : null}
-                                                    Deploy
+                                                    Crear Referencia
                                                   </button>
                                                   <button
                                                     type="button"
@@ -3129,8 +3701,77 @@ export default function CoreWallet(props: any) {
                   onSubmit={(formData) => handleUpdateProtocol(updateProtocolModalPolicyId, formData)}
                   loading={updateProtocolLoading}
                   colors={colors}
+                  initialDatum={updateProtocolModalDatum}
                 />
               )}
+            </Modal>
+
+            <Modal
+              key="datum-modal"
+              show={!!datumModalSpendingPolicyId}
+              onClose={() => {
+                setDatumModalSpendingPolicyId(null);
+                setDatumData(null);
+                setDatumError(null);
+              }}
+              size="lg"
+              position="center"
+              className="z-[60]"
+            >
+              <Modal.Header className="border-b border-gray-200">
+                Datum del contrato spending (protocolo)
+                {datumModalSpendingPolicyId && (
+                  <span className="text-gray-500 font-normal text-sm ml-2">
+                    policy_id:{' '}
+                    <code className="bg-gray-100 px-1.5 py-0.5 rounded text-xs">
+                      {String(datumModalSpendingPolicyId).slice(0, 24)}…
+                    </code>
+                  </span>
+                )}
+              </Modal.Header>
+              <Modal.Body className="pt-4">
+                {datumLoading && (
+                  <div className="flex items-center justify-center py-8">
+                    <LoadingIcon className="w-8 h-8 text-gray-400" />
+                  </div>
+                )}
+                {!datumLoading && datumError && (
+                  <p className="text-sm text-red-600 py-2">{datumError}</p>
+                )}
+                {!datumLoading && datumData && (
+                  <div className="space-y-4 text-sm">
+                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
+                      <div>
+                        <span className="text-gray-500 font-medium">contract_name</span>
+                        <p className="font-mono text-gray-800">{datumData.contract_name ?? '—'}</p>
+                      </div>
+                      <div>
+                        <span className="text-gray-500 font-medium">contract_type</span>
+                        <p className="font-mono text-gray-800">{datumData.contract_type ?? '—'}</p>
+                      </div>
+                      <div>
+                        <span className="text-gray-500 font-medium">utxo_ref</span>
+                        <p className="font-mono text-gray-800 text-xs break-all">{datumData.utxo_ref ?? '—'}</p>
+                      </div>
+                      <div>
+                        <span className="text-gray-500 font-medium">balance</span>
+                        <p className="font-mono text-gray-800">
+                          {datumData.balance_ada != null ? `${datumData.balance_ada} ADA` : '—'}
+                          {datumData.balance_lovelace != null && (
+                            <span className="text-gray-500 ml-1">({datumData.balance_lovelace} lovelace)</span>
+                          )}
+                        </p>
+                      </div>
+                    </div>
+                    <div>
+                      <span className="text-gray-500 font-medium block mb-1">datum</span>
+                      <pre className="bg-gray-50 border border-gray-200 rounded-lg p-3 text-xs font-mono text-gray-800 overflow-x-auto max-h-64 overflow-y-auto">
+                        {JSON.stringify(datumData.datum ?? {}, null, 2)}
+                      </pre>
+                    </div>
+                  </div>
+                )}
+              </Modal.Body>
             </Modal>
 
             <Modal
@@ -3185,6 +3826,7 @@ export default function CoreWallet(props: any) {
                         updateProjectModalContract?.policy_id)
                   }
                   colors={colors}
+                  initialDatum={updateProjectModalDatum}
                 />
               )}
             </Modal>

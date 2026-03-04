@@ -16,6 +16,29 @@ import WalletContext from '@marketplaces/utils-2/src/lib/context/wallet-context'
 import HomeSkeleton from "@marketplaces/ui-lib/src/lib/common/skeleton/HomeSkeleton";
 import { autoUnlockWallet } from '@marketplaces/ui-lib/src/lib/common/walletApi';
 import WalletUnlockModal from '@marketplaces/ui-lib/src/lib/modals/WalletUnlockModal';
+import PendingTransactionFloatingCard, { TRANSACTION_CONFIRMED_EVENT } from '@marketplaces/ui-lib/src/lib/wallet/PendingTransactionFloatingCard';
+
+/** Reproduce un sonido tipo "cash" (doble tono). Usa Web Audio API; no requiere archivo. */
+function playCashSound() {
+  if (typeof window === 'undefined') return;
+  try {
+    const ctx = new (window.AudioContext || (window as any).webkitAudioContext)();
+    const playTone = (freq: number, start: number, duration: number) => {
+      const osc = ctx.createOscillator();
+      const gain = ctx.createGain();
+      osc.connect(gain);
+      gain.connect(ctx.destination);
+      osc.frequency.value = freq;
+      osc.type = 'sine';
+      gain.gain.setValueAtTime(0.15, start);
+      gain.gain.exponentialRampToValueAtTime(0.01, start + duration);
+      osc.start(start);
+      osc.stop(start + duration);
+    };
+    playTone(880, 0, 0.08);
+    playTone(1320, 0.1, 0.12);
+  } catch (_) {}
+}
 
 // Constantes
 const WALLET_SESSION_KEYS = {
@@ -123,7 +146,8 @@ interface WalletInfo {
 
 const MainLayout = ({ children }: PropsWithChildren) => {
   const { connect } = useWallet();
-  const { walletData, handleWalletData } = useContext<any>(WalletContext);
+  const { walletData, handleWalletData, fetchWalletData, balanceChanged, walletName: contextWalletName, walletAddress: contextWalletAddress } = useContext<any>(WalletContext);
+  const balanceIncreasedPlayedRef = useRef(false);
   const router = useRouter();
   
   // Estados de autenticación Cognito
@@ -361,6 +385,41 @@ const MainLayout = ({ children }: PropsWithChildren) => {
     });
   }, [walletData?.balance, walletData?.address]); // address para que al cambiar de billetera siempre se actualice
 
+  // Cuando el card flotante confirma una tx (confirmaciones suficientes), actualizar balance y listado
+  useEffect(() => {
+    if (!fetchWalletData) return;
+    const onTransactionConfirmed = () => {
+      fetchWalletData();
+    };
+    window.addEventListener(TRANSACTION_CONFIRMED_EVENT, onTransactionConfirmed);
+    return () => window.removeEventListener(TRANSACTION_CONFIRMED_EVENT, onTransactionConfirmed);
+  }, [fetchWalletData]);
+
+  // Sincronizar: al detectar aumento de balance (tx confirmada, polling o refresh manual), sonido cash
+  useEffect(() => {
+    if (balanceChanged > 0 && !balanceIncreasedPlayedRef.current) {
+      balanceIncreasedPlayedRef.current = true;
+      playCashSound();
+    }
+    if (balanceChanged === 0) {
+      balanceIncreasedPlayedRef.current = false;
+    }
+  }, [balanceChanged]);
+
+  // Sincronizar walletInfo (nombre y dirección) con la billetera activa del contexto al cambiar de billetera
+  useEffect(() => {
+    const addr = walletData?.address ?? contextWalletAddress ?? '';
+    const name = contextWalletName ?? '';
+    if (addr) {
+      setWalletInfo((prev: any) => ({
+        ...prev,
+        name: name || prev?.name || '',
+        addr,
+        externalWallet: prev?.externalWallet ?? false,
+      }));
+    }
+  }, [walletData?.address, contextWalletAddress, contextWalletName]);
+
   // Efecto de inicialización (solo una vez)
   useEffect(() => {
     initializeApp();
@@ -451,6 +510,7 @@ const MainLayout = ({ children }: PropsWithChildren) => {
             poweredBy={true}
           />
           <main className="lg:ml-80 mt-20">{children}</main>
+          <PendingTransactionFloatingCard />
         </>
       ) : (
         <HomeSkeleton />
