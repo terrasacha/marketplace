@@ -7,6 +7,7 @@ import {
   getDateFromTimeStamp,
   mapTransactionListInfo,
 } from '@marketplaces/utils-2';
+import { TRANSACTION_CONFIRMED_EVENT } from './PendingTransactionFloatingCard';
 import { useRouter } from 'next/router';
 import { toast } from 'sonner';
 import { mapAccountTxData } from '@marketplaces/utils-2/src/lib/mappers/mapTransactionInfo';
@@ -87,6 +88,15 @@ export default function Transactions(props: TransactionsProps) {
       getTransactionsData(1, false);
     }
   }, [router, walletAddress]);
+
+  // Cuando el card flotante confirma una tx, refrescar historial para mostrar la nueva transacción
+  useEffect(() => {
+    const onTransactionConfirmed = () => {
+      if (walletAddress) getTransactionsData(1, true);
+    };
+    window.addEventListener(TRANSACTION_CONFIRMED_EVENT, onTransactionConfirmed);
+    return () => window.removeEventListener(TRANSACTION_CONFIRMED_EVENT, onTransactionConfirmed);
+  }, [walletAddress]);
 
   useEffect(() => {
     const clearAllCaches = () => {
@@ -249,45 +259,23 @@ export default function Transactions(props: TransactionsProps) {
   };
 
   /* const checkTxConfirmations = async () => {
-    if (pendingTransaction) {
-      const pendingTransactionItemRequest = await fetch(
-        '/api/helpers/tx-status',
-        {
-          method: 'POST',
-          headers: {
-            'Content-Type': 'application/json',
-          },
-          body: JSON.stringify(pendingTransaction.tx_id),
-        }
-      );
-      const responseData = await pendingTransactionItemRequest.json();
-
-      if (responseData) {
-        const newStatePendingTransaction = {
-          ...pendingTransaction,
-          tx_status:
-            responseData[0].num_confirmations !== null &&
-            responseData[0].num_confirmations >= 1
-              ? 'on-chain'
-              : 'pending',
-          tx_confirmation_status: 'LOW',
-          tx_confirmation_n: responseData[0].num_confirmations || 0,
-        };
-
-        // Actualizar cache
-        const pendingTx = localStorage.getItem('pendingTx');
-        if (pendingTx && typeof pendingTx === 'string') {
-          setPendingTransaction(newStatePendingTransaction);
-          const parsedPendingTx = JSON.parse(pendingTx);
-
-          localStorage.setItem(
-            'pendingTx',
-            JSON.stringify({
-              data: newStatePendingTransaction,
-              timestamp: parsedPendingTx.timestamp,
-            })
-          );
-        }
+    if (!pendingTransaction?.tx_id) return;
+    const res = await fetch(`/api/transactions/${encodeURIComponent(pendingTransaction.tx_id)}/status`, { method: 'GET' });
+    const data = await res.json().catch(() => null);
+    const confirmations = data?.confirmations;
+    const status = data?.status;
+    if (data && (status === 'CONFIRMED' || (confirmations != null && confirmations >= 1))) {
+      const newStatePendingTransaction = {
+        ...pendingTransaction,
+        tx_status: 'on-chain',
+        tx_confirmation_status: 'LOW',
+        tx_confirmation_n: confirmations ?? 1,
+      };
+      const pendingTx = localStorage.getItem('pendingTx');
+      if (pendingTx && typeof pendingTx === 'string') {
+        setPendingTransaction(newStatePendingTransaction);
+        const parsedPendingTx = JSON.parse(pendingTx);
+        localStorage.setItem('pendingTx', JSON.stringify({ data: newStatePendingTransaction, timestamp: parsedPendingTx.timestamp }));
       }
     }
   }; */

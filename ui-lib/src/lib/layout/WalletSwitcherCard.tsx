@@ -3,7 +3,7 @@ import { createPortal } from 'react-dom';
 import { useRouter } from 'next/router';
 import { getCurrentUser } from 'aws-amplify/auth';
 import { WalletContext } from '@marketplaces/utils-2';
-import { unlockWallet } from '../common/walletApi';
+import { unlockWallet, changeWalletName } from '../common/walletApi';
 import { toast } from 'sonner';
 
 export type LinkedWalletItem = { id: string; name?: string; address?: string; stake_address?: string; isAdmin?: boolean };
@@ -23,6 +23,11 @@ export default function WalletSwitcherCard({ className = '', onCloseSidebar }: W
   const [switchPassword, setSwitchPassword] = useState('');
   const [switchError, setSwitchError] = useState<string | null>(null);
   const [switching, setSwitching] = useState(false);
+  const [walletToEdit, setWalletToEdit] = useState<LinkedWalletItem | null>(null);
+  const [editNewName, setEditNewName] = useState('');
+  const [editPassword, setEditPassword] = useState('');
+  const [editError, setEditError] = useState<string | null>(null);
+  const [editing, setEditing] = useState(false);
 
   const fetchLinkedWallets = useCallback(async () => {
     try {
@@ -55,6 +60,10 @@ export default function WalletSwitcherCard({ className = '', onCloseSidebar }: W
       setWalletToSwitch(null);
       setSwitchPassword('');
       setSwitchError(null);
+      setWalletToEdit(null);
+      setEditNewName('');
+      setEditPassword('');
+      setEditError(null);
       fetchLinkedWallets();
     }
   }, [modalOpen, fetchLinkedWallets]);
@@ -96,8 +105,47 @@ export default function WalletSwitcherCard({ className = '', onCloseSidebar }: W
   const goToLanding = (tab: 'create' | 'import') => {
     setModalOpen(false);
     onCloseSidebar?.();
-    // Panel de gestión de billeteras en la app Terrasacha
     router.push(`/wallets?tab=${tab}`);
+  };
+
+  const handleRenameWallet = async () => {
+    if (!walletToEdit) return;
+    const name = editNewName.trim();
+    if (!name) {
+      setEditError('El nuevo nombre no puede estar vacío.');
+      return;
+    }
+    if (!editPassword) {
+      setEditError('Ingresa la contraseña de la billetera.');
+      return;
+    }
+    setEditError(null);
+    setEditing(true);
+    try {
+      const user = await getCurrentUser();
+      const result = await changeWalletName(name, editPassword, {
+        userId: user?.userId,
+      });
+      if (result.success && result.data) {
+        const newName = result.data.wallet_name;
+        setLinkedWallets((prev) =>
+          prev.map((w) => (w.id === walletToEdit.id ? { ...w, name: newName } : w))
+        );
+        await handleWalletData({
+          walletID: walletToEdit.id,
+          walletName: newName,
+          walletAddress: walletToEdit.address ?? '',
+          isWalletBySuan: true,
+          isWalletAdmin: walletToEdit.isAdmin ?? false,
+        });
+        setWalletToEdit(null);
+        setEditNewName('');
+        setEditPassword('');
+        await fetchLinkedWallets();
+      }
+    } finally {
+      setEditing(false);
+    }
   };
 
   const displayName = walletName || walletID || 'Billetera';
@@ -149,7 +197,43 @@ export default function WalletSwitcherCard({ className = '', onCloseSidebar }: W
             </div>
 
             <div className="p-4 overflow-y-auto flex-1">
-              {walletToSwitch ? (
+              {walletToEdit ? (
+                <div>
+                  <p className="text-sm text-gray-600 mb-2">Cambiar nombre de &quot;{walletToEdit.name || walletToEdit.id}&quot;</p>
+                  <input
+                    type="text"
+                    value={editNewName}
+                    onChange={(e) => { setEditNewName(e.target.value); setEditError(null); }}
+                    placeholder="Nuevo nombre"
+                    className="w-full px-3 py-2 rounded-lg border border-gray-300 text-sm focus:ring-2 focus:ring-custom-marca-boton mb-2"
+                  />
+                  <input
+                    type="password"
+                    value={editPassword}
+                    onChange={(e) => { setEditPassword(e.target.value); setEditError(null); }}
+                    placeholder="Contraseña de la billetera"
+                    className="w-full px-3 py-2 rounded-lg border border-gray-300 text-sm focus:ring-2 focus:ring-custom-marca-boton mb-2"
+                  />
+                  {editError && <p className="text-red-500 text-xs mb-2">{editError}</p>}
+                  <div className="flex gap-2">
+                    <button
+                      type="button"
+                      onClick={() => { setWalletToEdit(null); setEditNewName(''); setEditPassword(''); setEditError(null); }}
+                      className="flex-1 py-2 rounded-lg border border-gray-300 text-sm font-medium hover:bg-gray-50"
+                    >
+                      Cancelar
+                    </button>
+                    <button
+                      type="button"
+                      onClick={handleRenameWallet}
+                      disabled={editing || !editNewName.trim() || !editPassword}
+                      className="flex-1 py-2 rounded-lg bg-custom-marca-boton text-white text-sm font-medium hover:bg-custom-marca-boton-variante disabled:opacity-50"
+                    >
+                      {editing ? 'Guardando...' : 'Guardar nombre'}
+                    </button>
+                  </div>
+                </div>
+              ) : walletToSwitch ? (
                 <div>
                   <p className="text-sm text-gray-600 mb-2">Contraseña de &quot;{walletToSwitch.name || walletToSwitch.id}&quot;</p>
                   <input
@@ -192,30 +276,53 @@ export default function WalletSwitcherCard({ className = '', onCloseSidebar }: W
                       {linkedWallets.length > 0 ? (
                     <div className="rounded-lg border border-gray-200 divide-y divide-gray-100 max-h-56 overflow-y-auto">
                       {linkedWallets.map((w) => (
-                        <button
+                        <div
                           key={w.id}
-                          type="button"
-                          onClick={() => {
-                            if (isCurrentWallet(w)) return;
-                            setWalletToSwitch(w);
-                            setSwitchPassword('');
-                            setSwitchError(null);
-                          }}
-                          disabled={isCurrentWallet(w)}
-                          className={`w-full flex items-center gap-2 p-3 text-left hover:bg-gray-50 transition-colors rounded-none border-l-4 ${
+                          className={`w-full flex items-center gap-2 p-3 text-left rounded-none border-l-4 ${
                             isCurrentWallet(w) ? 'bg-gray-50 border-custom-marca-boton opacity-75' : 'border-transparent'
                           }`}
                         >
-                          <div className="min-w-0 flex-1">
-                            <p className="font-medium text-sm text-gray-900 truncate">{w.name || 'Sin nombre'}</p>
-                            <p className="text-xs text-gray-500 font-mono truncate" title={w.id}>{w.id}</p>
-                          </div>
+                          <button
+                            type="button"
+                            onClick={() => {
+                              if (isCurrentWallet(w)) return;
+                              setWalletToSwitch(w);
+                              setSwitchPassword('');
+                              setSwitchError(null);
+                            }}
+                            disabled={isCurrentWallet(w)}
+                            className="min-w-0 flex-1 flex items-center gap-2 text-left hover:bg-gray-50/80 rounded transition-colors -m-1 p-1"
+                          >
+                            <div className="min-w-0 flex-1">
+                              <p className="font-medium text-sm text-gray-900 truncate">{w.name || 'Sin nombre'}</p>
+                              <p className="text-xs text-gray-500 font-mono truncate" title={w.id}>{w.id}</p>
+                            </div>
+                          </button>
                           {isCurrentWallet(w) ? (
-                            <span className="text-xs font-medium text-custom-marca-boton">En uso</span>
+                            <>
+                              <button
+                                type="button"
+                                onClick={(e) => {
+                                  e.stopPropagation();
+                                  setWalletToEdit(w);
+                                  setEditNewName(w.name || '');
+                                  setEditPassword('');
+                                  setEditError(null);
+                                }}
+                                className="p-1.5 rounded-md text-gray-500 hover:text-custom-marca-boton hover:bg-custom-marca-boton/10 transition-colors shrink-0"
+                                title="Cambiar nombre"
+                                aria-label="Cambiar nombre de la billetera"
+                              >
+                                <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 113.536 3.536L6.5 21.036H3v-3.572L16.732 3.732z" />
+                                </svg>
+                              </button>
+                              <span className="text-xs font-medium text-custom-marca-boton shrink-0">En uso</span>
+                            </>
                           ) : (
-                            <span className="text-xs text-gray-500">Cambiar</span>
+                            <span className="text-xs text-gray-500 shrink-0">Cambiar</span>
                           )}
-                        </button>
+                        </div>
                       ))}
                     </div>
                       ) : null}
