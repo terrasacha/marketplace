@@ -49,79 +49,99 @@ export default function WalletDashboard(props: WalletDashboardProps) {
     fuenteAlterna:'font-medium',
   };
   return (
-    <>
-      <div className="flex items-center gap-3 border-b-4 border-gray-300 pb-3 mb-6 bg-gray-100 p-3 rounded-md shadow-sm">
-      <span className="text-2xl">📊</span>
-      <h2 className="text-2xl font-extrabold text-gray-900">Cuadro de Mando</h2>
+    <div className="h-full bg-gradient-to-br from-gray-50 via-white to-custom-marca-boton-alterno2/5 relative">
+      {/* Efectos de fondo decorativos */}
+      <div className="fixed inset-0 overflow-hidden pointer-events-none z-0">
+        <div className="absolute top-0 right-0 w-96 h-96 bg-custom-marca-boton/5 rounded-full blur-3xl animate-float"></div>
+        <div className="absolute bottom-0 left-0 w-96 h-96 bg-custom-marca-boton-alterno/5 rounded-full blur-3xl animate-float" style={{ animationDelay: '1.5s' }}></div>
       </div>
-      <ClaimTokens />
-      <div className="grid grid-cols-1 2xl:grid-cols-5 2xl:space-x-5">
-        <div className="flex-col col-span-3 space-y-5">
-          <Card className="h-fit">
-            <Card.Header title="Cuenta" className={`${colors.fuente}`} />
-            <Card.Body>
-              <div className="w-full rounded-lg bg-custom-dark p-3">
-                <div className="flex gap-3 items-center">
-                  <div className="flex-none">
-                    <div className="relative inline-flex items-center justify-center w-16 h-16 overflow-hidden bg-white rounded-lg">
-                      <span className="font-medium text-custom-dark">NS</span>
+      
+      <div className="relative z-10">
+        {/* Header modernizado */}
+        <div className="flex items-center gap-4 mb-8 animate-fade-in">
+          <div className="w-12 h-12 bg-gradient-to-br from-custom-marca-boton to-custom-marca-boton-variante rounded-xl flex items-center justify-center shadow-lg">
+            <span className="text-2xl">📊</span>
+          </div>
+          <div>
+            <h2 className="text-3xl font-jostBold bg-gradient-to-r from-custom-marca-boton to-custom-marca-boton-variante2 bg-clip-text text-transparent">
+              Cuadro de Mando
+            </h2>
+            <p className="text-sm text-gray-500 font-jostRegular mt-1">Gestiona tu billetera y activos</p>
+          </div>
+        </div>
+        
+        <ClaimTokens />
+        
+        <div className="grid grid-cols-1 2xl:grid-cols-5 2xl:space-x-5 gap-5">
+          <div className="flex-col col-span-3 space-y-5">
+            <Card className="h-fit shadow-lg border border-gray-100 hover:shadow-xl transition-all duration-300 animate-scale-in">
+              <Card.Header title="Cuenta" className={`${colors.fuente}`} />
+              <Card.Body>
+                <div className="w-full rounded-xl bg-gradient-to-br from-custom-marca-boton via-custom-marca-boton-variante to-custom-marca-boton-variante2 p-6 shadow-xl relative overflow-hidden">
+                  {/* Efecto shimmer en el fondo */}
+                  <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/10 to-transparent animate-shimmer"></div>
+                  
+                  <div className="flex gap-4 items-center relative z-10">
+                    <div className="flex-none">
+                      <div className="relative inline-flex items-center justify-center w-20 h-20 overflow-hidden bg-white rounded-xl shadow-lg group-hover:scale-110 transition-transform duration-300">
+                        <span className="font-jostBold text-lg text-custom-marca-boton">NS</span>
+                      </div>
                     </div>
-                  </div>
-                  <div className="flex-1 w-64 text-white">
-                    <p className="text-lg">Mi billetera</p>
-                    <div className="flex items-center gap-2">
-                      <p className="text-sm truncate w-52">
-                        {walletData ? walletData?.address : 'loading ...'}
-                      </p>
-                      <CopyToClipboard
-                        iconClassName="h-5 w-5"
-                        copyValue={walletData?.address}
-                        tooltipLabel="Copiar !"
-                      />
-                      <ExternalLink
-                        iconClassName="h-5 w-5"
-                        tooltipLabel="Consultar en CardanoScan Preview"
-                        externalURL={
-                          'https://preview.cardanoscan.io/address/' +
-                          walletData?.address
-                        }
-                      />
-                    </div>
-                    <div className="flex items-center gap-2">
-                      <p className="text-xl text-amber-400">
-                        {showAddress ? (
-                          <>
-                            {walletData
-                              ? parseInt(walletData?.balance) / 1000000
-                              : '0'}{' '}
-                            ADA
-                          </>
-                        ) : (
-                          <>********</>
-                        )}
-                      </p>
-                      <Tooltip
-                        text={showAddress ? 'Ocultar Saldo' : 'Mostrar Saldo'}
-                      >
-                        <div onClick={handleShowAddress}>
+                    <div className="flex-1 w-64 text-white">
+                      <p className="text-xl font-jostBold mb-2">Mi billetera</p>
+                      <div className="flex items-center gap-2 mb-3">
+                        <p className="text-sm truncate w-52 font-jostRegular bg-white/10 backdrop-blur-sm px-3 py-1.5 rounded-lg">
+                          {walletData ? walletData?.address : 'loading ...'}
+                        </p>
+                        <CopyToClipboard
+                          iconClassName="h-5 w-5 hover:scale-110 transition-transform"
+                          copyValue={walletData?.address}
+                          tooltipLabel="Copiar !"
+                        />
+                        <ExternalLink
+                          iconClassName="h-5 w-5 hover:scale-110 transition-transform"
+                          tooltipLabel="Consultar en CardanoScan Preview"
+                          externalURL={
+                            'https://preview.cardanoscan.io/address/' +
+                            walletData?.address
+                          }
+                        />
+                      </div>
+                      <div className="flex items-center gap-3">
+                        <p className="text-2xl font-jostBold text-white">
                           {showAddress ? (
-                            <EyeIcon className="h-6 w-6 cursor-pointer" />
+                            <>
+                              {walletData
+                                ? parseInt(walletData?.balance) / 1000000
+                                : '0'}{' '}
+                              <span className="text-lg font-jostRegular text-white/80">ADA</span>
+                            </>
                           ) : (
-                            <EyeOffIcon className="h-6 w-6 cursor-pointer" />
+                            <>********</>
                           )}
-                        </div>
-                      </Tooltip>
+                        </p>
+                        <Tooltip
+                          text={showAddress ? 'Ocultar Saldo' : 'Mostrar Saldo'}
+                        >
+                          <div onClick={handleShowAddress} className="cursor-pointer hover:scale-110 transition-transform duration-300">
+                            {showAddress ? (
+                              <EyeIcon className="h-6 w-6 text-white/80 hover:text-white" />
+                            ) : (
+                              <EyeOffIcon className="h-6 w-6 text-white/80 hover:text-white" />
+                            )}
+                          </div>
+                        </Tooltip>
+                      </div>
                     </div>
                   </div>
                 </div>
-              </div>
-            </Card.Body>
-          </Card>
-          <div className="h-fit">
+              </Card.Body>
+            </Card>
+          <div className="h-fit animate-slide-up" style={{ animationDelay: '0.2s' }}>
             <Transactions txPerPage={8} />
           </div>
         </div>
-        <div className="flex-col col-span-2 space-y-5 mt-5 2xl:mt-0">
+        <div className="flex-col col-span-2 space-y-5 mt-8 2xl:mt-4 animate-slide-up" style={{ animationDelay: '0.3s' }}>
           <WalletAssets
             chartActive={true}
             tableActive={false}
@@ -129,6 +149,7 @@ export default function WalletDashboard(props: WalletDashboardProps) {
           />
         </div>
       </div>
-    </>
+      </div>
+    </div>
   );
 }

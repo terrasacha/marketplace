@@ -1,5 +1,4 @@
 import { useContext, useEffect, useState } from 'react';
-import Card from '../common/Card';
 import LoadingOverlay from '../common/LoadingOverlay';
 import { RefreshIcon } from '../icons/RefreshIcon';
 import TransactionInfoCard from '../wallet/sign-transaction/TransactionInfoCard';
@@ -344,28 +343,60 @@ export default function Transactions(props: TransactionsProps) {
     fuenteAlterna:'font-medium',
   };
   return (
-    <Card className={` ${colors.fuenteAlterna}  col-span-2 h-fit`}>
-      <Card.Header
-        title="Transacciones" className={`${colors.fuente}`}
-        tooltip={
+    <div className={`${colors.fuenteAlterna} col-span-2 h-fit bg-gradient-to-br from-white to-gray-50 rounded-xl shadow-lg border border-gray-100/50 hover:shadow-xl transition-all duration-300 animate-scale-in`}>
+      {/* Header modernizado */}
+      <div className="pt-6 px-6 pb-4 border-b border-gray-100/50">
+        <div className="flex justify-between items-center">
+          <div className="flex items-center gap-3">
+            <div className="w-10 h-10 bg-gradient-to-br from-custom-marca-boton to-custom-marca-boton-variante rounded-lg flex items-center justify-center shadow-md">
+              <svg className="w-5 h-5 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2" />
+              </svg>
+            </div>
+            <div>
+              <h3 className={`mb-0 text-2xl font-jostBold bg-gradient-to-r from-custom-marca-boton to-custom-marca-boton-variante2 bg-clip-text text-transparent`}>
+                Transacciones
+              </h3>
+              <p className="mb-0 text-sm text-gray-500 font-jostRegular">Historial completo de movimientos</p>
+            </div>
+          </div>
           <button
             type="button"
-            className={`text-white ${colors.bgColor}  ${colors.hoverBgColor} focus:outline-none focus:ring-4 focus:ring-gray-300 font-medium rounded text-sm p-2.5 `}
+            className={`relative text-white bg-gradient-to-r from-custom-marca-boton to-custom-marca-boton-variante hover:from-custom-marca-boton-variante hover:to-custom-marca-boton focus:outline-none focus:ring-2 focus:ring-custom-marca-boton/20 font-jostBold rounded-lg text-sm p-2.5 shadow-md hover:shadow-lg transition-all duration-300 overflow-hidden group ${
+              isLoading ? 'opacity-75 cursor-progress' : ''
+            }`}
             disabled={isLoading}
             onClick={() => handleRefresh()}
+            aria-label="Actualizar transacciones"
           >
-            <RefreshIcon />
+            <span className="absolute inset-0 bg-gradient-to-r from-transparent via-white/20 to-transparent translate-x-[-100%] group-hover:translate-x-[100%] transition-transform duration-700"></span>
+            <div className={`relative z-10 ${isLoading ? 'animate-spin' : ''}`}>
+              <RefreshIcon />
+            </div>
           </button>
-        }
-      />
-      <Card.Body>
+        </div>
+      </div>
+      {/* Body modernizado */}
+      <div className="p-6">
         {transactionsList.length === 0 && !isLoading && (
-          <p>Aún no has realizado transacciones</p>
+          <div className="text-center py-12 animate-fade-in">
+            <div className="w-16 h-16 bg-gradient-to-br from-custom-marca-boton-alterno2/20 to-custom-marca-boton-alterno/20 rounded-full flex items-center justify-center mx-auto mb-4">
+              <svg className="w-8 h-8 text-custom-marca-boton" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2" />
+              </svg>
+            </div>
+            <p className="text-gray-600 font-jostRegular text-lg mb-2">Aún no has realizado transacciones</p>
+            <p className="text-gray-400 font-jostRegular text-sm">Tus transacciones aparecerán aquí cuando realices movimientos</p>
+          </div>
         )}
-        <div className="space-y-2">
+        
+        <div className="space-y-3">
           {pendingTransaction && (
-            <div className="space-y-2">
-              <p>Transacciones pendientes</p>
+            <div className="space-y-3 animate-slide-up">
+              <div className="flex items-center gap-2 mb-2">
+                <div className="w-2 h-2 bg-amber-500 rounded-full animate-pulse"></div>
+                <p className="text-sm font-jostBold text-amber-700">Transacciones pendientes</p>
+              </div>
               <TransactionInfoCard
                 title={pendingTransaction.title}
                 subtitle={pendingTransaction.subtitle}
@@ -387,9 +418,17 @@ export default function Transactions(props: TransactionsProps) {
               />
             </div>
           )}
-          {/* <MessageList/> */}
-          <p>Historial de transacciones de billetera</p>
-          <LoadingOverlay visible={isLoading} className="space-y-2">
+          
+          {transactionsList.length > 0 && (
+            <div className="mb-4">
+              <p className="text-sm font-jostBold text-gray-700 flex items-center gap-2">
+                <span className="w-1 h-4 bg-gradient-to-b from-custom-marca-boton to-custom-marca-boton-variante2 rounded-full"></span>
+                Historial de transacciones de billetera
+              </p>
+            </div>
+          )}
+          
+          <LoadingOverlay visible={isLoading} className="space-y-3">
             {Array.isArray(transactionsList) && transactionsList.length > 0 ? (
               transactionsList
                 .filter((tx: any) => tx && tx.tx_id !== pendingTransaction?.tx_id)
@@ -399,27 +438,32 @@ export default function Transactions(props: TransactionsProps) {
                     return null;
                   }
                   return (
-                    <TransactionInfoCard
-                      key={tx.tx_id || index}
-                      title={tx.title}
-                      subtitle={tx.subtitle}
-                      tx_id={tx.tx_id}
-                      tx_type={tx.tx_type}
-                      tx_fee={tx.tx_fee}
-                      tx_value={tx.tx_value}
-                      tx_assets={tx.tx_assets}
-                      block={tx.block}
-                      tx_size={tx.tx_size}
-                      inputUTxOs={tx.inputUTxOs}
-                      outputUTxOs={tx.outputUTxOs}
-                      is_collapsed={true}
-                      metadata={tx.metadata}
-                    />
+                    <div key={tx.tx_id || index} className="animate-fade-in" style={{ animationDelay: `${index * 0.05}s` }}>
+                      <TransactionInfoCard
+                        title={tx.title}
+                        subtitle={tx.subtitle}
+                        tx_id={tx.tx_id}
+                        tx_type={tx.tx_type}
+                        tx_fee={tx.tx_fee}
+                        tx_value={tx.tx_value}
+                        tx_assets={tx.tx_assets}
+                        block={tx.block}
+                        tx_size={tx.tx_size}
+                        inputUTxOs={tx.inputUTxOs}
+                        outputUTxOs={tx.outputUTxOs}
+                        is_collapsed={true}
+                        metadata={tx.metadata}
+                      />
+                    </div>
                   );
                 })
                 .filter((item: any) => item !== null)
             ) : (
-              !isLoading && <p className="text-gray-500 text-sm">No hay transacciones para mostrar</p>
+              !isLoading && !pendingTransaction && (
+                <div className="text-center py-8">
+                  <p className="text-gray-500 text-sm font-jostRegular">No hay transacciones para mostrar</p>
+                </div>
+              )
             )}
           </LoadingOverlay>
           {/* <div className="relative space-y-2 min-h-20">
@@ -433,79 +477,65 @@ export default function Transactions(props: TransactionsProps) {
           </div> */}
         </div>
 
-        <div className="flex flex-col items-center mt-5">
-          {/* <span className="text-sm text-gray-700 dark:text-gray-400">
-            Mostrando de{' '}
-            <span className="font-semibold text-gray-900 dark:text-white">
-              {indexOfFirstItem + 1}
-            </span>{' '}
-            a{' '}
-            <span className="font-semibold text-gray-900 dark:text-white">
-              {Math.min(indexOfLastItem, paginationMetadata.totalItems)}
-            </span>{' '}
-            de un total de{' '}
-            <span className="font-semibold text-gray-900 dark:text-white">
-              {paginationMetadata.totalItems}
-            </span>{' '}
-            Transacciones
-          </span> */}
-          <div className="inline-flex mt-2 xs:mt-0">
-            <button
-              className={`flex items-center justify-center px-3 h-8 text-sm font-medium text-white ${colors.bgColor}  rounded-s ${colors.hoverBgColor} ${
-                isLoading && 'cursor-progress'
-              } ${!canShowPrevious && 'opacity-50 cursor-not-allowed'}`}
-              onClick={() => changePage(-1)}
-              disabled={!canShowPrevious || isLoading}
-            >
-              <>
+        {/* Paginación modernizada */}
+        {(canShowPrevious || canShowNext) && (
+          <div className="flex flex-col items-center mt-8 pt-6 border-t border-gray-100/50">
+            <div className="inline-flex rounded-lg overflow-hidden shadow-md">
+              <button
+                className={`flex items-center justify-center px-4 h-10 text-sm font-jostBold text-white bg-gradient-to-r from-custom-marca-boton to-custom-marca-boton-variante hover:from-custom-marca-boton-variante hover:to-custom-marca-boton transition-all duration-300 ${
+                  isLoading && 'cursor-progress'
+                } ${!canShowPrevious ? 'opacity-50 cursor-not-allowed' : 'hover:shadow-lg'}`}
+                onClick={() => changePage(-1)}
+                disabled={!canShowPrevious || isLoading}
+                aria-label="Página anterior"
+              >
                 <svg
-                  className="w-3.5 h-3.5 me-2 rtl:rotate-180"
+                  className="w-4 h-4 me-2 rtl:rotate-180"
                   aria-hidden="true"
-                  xmlns="http://www.w3.org/2000/svg"
                   fill="none"
-                  viewBox="0 0 14 10"
+                  stroke="currentColor"
+                  viewBox="0 0 24 24"
                 >
                   <path
-                    stroke="currentColor"
                     strokeLinecap="round"
                     strokeLinejoin="round"
-                    strokeWidth="2"
-                    d="M13 5H1m0 0 4 4M1 5l4-4"
+                    strokeWidth={2}
+                    d="M15 19l-7-7 7-7"
                   />
                 </svg>
                 Prev
-              </>
-            </button>
-            <div className={`flex items-center justify-center px-3 h-8 text-sm font-medium text-white border-0 border-s border-gray-700 ${colors.bgColor}  ${colors.hoverBgColor}`}>
-              {paginationMetadata.currentPage}
-            </div>
-            <button
-              className={`flex items-center justify-center px-3 h-8 text-sm font-medium text-white ${colors.bgColor}  border-0 border-s border-gray-700 rounded-e ${colors.hoverBgColor} ${
-                isLoading && 'cursor-progress'
-              } ${!canShowNext && 'opacity-50 cursor-not-allowed'}`}
-              onClick={() => changePage(1)}
-              disabled={!canShowNext || isLoading}
-            >
-              Next
-              <svg
-                className="w-3.5 h-3.5 ms-2 rtl:rotate-180"
-                aria-hidden="true"
-                xmlns="http://www.w3.org/2000/svg"
-                fill="none"
-                viewBox="0 0 14 10"
+              </button>
+              <div className="flex items-center justify-center px-4 h-10 text-sm font-jostBold text-white bg-gradient-to-r from-custom-marca-boton-variante to-custom-marca-boton border-l border-r border-custom-marca-boton/30">
+                {paginationMetadata.currentPage}
+              </div>
+              <button
+                className={`flex items-center justify-center px-4 h-10 text-sm font-jostBold text-white bg-gradient-to-r from-custom-marca-boton to-custom-marca-boton-variante hover:from-custom-marca-boton-variante hover:to-custom-marca-boton transition-all duration-300 ${
+                  isLoading && 'cursor-progress'
+                } ${!canShowNext ? 'opacity-50 cursor-not-allowed' : 'hover:shadow-lg'}`}
+                onClick={() => changePage(1)}
+                disabled={!canShowNext || isLoading}
+                aria-label="Página siguiente"
               >
-                <path
+                Next
+                <svg
+                  className="w-4 h-4 ms-2 rtl:rotate-180"
+                  aria-hidden="true"
+                  fill="none"
                   stroke="currentColor"
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                  strokeWidth="2"
-                  d="M1 5h12m0 0L9 1m4 4L9 9"
-                />
-              </svg>
-            </button>
+                  viewBox="0 0 24 24"
+                >
+                  <path
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                    strokeWidth={2}
+                    d="M9 5l7 7-7 7"
+                  />
+                </svg>
+              </button>
+            </div>
           </div>
-        </div>
-      </Card.Body>
-    </Card>
+        )}
+      </div>
+    </div>
   );
 }

@@ -399,28 +399,31 @@ const MockupProjectsList = ({ projects: projectsProp = [] }: MockupProjectsListP
 
                 {/* Botón Ver Detalles */}
                 <div className="mt-auto">
-                  <Link
-                    href={`/projects/${project.id}`}
-                    className="relative w-full bg-gradient-to-r from-custom-marca-boton to-custom-marca-boton-variante text-white font-jostBold py-3 rounded-lg overflow-hidden transition-all duration-300 shadow-md hover:shadow-xl flex items-center justify-center group/button"
-                  >
-                    <span className="absolute inset-0 bg-gradient-to-r from-custom-marca-boton-variante to-custom-marca-boton opacity-0 group-hover/button:opacity-100 transition-opacity duration-300"></span>
-                    <span className="absolute inset-0 bg-gradient-to-r from-transparent via-white/20 to-transparent translate-x-[-100%] group-hover/button:translate-x-[100%] transition-transform duration-1000"></span>
-                    <span className="relative z-10 flex items-center">
-                      Ver Detalles
-                      <svg
-                        className="w-4 h-4 ml-2 group-hover/button:translate-x-1 transition-transform duration-300"
-                        fill="none"
-                        stroke="currentColor"
-                        viewBox="0 0 24 24"
-                      >
-                        <path
-                          strokeLinecap="round"
-                          strokeLinejoin="round"
-                          strokeWidth={2}
-                          d="M9 5l7 7-7 7"
-                        />
-                      </svg>
-                    </span>
+                  <Link href={`/projects/${project.id}`} passHref legacyBehavior>
+                    <a
+                      className="relative w-full bg-gradient-to-r from-custom-marca-boton to-custom-marca-boton-variante text-white font-jostBold py-3 rounded-lg overflow-hidden transition-all duration-300 shadow-md hover:shadow-xl flex items-center justify-center group/button"
+                      aria-label={`Ver detalle del proyecto ${project.title}`}
+                    >
+                      <span className="absolute inset-0 bg-gradient-to-r from-custom-marca-boton-variante to-custom-marca-boton opacity-0 group-hover/button:opacity-100 transition-opacity duration-300 pointer-events-none" aria-hidden />
+                      <span className="absolute inset-0 bg-gradient-to-r from-transparent via-white/20 to-transparent translate-x-[-100%] group-hover/button:translate-x-[100%] transition-transform duration-1000 pointer-events-none" aria-hidden />
+                      <span className="relative z-10 flex items-center">
+                        Ver Detalles
+                        <svg
+                          className="w-4 h-4 ml-2 group-hover/button:translate-x-1 transition-transform duration-300"
+                          fill="none"
+                          stroke="currentColor"
+                          viewBox="0 0 24 24"
+                          aria-hidden
+                        >
+                          <path
+                            strokeLinecap="round"
+                            strokeLinejoin="round"
+                            strokeWidth={2}
+                            d="M9 5l7 7-7 7"
+                          />
+                        </svg>
+                      </span>
+                    </a>
                   </Link>
                 </div>
               </div>

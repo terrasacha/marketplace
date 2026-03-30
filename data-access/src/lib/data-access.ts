@@ -542,16 +542,26 @@ export async function getProjects(app: any) {
       }
     );
 
+    const appNormalized = (app ?? '').trim().replace(/\s+/g, ' ');
     const validProducts = response.data.data.listProducts.items.filter(
       (product: any) => {
-        const countFeatures = product.productFeatures.items.reduce(
+        const marketplaceName = (product.marketplace?.name ?? '')
+          .trim()
+          .replace(/\s+/g, ' ');
+        if (marketplaceName !== appNormalized) return false;
+
+        const countFeatures = (product.productFeatures?.items ?? []).reduce(
           (count: number, pf: any) => {
             // Condicion 1: Tener periodos de precios y cantidad de tokens
             if (pf.featureID === 'GLOBAL_TOKEN_HISTORICAL_DATA') {
-              const data = JSON.parse(pf.value);
-              const todaysDate = Date.now();
-              if (data.some((date: any) => Date.parse(date.date) > todaysDate))
-                return count + 1;
+              try {
+                const data = JSON.parse(pf.value);
+                const todaysDate = Date.now();
+                if (data?.some((date: any) => Date.parse(date.date) > todaysDate))
+                  return count + 1;
+              } catch {
+                // ignore
+              }
             }
             // Condicion 2: Tener titulares diligenciados
             /* if (pf.featureID === 'B_owners') {
@@ -587,11 +597,10 @@ export async function getProjects(app: any) {
           },
           0
         );
-        return countFeatures === 4 && product.marketplace.name === app;
+        // Mostrar en lista todos los del marketplace; si solo quieres "listos" (4 features), usa: countFeatures === 4
+        return true;
       }
     );
-
-    console.log('validProducts', validProducts)
 
     // Condicion 8: Genesis del token requerido
 

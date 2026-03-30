@@ -146,6 +146,23 @@ const MainLayout = ({ children }: PropsWithChildren) => {
   const initializationRef = useRef<boolean>(false);
   const walletInitializedRef = useRef<boolean>(false);
 
+  // Cargar estado del sidebar desde localStorage
+  useEffect(() => {
+    if (typeof window !== 'undefined') {
+      const savedSidebarState = localStorage.getItem('sidebarOpen');
+      if (savedSidebarState !== null) {
+        setIsOpen(JSON.parse(savedSidebarState));
+      }
+    }
+  }, []);
+
+  // Guardar estado del sidebar en localStorage
+  useEffect(() => {
+    if (typeof window !== 'undefined') {
+      localStorage.setItem('sidebarOpen', JSON.stringify(isOpen));
+    }
+  }, [isOpen]);
+
   // Función para verificar y manejar auto-unlock de billetera
   const handleWalletAutoUnlock = useCallback(async (walletId: string): Promise<boolean> => {
     const session = getWalletSession();
@@ -437,6 +454,9 @@ const MainLayout = ({ children }: PropsWithChildren) => {
           <Navbar
             walletInfo={walletInfo}
             handleSidebarStatus={handleSidebarStatus}
+            isSidebarOpen={isOpen}
+            balance={balance}
+            balanceUSD={balanceUSD}
           />
           <Sidebar
             isOpen={isOpen}
@@ -450,7 +470,15 @@ const MainLayout = ({ children }: PropsWithChildren) => {
             widthLogo={300}
             poweredBy={true}
           />
-          <main className="lg:ml-80 mt-20">{children}</main>
+          {/* Overlay para mobile cuando sidebar está abierto */}
+          {isOpen && (
+            <div
+              className="fixed inset-0 bg-black/50 z-40 lg:hidden transition-opacity duration-300"
+              onClick={handleSidebarStatus}
+              aria-hidden="true"
+            />
+          )}
+          <main className={`mt-16 transition-all duration-300 ${isOpen ? 'lg:ml-80' : 'lg:ml-0'} h-[calc(100vh-4rem)] overflow-y-auto`}>{children}</main>
         </>
       ) : (
         <HomeSkeleton />

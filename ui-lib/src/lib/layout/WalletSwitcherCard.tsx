@@ -108,19 +108,19 @@ export default function WalletSwitcherCard({ className = '', onCloseSidebar }: W
       <button
         type="button"
         onClick={() => setModalOpen(true)}
-        className={`flex items-center gap-2 w-full p-3 rounded-lg border border-gray-200 bg-white hover:bg-gray-50 text-left transition-colors ${className}`}
+        className={`flex items-center gap-3 w-full p-3 rounded-xl border border-gray-200/50 bg-gradient-to-br from-white to-gray-50 hover:from-custom-marca-boton-alterno2/10 hover:to-custom-marca-boton-alterno/5 hover:border-custom-marca-boton/30 text-left transition-all duration-300 shadow-sm hover:shadow-md group ${className}`}
         aria-label="Cambiar billetera"
       >
-        <span className="flex-shrink-0 w-8 h-8 rounded-full bg-custom-marca-boton/20 flex items-center justify-center">
-          <svg className="w-4 h-4 text-custom-marca-boton" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+        <span className="flex-shrink-0 w-10 h-10 rounded-full bg-gradient-to-br from-custom-marca-boton/20 to-custom-marca-boton-alterno/20 flex items-center justify-center group-hover:scale-110 transition-transform duration-300">
+          <svg className="w-5 h-5 text-custom-marca-boton group-hover:text-custom-marca-boton-variante transition-colors" fill="none" stroke="currentColor" viewBox="0 0 24 24">
             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 10h18M7 15h1m4 0h1m-7 4h12a3 3 0 003-3V8a3 3 0 00-3-3H6a3 3 0 00-3 3v8a3 3 0 003 3z" />
           </svg>
         </span>
         <div className="min-w-0 flex-1">
-          <p className="text-xs font-medium text-gray-500">Billetera actual</p>
-          <p className="text-sm font-semibold text-gray-900 truncate">{displayName}</p>
+          <p className="text-xs font-jostRegular text-gray-500 group-hover:text-custom-marca-boton transition-colors">Billetera actual</p>
+          <p className="text-sm font-jostBold text-gray-900 truncate group-hover:text-custom-marca-boton transition-colors">{displayName}</p>
         </div>
-        <svg className="w-4 h-4 text-gray-400 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+        <svg className="w-4 h-4 text-gray-400 flex-shrink-0 group-hover:text-custom-marca-boton group-hover:translate-x-1 transition-all duration-300" fill="none" stroke="currentColor" viewBox="0 0 24 24">
           <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
         </svg>
       </button>

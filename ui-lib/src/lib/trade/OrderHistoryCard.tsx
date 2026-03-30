@@ -1,5 +1,4 @@
 import { useContext, useEffect, useState } from 'react';
-import Card from '../common/Card';
 import { SearchIcon, SignTransactionModal } from '../ui-lib';
 import { mapBuildTransactionInfo } from '@marketplaces/utils-2';
 import { toast } from 'sonner';
@@ -182,120 +181,151 @@ export default function OrderHistoryCard(props: OrderHistoryCardProps) {
   };
   return (
     <>
-      <Card>
-        <div className="text-sm font-medium text-center text-gray-500 border-b border-gray-200">
-          <ul className="flex flex-wrap -mb-px">
-            <li className="me-2">
-              <a
-                href="#"
-                className={`${colors.fuente} inline-block p-4 border-b-2 rounded-t-lg ${
+      <div className="relative bg-gradient-to-br from-white via-gray-50/50 to-white rounded-2xl shadow-xl border border-gray-100/50 hover:shadow-2xl transition-all duration-500 animate-scale-in" style={{ animationDelay: '0.2s' }}>
+        {/* Efecto de fondo decorativo */}
+        <div className="absolute top-0 right-0 w-64 h-64 bg-gradient-to-br from-custom-marca-boton-alterno/5 to-transparent rounded-full blur-3xl -z-0"></div>
+        
+        <div className="relative z-10">
+          <div className="pt-8 px-6 pb-6 border-b border-gray-100/50 bg-gradient-to-r from-custom-marca-boton-alterno/5 via-transparent to-transparent">
+            <div className="flex items-center gap-4 mb-4">
+              <div className="w-14 h-14 bg-gradient-to-br from-custom-marca-boton-alterno to-custom-marca-boton-alterno2 rounded-2xl flex items-center justify-center shadow-lg group-hover:scale-110 transition-transform duration-300">
+                <svg className="w-7 h-7 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
+                </svg>
+              </div>
+              <div className="flex-1">
+                <h3 className="mb-0 text-2xl font-jostBold bg-gradient-to-r from-custom-marca-boton-alterno to-custom-marca-boton-alterno2 bg-clip-text text-transparent">
+                  Historial de Órdenes
+                </h3>
+                <p className="mb-0 text-sm text-gray-500 font-jostRegular mt-1">Revisa tus transacciones y compras</p>
+              </div>
+            </div>
+            
+            {/* Tabs mejorados */}
+            <div className="flex gap-2 bg-gray-100/50 rounded-xl p-1">
+              <button
+                type="button"
+                className={`${colors.fuente} flex-1 px-4 py-3 rounded-lg transition-all duration-300 ${
                   activeTab === 'my_orders'
-                    ? 'text-blue-600 border-blue-600'
-                    : 'border-transparent hover:text-gray-600 hover:border-gray-300'
+                    ? 'bg-white text-custom-marca-boton shadow-md'
+                    : 'text-gray-600 hover:text-gray-900'
                 }`}
                 onClick={() => handleSetActiveTab('my_orders')}
               >
-                Mis Ordenes
-              </a>
-            </li>
-            <li className="me-2">
-              <a href="#" className={`${colors.fuente}  inline-block p-4 border-b-2 rounded-t-lg ${
+                Mis Órdenes
+              </button>
+              <button
+                type="button"
+                className={`${colors.fuente} flex-1 px-4 py-3 rounded-lg transition-all duration-300 ${
                   activeTab === 'my_orders_history'
-                    ? 'text-blue-600 border-blue-600'
-                    : 'border-transparent hover:text-gray-600 hover:border-gray-300'
+                    ? 'bg-white text-custom-marca-boton shadow-md'
+                    : 'text-gray-600 hover:text-gray-900'
                 }`}
-                aria-current="page"
                 onClick={() => handleSetActiveTab('my_orders_history')}
               >
                 Mis Compras
-              </a>
-            </li>
-          </ul>
-        </div>
-        <Card.Body>
+              </button>
+            </div>
+          </div>
+          <div className="p-6">
           <>
             {activeTab === 'my_orders' && (
               <div>
-                {/* Encabezado de la tabla, oculto en pantallas pequeñas */}
-                <div className={`hidden md:flex space-x-2 items-center px-3 py-2`}>
-                  <div className={`${colors.fuenteAlterna}  w-full text-center`}>Activo</div>
-                  <div className={`${colors.fuenteAlterna}  w-full text-center`}>Cantidad</div>
-                  <div className={`${colors.fuenteAlterna}  w-full text-center`}>
-                    Precio Unitario (ADA)
-                  </div>
-                  <div className={`${colors.fuenteAlterna}  w-full text-center`}>Total</div>
-                  <div className={`${colors.fuenteAlterna}  w-full text-center`}>Estado</div>
-                  <div className={`${colors.fuenteAlterna}  w-full text-center`}></div>
-                </div>
-                <div className="space-y-1">
-                  {currentItems &&
-                    currentItems.map((order: any, index: number) => {
+                {currentItems && currentItems.length > 0 ? (
+                  <div className="grid grid-cols-1 gap-4">
+                    {currentItems.map((order: any, index: number) => {
+                      const unitPrice = order.value / 1000000;
+                      const totalPrice = unitPrice * order.tokenAmount;
+                      const statusColor = order.statusCode === 'listed' ? 'green' : order.statusCode === 'claimed' ? 'blue' : 'gray';
+                      
                       return (
                         <div
                           key={index}
-                          className="flex flex-wrap justify-between items-center bg-custom-dark text-white rounded-lg px-3 py-2"
+                          className="bg-gradient-to-br from-white via-gray-50/50 to-white rounded-xl border-2 border-gray-200 hover:border-custom-marca-boton-alterno/50 shadow-md hover:shadow-xl transition-all duration-300 animate-fade-in p-5 group"
+                          style={{ animationDelay: `${index * 0.05}s` }}
                         >
-                          <div className="w-full md:w-1/5 text-center">
-                            <p className="md:hidden text-gray-400">Activo</p>
-                            <p>{order.tokenName}</p>
-                          </div>
-                          <div className="w-full md:w-1/5 text-center">
-                            <p className="md:hidden text-gray-400">Cantidad</p>
-                            <p>{order.tokenAmount}</p>
-                          </div>
-                          <div className="w-full md:w-1/5 text-center">
-                            <p className="md:hidden text-gray-400">
-                              Precio Unitario (ADA)
-                            </p>
-                            <p>t₳ {order.value / 1000000}</p>
-                          </div>
-                          <div className="w-full md:w-1/5 text-center">
-                            <p className="md:hidden text-gray-400">Total</p>
-                            <p>
-                              t₳ {(order.value / 1000000) * order.tokenAmount}
-                            </p>
-                          </div>
-                          <div className="w-full md:w-1/5 text-center">
-                            <p className="md:hidden text-gray-400">Estado</p>
-                            <p>
-                              {statusMapper[order.statusCode] || 'Sin estado'}
-                            </p>
-                          </div>
-                          <div className="w-full md:w-1/5 text-center mt-2 md:mt-0">
+                          <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4">
+                            <div className="flex-1 space-y-3">
+                              <div className="flex items-center gap-3">
+                                <div className="w-12 h-12 bg-gradient-to-br from-custom-marca-boton-alterno to-custom-marca-boton-alterno2 rounded-xl flex items-center justify-center shadow-md">
+                                  <svg className="w-6 h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2" />
+                                  </svg>
+                                </div>
+                                <div className="flex-1">
+                                  <h4 className="text-lg font-jostBold text-gray-900 mb-1">{order.tokenName}</h4>
+                                  <span className={`inline-flex items-center gap-1 px-2 py-1 text-xs font-jostBold rounded-lg ${
+                                    statusColor === 'green' ? 'bg-green-50 text-green-600' :
+                                    statusColor === 'blue' ? 'bg-blue-50 text-blue-600' :
+                                    'bg-gray-50 text-gray-600'
+                                  }`}>
+                                    {statusMapper[order.statusCode] || 'Sin estado'}
+                                  </span>
+                                </div>
+                              </div>
+                              
+                              <div className="grid grid-cols-2 md:grid-cols-4 gap-3 pt-2">
+                                <div className="bg-gray-50 rounded-lg p-3">
+                                  <p className="text-xs font-jostRegular text-gray-500 mb-1">Cantidad</p>
+                                  <p className="text-sm font-jostBold text-gray-900">{order.tokenAmount}</p>
+                                </div>
+                                <div className="bg-gray-50 rounded-lg p-3">
+                                  <p className="text-xs font-jostRegular text-gray-500 mb-1">Precio Unit.</p>
+                                  <p className="text-sm font-jostBold text-gray-900">t₳ {unitPrice.toFixed(6)}</p>
+                                </div>
+                                <div className="bg-gradient-to-br from-custom-marca-boton-alterno/10 to-custom-marca-boton-alterno2/10 rounded-lg p-3">
+                                  <p className="text-xs font-jostRegular text-gray-600 mb-1">Total</p>
+                                  <p className="text-sm font-jostBold bg-gradient-to-r from-custom-marca-boton-alterno to-custom-marca-boton-alterno2 bg-clip-text text-transparent">
+                                    t₳ {totalPrice.toFixed(6)}
+                                  </p>
+                                </div>
+                                <div className="bg-gray-50 rounded-lg p-3">
+                                  <p className="text-xs font-jostRegular text-gray-500 mb-1">Fecha</p>
+                                  <p className="text-xs font-jostBold text-gray-600">-</p>
+                                </div>
+                              </div>
+                            </div>
+                            
                             {order.statusCode === 'listed' && (
-                              <button
-                                type="button"
-                                className="text-yellow-300 w-full hover:text-white border border-yellow-300 hover:bg-yellow-400 focus:outline-none focus:ring-4 focus:ring-yellow-300 font-medium rounded text-sm px-5 py-2.5"
-                                onClick={() => handleRemoveOrder(order.id)}
-                              >
-                                Retirar
-                              </button>
+                              <div className="md:w-32 flex-shrink-0">
+                                <button
+                                  type="button"
+                                  className="w-full flex justify-center items-center gap-2 text-white bg-gradient-to-r from-yellow-500 to-yellow-600 hover:from-yellow-600 hover:to-yellow-700 focus:outline-none focus:ring-4 focus:ring-yellow-500/30 font-jostBold rounded-xl text-sm px-4 py-3 shadow-lg hover:shadow-xl transition-all duration-300 group"
+                                  onClick={() => handleRemoveOrder(order.id)}
+                                >
+                                  <svg className="w-5 h-5 group-hover:rotate-90 transition-transform duration-300" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+                                  </svg>
+                                  Retirar
+                                </button>
+                              </div>
                             )}
                           </div>
                         </div>
                       );
                     })}
-                </div>
+                  </div>
+                ) : (
+                  <div className="text-center py-16 animate-fade-in">
+                    <div className="w-20 h-20 bg-gradient-to-br from-gray-100 to-gray-200 rounded-full flex items-center justify-center mx-auto mb-4">
+                      <svg className="w-10 h-10 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2" />
+                      </svg>
+                    </div>
+                    <p className="text-gray-600 font-jostRegular text-lg mb-2">No tienes órdenes</p>
+                    <p className="text-gray-400 font-jostRegular text-sm">Crea tu primera orden para comenzar</p>
+                  </div>
+                )}
 
-                <div className={`flex flex-col items-center mt-5`}>
-                  <span className={`${colors.fuenteAlterna}  text-sm text-gray-700 dark:text-gray-400`}>
-                    Mostrando de{' '}
-                    <span className="font-semibold text-gray-900 dark:text-white">
-                      {indexOfFirstItem + 1}
-                    </span>{' '}
-                    a{' '}
-                    <span className="font-semibold text-gray-900 dark:text-white">
-                      {Math.min(indexOfLastItem, totalItems)}
-                    </span>{' '}
-                    de un total de{' '}
-                    <span className="font-semibold text-gray-900 dark:text-white">
-                      {totalItems}
-                    </span>{' '}
-                    Activos
-                  </span>
-                  <div className="inline-flex mt-2 xs:mt-0">
+                {/* Paginación mejorada */}
+                {totalItems > 0 && (
+                  <div className="flex flex-col items-center mt-6 pt-6 border-t border-gray-100">
+                    <span className={`${colors.fuenteAlterna} text-sm text-gray-600 mb-4`}>
+                      Mostrando <span className={`${colors.fuente} text-custom-marca-boton-alterno`}>{indexOfFirstItem + 1}</span> - <span className={`${colors.fuente} text-custom-marca-boton-alterno`}>{Math.min(indexOfLastItem, totalItems)}</span> de <span className={`${colors.fuente} text-custom-marca-boton-alterno`}>{totalItems}</span> órdenes
+                    </span>
+                    <div className="inline-flex gap-2">
                     <button
-                      className={`${colors.fuente} flex items-center justify-center px-3 h-8 text-sm font-medium text-white bg-custom-dark rounded-s hover:bg-custom-dark-hover ${
+                      className={`${colors.fuente} flex items-center justify-center px-4 h-9 text-sm font-medium text-white bg-gradient-to-r from-custom-marca-boton to-custom-marca-boton-variante rounded-l-lg hover:from-custom-marca-boton-variante hover:to-custom-marca-boton focus:outline-none focus:ring-2 focus:ring-custom-marca-boton/20 shadow-md hover:shadow-lg transition-all duration-300 ${
                         !canShowPrevious && 'opacity-50 cursor-not-allowed'
                       }`}
                       onClick={prevPage}
@@ -319,7 +349,7 @@ export default function OrderHistoryCard(props: OrderHistoryCardProps) {
                       Prev
                     </button>
                     <button
-                      className={`${colors.fuente} flex items-center justify-center px-3 h-8 text-sm font-medium text-white bg-custom-dark border-0 border-s border-gray-700 rounded-e hover:bg-custom-dark-hover ${
+                      className={`${colors.fuente} flex items-center justify-center px-4 h-9 text-sm font-medium text-white bg-gradient-to-r from-custom-marca-boton to-custom-marca-boton-variante rounded-r-lg hover:from-custom-marca-boton-variante hover:to-custom-marca-boton focus:outline-none focus:ring-2 focus:ring-custom-marca-boton/20 shadow-md hover:shadow-lg transition-all duration-300 ${
                         !canShowNext && 'opacity-50 cursor-not-allowed'
                       }`}
                       onClick={nextPage}
@@ -342,90 +372,91 @@ export default function OrderHistoryCard(props: OrderHistoryCardProps) {
                         />
                       </svg>
                     </button>
+                    </div>
                   </div>
-                </div>
+                )}
               </div>
             )}
             {activeTab === 'my_orders_history' && (
               <div>
-                {/* Encabezado de la tabla, oculto en pantallas pequeñas */}
-                <div className="hidden md:flex space-x-2 items-center px-3 py-2">
-                  <div className={`${colors.fuenteAlterna} w-full text-center`}>Activo</div>
-                  <div className={`${colors.fuenteAlterna} w-full text-center`}>Cantidad</div>
-                  <div className={`${colors.fuenteAlterna} w-full text-center`}>
-                    Precio Unitario (ADA)
-                  </div>
-                  <div className={`${colors.fuenteAlterna} w-full text-center`}>Total</div>
-                  <div className={`${colors.fuenteAlterna} w-full text-center`}>Estado</div>
-                  <div className={`${colors.fuenteAlterna} w-full text-center`}></div>
-                </div>
-                <div className="space-y-1">
-                  {currentItems2 &&
-                    currentItems2.map((order: any, index: number) => {
+                {currentItems2 && currentItems2.length > 0 ? (
+                  <div className="grid grid-cols-1 gap-4">
+                    {currentItems2.map((order: any, index: number) => {
+                      const unitPrice = order.value / 1000000;
+                      const totalPrice = unitPrice * order.tokenAmount;
+                      
                       return (
                         <div
                           key={index}
-                          className="flex flex-wrap justify-between items-center bg-custom-dark text-white rounded-lg px-3 py-2"
+                          className="bg-gradient-to-br from-white via-yellow-50/30 to-white rounded-xl border-2 border-yellow-200 hover:border-yellow-400/50 shadow-md hover:shadow-xl transition-all duration-300 animate-fade-in p-5 group"
+                          style={{ animationDelay: `${index * 0.05}s` }}
                         >
-                          <div className={`w-full md:w-1/5 text-center`}>
-                            <p className={`${colors.fuente} md:hidden text-gray-400`}>Activo</p>
-                            <p>{order.tokenName}</p>
-                          </div>
-                          <div className={`w-full md:w-1/5 text-center`}>
-                            <p className={`md:hidden text-gray-400`}>Cantidad</p>
-                            <p>{order.tokenAmount}</p>
-                          </div>
-                          <div className={`w-full md:w-1/5 text-center`}>
-                            <p className={`md:hidden text-gray-400`}>
-                              Precio Unitario (ADA)
-                            </p>
-                            <p>t₳ {order.value / 1000000}</p>
-                          </div>
-                          <div className={`w-full md:w-1/5 text-center`}>
-                            <p className={`md:hidden text-gray-400`}>Total</p>
-                            <p>
-                              t₳ {(order.value / 1000000) * order.tokenAmount}
-                            </p>
-                          </div>
-                          <div className={`w-full md:w-1/5 text-center`}>
-                            <p className={`md:hidden text-gray-400`}>Estado</p>
-                            <p>Adquirido</p>
-                          </div>
-                          <div className={`w-full md:w-1/5 text-center mt-2 md:mt-0`}>
-                            {order.statusCode === 'listed' && (
-                              <button
-                                type="button"
-                                className={`text-yellow-300 w-full hover:text-white border border-yellow-300 hover:bg-yellow-400 focus:outline-none focus:ring-4 focus:ring-yellow-300 font-medium rounded text-sm px-5 py-2.5`}
-                                onClick={() => handleRemoveOrder(order.id)}
-                              >
-                                Retirar
-                              </button>
-                            )}
+                          <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4">
+                            <div className="flex-1 space-y-3">
+                              <div className="flex items-center gap-3">
+                                <div className="w-12 h-12 bg-gradient-to-br from-yellow-500 to-yellow-600 rounded-xl flex items-center justify-center shadow-md">
+                                  <svg className="w-6 h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 3h2l.4 2M7 13h10l4-8H5.4M7 13L5.4 5M7 13l-2.293 2.293c-.63.63-.184 1.707.707 1.707H17m0 0a2 2 0 100 4 2 2 0 000-4zm-8 2a2 2 0 11-4 0 2 2 0 014 0z" />
+                                  </svg>
+                                </div>
+                                <div className="flex-1">
+                                  <h4 className="text-lg font-jostBold text-gray-900 mb-1">{order.tokenName}</h4>
+                                  <span className="inline-flex items-center gap-1 px-2 py-1 bg-yellow-50 text-yellow-600 text-xs font-jostBold rounded-lg">
+                                    <svg className="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
+                                    </svg>
+                                    Adquirido
+                                  </span>
+                                </div>
+                              </div>
+                              
+                              <div className="grid grid-cols-2 md:grid-cols-4 gap-3 pt-2">
+                                <div className="bg-gray-50 rounded-lg p-3">
+                                  <p className="text-xs font-jostRegular text-gray-500 mb-1">Cantidad</p>
+                                  <p className="text-sm font-jostBold text-gray-900">{order.tokenAmount}</p>
+                                </div>
+                                <div className="bg-gray-50 rounded-lg p-3">
+                                  <p className="text-xs font-jostRegular text-gray-500 mb-1">Precio Unit.</p>
+                                  <p className="text-sm font-jostBold text-gray-900">t₳ {unitPrice.toFixed(6)}</p>
+                                </div>
+                                <div className="bg-gradient-to-br from-yellow-100 to-yellow-50 rounded-lg p-3">
+                                  <p className="text-xs font-jostRegular text-gray-600 mb-1">Total Pagado</p>
+                                  <p className="text-sm font-jostBold bg-gradient-to-r from-yellow-600 to-yellow-500 bg-clip-text text-transparent">
+                                    t₳ {totalPrice.toFixed(6)}
+                                  </p>
+                                </div>
+                                <div className="bg-gray-50 rounded-lg p-3">
+                                  <p className="text-xs font-jostRegular text-gray-500 mb-1">Fecha</p>
+                                  <p className="text-xs font-jostBold text-gray-600">-</p>
+                                </div>
+                              </div>
+                            </div>
                           </div>
                         </div>
                       );
                     })}
-                </div>
+                  </div>
+                ) : (
+                  <div className="text-center py-16 animate-fade-in">
+                    <div className="w-20 h-20 bg-gradient-to-br from-yellow-100 to-yellow-200 rounded-full flex items-center justify-center mx-auto mb-4">
+                      <svg className="w-10 h-10 text-yellow-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 3h2l.4 2M7 13h10l4-8H5.4M7 13L5.4 5M7 13l-2.293 2.293c-.63.63-.184 1.707.707 1.707H17m0 0a2 2 0 100 4 2 2 0 000-4zm-8 2a2 2 0 11-4 0 2 2 0 014 0z" />
+                      </svg>
+                    </div>
+                    <p className="text-gray-600 font-jostRegular text-lg mb-2">No has realizado compras</p>
+                    <p className="text-gray-400 font-jostRegular text-sm">Tus compras aparecerán aquí</p>
+                  </div>
+                )}
 
-                <div className="flex flex-col items-center mt-5">
-                  <span className={`${colors.fuenteAlterna} text-sm text-gray-700 dark:text-gray-400`}>
-                    Mostrando de{' '}
-                    <span className={`font-semibold text-gray-900 dark:text-white`}>
-                      {indexOfFirstItem2 + 1}
-                    </span>{' '}
-                    a{' '}
-                    <span className={`${colors.fuente}  text-gray-900 dark:text-white`}>
-                      {Math.min(indexOfLastItem2, totalItems2)}
-                    </span>{' '}
-                    de un total de{' '}
-                    <span className={`${colors.fuente}  text-gray-900 dark:text-white`}>
-                      {totalItems2}
-                    </span>{' '}
-                    Activos
-                  </span>
-                  <div className="inline-flex mt-2 xs:mt-0">
+                {/* Paginación mejorada */}
+                {totalItems2 > 0 && (
+                  <div className="flex flex-col items-center mt-6 pt-6 border-t border-gray-100">
+                    <span className={`${colors.fuenteAlterna} text-sm text-gray-600 mb-4`}>
+                      Mostrando <span className={`${colors.fuente} text-yellow-600`}>{indexOfFirstItem2 + 1}</span> - <span className={`${colors.fuente} text-yellow-600`}>{Math.min(indexOfLastItem2, totalItems2)}</span> de <span className={`${colors.fuente} text-yellow-600`}>{totalItems2}</span> compras
+                    </span>
+                    <div className="inline-flex gap-2">
                     <button
-                      className={`${colors.fuente} flex items-center justify-center px-3 h-8 text-sm font-medium text-white bg-custom-dark rounded-s hover:bg-custom-dark-hover ${
+                      className={`${colors.fuente} flex items-center justify-center px-4 h-9 text-sm font-medium text-white bg-gradient-to-r from-custom-marca-boton to-custom-marca-boton-variante rounded-l-lg hover:from-custom-marca-boton-variante hover:to-custom-marca-boton focus:outline-none focus:ring-2 focus:ring-custom-marca-boton/20 shadow-md hover:shadow-lg transition-all duration-300 ${
                         !canShowPrevious2 && 'opacity-50 cursor-not-allowed'
                       }`}
                       onClick={prevPage2}
@@ -449,7 +480,7 @@ export default function OrderHistoryCard(props: OrderHistoryCardProps) {
                       Prev
                     </button>
                     <button
-                      className={`${colors.fuente} flex items-center justify-center px-3 h-8 text-sm font-medium text-white bg-custom-dark border-0 border-s border-gray-700 rounded-e hover:bg-custom-dark-hover ${
+                      className={`${colors.fuente} flex items-center justify-center px-4 h-9 text-sm font-medium text-white bg-gradient-to-r from-custom-marca-boton to-custom-marca-boton-variante rounded-r-lg hover:from-custom-marca-boton-variante hover:to-custom-marca-boton focus:outline-none focus:ring-2 focus:ring-custom-marca-boton/20 shadow-md hover:shadow-lg transition-all duration-300 ${
                         !canShowNext2 && 'opacity-50 cursor-not-allowed'
                       }`}
                       onClick={nextPage2}
@@ -472,13 +503,15 @@ export default function OrderHistoryCard(props: OrderHistoryCardProps) {
                         />
                       </svg>
                     </button>
+                    </div>
                   </div>
-                </div>
+                )}
               </div>
             )}
           </>
-        </Card.Body>
-      </Card>
+          </div>
+        </div>
+      </div>
       <SignTransactionModal
         signTransactionModal={signTransactionModal}
         handleOpenSignTransactionModal={handleOpenSignTransactionModal}

@@ -1,6 +1,5 @@
 import { useEffect, useState } from 'react';
 import { SearchIcon } from '../icons/SearchIcon';
-import Card from '../common/Card';
 import { mapBuildTransactionInfo } from '@marketplaces/utils-2';
 import { LoadingIcon, SignTransactionModal } from '../ui-lib';
 import { toast } from 'sonner';
@@ -333,107 +332,173 @@ export default function OrderBookCard(props: OrderBookCardProps) {
   };
   return (
     <>
-      <Card>
-        <Card.Header
-            title={
-                "Libro de ordenes"
-            }
-          tooltip={
+      <div className="relative bg-gradient-to-br from-white via-gray-50/50 to-white rounded-2xl shadow-xl border border-gray-100/50 hover:shadow-2xl transition-all duration-500 animate-scale-in" style={{ animationDelay: '0.1s' }}>
+        {/* Efecto de fondo decorativo */}
+        <div className="absolute top-0 right-0 w-64 h-64 bg-gradient-to-br from-custom-marca-boton/5 to-transparent rounded-full blur-3xl -z-0"></div>
+        
+        <div className="relative z-10">
+          <div className="pt-8 px-6 pb-6 border-b border-gray-100/50 bg-gradient-to-r from-custom-marca-boton/5 via-transparent to-transparent">
+            <div className="flex items-center justify-between mb-4">
+              <div className="flex items-center gap-4">
+                <div className="w-14 h-14 bg-gradient-to-br from-custom-marca-boton to-custom-marca-boton-variante rounded-2xl flex items-center justify-center shadow-lg group-hover:scale-110 transition-transform duration-300">
+                  <svg className="w-7 h-7 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+                  </svg>
+                </div>
+                <div>
+                  <h3 className="mb-0 text-2xl font-jostBold bg-gradient-to-r from-custom-marca-boton to-custom-marca-boton-variante2 bg-clip-text text-transparent">
+                    Libro de Órdenes
+                  </h3>
+                  <p className="mb-0 text-sm text-gray-500 font-jostRegular mt-1">
+                    {totalItems > 0 ? `${totalItems} órdenes disponibles` : 'Explora y compra tokens disponibles'}
+                  </p>
+                </div>
+              </div>
+            </div>
             <div className="relative w-full">
-              <div className="absolute inset-y-0 start-0 top-0 flex items-center ps-3.5 pointer-events-none">
-                <SearchIcon className="w-5 h-5" />
+              <div className="absolute inset-y-0 start-0 top-0 flex items-center ps-4 pointer-events-none">
+                <SearchIcon className="w-5 h-5 text-gray-400" />
               </div>
               <input
-                id="adas"
+                id="search-asset"
                 type="text"
                 aria-invalid="false"
-                className={`${colors.fuenteAlterna}  bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded focus:ring-blue-500 focus:border-blue-500 block w-full ps-10 p-2.5`}
+                className={`${colors.fuenteAlterna} bg-white border-2 border-gray-200 text-gray-900 text-sm rounded-xl focus:ring-2 focus:ring-custom-marca-boton/20 focus:border-custom-marca-boton block w-full ps-12 p-4 transition-all duration-300 hover:border-custom-marca-boton/50`}
                 autoComplete="off"
-                placeholder="Busca un activo"
-                required
+                placeholder="Buscar activo, cantidad o precio..."
               />
             </div>
-          }
-        />
-        <Card.Body>
+          </div>
+          <div className="p-6">
           <div>
-            {/* Encabezado de la tabla, oculto en pantallas pequeñas */}
-            <div className={`hidden md:flex space-x-2 items-center px-3 py-2`}>
-              <div className={`w-full text-center ${colors.fuenteAlterna} `}>Activo</div>
-              <div className={`w-full text-center ${colors.fuenteAlterna} `}>Cantidad</div>
-              <div className={`w-full text-center ${colors.fuenteAlterna} `}>Precio Unitario (ADA)</div>
-              <div className={`w-full text-center ${colors.fuenteAlterna} `}>Total</div>
-              <div className={`w-full text-center ${colors.fuenteAlterna} `}></div>
-            </div>
-            <div className="space-y-1">
-              {currentItems &&
-                currentItems.map((order: any, index: number) => {
+            {currentItems && currentItems.length > 0 ? (
+              <div className="grid grid-cols-1 gap-4">
+                {currentItems.map((order: any, index: number) => {
+                  const unitPrice = order.value / 1000000;
+                  const totalPrice = unitPrice * order.tokenAmount;
+                  const isMyOrder = order.walletID === walletId;
+                  
                   return (
                     <div
                       key={index}
-                      className={`${colors.fuenteAlterna} flex flex-wrap justify-between items-center bg-custom-dark text-white rounded-lg px-3 py-2`}
+                      className="bg-gradient-to-br from-white via-gray-50/50 to-white rounded-xl border-2 border-gray-200 hover:border-custom-marca-boton/50 shadow-md hover:shadow-xl transition-all duration-300 animate-fade-in p-5 group"
+                      style={{ animationDelay: `${index * 0.05}s` }}
                     >
-                      <div className="w-full md:w-1/5 text-center">
-                        <p className={`md:hidden text-gray-400 `}>Activo</p>
-                        <p>{order.tokenName}</p>
-                      </div>
-                      <div className="w-full md:w-1/5 text-center">
-                        <p className={`md:hidden text-gray-400   `}>Cantidad</p>
-                        <p>{order.tokenAmount}</p>
-                      </div>
-                      <div className="w-full md:w-1/5 text-center">
-                        <p className={`md:hidden text-gray-400  `}>
-                          Precio Unitario (ADA)
-                        </p>
-                        <p>t₳ {order.value / 1000000}</p>
-                      </div>
-                      <div className="w-full md:w-1/5 text-center">
-                        <p className={`md:hidden text-gray-400  `}>Total</p>
-                        <p>t₳ {(order.value / 1000000) * order.tokenAmount}</p>
-                      </div>
-                      <div className={`${colors.fuenteAlterna}  w-full md:w-1/5 text-center mt-2 md:mt-0`}>
-                        {order.walletID === walletId ? (
-                          <button
-                            type="button"
-                            className={`  flex justify-center text-red-300 w-full hover:text-white border border-red-300 hover:bg-red-400 focus:outline-none focus:ring-4 focus:ring-red-300 font-medium rounded text-sm px-5 py-2.5`}
-                            onClick={() => handleRemoveOrder(order.id)}
-                          >
-                            {loadingStates[order.id] ? <LoadingIcon className="w-4 h-4" /> : 'Retirar'}
-                          </button>
-                        ) : (
-                          <button
-                            type="button"
-                            className={`${colors.fuente}  flex justify-center text-yellow-300 w-full hover:text-white border border-yellow-300 hover:bg-yellow-400 focus:outline-none focus:ring-4 focus:ring-yellow-300 font-medium rounded text-sm px-5 py-2.5`}
-                            onClick={() => handleBuyOrder(order.id)}
-                          >
-                            {loadingStates[order.id] ? <LoadingIcon className="w-4 h-4" /> : 'Comprar'}
-                          </button>
-                        )}
+                      <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4">
+                        {/* Información principal */}
+                        <div className="flex-1 space-y-3">
+                          <div className="flex items-center gap-3">
+                            <div className={`w-12 h-12 rounded-xl flex items-center justify-center shadow-md ${
+                              isMyOrder 
+                                ? 'bg-gradient-to-br from-custom-marca-boton-alterno to-custom-marca-boton-alterno2' 
+                                : 'bg-gradient-to-br from-custom-marca-boton to-custom-marca-boton-variante'
+                            }`}>
+                              <svg className="w-6 h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m8 4v10M4 7v10l8 4" />
+                              </svg>
+                            </div>
+                            <div className="flex-1">
+                              <h4 className="text-lg font-jostBold text-gray-900 mb-1">{order.tokenName}</h4>
+                              {isMyOrder && (
+                                <span className="inline-flex items-center gap-1 px-2 py-1 bg-custom-marca-boton-alterno/10 text-custom-marca-boton-alterno text-xs font-jostBold rounded-lg">
+                                  <svg className="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
+                                  </svg>
+                                  Mi Orden
+                                </span>
+                              )}
+                            </div>
+                          </div>
+                          
+                          {/* Detalles en grid */}
+                          <div className="grid grid-cols-2 md:grid-cols-4 gap-3 pt-2">
+                            <div className="bg-gray-50 rounded-lg p-3">
+                              <p className="text-xs font-jostRegular text-gray-500 mb-1">Cantidad</p>
+                              <p className="text-sm font-jostBold text-gray-900">{order.tokenAmount}</p>
+                            </div>
+                            <div className="bg-gray-50 rounded-lg p-3">
+                              <p className="text-xs font-jostRegular text-gray-500 mb-1">Precio Unit.</p>
+                              <p className="text-sm font-jostBold text-gray-900">t₳ {unitPrice.toFixed(6)}</p>
+                            </div>
+                            <div className="bg-gradient-to-br from-custom-marca-boton/10 to-custom-marca-boton-alterno2/10 rounded-lg p-3">
+                              <p className="text-xs font-jostRegular text-gray-600 mb-1">Total</p>
+                              <p className="text-sm font-jostBold bg-gradient-to-r from-custom-marca-boton to-custom-marca-boton-variante bg-clip-text text-transparent">
+                                t₳ {totalPrice.toFixed(6)}
+                              </p>
+                            </div>
+                            <div className="bg-gray-50 rounded-lg p-3">
+                              <p className="text-xs font-jostRegular text-gray-500 mb-1">Estado</p>
+                              <p className="text-xs font-jostBold text-green-600 bg-green-50 px-2 py-1 rounded-lg inline-block">
+                                Disponible
+                              </p>
+                            </div>
+                          </div>
+                        </div>
+                        
+                        {/* Botón de acción */}
+                        <div className="md:w-32 flex-shrink-0">
+                          {isMyOrder ? (
+                            <button
+                              type="button"
+                              className="w-full flex justify-center items-center gap-2 text-white bg-gradient-to-r from-red-500 to-red-600 hover:from-red-600 hover:to-red-700 focus:outline-none focus:ring-4 focus:ring-red-500/30 font-jostBold rounded-xl text-sm px-4 py-3 shadow-lg hover:shadow-xl transition-all duration-300 group"
+                              onClick={() => handleRemoveOrder(order.id)}
+                            >
+                              {loadingStates[order.id] ? (
+                                <LoadingIcon className="w-5 h-5 animate-spin" />
+                              ) : (
+                                <>
+                                  <svg className="w-5 h-5 group-hover:rotate-90 transition-transform duration-300" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+                                  </svg>
+                                  Retirar
+                                </>
+                              )}
+                            </button>
+                          ) : (
+                            <button
+                              type="button"
+                              className="w-full flex justify-center items-center gap-2 text-white bg-gradient-to-r from-yellow-500 to-yellow-600 hover:from-yellow-600 hover:to-yellow-700 focus:outline-none focus:ring-4 focus:ring-yellow-500/30 font-jostBold rounded-xl text-sm px-4 py-3 shadow-lg hover:shadow-xl transition-all duration-300 group"
+                              onClick={() => handleBuyOrder(order.id)}
+                            >
+                              {loadingStates[order.id] ? (
+                                <LoadingIcon className="w-5 h-5 animate-spin" />
+                              ) : (
+                                <>
+                                  <svg className="w-5 h-5 group-hover:scale-110 transition-transform duration-300" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 3h2l.4 2M7 13h10l4-8H5.4M7 13L5.4 5M7 13l-2.293 2.293c-.63.63-.184 1.707.707 1.707H17m0 0a2 2 0 100 4 2 2 0 000-4zm-8 2a2 2 0 11-4 0 2 2 0 014 0z" />
+                                  </svg>
+                                  Comprar
+                                </>
+                              )}
+                            </button>
+                          )}
+                        </div>
                       </div>
                     </div>
                   );
                 })}
-            </div>
+              </div>
+            ) : (
+              <div className="text-center py-16 animate-fade-in">
+                <div className="w-20 h-20 bg-gradient-to-br from-gray-100 to-gray-200 rounded-full flex items-center justify-center mx-auto mb-4">
+                  <svg className="w-10 h-10 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+                  </svg>
+                </div>
+                <p className="text-gray-600 font-jostRegular text-lg mb-2">No hay órdenes disponibles</p>
+                <p className="text-gray-400 font-jostRegular text-sm">Las órdenes aparecerán aquí cuando estén disponibles</p>
+              </div>
+            )}
 
-            <div className="flex flex-col items-center mt-5">
-              <span className={`${colors.fuenteAlterna}  text-sm text-gray-700 dark:text-gray-400`}>
-                Mostrando de{' '}
-                <span className={`${colors.fuente}  text-gray-900 dark:text-white`}>
-                  {indexOfFirstItem + 1}
-                </span>{' '}
-                a{' '}
-                <span className={`${colors.fuente}  text-gray-900 dark:text-white`}>
-                  {Math.min(indexOfLastItem, totalItems)}
-                </span>{' '}
-                de un total de{' '}
-                <span className={`${colors.fuente}  text-gray-900 dark:text-white`}>
-                  {totalItems}
-                </span>{' '}
-                Activos
-              </span>
-              <div className={`inline-flex mt-2 xs:mt-0`}>
+            {/* Paginación mejorada */}
+            {totalItems > 0 && (
+              <div className="flex flex-col items-center mt-6 pt-6 border-t border-gray-100">
+                <span className={`${colors.fuenteAlterna} text-sm text-gray-600 mb-4`}>
+                  Mostrando <span className={`${colors.fuente} text-custom-marca-boton`}>{indexOfFirstItem + 1}</span> - <span className={`${colors.fuente} text-custom-marca-boton`}>{Math.min(indexOfLastItem, totalItems)}</span> de <span className={`${colors.fuente} text-custom-marca-boton`}>{totalItems}</span> órdenes
+                </span>
+                <div className="inline-flex gap-2">
                 <button
-                  className={`${colors.fuente}  flex items-center justify-center px-3 h-8 text-sm font-medium text-white bg-custom-dark rounded-s hover:bg-custom-dark-hover ${
+                  className={`${colors.fuente} flex items-center justify-center px-4 h-9 text-sm font-medium text-white bg-gradient-to-r from-custom-marca-boton to-custom-marca-boton-variante rounded-l-lg hover:from-custom-marca-boton-variante hover:to-custom-marca-boton focus:outline-none focus:ring-2 focus:ring-custom-marca-boton/20 shadow-md hover:shadow-lg transition-all duration-300 ${
                     !canShowPrevious && 'opacity-50 cursor-not-allowed'
                   }`}
                   onClick={prevPage}
@@ -457,7 +522,7 @@ export default function OrderBookCard(props: OrderBookCardProps) {
                   Prev
                 </button>
                 <button
-                  className={`${colors.fuente}  flex items-center justify-center px-3 h-8 text-sm font-medium text-white bg-custom-dark border-0 border-s border-gray-700 rounded-e hover:bg-custom-dark-hover ${
+                  className={`${colors.fuente} flex items-center justify-center px-4 h-9 text-sm font-medium text-white bg-gradient-to-r from-custom-marca-boton to-custom-marca-boton-variante rounded-r-lg hover:from-custom-marca-boton-variante hover:to-custom-marca-boton focus:outline-none focus:ring-2 focus:ring-custom-marca-boton/20 shadow-md hover:shadow-lg transition-all duration-300 ${
                     !canShowNext && 'opacity-50 cursor-not-allowed'
                   }`}
                   onClick={nextPage}
@@ -480,11 +545,13 @@ export default function OrderBookCard(props: OrderBookCardProps) {
                     />
                   </svg>
                 </button>
+                </div>
               </div>
-            </div>
+            )}
           </div>
-        </Card.Body>
-      </Card>
+          </div>
+        </div>
+      </div>
       <SignTransactionModal
         signTransactionModal={signTransactionModal}
         handleOpenSignTransactionModal={handleOpenSignTransactionModal}

@@ -40,6 +40,23 @@ const MainLayout = ({ children }: PropsWithChildren) => {
   const [isOpen, setIsOpen] = useState<boolean>(false);
   const router = useRouter();
 
+  // Cargar estado del sidebar desde localStorage
+  useEffect(() => {
+    if (typeof window !== 'undefined') {
+      const savedSidebarState = localStorage.getItem('sidebarOpen');
+      if (savedSidebarState !== null) {
+        setIsOpen(JSON.parse(savedSidebarState));
+      }
+    }
+  }, []);
+
+  // Guardar estado del sidebar en localStorage
+  useEffect(() => {
+    if (typeof window !== 'undefined') {
+      localStorage.setItem('sidebarOpen', JSON.stringify(isOpen));
+    }
+  }, [isOpen]);
+
   const { handleWalletData } = useContext<any>(WalletContext);
   useEffect(() => {
     if (walletData) {
@@ -263,6 +280,9 @@ const MainLayout = ({ children }: PropsWithChildren) => {
           <Navbar
             walletInfo={walletInfo}
             handleSidebarStatus={handleSidebarStatus}
+            isSidebarOpen={isOpen}
+            balance={balance}
+            balanceUSD={balanceUSD}
           />
           <Sidebar
             isOpen={isOpen}
@@ -271,17 +291,20 @@ const MainLayout = ({ children }: PropsWithChildren) => {
             onClose={handleSidebarStatus}
             user={user}
             appName="Terrasacha"
-            //appName="Suan"
-            //image="/images/home-page/suan_logo.png"
-            //heightLogo={120}
-            //widthLogo={60}
             image="/v2/logoterrasacha.svg"
             heightLogo={150}
             widthLogo={300}
             poweredBy={true}
-            //poweredBy={false}
           />
-          <main className="lg:ml-80 mt-20">{children}</main>
+          {/* Overlay para mobile cuando sidebar está abierto */}
+          {isOpen && (
+            <div
+              className="fixed inset-0 bg-black/50 z-40 lg:hidden transition-opacity duration-300"
+              onClick={handleSidebarStatus}
+              aria-hidden="true"
+            />
+          )}
+          <main className={`mt-16 transition-all duration-300 ${isOpen ? 'lg:ml-80' : 'lg:ml-0'}`}>{children}</main>
         </>
       ) : (
         <HomeSkeleton />

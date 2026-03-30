@@ -173,34 +173,39 @@ export default function Sidebar(props: SidebarProps) {
     <aside
   ref={sidebarRef}
   id="logo-sidebar"
-  className={`fixed top-0 left-0 z-50 w-80 h-screen transition-transform lg:translate-x-0 ${
+  className={`fixed top-0 left-0 z-50 w-80 h-screen transition-transform duration-300 ease-in-out ${
     isOpen ? 'translate-x-0' : '-translate-x-full'
   } flex flex-col justify-between`}
 >
   <audio id="a1" src="/sounds/cash-register.mp3"></audio>
-  <div className="relative h-full px-5 pb-4 bg-custom-fondo shadow-[rgba(221,222,227,1)_1px_1px_4px_0px] flex flex-col justify-between overflow-y-auto"> 
-    <div>
-      <div className="flex items-center justify-center py-8">
-        <Link href="/">
-          <Image src={image} height={heightLogo} width={widthLogo} alt={`${appName} Logo`} />
+  <div className="relative h-full px-5 pb-4 bg-gradient-to-br from-white via-gray-50 to-custom-marca-boton-alterno2/5 shadow-xl border-r border-gray-100/50 flex flex-col justify-between overflow-y-auto">
+    {/* Efectos de fondo decorativos */}
+    <div className="fixed inset-0 overflow-hidden pointer-events-none z-0">
+      <div className="absolute top-0 right-0 w-64 h-64 bg-custom-marca-boton/5 rounded-full blur-3xl animate-float" style={{ top: '-50px', right: '-80px', animationDelay: '0.5s' }}></div>
+      <div className="absolute bottom-0 left-0 w-48 h-48 bg-custom-marca-boton-alterno/5 rounded-full blur-3xl animate-float" style={{ bottom: '-40px', left: '-60px', animationDelay: '1s' }}></div>
+    </div> 
+    <div className="relative z-10">
+      <div className="flex items-center justify-center py-8 animate-fade-in">
+        <Link href="/" className="group transition-transform hover:scale-105">
+          <Image src={image} height={heightLogo} width={widthLogo} alt={`${appName} Logo`} className="transition-all duration-300" />
         </Link>
       </div>
 
-      <div className="pt-4 border-t border-gray-200"></div>
+      <div className="pt-4 border-t border-gray-200/50"></div>
       <div className="py-2">
         <WalletSwitcherCard onCloseSidebar={onClose} />
       </div>
       {balance ? (
-        <div>
-          <label className={`${colors.fuenteAlterna}  block text-sm font-semibold text-gray-400`}>Tu saldo</label>
+        <div className="bg-gradient-to-br from-white to-gray-50 rounded-xl p-4 shadow-lg border border-gray-100/50 hover:shadow-xl transition-all duration-300 animate-scale-in">
+          <label className={`${colors.fuenteAlterna} block text-sm font-semibold text-gray-500 mb-2`}>Tu saldo</label>
           <div>
             <p
-              className={`text-xl truncate font-semibold mb-[-.1rem] ${
+              className={`text-2xl truncate font-jostBold mb-[-.1rem] bg-gradient-to-r from-custom-marca-boton to-custom-marca-boton-variante2 bg-clip-text text-transparent ${
                 changeOnBalanceDetected
                   ? balanceChanged >= 0
                     ? 'balance-changed-positive'
                     : 'balance-changed-negative'
-                  : 'text-black'
+                  : ''
               }`}
             >
               {!isLoading ? (
@@ -210,10 +215,10 @@ export default function Sidebar(props: SidebarProps) {
                   <LoadingIcon className="h-5 w-5" />
                 </span>
               )}{' '}
-              <span className={`${colors.fuenteAlterna}  font-bold text-gray-400 text-base`}>USD</span>
+              <span className={`${colors.fuenteAlterna} font-bold text-gray-500 text-base`}>USD</span>
               {changeOnBalanceDetected && (
                 <>
-                  <span className="inline-block animate-bounce ml-2">
+                  <span className="inline-block animate-bounce ml-2 text-sm">
                     {'('}
                     {balanceChanged >= 0 ? '+ ' : '- '}
                     {balanceChangeUSD}
@@ -222,82 +227,93 @@ export default function Sidebar(props: SidebarProps) {
                 </>
               )}
             </p>
-            <p
-              className={`text-sm font-light truncate ${
-                changeOnBalanceDetected
-                  ? balanceChanged >= 0
-                    ? 'balance-changed-positive'
-                    : 'balance-changed-negative'
-                  : 'text-black'
-              }`}
-            >
-              <span>Total: </span>
-              {!isLoading ? (
-                balance
-              ) : (
-                <span className="inline-flex items-center">
-                  <LoadingIcon className="h-5 w-5" />
-                </span>
-              )}{' '}
-              <span className="text-gray-400 text-xs">ADA</span>
-              {changeOnBalanceDetected && (
-                <>
-                  <span className="inline-block animate-bounce ml-2">
-                    {'('}
-                    {balanceChanged >= 0 ? '+ ' : '- '}
-                    {Math.abs(balanceChanged / 1000000)}
-                    {')'}
-                  </span>
-                </>
-              )}
-            </p>
-            <p
-              className={`text-sm font-light truncate ${
-                changeOnBalanceDetected
-                  ? balanceChanged >= 0
-                    ? 'balance-changed-positive'
-                    : 'balance-changed-negative'
-                  : 'text-black'
-              }`}
-            >
-              <div className='inline' data-tooltip-id="available-tooltip" data-tooltip-content={`Cantidad de ADAs disponibles`}>
-                <InfoIcon className="h-4 w-4 inline mr-1" />
+            <div className="mt-3 space-y-2">
+              <div className="flex items-center justify-between p-2 rounded-lg hover:bg-custom-marca-boton-alterno2/10 transition-all duration-300 group">
+                <span className="text-sm font-jostRegular text-gray-600 group-hover:text-custom-marca-boton transition-colors">Total: </span>
+                <div className="flex items-center gap-1">
+                  {!isLoading ? (
+                    <span className={`text-sm font-jostBold ${
+                      changeOnBalanceDetected
+                        ? balanceChanged >= 0
+                          ? 'balance-changed-positive'
+                          : 'balance-changed-negative'
+                        : 'text-gray-900'
+                    }`}>
+                      {balance}
+                    </span>
+                  ) : (
+                    <span className="inline-flex items-center">
+                      <LoadingIcon className="h-4 w-4" />
+                    </span>
+                  )}
+                  <span className="text-gray-500 text-xs font-jostRegular">ADA</span>
+                  {changeOnBalanceDetected && (
+                    <span className="inline-block animate-bounce ml-1 text-xs">
+                      {'('}
+                      {balanceChanged >= 0 ? '+ ' : '- '}
+                      {Math.abs(balanceChanged / 1000000)}
+                      {')'}
+                    </span>
+                  )}
+                </div>
               </div>
-              <Tooltip id="available-tooltip" />
-              <span>Disponible: </span>
-              {!isLoading ? (
-                (walletAvailableBalance / 1000000).toFixed(4)
-              ) : (
-                <span className="inline-flex items-center">
-                  <LoadingIcon className="h-5 w-5" />
-                </span>
-              )}{' '}
-              <span className="text-gray-400 text-xs">ADA</span>
-            </p>
-            <p
-              className={`text-sm font-light truncate ${
-                changeOnBalanceDetected
-                  ? balanceChanged >= 0
-                    ? 'balance-changed-positive'
-                    : 'balance-changed-negative'
-                  : 'text-black'
-              }`}
-            >
-              <div className='inline' style={{zIndex: 1000}} data-tooltip-id="blocked-tooltip" data-tooltip-content={`En Cardano, cualquier token debe ir asociado a una cantidad de ADAs. Esta cantidad es la que se encuentra bloqueada para la billetera.`}>
-                <InfoIcon className="h-4 w-4 inline mr-1" />
+              <div className="flex items-center justify-between p-2 rounded-lg hover:bg-custom-marca-boton-alterno2/10 transition-all duration-300 group">
+                <div className="flex items-center gap-1">
+                  <div className='inline' data-tooltip-id="available-tooltip" data-tooltip-content={`Cantidad de ADAs disponibles`}>
+                    <InfoIcon className="h-4 w-4 inline text-gray-400 group-hover:text-custom-marca-boton transition-colors" />
+                  </div>
+                  <Tooltip id="available-tooltip" />
+                  <span className="text-sm font-jostRegular text-gray-600 group-hover:text-custom-marca-boton transition-colors">Disponible: </span>
+                </div>
+                <div className="flex items-center gap-1">
+                  {!isLoading ? (
+                    <span className={`text-sm font-jostBold ${
+                      changeOnBalanceDetected
+                        ? balanceChanged >= 0
+                          ? 'balance-changed-positive'
+                          : 'balance-changed-negative'
+                        : 'text-gray-900'
+                    }`}>
+                      {(walletAvailableBalance / 1000000).toFixed(4)}
+                    </span>
+                  ) : (
+                    <span className="inline-flex items-center">
+                      <LoadingIcon className="h-4 w-4" />
+                    </span>
+                  )}
+                  <span className="text-gray-500 text-xs font-jostRegular">ADA</span>
+                </div>
               </div>
-              <Tooltip id="blocked-tooltip" style={{zIndex: 1000}}/>
-              <span>Bloqueado: </span>
-              {!isLoading ? (
-                (walletLockedBalance / 1000000).toFixed(4)
-              ) : (
-                <span className="inline-flex items-center">
-                  <LoadingIcon className="h-5 w-5" />
-                </span>
-              )}{' '}
-              <span className="text-gray-400 text-xs">ADA</span>
-            </p>
-            <label className={`${colors.fuenteAlterna}  block text-xs font-light text-gray-500 pt-2`}>
+              <div className="flex items-center justify-between p-2 rounded-lg hover:bg-custom-marca-boton-alterno2/10 transition-all duration-300 group">
+                <div className="flex items-center gap-1">
+                  <div className='inline' style={{zIndex: 1000}} data-tooltip-id="blocked-tooltip" data-tooltip-content={`En Cardano, cualquier token debe ir asociado a una cantidad de ADAs. Esta cantidad es la que se encuentra bloqueada para la billetera.`}>
+                    <InfoIcon className="h-4 w-4 inline text-gray-400 group-hover:text-custom-marca-boton transition-colors" />
+                  </div>
+                  <Tooltip id="blocked-tooltip" style={{zIndex: 1000}}/>
+                  <span className="text-sm font-jostRegular text-gray-600 group-hover:text-custom-marca-boton transition-colors">Bloqueado: </span>
+                </div>
+                <div className="flex items-center gap-1">
+                  {!isLoading ? (
+                    <span className={`text-sm font-jostBold ${
+                      changeOnBalanceDetected
+                        ? balanceChanged >= 0
+                          ? 'balance-changed-positive'
+                          : 'balance-changed-negative'
+                        : 'text-gray-900'
+                    }`}>
+                      {(walletLockedBalance / 1000000).toFixed(4)}
+                    </span>
+                  ) : (
+                    <span className="inline-flex items-center">
+                      <LoadingIcon className="h-4 w-4" />
+                    </span>
+                  )}
+                  <span className="text-gray-500 text-xs font-jostRegular">ADA</span>
+                </div>
+              </div>
+            </div>
+            <label className={`${colors.fuenteAlterna} block text-xs font-light text-gray-500 pt-3 flex items-center gap-1`}>
+              <span className="inline-block w-2 h-2 bg-green-500 rounded-full animate-pulse"></span>
               Sincronizado hace {syncedAgo} segundos
             </label>
           </div>
@@ -306,135 +322,158 @@ export default function Sidebar(props: SidebarProps) {
         <SideBarBalanceSkeleton />
       )}
 
-      <div className="pt-4 mt-2 border-t border-gray-200"></div>
-      <ul className="space-y-4">
-        <li>
-        <div data-tooltip-id="my-tooltip" data-tooltip-content={`Ambiente de desarrollo: ${env}`} className='relative py-1 px-12 bg-blue-400 rounded-sm text-white text-xs w-full text-center'>
-          {env}
+      <div className="pt-4 mt-2 border-t border-gray-200/50"></div>
+      <ul className="space-y-2">
+        <li className="animate-fade-in">
+        <div 
+          data-tooltip-id="my-tooltip" 
+          data-tooltip-content={`Ambiente de desarrollo: ${env}`} 
+          className='relative py-1.5 px-4 bg-gradient-to-br from-custom-marca-boton via-custom-marca-boton-variante to-custom-marca-boton-variante2 rounded-lg text-white text-xs w-full text-center font-jostBold shadow-md hover:shadow-lg transition-all duration-300 overflow-hidden'
+        >
+          <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/10 to-transparent animate-shimmer"></div>
+          <span className="relative z-10">{env}</span>
         </div>
         <Tooltip id="my-tooltip" />
         </li>
-        <li className={allowAccessCW ? '' : 'hidden'}>
+        <li className={allowAccessCW ? 'animate-slide-up' : 'hidden'} style={{ animationDelay: '0.1s' }}>
           <Link
             onClick={onClose}
             href="/corewallet"
-            className="flex items-center p-2 text-black rounded-lg hover:bg-custom-dark hover:text-white transition duration-150 ease-linear"
+            className="flex items-center p-3 text-gray-700 rounded-lg hover:bg-gradient-to-r hover:from-custom-marca-boton hover:to-custom-marca-boton-variante hover:text-white transition-all duration-300 group shadow-sm hover:shadow-md"
           >
-            <ChartIcon />
-            <span className={`${colors.fuenteAlterna}  ml-3`}>CoreWallet</span>
+            <div className="group-hover:scale-110 transition-transform duration-300">
+              <ChartIcon />
+            </div>
+            <span className={`${colors.fuenteAlterna} ml-3 group-hover:font-jostBold transition-all`}>CoreWallet</span>
           </Link>
         </li>
-        <li /* className={connected ? 'hidden' : ''} */>
+        <li className="animate-slide-up" style={{ animationDelay: '0.15s' }}>
           <button
-            className="flex w-full items-center p-2 text-black rounded-lg hover:bg-custom-dark hover:text-white transition duration-150 ease-linear"
+            className="flex w-full items-center p-3 text-gray-700 rounded-lg hover:bg-gradient-to-r hover:from-custom-marca-boton hover:to-custom-marca-boton-variante hover:text-white transition-all duration-300 group shadow-sm hover:shadow-md"
             onClick={() => setDisplayWalletOptions(!displayWalletOptions)}
           >
-            <WalletIcon />
-            <span className={`${colors.fuenteAlterna}  flex-1 ms-3 text-left rtl:text-right whitespace-nowrap`}>Billetera</span>
-            <ChevronDownIcon />
+            <div className="group-hover:scale-110 transition-transform duration-300">
+              <WalletIcon />
+            </div>
+            <span className={`${colors.fuenteAlterna} flex-1 ms-3 text-left rtl:text-right whitespace-nowrap group-hover:font-jostBold transition-all`}>Billetera</span>
+            <div className={`transition-transform duration-300 ${displayWalletOptions ? 'rotate-180' : ''}`}>
+              <ChevronDownIcon />
+            </div>
           </button>
           <ul
             id="dropdown-example"
             className={`${
               !displayWalletOptions && 'hidden'
-            } py-2 space-y-2 animate-fade animate-ease-in-out animate-duration-[400ms]`}
+            } py-2 space-y-1 animate-fade animate-ease-in-out animate-duration-[400ms] ml-4 border-l-2 border-custom-marca-boton/20 pl-2`}
           >
             <li>
               <Link
                 href="/wallet"
-                className={`${colors.fuenteAlterna} flex items-center w-full p-2 pl-11 group text-black rounded-lg hover:bg-custom-dark hover:text-white transition duration-150 ease-linear`}
+                className={`${colors.fuenteAlterna} flex items-center w-full p-2.5 pl-8 group text-gray-700 rounded-lg hover:bg-gradient-to-r hover:from-custom-marca-boton-alterno2/20 hover:to-custom-marca-boton-alterno/10 hover:text-custom-marca-boton transition-all duration-300 relative`}
               >
+                <span className="absolute left-0 w-1 h-0 bg-custom-marca-boton rounded-r-full group-hover:h-full transition-all duration-300"></span>
                 Cuadro de mando
               </Link>
             </li>
             <li>
               <Link
                 href="/wallet/assets"
-                className={`${colors.fuenteAlterna} flex items-center w-full p-2 pl-11 group text-black rounded-lg hover:bg-custom-dark hover:text-white transition duration-150 ease-linear`}
+                className={`${colors.fuenteAlterna} flex items-center w-full p-2.5 pl-8 group text-gray-700 rounded-lg hover:bg-gradient-to-r hover:from-custom-marca-boton-alterno2/20 hover:to-custom-marca-boton-alterno/10 hover:text-custom-marca-boton transition-all duration-300 relative`}
               >
+                <span className="absolute left-0 w-1 h-0 bg-custom-marca-boton rounded-r-full group-hover:h-full transition-all duration-300"></span>
                 Activos
               </Link>
             </li>
             <li>
               <Link
                 href="/wallet/transactions"
-                className={`${colors.fuenteAlterna}  flex items-center w-full p-2 pl-11 group text-black rounded-lg hover:bg-custom-dark hover:text-white transition duration-150 ease-linear`}
+                className={`${colors.fuenteAlterna} flex items-center w-full p-2.5 pl-8 group text-gray-700 rounded-lg hover:bg-gradient-to-r hover:from-custom-marca-boton-alterno2/20 hover:to-custom-marca-boton-alterno/10 hover:text-custom-marca-boton transition-all duration-300 relative`}
               >
+                <span className="absolute left-0 w-1 h-0 bg-custom-marca-boton rounded-r-full group-hover:h-full transition-all duration-300"></span>
                 Transacciones
               </Link>
             </li>
             <li>
               <Link
                 href="/wallet/send"
-                className={`${colors.fuenteAlterna} flex items-center w-full p-2 pl-11 group text-black rounded-lg hover:bg-custom-dark hover:text-white transition duration-150 ease-linear`}
+                className={`${colors.fuenteAlterna} flex items-center w-full p-2.5 pl-8 group text-gray-700 rounded-lg hover:bg-gradient-to-r hover:from-custom-marca-boton-alterno2/20 hover:to-custom-marca-boton-alterno/10 hover:text-custom-marca-boton transition-all duration-300 relative`}
               >
+                <span className="absolute left-0 w-1 h-0 bg-custom-marca-boton rounded-r-full group-hover:h-full transition-all duration-300"></span>
                 Nueva transaccion
               </Link>
             </li>
           </ul>
         </li>
-        <li>
+        <li className="animate-slide-up" style={{ animationDelay: '0.2s' }}>
           <Link
             onClick={onClose}
             href="/"
-            className="flex items-center p-2 text-black rounded-lg hover:bg-custom-dark hover:text-white transition duration-150 ease-linear"
+            className="flex items-center p-3 text-gray-700 rounded-lg hover:bg-gradient-to-r hover:from-custom-marca-boton hover:to-custom-marca-boton-variante hover:text-white transition-all duration-300 group shadow-sm hover:shadow-md"
           >
-            <ScaleIcon />
-            <span className={`${colors.fuenteAlterna} flex-1 ml-3 whitespace-nowrap`}>Proyectos</span>
+            <div className="group-hover:scale-110 transition-transform duration-300">
+              <ScaleIcon />
+            </div>
+            <span className={`${colors.fuenteAlterna} flex-1 ml-3 whitespace-nowrap group-hover:font-jostBold transition-all`}>Proyectos</span>
           </Link>
         </li>
 
-        <li /* className={connected ? 'hidden' : ''} */>
+        <li className="animate-slide-up" style={{ animationDelay: '0.25s' }}>
           <Link
             onClick={onClose}
             href="/trade"
-            className="flex items-center p-2 text-black rounded-lg hover:bg-custom-dark hover:text-white transition duration-150 ease-linear"
+            className="flex items-center p-3 text-gray-700 rounded-lg hover:bg-gradient-to-r hover:from-custom-marca-boton hover:to-custom-marca-boton-variante hover:text-white transition-all duration-300 group shadow-sm hover:shadow-md"
           >
-            <MarketIcon />
-            <span className={`${colors.fuenteAlterna}  flex-1 ml-3 whitespace-nowrap`}>Mercado P2P</span>
+            <div className="group-hover:scale-110 transition-transform duration-300">
+              <MarketIcon />
+            </div>
+            <span className={`${colors.fuenteAlterna} flex-1 ml-3 whitespace-nowrap group-hover:font-jostBold transition-all`}>Mercado P2P</span>
           </Link>
         </li>
-        <li>
+        <li className="animate-slide-up" style={{ animationDelay: '0.3s' }}>
           <Link
             onClick={onClose}
             href="/pqr"
-            className="flex items-center p-2 text-black rounded-lg hover:bg-custom-dark hover:text-white transition duration-150 ease-linear"
+            className="flex items-center p-3 text-gray-700 rounded-lg hover:bg-gradient-to-r hover:from-custom-marca-boton hover:to-custom-marca-boton-variante hover:text-white transition-all duration-300 group shadow-sm hover:shadow-md"
           >
-            <MailIcon />
-            <span className={`${colors.fuenteAlterna} flex-1 ml-3 whitespace-nowrap`}>PQR</span>
+            <div className="group-hover:scale-110 transition-transform duration-300">
+              <MailIcon />
+            </div>
+            <span className={`${colors.fuenteAlterna} flex-1 ml-3 whitespace-nowrap group-hover:font-jostBold transition-all`}>PQR</span>
           </Link>
         </li>
       </ul>
     </div>
-    <div>
-      <ul className="space-y-4">
-        <li>
+    <div className="relative z-10">
+      <ul className="space-y-2">
+        <li className="animate-slide-up" style={{ animationDelay: '0.35s' }}>
           <Link
             href="https://terrasacha.gitbook.io/terrasacha"
             target="_blank"
-            className="flex items-center p-2 text-black rounded-lg hover:bg-custom-dark hover:text-white transition duration-150 ease-linear"
+            className="flex items-center p-3 text-gray-700 rounded-lg hover:bg-gradient-to-r hover:from-custom-marca-boton hover:to-custom-marca-boton-variante hover:text-white transition-all duration-300 group shadow-sm hover:shadow-md"
           >
-            <BookIcon />
-            <span className={`${colors.fuenteAlterna} flex-1 ml-3 whitespace-nowrap`}>Ayuda</span>
+            <div className="group-hover:scale-110 transition-transform duration-300">
+              <BookIcon />
+            </div>
+            <span className={`${colors.fuenteAlterna} flex-1 ml-3 whitespace-nowrap group-hover:font-jostBold transition-all`}>Ayuda</span>
           </Link>
         </li>
-        <li className="pt-4 mt-4 border-t text-xs font-light border-gray-200 flex flex-col items-center justify-center text-center">
+        <li className="pt-4 mt-4 border-t text-xs font-light border-gray-200/50 flex flex-col items-center justify-center text-center animate-fade-in">
           {poweredBy && (
-            <div className={`${colors.fuenteAlterna} flex items-center mt-2 mb-4`}>
+            <div className={`${colors.fuenteAlterna} flex items-center mt-2 mb-4 text-gray-500`}>
               Powered by
               <Image
                 src="/v2/logoterrasacha.svg"
                 height={80}
                 width={92}
-                className="ml-1"
+                className="ml-1 opacity-70"
                 alt="SUAN Logo"
               />
             </div>
           )}
-          <div>
-            <p className={`${colors.fuenteAlterna} `}>Copyright © Derechos de autor</p>
-            <p className={`${colors.fuenteAlterna} `} >Todos los derechos reservados</p>
-            <p className={`${colors.fuenteAlterna} `} >Suan 2001-2023</p>
+          <div className="text-gray-400">
+            <p className={`${colors.fuenteAlterna}`}>Copyright © Derechos de autor</p>
+            <p className={`${colors.fuenteAlterna}`}>Todos los derechos reservados</p>
+            <p className={`${colors.fuenteAlterna}`}>Suan 2001-2023</p>
           </div>
         </li>
       </ul>
