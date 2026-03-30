@@ -372,10 +372,33 @@ function MintProjectFormContent(props: {
   const [investmentTokens, setInvestmentTokens] = useState('');
   const [projectId, setProjectId] = useState('');
   const [destinationAddress, setDestinationAddress] = useState('');
-  const [stakeholderPkh, setStakeholderPkh] = useState('');
-  const [stakeholderParticipation, setStakeholderParticipation] = useState('');
-  const [stakeholderHex, setStakeholderHex] = useState('');
+  const [stakeholdersList, setStakeholdersList] = useState<{ participation: number; pkh: string; stakeholder: string }[]>([]);
+  const [newPkh, setNewPkh] = useState('');
+  const [newParticipation, setNewParticipation] = useState('');
+  const [newStakeholderHex, setNewStakeholderHex] = useState('');
   const { onClose, onSubmit, loading, colors } = props;
+
+  const addStakeholder = () => {
+    const pkh = newPkh.trim().toLowerCase().replace(/^0x/, '');
+    const stakeholder = newStakeholderHex.trim().toLowerCase().replace(/^0x/, '');
+    const participationNum = parseInt(newParticipation, 10);
+    if (!pkh || !stakeholder) {
+      toast.error('pkh y stakeholder (hex) son obligatorios para agregar un stakeholder.');
+      return;
+    }
+    if (Number.isNaN(participationNum) || participationNum <= 0) {
+      toast.error('La participación debe ser un número entero positivo.');
+      return;
+    }
+    setStakeholdersList((prev) => [...prev, { participation: participationNum, pkh, stakeholder }]);
+    setNewPkh('');
+    setNewParticipation('');
+    setNewStakeholderHex('');
+  };
+
+  const removeStakeholder = (index: number) => {
+    setStakeholdersList((prev) => prev.filter((_, i) => i !== index));
+  };
 
   const handleSubmit = () => {
     const invTokensNum = parseInt(investmentTokens, 10);
@@ -386,12 +409,12 @@ function MintProjectFormContent(props: {
     const projId = projectId.trim();
     const destAddr = destinationAddress.trim();
 
-    const stakeholders: { participation: number; pkh: string; stakeholder: string }[] = [];
-    const pkh = stakeholderPkh.trim();
-    const stakeholder = stakeholderHex.trim();
-    const participationNum = parseInt(stakeholderParticipation, 10);
-    if (pkh && stakeholder && !Number.isNaN(participationNum) && participationNum > 0) {
-      stakeholders.push({ participation: participationNum, pkh, stakeholder });
+    let stakeholders = [...stakeholdersList];
+    const pendingPkh = newPkh.trim().toLowerCase().replace(/^0x/, '');
+    const pendingStakeholder = newStakeholderHex.trim().toLowerCase().replace(/^0x/, '');
+    const pendingParticipation = parseInt(newParticipation, 10);
+    if (pendingPkh && pendingStakeholder && !Number.isNaN(pendingParticipation) && pendingParticipation > 0) {
+      stakeholders = [...stakeholders, { participation: pendingParticipation, pkh: pendingPkh, stakeholder: pendingStakeholder }];
     }
 
     onSubmit({
@@ -446,45 +469,81 @@ function MintProjectFormContent(props: {
             onChange={(e) => setDestinationAddress(e.target.value)}
           />
         </div>
-        <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
-          <p className="sm:col-span-3 text-xs text-gray-500">
-            Stakeholders (opcional): si completas los tres campos se agregará uno; si los dejas vacíos se minteará sin stakeholders.
+        <div>
+          <label className="block mb-1 text-sm font-medium text-gray-700">Stakeholders (opcional)</label>
+          <p className="text-xs text-gray-500 mb-2">
+            Cada stakeholder: participation (lovelace), pkh (hash hex), stakeholder (nombre en hex). Agrega uno o más con el botón «Agregar».
           </p>
-          <div>
-            <label className="block mb-1 text-sm font-medium text-gray-700">
-              Stakeholder pkh (opcional)
-            </label>
-            <input
-              type="text"
-              className="w-full border border-gray-300 rounded-lg p-2 text-sm font-mono focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
-              placeholder="fe2d2b5b..."
-              value={stakeholderPkh}
-              onChange={(e) => setStakeholderPkh(e.target.value)}
-            />
-          </div>
-          <div>
-            <label className="block mb-1 text-sm font-medium text-gray-700">
-              Participación (lovelace, opcional)
-            </label>
-            <input
-              type="text"
-              className="w-full border border-gray-300 rounded-lg p-2 text-sm focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
-              placeholder="500000"
-              value={stakeholderParticipation}
-              onChange={(e) => setStakeholderParticipation(e.target.value)}
-            />
-          </div>
-          <div>
-            <label className="block mb-1 text-sm font-medium text-gray-700">
-              stakeholder (nombre en hex, opcional)
-            </label>
-            <input
-              type="text"
-              className="w-full border border-gray-300 rounded-lg p-2 text-sm font-mono focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
-              placeholder="6c616e646f776e6572"
-              value={stakeholderHex}
-              onChange={(e) => setStakeholderHex(e.target.value)}
-            />
+          <div className="w-full border border-gray-300 rounded-lg p-2 min-h-[52px] bg-white focus-within:ring-2 focus-within:ring-blue-500 focus-within:border-blue-500">
+            {stakeholdersList.length > 0 && (
+              <div className="flex flex-wrap gap-2 mb-2">
+                {stakeholdersList.map((s, index) => (
+                  <span
+                    key={index}
+                    className="inline-flex items-center gap-1.5 pl-2.5 pr-1 py-1.5 rounded-md bg-blue-50 text-blue-800 text-xs font-mono border border-blue-200"
+                  >
+                    <span className="max-w-[200px] truncate" title={`pkh: ${s.pkh} | participation: ${s.participation} | stakeholder: ${s.stakeholder}`}>
+                      {s.pkh.slice(0, 10)}… · {s.participation} · {s.stakeholder.slice(0, 8)}…
+                    </span>
+                    <button
+                      type="button"
+                      onClick={() => removeStakeholder(index)}
+                      className="p-0.5 rounded hover:bg-blue-200/80 text-blue-600 hover:text-blue-900 focus:outline-none focus:ring-1 focus:ring-blue-400"
+                      aria-label="Eliminar stakeholder"
+                    >
+                      <svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+                      </svg>
+                    </button>
+                  </span>
+                ))}
+              </div>
+            )}
+            <div className="grid grid-cols-1 sm:grid-cols-4 gap-2 items-end">
+              <div className="sm:col-span-1">
+                <label className="block mb-0.5 text-xs text-gray-600">pkh</label>
+                <input
+                  type="text"
+                  className="w-full border border-gray-300 rounded p-1.5 text-sm font-mono focus:ring-1 focus:ring-blue-500 focus:border-blue-500"
+                  placeholder="fe2d2b5b..."
+                  value={newPkh}
+                  onChange={(e) => setNewPkh(e.target.value)}
+                  onKeyDown={(e) => e.key === 'Enter' && (e.preventDefault(), addStakeholder())}
+                />
+              </div>
+              <div className="sm:col-span-1">
+                <label className="block mb-0.5 text-xs text-gray-600">participation</label>
+                <input
+                  type="text"
+                  className="w-full border border-gray-300 rounded p-1.5 text-sm focus:ring-1 focus:ring-blue-500 focus:border-blue-500"
+                  placeholder="500000"
+                  value={newParticipation}
+                  onChange={(e) => setNewParticipation(e.target.value)}
+                  onKeyDown={(e) => e.key === 'Enter' && (e.preventDefault(), addStakeholder())}
+                />
+              </div>
+              <div className="sm:col-span-1">
+                <label className="block mb-0.5 text-xs text-gray-600">stakeholder (hex)</label>
+                <input
+                  type="text"
+                  className="w-full border border-gray-300 rounded p-1.5 text-sm font-mono focus:ring-1 focus:ring-blue-500 focus:border-blue-500"
+                  placeholder="6c616e646f776e6572"
+                  value={newStakeholderHex}
+                  onChange={(e) => setNewStakeholderHex(e.target.value)}
+                  onKeyDown={(e) => e.key === 'Enter' && (e.preventDefault(), addStakeholder())}
+                />
+              </div>
+              <div>
+                <button
+                  type="button"
+                  onClick={addStakeholder}
+                  disabled={!newPkh.trim() || !newStakeholderHex.trim() || !newParticipation.trim()}
+                  className="w-full sm:w-auto shrink-0 px-3 py-1.5 text-xs font-medium rounded border border-gray-300 text-gray-700 bg-gray-50 hover:bg-gray-100 disabled:opacity-50 disabled:cursor-not-allowed"
+                >
+                  Agregar
+                </button>
+              </div>
+            </div>
           </div>
         </div>
         <div className="bg-gray-50 border border-dashed border-gray-300 rounded-md p-2 text-[11px] text-gray-600 flex flex-col gap-1">
@@ -713,13 +772,8 @@ function UpdateProjectFormContent(props: {
     project_token_name: string;
     project_token_policy_id: string;
     total_supply: number;
-    certification_date: number;
-    quantity: number;
-    real_certification_date: number;
-    real_quantity: number;
-    stakeholder_pkh: string;
-    stakeholder_hex: string;
-    stakeholder_participation: number;
+    certifications: { certification_date: number; quantity: number; real_certification_date: number; real_quantity: number }[];
+    stakeholders: { participation: number; pkh: string; stakeholder: string }[];
   }) => void;
   loading: boolean;
   colors: { fuente: string; bgColor: string; hoverBgColor: string };
@@ -729,8 +783,19 @@ function UpdateProjectFormContent(props: {
   const { onClose, onSubmit, loading, colors, initialDatum } = props;
   const p = initialDatum?.params;
   const pt = initialDatum?.project_token;
-  const cert0 = initialDatum?.certifications?.[0];
-  const stake0 = initialDatum?.stakeholders?.[0];
+  const initialCertifications = initialDatum?.certifications ?? [];
+  const initialStakeholders = initialDatum?.stakeholders ?? [];
+  const toCertificationEntry = (c: { certification_date?: number; quantity?: number; real_certification_date?: number; real_quantity?: number }) => ({
+    certification_date: typeof c.certification_date === 'number' ? c.certification_date : 0,
+    quantity: typeof c.quantity === 'number' ? c.quantity : 0,
+    real_certification_date: typeof c.real_certification_date === 'number' ? c.real_certification_date : 0,
+    real_quantity: typeof c.real_quantity === 'number' ? c.real_quantity : 0,
+  });
+  const toStakeholderEntry = (s: { pkh?: string; stakeholder?: string; participation?: number }): { participation: number; pkh: string; stakeholder: string } => ({
+    pkh: (s.pkh ?? '').trim().toLowerCase().replace(/^0x/, ''),
+    stakeholder: (s.stakeholder ?? '').trim().toLowerCase().replace(/^0x/, ''),
+    participation: typeof s.participation === 'number' && s.participation > 0 ? s.participation : 0,
+  });
   const [projectId, setProjectId] = useState(p?.project_id ?? '');
   const [projectMetadata, setProjectMetadata] = useState(p?.project_metadata ?? '');
   const [projectState, setProjectState] = useState(String(p?.project_state ?? ''));
@@ -739,20 +804,26 @@ function UpdateProjectFormContent(props: {
     pt?.policy_id ?? props.defaultProjectTokenPolicyId ?? ''
   );
   const [totalSupply, setTotalSupply] = useState(String(pt?.total_supply ?? ''));
-  const [certificationDate, setCertificationDate] = useState(String(cert0?.certification_date ?? ''));
-  const [quantity, setQuantity] = useState(String(cert0?.quantity ?? ''));
-  const [realCertificationDate, setRealCertificationDate] = useState(String(cert0?.real_certification_date ?? ''));
-  const [realQuantity, setRealQuantity] = useState(String(cert0?.real_quantity ?? ''));
-  const [stakeholderPkh, setStakeholderPkh] = useState(stake0?.pkh ?? '');
-  const [stakeholderParticipation, setStakeholderParticipation] = useState(String(stake0?.participation ?? ''));
-  const [stakeholderHex, setStakeholderHex] = useState(stake0?.stakeholder ?? '');
+  const [certificationsList, setCertificationsList] = useState<{ certification_date: number; quantity: number; real_certification_date: number; real_quantity: number }[]>(
+    () => initialCertifications.map(toCertificationEntry)
+  );
+  const [newCertificationDate, setNewCertificationDate] = useState('');
+  const [newQuantity, setNewQuantity] = useState('');
+  const [newRealCertificationDate, setNewRealCertificationDate] = useState('');
+  const [newRealQuantity, setNewRealQuantity] = useState('');
+  const [stakeholdersList, setStakeholdersList] = useState<{ participation: number; pkh: string; stakeholder: string }[]>(
+    () => initialStakeholders.filter((s) => (s.pkh ?? '').trim() && (s.stakeholder ?? '').trim()).map(toStakeholderEntry)
+  );
+  const [newPkh, setNewPkh] = useState('');
+  const [newParticipation, setNewParticipation] = useState('');
+  const [newStakeholderHex, setNewStakeholderHex] = useState('');
 
   useEffect(() => {
     if (initialDatum) {
       const p0 = initialDatum.params;
       const pt0 = initialDatum.project_token;
-      const c0 = initialDatum.certifications?.[0];
-      const s0 = initialDatum.stakeholders?.[0];
+      const certList = initialDatum.certifications ?? [];
+      const stakeList = initialDatum.stakeholders ?? [];
       if (p0) {
         setProjectId(p0.project_id ?? '');
         setProjectMetadata(p0.project_metadata ?? '');
@@ -763,72 +834,113 @@ function UpdateProjectFormContent(props: {
         setProjectTokenPolicyId(pt0.policy_id ?? props.defaultProjectTokenPolicyId ?? '');
         setTotalSupply(String(pt0.total_supply ?? ''));
       }
-      if (c0) {
-        setCertificationDate(String(c0.certification_date ?? ''));
-        setQuantity(String(c0.quantity ?? ''));
-        setRealCertificationDate(String(c0.real_certification_date ?? ''));
-        setRealQuantity(String(c0.real_quantity ?? ''));
-      }
-      if (s0) {
-        setStakeholderPkh(s0.pkh ?? '');
-        setStakeholderParticipation(String(s0.participation ?? ''));
-        setStakeholderHex(s0.stakeholder ?? '');
-      }
+      setCertificationsList(certList.map(toCertificationEntry));
+      setStakeholdersList(
+        stakeList.filter((s) => (s.pkh ?? '').trim() && (s.stakeholder ?? '').trim()).map(toStakeholderEntry)
+      );
     }
   }, [initialDatum, props.defaultProjectTokenPolicyId]);
 
+  const addCertification = () => {
+    const certification_date = parseInt(newCertificationDate || '0', 10);
+    const quantity = parseInt(newQuantity || '0', 10);
+    const real_certification_date = parseInt(newRealCertificationDate || '0', 10);
+    const real_quantity = parseInt(newRealQuantity || '0', 10);
+    setCertificationsList((prev) => [
+      ...prev,
+      {
+        certification_date: Number.isNaN(certification_date) ? 0 : certification_date,
+        quantity: Number.isNaN(quantity) ? 0 : quantity,
+        real_certification_date: Number.isNaN(real_certification_date) ? 0 : real_certification_date,
+        real_quantity: Number.isNaN(real_quantity) ? 0 : real_quantity,
+      },
+    ]);
+    setNewCertificationDate('');
+    setNewQuantity('');
+    setNewRealCertificationDate('');
+    setNewRealQuantity('');
+  };
+
+  const removeCertification = (index: number) => {
+    setCertificationsList((prev) => prev.filter((_, i) => i !== index));
+  };
+
+  const addStakeholder = () => {
+    const pkh = newPkh.trim().toLowerCase().replace(/^0x/, '');
+    const stakeholder = newStakeholderHex.trim().toLowerCase().replace(/^0x/, '');
+    const participationNum = parseInt(newParticipation, 10);
+    if (!pkh || !stakeholder) {
+      toast.error('pkh y stakeholder (hex) son obligatorios para agregar un stakeholder.');
+      return;
+    }
+    if (Number.isNaN(participationNum) || participationNum <= 0) {
+      toast.error('La participación debe ser un número entero positivo.');
+      return;
+    }
+    setStakeholdersList((prev) => [...prev, { participation: participationNum, pkh, stakeholder }]);
+    setNewPkh('');
+    setNewParticipation('');
+    setNewStakeholderHex('');
+  };
+
+  const removeStakeholder = (index: number) => {
+    setStakeholdersList((prev) => prev.filter((_, i) => i !== index));
+  };
+
   const handleSubmit = () => {
     const projId = projectId.trim();
-    if (!projId) {
-      toast.error('project_id es obligatorio.');
-      return;
-    }
     const tokenName = projectTokenName.trim();
-    if (!tokenName) {
-      toast.error('project_token_name es obligatorio (en hex).');
-      return;
-    }
     const tokenPolicyId = projectTokenPolicyId.trim();
-    if (!tokenPolicyId) {
-      toast.error('project_token_policy_id es obligatorio.');
-      return;
-    }
     const totalSupplyNum = parseInt(totalSupply, 10);
-    if (Number.isNaN(totalSupplyNum) || totalSupplyNum <= 0) {
-      toast.error('total_supply debe ser un entero positivo.');
-      return;
-    }
     const stateNum = parseInt(projectState, 10);
-    if (Number.isNaN(stateNum)) {
-      toast.error('project_state debe ser un número entero.');
-      return;
+    // Todos los campos son opcionales; usar valores por defecto si están vacíos
+    const finalProjectId = projId || (initialDatum?.params?.project_id ?? '');
+    const finalTokenName = tokenName || (initialDatum?.project_token?.token_name ?? '');
+    const finalTokenPolicyId = tokenPolicyId || (initialDatum?.project_token?.policy_id ?? props.defaultProjectTokenPolicyId ?? '');
+    const finalTotalSupply = Number.isNaN(totalSupplyNum) || totalSupplyNum <= 0
+      ? (initialDatum?.project_token?.total_supply ?? 0)
+      : totalSupplyNum;
+    const finalProjectState = Number.isNaN(stateNum) ? (initialDatum?.params?.project_state ?? 0) : stateNum;
+
+    let certifications = [...certificationsList];
+    const hasPendingCert =
+      newCertificationDate.trim() !== '' ||
+      newQuantity.trim() !== '' ||
+      newRealCertificationDate.trim() !== '' ||
+      newRealQuantity.trim() !== '';
+    if (hasPendingCert) {
+      const pendingCertDate = parseInt(newCertificationDate || '0', 10);
+      const pendingQty = parseInt(newQuantity || '0', 10);
+      const pendingRealCertDate = parseInt(newRealCertificationDate || '0', 10);
+      const pendingRealQty = parseInt(newRealQuantity || '0', 10);
+      certifications = [
+        ...certifications,
+        {
+          certification_date: Number.isNaN(pendingCertDate) ? 0 : pendingCertDate,
+          quantity: Number.isNaN(pendingQty) ? 0 : pendingQty,
+          real_certification_date: Number.isNaN(pendingRealCertDate) ? 0 : pendingRealCertDate,
+          real_quantity: Number.isNaN(pendingRealQty) ? 0 : pendingRealQty,
+        },
+      ];
     }
-    const certDateNum = parseInt(certificationDate || '0', 10);
-    const qtyNum = parseInt(quantity || '0', 10);
-    const realCertDateNum = parseInt(realCertificationDate || '0', 10);
-    const realQtyNum = parseInt(realQuantity || '0', 10);
-    const pkh = stakeholderPkh.trim();
-    const stakeholder = stakeholderHex.trim();
-    const participationNum = parseInt(stakeholderParticipation || '0', 10);
-    if (!pkh || !stakeholder || Number.isNaN(participationNum) || participationNum <= 0) {
-      toast.error('Debes indicar un stakeholder válido (pkh, nombre en hex y participación).');
-      return;
+
+    let stakeholders = [...stakeholdersList];
+    const pendingPkh = newPkh.trim().toLowerCase().replace(/^0x/, '');
+    const pendingStakeholder = newStakeholderHex.trim().toLowerCase().replace(/^0x/, '');
+    const pendingParticipation = parseInt(newParticipation, 10);
+    if (pendingPkh && pendingStakeholder && !Number.isNaN(pendingParticipation) && pendingParticipation > 0) {
+      stakeholders = [...stakeholders, { participation: pendingParticipation, pkh: pendingPkh, stakeholder: pendingStakeholder }];
     }
 
     onSubmit({
-      project_id: projId,
-      project_metadata: projectMetadata,
-      project_state: stateNum,
-      project_token_name: tokenName,
-      project_token_policy_id: tokenPolicyId,
-      total_supply: totalSupplyNum,
-      certification_date: Number.isNaN(certDateNum) ? 0 : certDateNum,
-      quantity: Number.isNaN(qtyNum) ? 0 : qtyNum,
-      real_certification_date: Number.isNaN(realCertDateNum) ? 0 : realCertDateNum,
-      real_quantity: Number.isNaN(realQtyNum) ? 0 : realQtyNum,
-      stakeholder_pkh: pkh,
-      stakeholder_hex: stakeholder,
-      stakeholder_participation: participationNum,
+      project_id: finalProjectId,
+      project_metadata: projectMetadata.trim(),
+      project_state: finalProjectState,
+      project_token_name: finalTokenName,
+      project_token_policy_id: finalTokenPolicyId,
+      total_supply: finalTotalSupply,
+      certifications,
+      stakeholders,
     });
   };
 
@@ -836,12 +948,12 @@ function UpdateProjectFormContent(props: {
     <>
       <Modal.Body className="space-y-4 pt-4">
         <p className="text-sm text-gray-600">
-          Actualiza los parámetros on-chain de este proyecto. Los campos numéricos se expresan en unidades enteras.
+          Actualiza los parámetros on-chain de este proyecto. Todos los campos son opcionales; los vacíos conservan el valor actual. Los campos numéricos se expresan en unidades enteras.
         </p>
         <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
           <div>
             <label className="block mb-1 text-sm font-medium text-gray-700">
-              project_id
+              project_id (opcional)
             </label>
             <input
               type="text"
@@ -853,7 +965,7 @@ function UpdateProjectFormContent(props: {
           </div>
           <div>
             <label className="block mb-1 text-sm font-medium text-gray-700">
-              project_state
+              project_state (opcional)
             </label>
             <input
               type="text"
@@ -865,7 +977,7 @@ function UpdateProjectFormContent(props: {
           </div>
           <div>
             <label className="block mb-1 text-sm font-medium text-gray-700">
-              total_supply
+              total_supply (opcional)
             </label>
             <input
               type="text"
@@ -889,7 +1001,7 @@ function UpdateProjectFormContent(props: {
           </div>
           <div>
             <label className="block mb-1 text-sm font-medium text-gray-700">
-              project_token_name (hex)
+              project_token_name hex (opcional)
             </label>
             <input
               type="text"
@@ -901,7 +1013,7 @@ function UpdateProjectFormContent(props: {
           </div>
           <div>
             <label className="block mb-1 text-sm font-medium text-gray-700">
-              project_token_policy_id
+              project_token_policy_id (opcional)
             </label>
             <input
               type="text"
@@ -911,89 +1023,169 @@ function UpdateProjectFormContent(props: {
               onChange={(e) => setProjectTokenPolicyId(e.target.value)}
             />
           </div>
-          <div>
-            <label className="block mb-1 text-sm font-medium text-gray-700">
-              certification_date (epoch, opcional)
-            </label>
-            <input
-              type="text"
-              className="w-full border border-gray-300 rounded-lg p-2 text-sm focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
-              placeholder="1700000000"
-              value={certificationDate}
-              onChange={(e) => setCertificationDate(e.target.value)}
-            />
+          <div className="sm:col-span-2">
+            <label className="block mb-1 text-sm font-medium text-gray-700">Certifications (opcional)</label>
+            <p className="text-xs text-gray-500 mb-2">
+              Cada certificación: certification_date (epoch), quantity, real_certification_date, real_quantity. Agrega o elimina con los controles siguientes.
+            </p>
+            <div className="w-full border border-gray-300 rounded-lg p-2 min-h-[52px] bg-white focus-within:ring-2 focus-within:ring-blue-500 focus-within:border-blue-500">
+              {certificationsList.length > 0 && (
+                <div className="flex flex-wrap gap-2 mb-2">
+                  {certificationsList.map((c, index) => (
+                    <span
+                      key={index}
+                      className="inline-flex items-center gap-1.5 pl-2.5 pr-1 py-1.5 rounded-md bg-amber-50 text-amber-800 text-xs font-mono border border-amber-200"
+                    >
+                      <span className="max-w-[220px] truncate" title={`cert_date: ${c.certification_date} | qty: ${c.quantity} | real_date: ${c.real_certification_date} | real_qty: ${c.real_quantity}`}>
+                        {c.certification_date} · {c.quantity} · {c.real_certification_date} · {c.real_quantity}
+                      </span>
+                      <button
+                        type="button"
+                        onClick={() => removeCertification(index)}
+                        className="p-0.5 rounded hover:bg-amber-200/80 text-amber-600 hover:text-amber-900 focus:outline-none focus:ring-1 focus:ring-amber-400"
+                        aria-label="Eliminar certificación"
+                      >
+                        <svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+                        </svg>
+                      </button>
+                    </span>
+                  ))}
+                </div>
+              )}
+              <div className="grid grid-cols-2 sm:grid-cols-5 gap-2 items-end">
+                <div>
+                  <label className="block mb-0.5 text-xs text-gray-600">certification_date</label>
+                  <input
+                    type="text"
+                    className="w-full border border-gray-300 rounded p-1.5 text-sm focus:ring-1 focus:ring-blue-500 focus:border-blue-500"
+                    placeholder="1700000000"
+                    value={newCertificationDate}
+                    onChange={(e) => setNewCertificationDate(e.target.value)}
+                    onKeyDown={(e) => e.key === 'Enter' && (e.preventDefault(), addCertification())}
+                  />
+                </div>
+                <div>
+                  <label className="block mb-0.5 text-xs text-gray-600">quantity</label>
+                  <input
+                    type="text"
+                    className="w-full border border-gray-300 rounded p-1.5 text-sm focus:ring-1 focus:ring-blue-500 focus:border-blue-500"
+                    placeholder="1000"
+                    value={newQuantity}
+                    onChange={(e) => setNewQuantity(e.target.value)}
+                    onKeyDown={(e) => e.key === 'Enter' && (e.preventDefault(), addCertification())}
+                  />
+                </div>
+                <div>
+                  <label className="block mb-0.5 text-xs text-gray-600">real_certification_date</label>
+                  <input
+                    type="text"
+                    className="w-full border border-gray-300 rounded p-1.5 text-sm focus:ring-1 focus:ring-blue-500 focus:border-blue-500"
+                    placeholder="0"
+                    value={newRealCertificationDate}
+                    onChange={(e) => setNewRealCertificationDate(e.target.value)}
+                    onKeyDown={(e) => e.key === 'Enter' && (e.preventDefault(), addCertification())}
+                  />
+                </div>
+                <div>
+                  <label className="block mb-0.5 text-xs text-gray-600">real_quantity</label>
+                  <input
+                    type="text"
+                    className="w-full border border-gray-300 rounded p-1.5 text-sm focus:ring-1 focus:ring-blue-500 focus:border-blue-500"
+                    placeholder="0"
+                    value={newRealQuantity}
+                    onChange={(e) => setNewRealQuantity(e.target.value)}
+                    onKeyDown={(e) => e.key === 'Enter' && (e.preventDefault(), addCertification())}
+                  />
+                </div>
+                <div>
+                  <button
+                    type="button"
+                    onClick={addCertification}
+                    className="w-full sm:w-auto shrink-0 px-3 py-1.5 text-xs font-medium rounded border border-gray-300 text-gray-700 bg-gray-50 hover:bg-gray-100 focus:outline-none focus:ring-2 focus:ring-gray-200"
+                  >
+                    Agregar
+                  </button>
+                </div>
+              </div>
+            </div>
           </div>
-          <div>
-            <label className="block mb-1 text-sm font-medium text-gray-700">
-              quantity (certificación, opcional)
-            </label>
-            <input
-              type="text"
-              className="w-full border border-gray-300 rounded-lg p-2 text-sm focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
-              placeholder="1000"
-              value={quantity}
-              onChange={(e) => setQuantity(e.target.value)}
-            />
-          </div>
-          <div>
-            <label className="block mb-1 text-sm font-medium text-gray-700">
-              real_certification_date (opcional)
-            </label>
-            <input
-              type="text"
-              className="w-full border border-gray-300 rounded-lg p-2 text-sm focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
-              placeholder="0"
-              value={realCertificationDate}
-              onChange={(e) => setRealCertificationDate(e.target.value)}
-            />
-          </div>
-          <div>
-            <label className="block mb-1 text-sm font-medium text-gray-700">
-              real_quantity (opcional)
-            </label>
-            <input
-              type="text"
-              className="w-full border border-gray-300 rounded-lg p-2 text-sm focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
-              placeholder="0"
-              value={realQuantity}
-              onChange={(e) => setRealQuantity(e.target.value)}
-            />
-          </div>
-          <div>
-            <label className="block mb-1 text-sm font-medium text-gray-700">
-              Stakeholder pkh
-            </label>
-            <input
-              type="text"
-              className="w-full border border-gray-300 rounded-lg p-2 text-sm font-mono focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
-              placeholder="fe2d2b5b..."
-              value={stakeholderPkh}
-              onChange={(e) => setStakeholderPkh(e.target.value)}
-            />
-          </div>
-          <div>
-            <label className="block mb-1 text-sm font-medium text-gray-700">
-              Stakeholder participación (lovelace)
-            </label>
-            <input
-              type="text"
-              className="w-full border border-gray-300 rounded-lg p-2 text-sm focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
-              placeholder="500000"
-              value={stakeholderParticipation}
-              onChange={(e) => setStakeholderParticipation(e.target.value)}
-            />
-          </div>
-          <div>
-            <label className="block mb-1 text-sm font-medium text-gray-700">
-              stakeholder (nombre en hex)
-            </label>
-            <input
-              type="text"
-              className="w-full border border-gray-300 rounded-lg p-2 text-sm font-mono focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
-              placeholder="6c616e646f776e6572"
-              value={stakeholderHex}
-              onChange={(e) => setStakeholderHex(e.target.value)}
-            />
+          <div className="sm:col-span-2">
+            <label className="block mb-1 text-sm font-medium text-gray-700">Stakeholders (opcional)</label>
+            <p className="text-xs text-gray-500 mb-2">
+              Cada stakeholder: participation (lovelace), pkh (hash hex), stakeholder (nombre en hex). Agrega o elimina con los controles siguientes.
+            </p>
+            <div className="w-full border border-gray-300 rounded-lg p-2 min-h-[52px] bg-white focus-within:ring-2 focus-within:ring-blue-500 focus-within:border-blue-500">
+              {stakeholdersList.length > 0 && (
+                <div className="flex flex-wrap gap-2 mb-2">
+                  {stakeholdersList.map((s, index) => (
+                    <span
+                      key={index}
+                      className="inline-flex items-center gap-1.5 pl-2.5 pr-1 py-1.5 rounded-md bg-blue-50 text-blue-800 text-xs font-mono border border-blue-200"
+                    >
+                      <span className="max-w-[200px] truncate" title={`pkh: ${s.pkh} | participation: ${s.participation} | stakeholder: ${s.stakeholder}`}>
+                        {s.pkh.slice(0, 10)}… · {s.participation} · {s.stakeholder.slice(0, 8)}…
+                      </span>
+                      <button
+                        type="button"
+                        onClick={() => removeStakeholder(index)}
+                        className="p-0.5 rounded hover:bg-blue-200/80 text-blue-600 hover:text-blue-900 focus:outline-none focus:ring-1 focus:ring-blue-400"
+                        aria-label="Eliminar stakeholder"
+                      >
+                        <svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+                        </svg>
+                      </button>
+                    </span>
+                  ))}
+                </div>
+              )}
+              <div className="grid grid-cols-1 sm:grid-cols-4 gap-2 items-end">
+                <div className="sm:col-span-1">
+                  <label className="block mb-0.5 text-xs text-gray-600">pkh</label>
+                  <input
+                    type="text"
+                    className="w-full border border-gray-300 rounded p-1.5 text-sm font-mono focus:ring-1 focus:ring-blue-500 focus:border-blue-500"
+                    placeholder="fe2d2b5b..."
+                    value={newPkh}
+                    onChange={(e) => setNewPkh(e.target.value)}
+                    onKeyDown={(e) => e.key === 'Enter' && (e.preventDefault(), addStakeholder())}
+                  />
+                </div>
+                <div className="sm:col-span-1">
+                  <label className="block mb-0.5 text-xs text-gray-600">participation</label>
+                  <input
+                    type="text"
+                    className="w-full border border-gray-300 rounded p-1.5 text-sm focus:ring-1 focus:ring-blue-500 focus:border-blue-500"
+                    placeholder="500000"
+                    value={newParticipation}
+                    onChange={(e) => setNewParticipation(e.target.value)}
+                    onKeyDown={(e) => e.key === 'Enter' && (e.preventDefault(), addStakeholder())}
+                  />
+                </div>
+                <div className="sm:col-span-1">
+                  <label className="block mb-0.5 text-xs text-gray-600">stakeholder (hex)</label>
+                  <input
+                    type="text"
+                    className="w-full border border-gray-300 rounded p-1.5 text-sm font-mono focus:ring-1 focus:ring-blue-500 focus:border-blue-500"
+                    placeholder="6c616e646f776e6572"
+                    value={newStakeholderHex}
+                    onChange={(e) => setNewStakeholderHex(e.target.value)}
+                    onKeyDown={(e) => e.key === 'Enter' && (e.preventDefault(), addStakeholder())}
+                  />
+                </div>
+                <div>
+                  <button
+                    type="button"
+                    onClick={addStakeholder}
+                    disabled={!newPkh.trim() || !newStakeholderHex.trim() || !newParticipation.trim()}
+                    className="w-full sm:w-auto shrink-0 px-3 py-1.5 text-xs font-medium rounded border border-gray-300 text-gray-700 bg-gray-50 hover:bg-gray-100 disabled:opacity-50 disabled:cursor-not-allowed"
+                  >
+                    Agregar
+                  </button>
+                </div>
+              </div>
+            </div>
           </div>
           <div className="sm:col-span-2">
             <div className="bg-gray-50 border border-dashed border-gray-300 rounded-md p-2 text-[11px] text-gray-600 flex flex-col gap-1">
@@ -1606,6 +1798,7 @@ export default function CoreWallet(props: any) {
           metadata: {},
         });
         setSignType('sendTransaction');
+        setMintProjectModalContract(null);
         setSignTransactionModal(true);
       }
     } finally {
@@ -1664,13 +1857,8 @@ export default function CoreWallet(props: any) {
       project_token_name: string;
       project_token_policy_id: string;
       total_supply: number;
-      certification_date: number;
-      quantity: number;
-      real_certification_date: number;
-      real_quantity: number;
-      stakeholder_pkh: string;
-      stakeholder_hex: string;
-      stakeholder_participation: number;
+      certifications: { certification_date: number; quantity: number; real_certification_date: number; real_quantity: number }[];
+      stakeholders: { participation: number; pkh: string; stakeholder: string }[];
     }
   ) => {
     const policyId =
@@ -1683,26 +1871,13 @@ export default function CoreWallet(props: any) {
     setUpdateProjectLoadingPolicyId(policyId);
     try {
       const result = await updateProject(policyId, {
-        certifications: [
-          {
-            certification_date: formData.certification_date,
-            quantity: formData.quantity,
-            real_certification_date: formData.real_certification_date,
-            real_quantity: formData.real_quantity,
-          },
-        ],
+        certifications: formData.certifications,
         project_id: formData.project_id,
         project_metadata: formData.project_metadata,
         project_state: formData.project_state,
         project_token_name: formData.project_token_name,
         project_token_policy_id: formData.project_token_policy_id,
-        stakeholders: [
-          {
-            participation: formData.stakeholder_participation,
-            pkh: formData.stakeholder_pkh,
-            stakeholder: formData.stakeholder_hex,
-          },
-        ],
+        stakeholders: formData.stakeholders,
         total_supply: formData.total_supply,
       });
 
@@ -3002,20 +3177,22 @@ export default function CoreWallet(props: any) {
                                                   })()}
                                                 </div>
                                                 <div className="flex flex-wrap justify-end gap-2 mt-1">
-                                                  <button
-                                                    type="button"
-                                                    className={`${colors.fuente} text-white ${colors.bgColor} ${colors.hoverBgColor} focus:outline-none focus:ring-2 focus:ring-gray-300 font-medium rounded text-xs px-2.5 py-1 disabled:opacity-50 flex items-center gap-1`}
-                                                    onClick={() => setMintProjectModalContract(proj)}
-                                                    disabled={!projMintPolicyId || mintProjectLoadingPolicyId === projMintPolicyId}
-                                                    title="Mintear tokens del proyecto"
-                                                  >
-                                                    {mintProjectLoadingPolicyId === projMintPolicyId ? (
-                                                      <LoadingIcon className="w-3.5 h-3.5" />
-                                                    ) : null}
-                                                    {mintProjectLoadingPolicyId === projMintPolicyId
-                                                      ? 'Minteando...'
-                                                      : 'Mintear tokens'}
-                                                  </button>
+                                                  {!isProjectMinted && (
+                                                    <button
+                                                      type="button"
+                                                      className={`${colors.fuente} text-white ${colors.bgColor} ${colors.hoverBgColor} focus:outline-none focus:ring-2 focus:ring-gray-300 font-medium rounded text-xs px-2.5 py-1 disabled:opacity-50 flex items-center gap-1`}
+                                                      onClick={() => setMintProjectModalContract(proj)}
+                                                      disabled={!projMintPolicyId || mintProjectLoadingPolicyId === projMintPolicyId}
+                                                      title="Mintear tokens del proyecto"
+                                                    >
+                                                      {mintProjectLoadingPolicyId === projMintPolicyId ? (
+                                                        <LoadingIcon className="w-3.5 h-3.5" />
+                                                      ) : null}
+                                                      {mintProjectLoadingPolicyId === projMintPolicyId
+                                                        ? 'Minteando...'
+                                                        : 'Mintear tokens'}
+                                                    </button>
+                                                  )}
                                                   <button
                                                     type="button"
                                                     className="inline-flex items-center gap-1 rounded text-xs px-2.5 py-1 border border-blue-200 bg-blue-50 text-blue-700 hover:bg-blue-100 focus:outline-none focus:ring-2 focus:ring-blue-200 disabled:opacity-50 disabled:cursor-not-allowed"
