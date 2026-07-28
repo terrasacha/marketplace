@@ -4,7 +4,7 @@ import Image from 'next/image';
 import Title from '@marketplaces/ui-lib/src/lib/auth/Title';
 import EnableMFA from '@marketplaces/ui-lib/src/lib/auth/EnableMFA';
 import { useEffect, useState } from 'react';
-import { setUpTOTP, verifyTOTPSetup, updateMFAPreference, fetchMFAPreference, getCurrentUser, UpdateMFAPreferenceInput } from '@aws-amplify/auth';
+import { setUpTOTP, verifyTOTPSetup, updateMFAPreference, fetchMFAPreference, getCurrentUser, UpdateMFAPreferenceInput } from 'aws-amplify/auth';
 import VerifyCodeMFA from '@marketplaces/ui-lib/src/lib/auth/VerifyCodeMFA'
 
 const Login = (props: any) => {

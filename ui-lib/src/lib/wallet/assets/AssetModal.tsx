@@ -92,7 +92,7 @@ export default function AssetModal(props: AssetModalProps) {
         if (data && data.assets && Array.isArray(data.assets) && data.assets.length > 0) {
           
           // Buscar el asset específico con múltiples estrategias
-          let assetDetail = null;
+          let assetDetail: any = null;
 
           // Estrategia 1: Buscar por fingerprint completo en hex (asset.asset)
           // Este es el método más confiable ya que asset.asset es el fingerprint completo

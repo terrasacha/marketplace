@@ -4,6 +4,25 @@ import MockupProjectDetail from '@terrasacha/components/mockups/MockupProjectDet
 import MockupSidebar from '@terrasacha/components/mockups/MockupSidebar';
 import MockupFooter from '@terrasacha/components/mockups/MockupFooter';
 
+const MOCK_PROJECT_DATA = {
+  id: 'mock-project',
+  name: 'Proyecto de ejemplo',
+  description: 'Vista previa del detalle de proyecto para diseño.',
+  categoryID: 'mock-category',
+  categoryName: 'Conservación',
+  status: 'active',
+  tokenGenesis: true,
+  municipio: 'Municipio',
+  vereda: 'Vereda',
+  department: 'Departamento',
+  location: '4.6097, -74.0817',
+  imageUrl: '/images/home-page/image.png',
+  tokenName: 'TOKEN_MOCK',
+  tokenCurrency: 'USD',
+  hasCertificate: false,
+  postulantName: 'Postulante de ejemplo',
+};
+
 const MockupsPage: MyPage = () => {
   return (
     <div className="min-h-screen bg-gradient-to-br from-gray-50 via-white to-custom-marca-boton-alterno2/5">
@@ -19,7 +38,7 @@ const MockupsPage: MyPage = () => {
           <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
             {/* Sección principal izquierda */}
             <div className="lg:col-span-2">
-              <MockupProjectDetail />
+              <MockupProjectDetail projectData={MOCK_PROJECT_DATA} />
             </div>
 
             {/* Sidebar derecho con paneles informativos */}

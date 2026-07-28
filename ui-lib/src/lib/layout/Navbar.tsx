@@ -34,13 +34,6 @@ export default function Navbar(props: NavbarProps) {
 
     fetchData();
   }, []);
-  const toggleSidebar = () => {
-    setIsSidebarOpen(!isSidebarOpen);
-  };
-
-  const closeSidebar = () => {
-    setIsSidebarOpen(false);
-  };
   const openModal = () => {
     setShowModal(true);
   };

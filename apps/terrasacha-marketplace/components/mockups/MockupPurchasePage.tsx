@@ -443,7 +443,7 @@ export default function MockupPurchasePage() {
       
       // Actualizar estado local
       setKycStatus((prev) => ({
-        ...prev,
+        isValidatedStep1: prev?.isValidatedStep1 ?? false,
         isValidatedStep2: isValidatedStep2,
       }));
     } catch (error) {
