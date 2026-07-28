@@ -5,65 +5,99 @@ import MockupFooter from '@terrasacha/components/mockups/MockupFooter';
 import ProjectInfoContext from '@terrasacha/store/projectinfo-context';
 import { MyPage } from '@terrasacha/components/common/types';
 import { getActualPeriod } from '@terrasacha/utils/generic/getActualPeriod';
-import { getImagesCategories, getProject } from '@marketplaces/data-access';
+import { getProject } from '@marketplaces/data-access';
 import Link from 'next/link';
+
+const DEFAULT_PROJECT_IMAGE = '/images/home-page/image.png';
+
+const resolveProjectImageUrl = (project: any): string => {
+  const firstImage = project?.images?.items?.[0];
+  const imagePath = firstImage?.imageURLToDisplay || firstImage?.imageURL;
+
+  if (!imagePath) return DEFAULT_PROJECT_IMAGE;
+  if (imagePath.includes('http')) return imagePath;
+
+  const s3Endpoint = (process.env.NEXT_PUBLIC_s3EndPoint || '').endsWith('/')
+    ? process.env.NEXT_PUBLIC_s3EndPoint
+    : `${process.env.NEXT_PUBLIC_s3EndPoint || ''}/`;
+
+  if (!s3Endpoint || s3Endpoint === '/') return DEFAULT_PROJECT_IMAGE;
+
+  if (imagePath.startsWith('public/')) return `${s3Endpoint}${imagePath}`;
+  return `${s3Endpoint}public/${imagePath}`;
+};
+
+const resolveTokenPrice = (actualPeriod: any, periods: any[]): number => {
+  const periodPrice = parseFloat(actualPeriod?.price);
+  if (!Number.isNaN(periodPrice) && periodPrice > 0) return periodPrice;
+
+  // Si la fecha actual quedó fuera de los períodos, usar el precio del último período conocido
+  if (periods.length > 0) {
+    const lastPeriodPrice = parseFloat(periods[periods.length - 1]?.price);
+    if (!Number.isNaN(lastPeriodPrice) && lastPeriodPrice >= 0) return lastPeriodPrice;
+  }
+
+  return 0;
+};
 
 const PurchasePage: MyPage = (props: any) => {
   const { project, image } = props;
   const { handleProjectInfo } = useContext<any>(ProjectInfoContext);
 
   useEffect(() => {
-    if (typeof project === 'object') {
+    if (typeof project === 'object' && project) {
       const tokenCurrency: string =
-        project.productFeatures.items.filter((item: any) => {
-          return item.featureID === 'GLOBAL_TOKEN_CURRENCY';
-        })[0]?.value || '';
+        project.productFeatures?.items?.find(
+          (item: any) => item.featureID === 'GLOBAL_TOKEN_CURRENCY'
+        )?.value || 'USD';
 
-      const tokenHistoricalData = JSON.parse(
-        project.productFeatures.items.filter((item: any) => {
-          return item.featureID === 'GLOBAL_TOKEN_HISTORICAL_DATA';
-        })[0]?.value || '[]'
-      );
+      let tokenHistoricalData: any[] = [];
+      try {
+        const historicalFeature = project.productFeatures?.items?.find(
+          (item: any) => item.featureID === 'GLOBAL_TOKEN_HISTORICAL_DATA'
+        );
+        tokenHistoricalData = JSON.parse(historicalFeature?.value || '[]');
+        if (!Array.isArray(tokenHistoricalData)) tokenHistoricalData = [];
+      } catch {
+        tokenHistoricalData = [];
+      }
 
       const periods = tokenHistoricalData.map((tkhd: any) => {
         return {
           period: tkhd.period,
           date: new Date(tkhd.date),
-          price: tkhd.price,
-          amount: tkhd.amount,
+          price: parseFloat(tkhd.price || 0),
+          amount: parseInt(tkhd.amount || 0, 10),
         };
       });
 
       const actualPeriod: any = getActualPeriod(Date.now(), periods);
-      const totalProjectTokens = periods.reduce(
-        (sum: number, item: any) => sum + parseInt(item.amount),
-        0
-      );
-      const totalTokensSold = project.transactions.items.reduce(
-        (acc: any, item: any) => {
-          return acc + item.amountOfTokens;
-        },
-        0
-      );
+      const tokenPrice = resolveTokenPrice(actualPeriod, periods);
 
       // Obtener token name desde productFeatures si no existe en tokens
-      const tokenNameFeature = project.productFeatures.items.find(
+      const tokenNameFeature = project.productFeatures?.items?.find(
         (item: any) => item.featureID === 'GLOBAL_TOKEN_NAME'
       );
       const tokenName = tokenNameFeature?.value || project.name?.replace('Proyecto - ', '') || '';
 
       // Obtener token desde tokens.items o crear un objeto con datos desde productFeatures
       const tokenFromItems = project.tokens?.items?.[0];
-      const token = tokenFromItems || {
-        id: null,
-        tokenName: tokenName,
-        oraclePrice: actualPeriod?.price || '0',
-        policyID: null,
-        supply: null,
-      };
+      const token = tokenFromItems
+        ? {
+            ...tokenFromItems,
+            oraclePrice: tokenFromItems.oraclePrice ?? '0',
+            tokenName: tokenFromItems.tokenName || tokenName,
+          }
+        : {
+            id: null,
+            tokenName: tokenName,
+            oraclePrice: '0',
+            policyID: null,
+            supply: null,
+          };
 
       // Obtener tokens del inversionista
-      const tokenDistributionFeature = project.productFeatures.items.find(
+      const tokenDistributionFeature = project.productFeatures?.items?.find(
         (item: any) => item.featureID === 'GLOBAL_TOKEN_AMOUNT_DISTRIBUTION'
       );
       let investorTokens = 0;
@@ -71,7 +105,7 @@ const PurchasePage: MyPage = (props: any) => {
         try {
           const distribution = JSON.parse(tokenDistributionFeature.value);
           const investorDist = distribution.find((d: any) => d.CONCEPTO === 'INVERSIONISTA');
-          investorTokens = parseInt(investorDist?.CANTIDAD || 0);
+          investorTokens = parseInt(investorDist?.CANTIDAD || 0, 10);
         } catch (e) {
           // Error parsing token distribution
         }
@@ -81,19 +115,19 @@ const PurchasePage: MyPage = (props: any) => {
         projectID: project.id,
         projectName: project.name,
         projectDescription: project.description,
-        projectFeatures: project.productFeatures.items,
+        projectFeatures: project.productFeatures?.items || [],
         tokenCurrency: tokenCurrency,
-        tokenPrice: actualPeriod?.price,
+        tokenPrice: tokenPrice,
         categoryID: project.categoryID,
         scripts: project.scripts?.items || [],
         token: token,
         createdAt: new Date(project.createdAt).toLocaleDateString('es-ES'),
-        projectImage: image || '/images/home-page/image.png',
+        projectImage: image || resolveProjectImageUrl(project) || DEFAULT_PROJECT_IMAGE,
         investorTokens: investorTokens,
       };
       handleProjectInfo(projectInfo);
     }
-  }, [project]);
+  }, [project, image]);
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-gray-50 via-white to-[#b1c181]/10">
@@ -151,14 +185,15 @@ PurchasePage.Layout = 'NoLayout';
 export async function getServerSideProps(context: any) {
   const { projectId } = context.params;
   const project = await getProject(projectId);
-  const image = await getImagesCategories(
-    encodeURIComponent(`${project.categoryID}_banner`)
-  );
+
+  if (!project) {
+    return { notFound: true };
+  }
 
   return {
     props: {
-      project: project,
-      image: image,
+      project,
+      image: resolveProjectImageUrl(project),
     },
   };
 }

@@ -23,8 +23,11 @@ const CustomTooltip = ({ active, payload }: any) => {
   if (active && payload && payload.length) {
     const data = payload[0].payload;
     return (
-      <div className="custom-tooltip">
-        <p className="label">{`${data.name}: ${data.value}`}</p>
+      <div className="custom-tooltip bg-white border border-gray-200 rounded-lg shadow-md px-3 py-2">
+        <p className="label font-jostBold text-sm text-gray-800 mb-0">{`${data.name}`}</p>
+        <p className="font-jostRegular text-sm text-gray-600 mb-0">
+          Cantidad: {Number(data.value).toLocaleString('es-CO')}
+        </p>
       </div>
     );
   }
@@ -47,15 +50,23 @@ export default function PieChartCustom(props: PieChartCustomProps) {
     '#8A2BE2',
   ];
 
+  const chartData = (data || []).filter((item) => Number(item.value) > 0);
+
+  const renderLegendText = (value: string) => (
+    <span className="font-jostRegular text-sm text-gray-700" title={value}>
+      {value}
+    </span>
+  );
+
   return (
     <>
-      {data && (
+      {chartData.length > 0 && (
         <div className="w-full flex items-center justify-center">
           <ResponsiveContainer width="100%" height={height}>
             <PieChart width={width} height={height}>
               <Pie
                 dataKey="value"
-                data={data}
+                data={chartData}
                 cx="50%"
                 cy="50%"
                 outerRadius={100}
@@ -64,7 +75,7 @@ export default function PieChartCustom(props: PieChartCustomProps) {
                 labelLine={false}
                 paddingAngle={5}
               >
-                {data.map((entry, index) => (
+                {chartData.map((entry, index) => (
                   <Cell
                     key={`cell-${index}`}
                     fill={COLORS[index % COLORS.length]}
@@ -72,7 +83,13 @@ export default function PieChartCustom(props: PieChartCustomProps) {
                 ))}
               </Pie>
               <Tooltip content={<CustomTooltip />} />
-              <Legend layout="horizontal" align="center" verticalAlign="top" />
+              <Legend
+                layout="horizontal"
+                align="center"
+                verticalAlign="top"
+                formatter={renderLegendText}
+                wrapperStyle={{ paddingBottom: 8 }}
+              />
             </PieChart>
           </ResponsiveContainer>
         </div>

@@ -1,7 +1,7 @@
 import { useEffect, useState } from 'react';
 import PieChartCustom from '../../common/charts/PieChartCustom';
 import AssetsList from '../../wallet/assets/AssetsList';
-import { getIpfsUrlHash } from '@suan/utils/generic/ipfs';
+import { formatAssetDisplayName } from '@marketplaces/utils-2';
 interface AssetsProps {
   assetsData: Array<any>;
   chartActive: boolean;
@@ -13,6 +13,20 @@ interface ChartDataItem {
   name: string;
   value: number;
 }
+
+const parseAssetQuantity = (asset: any): number => {
+  if (typeof asset?.raw_quantity === 'number' && Number.isFinite(asset.raw_quantity)) {
+    return asset.raw_quantity;
+  }
+
+  const raw = asset?.user_quantity ?? asset?.quantity ?? '0';
+  if (typeof raw === 'number') return raw;
+
+  // Cantidades ya formateadas con toLocaleString('es-CO') usan "." como miles
+  const normalized = String(raw).replace(/\./g, '').replace(/,/g, '');
+  const parsed = parseInt(normalized, 10);
+  return Number.isFinite(parsed) ? parsed : 0;
+};
 
 export default function Assets(props: AssetsProps) {
   const { assetsData, chartActive, tableActive, tableItemsPerPage } = props;
@@ -47,9 +61,13 @@ export default function Assets(props: AssetsProps) {
         if (!request.ok) {
           // Si falla el endpoint, mostrar todos los assets sin precio
           const mappedAssetsData = assetsData?.map((asset: any) => {
-            const assetQuantity = parseInt(asset.user_quantity || asset.quantity || '0');
+            const assetQuantity = parseAssetQuantity(asset);
             return {
               ...asset,
+              asset_name: formatAssetDisplayName(asset.asset_name, asset.asset_name_hex, {
+                maxLength: 48,
+              }),
+              raw_quantity: assetQuantity,
               quantity: assetQuantity.toLocaleString('es-CO'),
               price: '0.00',
               total: '0.00',
@@ -66,9 +84,13 @@ export default function Assets(props: AssetsProps) {
         if (!Array.isArray(suanTokens)) {
           // Si no es array, mostrar todos los assets sin precio
           const mappedAssetsData = assetsData?.map((asset: any) => {
-            const assetQuantity = parseInt(asset.user_quantity || asset.quantity || '0');
+            const assetQuantity = parseAssetQuantity(asset);
             return {
               ...asset,
+              asset_name: formatAssetDisplayName(asset.asset_name, asset.asset_name_hex, {
+                maxLength: 48,
+              }),
+              raw_quantity: assetQuantity,
               quantity: assetQuantity.toLocaleString('es-CO'),
               price: '0.00',
               total: '0.00',
@@ -85,7 +107,9 @@ export default function Assets(props: AssetsProps) {
           const match = suanTokens.find(
             (item2: any) =>
               asset.policy_id === item2.policyID &&
-              asset.asset_name === item2.tokenName
+              (asset.asset_name === item2.tokenName ||
+                formatAssetDisplayName(asset.asset_name, asset.asset_name_hex) ===
+                  item2.tokenName)
           );
 
           // Calcular precio solo si hay match
@@ -93,10 +117,17 @@ export default function Assets(props: AssetsProps) {
             ? (parseInt(match.oraclePrice) / 1000000) * exchangeRate
             : 0;
 
-          const assetQuantity = parseInt(asset.user_quantity || asset.quantity || '0');
+          const assetQuantity = parseAssetQuantity(asset);
+          const displayName = formatAssetDisplayName(
+            asset.asset_name,
+            asset.asset_name_hex,
+            { maxLength: 48 }
+          );
 
           return {
             ...asset,
+            asset_name: displayName,
+            raw_quantity: assetQuantity,
             quantity: assetQuantity.toLocaleString('es-CO'),
             price: assetPriceUSD.toLocaleString('es-CO', {
               minimumFractionDigits: 2,
@@ -115,9 +146,13 @@ export default function Assets(props: AssetsProps) {
         console.error('Error al obtener tokens SUAN:', error);
         // Si hay un error, mostrar todos los assets sin precio
         const mappedAssetsData = assetsData?.map((asset: any) => {
-          const assetQuantity = parseInt(asset.user_quantity || asset.quantity || '0');
+          const assetQuantity = parseAssetQuantity(asset);
           return {
             ...asset,
+            asset_name: formatAssetDisplayName(asset.asset_name, asset.asset_name_hex, {
+              maxLength: 48,
+            }),
+            raw_quantity: assetQuantity,
             quantity: assetQuantity.toLocaleString('es-CO'),
             price: '0.00',
             total: '0.00',
@@ -160,9 +195,13 @@ export default function Assets(props: AssetsProps) {
     } else if (assetsData && assetsData.length > 0 && !exchangeRate) {
       // Si hay assets pero aún no hay exchangeRate, mapearlos sin precio inicialmente
       const initialMappedAssets = assetsData.map((asset: any) => {
-        const assetQuantity = parseInt(asset.user_quantity || asset.quantity || '0');
+        const assetQuantity = parseAssetQuantity(asset);
         return {
           ...asset,
+          asset_name: formatAssetDisplayName(asset.asset_name, asset.asset_name_hex, {
+            maxLength: 48,
+          }),
+          raw_quantity: assetQuantity,
           quantity: assetQuantity.toLocaleString('es-CO'),
           price: '0.00',
           total: '0.00',
@@ -172,10 +211,14 @@ export default function Assets(props: AssetsProps) {
     }
   }, [exchangeRate, assetsData]);
 
-  const data = tableMappedAssetsData?.map((asset: any) => {
+  const data = tableMappedAssetsData?.map((asset: any, index: number) => {
+    const displayName = formatAssetDisplayName(asset.asset_name, asset.asset_name_hex, {
+      maxLength: 24,
+    });
+
     return {
-      name: asset.asset_name,
-      value: parseInt(asset.quantity),
+      name: displayName || `Token ${index + 1}`,
+      value: parseAssetQuantity(asset),
     };
   });
   const marketplaceName = process.env.NEXT_PUBLIC_MARKETPLACE_NAME || 'Marketplace';

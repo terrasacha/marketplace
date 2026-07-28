@@ -1,6 +1,6 @@
 import React, { useContext, useState, useEffect, useCallback } from 'react';
 import Assets from '../wallet/assets/Assets';
-import { WalletContext, hexToText } from '@marketplaces/utils-2';
+import { WalletContext, hexToText, formatAssetDisplayName } from '@marketplaces/utils-2';
 import { getWalletUtxos } from '../common/walletApi';
 
 
@@ -64,19 +64,21 @@ const extractAssetsFromUtxos = (utxos: any[]): any[] => {
     // Convertir hex a UTF-8 para obtener el nombre legible
     let assetName = '';
     try {
-      assetName = hexToText(assetNameHex);
+      assetName = formatAssetDisplayName(hexToText(assetNameHex), assetNameHex, {
+        maxLength: 64,
+      });
     } catch (error) {
-      // Si falla la conversión, usar el hex como fallback
       console.warn(`No se pudo convertir hex a texto: ${assetNameHex}`, error);
-      assetName = assetNameHex;
+      assetName = formatAssetDisplayName(undefined, assetNameHex, { maxLength: 64 });
     }
 
     return {
       fingerprint, // Fingerprint completo (para identificar el asset único)
       policy_id: policyId, // Policy ID (56 caracteres)
-      asset_name: assetName, // Nombre del asset en UTF-8 (ej: "USDATEST")
+      asset_name: assetName, // Nombre legible para UI
       asset_name_hex: assetNameHex, // Nombre en hex (para búsqueda en API)
       user_quantity: data.quantity.toString(), // Cantidad que tiene el usuario
+      raw_quantity: data.quantity,
     };
   });
 };
@@ -144,10 +146,11 @@ export default function WalletAssets(props: WalletAssetsProps = {}) {
       const mappedAssets = assets.map((asset: any) => ({
         fingerprint: asset.fingerprint, // Fingerprint completo para identificar el asset
         policy_id: asset.policy_id,
-        asset_name: asset.asset_name, // Nombre en UTF-8
+        asset_name: asset.asset_name, // Nombre legible
         asset_name_hex: asset.asset_name_hex, // Nombre en hex (para búsqueda en API)
         quantity: asset.user_quantity, // Cantidad del usuario
         user_quantity: asset.user_quantity, // Alias para compatibilidad
+        raw_quantity: asset.raw_quantity ?? parseInt(asset.user_quantity || '0', 10),
         // NO incluir metadata, onchain_metadata, etc. (se cargará lazy en el modal)
       }));
 

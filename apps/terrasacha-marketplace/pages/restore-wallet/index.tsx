@@ -1,6 +1,5 @@
 import React, {  useEffect, useState } from 'react';
 import { MyPage } from '@terrasacha/components/common/types';
-import Image from 'next/image';
 import { getCurrentUser } from 'aws-amplify/auth';
 import { Hub } from 'aws-amplify/utils';
 import { useRouter } from 'next/router';
@@ -53,19 +52,13 @@ const RestoreWalletPage: MyPage = (props: any) => {
   }
   if (!wallet) return <div>Cargando...</div>;
   return (
-    <div className="relative w-full min-h-screen flex bg-slate-200 justify-center items-center">
-    <div className="absolute inset-0 z-0">
-      <Image
-        priority={true}
-                src="/v2/bg3.avif"
-        alt="landing-suan-image"
-        layout="fill"
-        objectFit="cover"
-        objectPosition="center"
-        className="z-0"
-      />
-    </div>
-      <div className="z-10 mt-10 w-[50rem] h-auto">
+    <div className="relative w-full min-h-screen flex bg-slate-200 justify-center items-center overflow-hidden">
+    <div
+      className="absolute inset-0 z-0 bg-cover bg-center bg-no-repeat"
+      style={{ backgroundImage: "url('/v2/bg3.png')" }}
+      aria-hidden="true"
+    />
+      <div className="relative z-10 mt-10 w-[50rem] h-auto">
         {isAuthenticated && wallet.length === 0 && <RestoreWallet />}
         {isAuthenticated && wallet.length > 0 && <AlreadyHasWallet />}
       </div>

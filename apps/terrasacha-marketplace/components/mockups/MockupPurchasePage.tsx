@@ -31,6 +31,26 @@ const PAYING_STEPS = {
   ERROR: 'error',
 };
 
+const DEFAULT_PROJECT_IMAGE = '/images/home-page/image.png';
+
+const toSafeNumber = (value: unknown, fallback = 0): number => {
+  const parsed = typeof value === 'number' ? value : parseFloat(String(value ?? ''));
+  return Number.isFinite(parsed) ? parsed : fallback;
+};
+
+const formatFiatPrice = (value: unknown, currency = 'USD'): string => {
+  const amount = toSafeNumber(value);
+  return `${amount.toLocaleString('es-ES', {
+    minimumFractionDigits: amount % 1 === 0 ? 0 : 2,
+    maximumFractionDigits: 4,
+  })} ${currency || 'USD'}`;
+};
+
+const formatAdaAmount = (value: number): string => {
+  if (!Number.isFinite(value) || value < 0) return '—';
+  return `${value.toFixed(4)} ADA`;
+};
+
 export default function MockupPurchasePage() {
   const [tokenAmount, setTokenAmount] = useState<string>('');
   const [investmentAmount, setInvestmentAmount] = useState<string>('');
@@ -40,8 +60,13 @@ export default function MockupPurchasePage() {
   const [purchaseStep, setPurchaseStep] = useState<string>(PURCHASE_STEPS.BUYING);
   const [payingStep, setPayingStep] = useState<string>(PAYING_STEPS.STARTING);
   const [actualScriptId, setActualScriptId] = useState<string | null>(null);
+  const [projectImageSrc, setProjectImageSrc] = useState<string>(DEFAULT_PROJECT_IMAGE);
 
   const { projectInfo } = useContext<any>(ProjectInfoContext);
+
+  useEffect(() => {
+    setProjectImageSrc(projectInfo?.projectImage || DEFAULT_PROJECT_IMAGE);
+  }, [projectInfo?.projectImage]);
 
   if (!projectInfo || !projectInfo.token) {
     return (
@@ -169,7 +194,11 @@ export default function MockupPurchasePage() {
     throw new Error(`Parameter blockFrostKeysPreview not found`);
   }
 
-  const projectImageUrl = projectInfo.projectImage || '/images/home-page/image.png';
+  const handleProjectImageError = () => {
+    if (projectImageSrc !== DEFAULT_PROJECT_IMAGE) {
+      setProjectImageSrc(DEFAULT_PROJECT_IMAGE);
+    }
+  };
 
   const validateTokenAmount = () => {
     if (parseInt(tokenAmount) <= 0 || isNaN(parseInt(tokenAmount))) {
@@ -286,8 +315,8 @@ export default function MockupPurchasePage() {
     }
   };
 
-  const calculatedTotalAmount = tokenAmount && parseFloat(projectInfo.tokenPrice) > 0
-    ? parseFloat(tokenAmount) * parseFloat(projectInfo.tokenPrice)
+  const calculatedTotalAmount = tokenAmount && toSafeNumber(projectInfo.tokenPrice) > 0
+    ? toSafeNumber(tokenAmount) * toSafeNumber(projectInfo.tokenPrice)
     : 0;
 
   const validateConditions = async () => {
@@ -727,12 +756,23 @@ export default function MockupPurchasePage() {
     { step: 2, title: 'Pago', description: 'Procesa tu pago', id: PURCHASE_STEPS.PAYING },
   ];
 
-  const subTotalUSD = parseInt(tokenAmount) * parseFloat(projectInfo.tokenPrice);
-  const subTotalADA = parseFloat((subTotalUSD / exchangeRate).toFixed(4));
+  const safeTokenPrice = toSafeNumber(projectInfo.tokenPrice);
+  const safeTokenCurrency = projectInfo.tokenCurrency || 'USD';
+  const oraclePriceLovelace = toSafeNumber(projectInfo.token?.oraclePrice);
+  const unitPriceAdaFromOracle = oraclePriceLovelace > 0 ? oraclePriceLovelace / 1_000_000 : 0;
+  const unitPriceAdaFromRate =
+    exchangeRate > 0 && safeTokenPrice > 0 ? safeTokenPrice / exchangeRate : 0;
+  const unitPriceAda = unitPriceAdaFromOracle > 0 ? unitPriceAdaFromOracle : unitPriceAdaFromRate;
+
+  const tokenAmountNumber = toSafeNumber(tokenAmount);
+  const subTotalUSD = tokenAmountNumber * safeTokenPrice;
+  const subTotalADA =
+    exchangeRate > 0 ? parseFloat((subTotalUSD / exchangeRate).toFixed(4)) : 0;
   const feesUSD = parseFloat((subTotalUSD * 0.05).toFixed(2));
-  const feesADA = parseFloat((feesUSD / exchangeRate).toFixed(4));
+  const feesADA = exchangeRate > 0 ? parseFloat((feesUSD / exchangeRate).toFixed(4)) : 0;
   const totalUSD = subTotalUSD + feesUSD;
-  const totalADA = parseFloat((totalUSD / exchangeRate).toFixed(4));
+  const totalADA = exchangeRate > 0 ? parseFloat((totalUSD / exchangeRate).toFixed(4)) : 0;
+  const isPayDisabled = !kycStatus?.isValidatedStep1 || isLoadingKYC;
 
   return (
     <>
@@ -857,9 +897,10 @@ export default function MockupPurchasePage() {
                 <div className="flex flex-col md:flex-row gap-6">
                   <div className="flex-shrink-0">
                     <img
-                      src={projectImageUrl}
-                      alt="Proyecto"
-                      className="w-32 h-32 rounded-xl object-cover shadow-lg"
+                      src={projectImageSrc}
+                      alt={`Imagen del proyecto ${projectInfo.projectName || ''}`}
+                      onError={handleProjectImageError}
+                      className="w-32 h-32 rounded-xl object-cover shadow-lg bg-[#849b50]/30"
                     />
                   </div>
                   <div className="flex-1 space-y-3">
@@ -888,10 +929,12 @@ export default function MockupPurchasePage() {
                       <div>
                         <p className="text-[#b1c181] text-xs font-jostRegular">Precio unitario</p>
                         <p className="font-jostBold text-lg text-[#e8d79a]">
-                          {parseFloat(projectInfo.tokenPrice).toLocaleString('es-ES')} {projectInfo.tokenCurrency}
+                          {safeTokenPrice > 0
+                            ? formatFiatPrice(safeTokenPrice, safeTokenCurrency)
+                            : `Precio no disponible`}
                         </p>
                         <p className="text-sm text-[#b1c181]">
-                          ≈ {(parseFloat(projectInfo.token.oraclePrice) / 1000000).toFixed(4)} ADA
+                          ≈ {unitPriceAda > 0 ? formatAdaAmount(unitPriceAda) : '— ADA'}
                         </p>
                       </div>
                     </div>
@@ -942,13 +985,15 @@ export default function MockupPurchasePage() {
                     <div>
                       <p className="text-[#44482c]/70 text-sm font-jostRegular">Total a pagar</p>
                       <p className="text-2xl font-jostBold text-[#44482c]">
-                        {calculatedTotalAmount.toLocaleString('es-ES', { minimumFractionDigits: 2, maximumFractionDigits: 2 })} {projectInfo.tokenCurrency}
+                        {formatFiatPrice(calculatedTotalAmount, safeTokenCurrency)}
                       </p>
                     </div>
                     <div className="text-right">
                       <p className="text-[#44482c]/70 text-sm font-jostRegular">Precio unitario</p>
                       <p className="text-lg font-jostBold text-[#6e6c35]">
-                        {parseFloat(projectInfo.tokenPrice).toLocaleString('es-ES')} {projectInfo.tokenCurrency}
+                        {safeTokenPrice > 0
+                          ? formatFiatPrice(safeTokenPrice, safeTokenCurrency)
+                          : 'Precio no disponible'}
                       </p>
                     </div>
                   </div>
@@ -959,17 +1004,27 @@ export default function MockupPurchasePage() {
               {/* Payment Button */}
               <button
                 onClick={() => handlePayment()}
-                disabled={!kycStatus?.isValidatedStep1 || isLoadingKYC}
-                className={`group relative w-full px-6 py-4 bg-gradient-to-r from-[#6e6c35] to-[#849b50] text-white font-jostBold rounded-xl shadow-lg hover:shadow-xl transition-all duration-300 overflow-hidden ${
-                  !kycStatus?.isValidatedStep1 ? 'opacity-50 cursor-not-allowed' : ''
+                disabled={isPayDisabled}
+                aria-disabled={isPayDisabled}
+                aria-label={
+                  isPayDisabled
+                    ? 'Pagar (deshabilitado: completa la verificación de identidad)'
+                    : 'Pagar'
+                }
+                className={`relative w-full px-6 py-4 font-jostBold rounded-xl transition-all duration-300 overflow-hidden ${
+                  isPayDisabled
+                    ? 'bg-[#cfd4c0] text-[#3f4330] border border-[#9aa67a] cursor-not-allowed shadow-none'
+                    : 'group bg-gradient-to-r from-[#6e6c35] to-[#849b50] text-white shadow-lg hover:shadow-xl'
                 }`}
               >
-                <span className="absolute inset-0 bg-gradient-to-r from-transparent via-white/20 to-transparent translate-x-[-100%] group-hover:translate-x-[100%] transition-transform duration-700"></span>
+                {!isPayDisabled && (
+                  <span className="absolute inset-0 bg-gradient-to-r from-transparent via-white/20 to-transparent translate-x-[-100%] group-hover:translate-x-[100%] transition-transform duration-700"></span>
+                )}
                 <span className="relative flex items-center justify-center gap-2">
-                  <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 10h18M7 15h1m4 0h1m-7 4h12a3 3 0 003-3V8a3 3 0 00-3-3H6a3 3 0 00-3 3v8a3 3 0 003 3z" />
                   </svg>
-                  Pagar
+                  {isLoadingKYC ? 'Validando...' : 'Pagar'}
                 </span>
               </button>
 

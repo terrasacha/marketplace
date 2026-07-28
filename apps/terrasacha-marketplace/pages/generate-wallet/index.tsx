@@ -1,6 +1,5 @@
 import React, { use, useContext, useEffect, useState } from 'react';
 import { MyPage } from '@terrasacha/components/common/types';
-import Image from 'next/image';
 import { Button } from 'flowbite-react';
 import NewWallet from '@terrasacha/components/generate-wallet/NewWallet';
 import { getCurrentUser } from 'aws-amplify/auth';
@@ -64,18 +63,12 @@ const GenerateWalletPage: MyPage = (props: any) => {
   }
   if (!wallet) return <div>Cargando...</div>;
   return (
-<div className="relative w-full min-h-screen flex bg-slate-200 justify-center items-center">
-  <div className="absolute inset-0 z-0">
-    <Image
-      priority={true}
-              src="/v2/bg3.avif"
-      alt="landing-suan-image"
-      layout="fill"
-      objectFit="cover"
-      objectPosition="center"
-      className="z-0"
-    />
-  </div>
+<div className="relative w-full min-h-screen flex bg-slate-200 justify-center items-center overflow-hidden">
+  <div
+    className="absolute inset-0 z-0 bg-cover bg-center bg-no-repeat"
+    style={{ backgroundImage: "url('/v2/bg3.png')" }}
+    aria-hidden="true"
+  />
  
   <div className="relative z-10 mt-10 mb-10 w-[50rem] h-auto">
     {isAuthenticated && wallet.length === 0 && <NewWallet />}

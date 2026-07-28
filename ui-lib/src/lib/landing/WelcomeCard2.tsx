@@ -427,14 +427,14 @@ const WelcomeCard2 = (props: WelcomeCard2Props) => {
       )}
 
       {userData && (
-        <h3 className="font-jostBold text-lg pb-2 flex justify-center text-center mb-2">
+        <h3 className="font-jostBold text-xl pb-2 flex justify-center text-center mb-2">
           Hola, {userData.username?.toUpperCase() || 'USUARIO'}
         </h3>
       )}
 
       {isCheckingWallet ? (
         <div className="flex flex-col items-center justify-center py-8">
-          <p className="font-jostRegular text-sm text-center text-gray-600">
+          <p className="font-jostRegular text-base text-center text-gray-600">
             Verificando billetera...
           </p>
         </div>
@@ -442,30 +442,40 @@ const WelcomeCard2 = (props: WelcomeCard2Props) => {
         <>
           {viewMode === 'select' && (
             <>
-              <h2 className="font-jostBold text-xl pb-2 flex justify-center text-center mt-4">
+              <h2 className="font-jostBold text-2xl pb-2 flex justify-center text-center mt-4">
                 {hasWallet ? 'Selecciona una billetera' : 'Bienvenido'}
               </h2>
-              <p className="font-jostRegular text-xs text-center mb-4 text-gray-600">
+              <p className="font-jostRegular text-base text-center mb-4 text-gray-600 leading-relaxed">
                 Selecciona una de tus billeteras para continuar. Luego pulsa Continuar al Marketplace e ingresa la contraseña.
               </p>
             </>
           )}
-          {viewMode === 'create' && (
+          {viewMode === 'create' && !createdWallet && (
             <>
-              <h2 className="font-jostBold text-xl pb-2 flex justify-center text-center mt-4">
+              <h2 className="font-jostBold text-2xl pb-2 flex justify-center text-center mt-4">
                 Crear nueva billetera
               </h2>
-              <p className="font-jostRegular text-xs text-center mb-4 text-gray-600">
+              <p className="font-jostRegular text-base text-center mb-4 text-gray-600 leading-relaxed">
                 La billetera quedará vinculada a tu cuenta.
+              </p>
+            </>
+          )}
+          {viewMode === 'create' && createdWallet && (
+            <>
+              <h2 className="font-jostBold text-2xl pb-2 flex justify-center text-center mt-4">
+                Billetera creada
+              </h2>
+              <p className="font-jostRegular text-base text-center mb-4 text-gray-600 leading-relaxed">
+                Guarda tu frase de recuperación antes de continuar.
               </p>
             </>
           )}
           {viewMode === 'import' && (
             <>
-              <h2 className="font-jostBold text-xl pb-2 flex justify-center text-center mt-4">
+              <h2 className="font-jostBold text-2xl pb-2 flex justify-center text-center mt-4">
                 Importar billetera
               </h2>
-              <p className="font-jostRegular text-xs text-center mb-4 text-gray-600">
+              <p className="font-jostRegular text-base text-center mb-4 text-gray-600 leading-relaxed">
                 Usa tu frase de recuperación de 24 palabras. Quedará vinculada a tu cuenta.
               </p>
             </>
@@ -473,19 +483,19 @@ const WelcomeCard2 = (props: WelcomeCard2Props) => {
         </>
       ) : userData ? (
         <>
-          <h2 className="font-jostBold text-xl pb-2 flex justify-center text-center mt-4">
+          <h2 className="font-jostBold text-2xl pb-2 flex justify-center text-center mt-4">
             ¡Bienvenido a nuestro Marketplace!
           </h2>
-          <p className="font-jostRegular text-xs text-center mb-4 text-gray-600">
+          <p className="font-jostRegular text-base text-center mb-4 text-gray-600 leading-relaxed">
             El siguiente paso es crear tu billetera virtual o importar una existente.
           </p>
         </>
       ) : (
         <>
-          <h2 className="font-jostBold text-xl pb-2 flex justify-center text-center mt-4">
+          <h2 className="font-jostBold text-2xl pb-2 flex justify-center text-center mt-4">
             ¡Bienvenido a nuestro Marketplace!
           </h2>
-          <p className="text-xs pb-2 text-center font-jostRegular text-gray-600 mb-4">
+          <p className="text-base pb-2 text-center font-jostRegular text-gray-600 mb-4 leading-relaxed">
             Para comenzar a usar la aplicación, necesitas una billetera virtual.
             Inicia sesión para continuar.
           </p>
@@ -496,7 +506,7 @@ const WelcomeCard2 = (props: WelcomeCard2Props) => {
         checkingWallet === 'authorized' ||
         checkingWallet === 'unauthorized') && (
         <p
-          className={`flex justify-center items-center text-xs mb-2 ${
+          className={`flex justify-center items-center text-sm mb-2 ${
             checkingWallet === 'unauthorized' ? 'text-red-400' : 'text-slate-600'
           }`}
         >
@@ -545,20 +555,22 @@ const WelcomeCard2 = (props: WelcomeCard2Props) => {
             </div>
           )}
           {linkedWallets.length === 0 && (
-            <p className="text-sm text-gray-500 text-center py-2">No tienes billeteras vinculadas. Crea una o importa una existente.</p>
+            <p className="text-base text-gray-600 text-center py-2 font-jostRegular leading-relaxed">
+              No tienes billeteras vinculadas. Crea una o importa una existente.
+            </p>
           )}
           <div className="flex gap-2">
             <button
               type="button"
               onClick={() => setViewMode('create')}
-              className="font-jostRegular flex-1 text-sm text-custom-marca-boton hover:text-custom-marca-boton-variante border border-custom-marca-boton rounded-lg px-3 py-2"
+              className="font-jostBold flex-1 text-base text-custom-marca-boton hover:text-custom-marca-boton-variante border border-custom-marca-boton rounded-lg px-3 py-3"
             >
               Crear nueva billetera
             </button>
             <button
               type="button"
               onClick={() => setViewMode('import')}
-              className="font-jostRegular flex-1 text-sm text-custom-marca-boton hover:text-custom-marca-boton-variante border border-custom-marca-boton rounded-lg px-3 py-2"
+              className="font-jostBold flex-1 text-base text-custom-marca-boton hover:text-custom-marca-boton-variante border border-custom-marca-boton rounded-lg px-3 py-3"
             >
               Importar billetera
             </button>
@@ -567,7 +579,7 @@ const WelcomeCard2 = (props: WelcomeCard2Props) => {
             <button
               onClick={handleContinueToMarketplace}
               onKeyDown={(e) => handleKeyDown(e, handleContinueToMarketplace)}
-              className="font-jostBold relative w-full flex items-center justify-center text-white bg-custom-marca-boton border border-transparent enabled:hover:bg-custom-marca-boton-variante rounded-lg focus:ring-2 px-8 py-2"
+              className="font-jostBold relative w-full flex items-center justify-center text-base text-white bg-custom-marca-boton border border-transparent enabled:hover:bg-custom-marca-boton-variante rounded-lg focus:ring-2 px-8 py-3"
               tabIndex={0}
               aria-label="Continuar al Marketplace"
             >
@@ -577,7 +589,7 @@ const WelcomeCard2 = (props: WelcomeCard2Props) => {
           <button
             onClick={handleSignOut}
             onKeyDown={(e) => handleKeyDown(e, handleSignOut)}
-            className="font-jostBold relative w-full flex items-center justify-center text-white bg-custom-marca-boton border-transparent hover:bg-custom-marca-boton-variante rounded-lg focus:ring-2 px-8 py-2"
+            className="font-jostBold relative w-full flex items-center justify-center text-base text-white bg-custom-marca-boton border-transparent hover:bg-custom-marca-boton-variante rounded-lg focus:ring-2 px-8 py-3"
             tabIndex={0}
             aria-label="Cerrar sesión"
           >
@@ -587,67 +599,125 @@ const WelcomeCard2 = (props: WelcomeCard2Props) => {
       ) : createdWallet ? (
         /* Interfaz de billetera creada - completamente separada */
         <div className="w-full mb-3">
-          <div className="rounded-lg p-5 border border-gray-200">
-            <div className="space-y-3 p-4 bg-yellow-50 border border-yellow-200 rounded-lg">
-              <div className="text-center">
-                <p className="text-yellow-800 font-jostBold text-sm mb-2">
-                  {createdWallet.warning || '⚠️ IMPORTANT: Save your mnemonic phrase securely!'}
-                </p>
-                <div className="bg-white p-3 rounded border border-gray-300 mb-2">
-                  <p className="text-xs font-jostRegular text-gray-700 mb-1">Frase de Recuperación (24 palabras):</p>
-                  <p className="text-sm font-jostBold text-gray-900 break-words">
-                    {createdWallet.mnemonic}
-                  </p>
-                </div>
-                <div className="text-xs text-gray-600 space-y-2">
-                  <div className="flex items-center gap-2">
-                    <span className="font-jostBold min-w-[100px]">Wallet ID:</span>
-                    <span className="truncate flex-1">{createdWallet.wallet_id}</span>
-                    <CopyToClipboard
-                      copyValue={createdWallet.wallet_id}
-                      tooltipLabel="Copiar Wallet ID"
-                      className="flex-shrink-0"
-                      iconClassName="w-4 h-4 text-gray-500 hover:text-custom-marca-boton"
-                    />
-                  </div>
-                  <div className="flex items-center gap-2">
-                    <span className="font-jostBold min-w-[100px]">Enterprise Address:</span>
-                    <span className="truncate flex-1">{createdWallet.enterprise_address}</span>
-                    <CopyToClipboard
-                      copyValue={createdWallet.enterprise_address}
-                      tooltipLabel="Copiar Enterprise Address"
-                      className="flex-shrink-0"
-                      iconClassName="w-4 h-4 text-gray-500 hover:text-custom-marca-boton"
-                    />
-                  </div>
-                  <div className="flex items-center gap-2">
-                    <span className="font-jostBold min-w-[100px]">Staking Address:</span>
-                    <span className="truncate flex-1">{createdWallet.staking_address}</span>
-                    <CopyToClipboard
-                      copyValue={createdWallet.staking_address}
-                      tooltipLabel="Copiar Staking Address"
-                      className="flex-shrink-0"
-                      iconClassName="w-4 h-4 text-gray-500 hover:text-custom-marca-boton"
-                    />
-                  </div>
-                </div>
-                <button
-                  onClick={async () => {
-                    if (createdWallet?.wallet_id && createdWallet?._password) {
-                      await unlockWallet(createdWallet.wallet_id, createdWallet._password);
-                      setWalletSessionReady(true);
-                    }
-                    setCreatedWallet(null);
-                    router.push('/wallet');
-                  }}
-                  className="font-jostBold w-full flex items-center justify-center text-white bg-custom-marca-boton border border-transparent enabled:hover:bg-custom-marca-boton-variante dark:bg-cyan-600 dark:enabled:hover:bg-cyan-700 rounded-lg focus:ring-2 px-4 py-2.5 text-sm mt-3"
-                  tabIndex={0}
-                  aria-label="Continuar"
+          <div
+            className="rounded-xl p-5 border border-[#e0c56a]/60 bg-gradient-to-b from-[#fff8e6] to-[#fffdf6] shadow-sm"
+            role="alert"
+            aria-live="polite"
+          >
+            <div className="flex items-start gap-3 mb-5">
+              <div
+                className="flex-shrink-0 w-10 h-10 rounded-full bg-[#f3e2a5] flex items-center justify-center"
+                aria-hidden="true"
+              >
+                <svg
+                  className="w-5 h-5 text-[#6e6c35]"
+                  fill="none"
+                  stroke="currentColor"
+                  viewBox="0 0 24 24"
                 >
-                  Continuar
-                </button>
+                  <path
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                    strokeWidth={2}
+                    d="M12 9v2m0 4h.01M10.29 3.86L1.82 18a2 2 0 001.71 3h16.94a2 2 0 001.71-3L13.71 3.86a2 2 0 00-3.42 0z"
+                  />
+                </svg>
+              </div>
+              <div className="flex-1 space-y-1">
+                <p className="font-jostBold text-base text-[#44482c]">
+                  Guarda tu frase de recuperación de forma segura
+                </p>
+                <p className="font-jostRegular text-sm text-[#5c5a3a] leading-relaxed">
+                  Esta frase no se volverá a mostrar. La necesitarás para recuperar tu
+                  billetera si olvidas tu contraseña. Anótala en un lugar seguro y no la
+                  compartas con nadie.
+                </p>
               </div>
             </div>
+
+            <div className="bg-white p-4 rounded-xl border border-[#e8d79a] mb-5">
+              <div className="flex items-center justify-between gap-2 mb-2">
+                <p className="text-sm font-jostBold text-gray-800">
+                  Frase de recuperación (24 palabras)
+                </p>
+                <CopyToClipboard
+                  copyValue={createdWallet.mnemonic}
+                  tooltipLabel="Copiar frase de recuperación"
+                  className="flex-shrink-0"
+                  iconClassName="w-4 h-4 text-gray-500 hover:text-custom-marca-boton"
+                />
+              </div>
+              <p className="text-base font-jostBold text-gray-900 break-words leading-relaxed tracking-wide">
+                {createdWallet.mnemonic}
+              </p>
+            </div>
+
+            <div className="space-y-3 mb-5">
+              <div className="flex items-center gap-2 text-sm text-gray-700">
+                <span className="font-jostBold min-w-[9.5rem] text-gray-800">
+                  ID de billetera
+                </span>
+                <span className="truncate flex-1 font-mono text-xs sm:text-sm" title={createdWallet.wallet_id}>
+                  {createdWallet.wallet_id}
+                </span>
+                <CopyToClipboard
+                  copyValue={createdWallet.wallet_id}
+                  tooltipLabel="Copiar ID de billetera"
+                  className="flex-shrink-0"
+                  iconClassName="w-4 h-4 text-gray-500 hover:text-custom-marca-boton"
+                />
+              </div>
+              <div className="flex items-center gap-2 text-sm text-gray-700">
+                <span className="font-jostBold min-w-[9.5rem] text-gray-800">
+                  Dirección enterprise
+                </span>
+                <span
+                  className="truncate flex-1 font-mono text-xs sm:text-sm"
+                  title={createdWallet.enterprise_address}
+                >
+                  {createdWallet.enterprise_address}
+                </span>
+                <CopyToClipboard
+                  copyValue={createdWallet.enterprise_address}
+                  tooltipLabel="Copiar dirección enterprise"
+                  className="flex-shrink-0"
+                  iconClassName="w-4 h-4 text-gray-500 hover:text-custom-marca-boton"
+                />
+              </div>
+              <div className="flex items-center gap-2 text-sm text-gray-700">
+                <span className="font-jostBold min-w-[9.5rem] text-gray-800">
+                  Dirección de staking
+                </span>
+                <span
+                  className="truncate flex-1 font-mono text-xs sm:text-sm"
+                  title={createdWallet.staking_address}
+                >
+                  {createdWallet.staking_address}
+                </span>
+                <CopyToClipboard
+                  copyValue={createdWallet.staking_address}
+                  tooltipLabel="Copiar dirección de staking"
+                  className="flex-shrink-0"
+                  iconClassName="w-4 h-4 text-gray-500 hover:text-custom-marca-boton"
+                />
+              </div>
+            </div>
+
+            <button
+              onClick={async () => {
+                if (createdWallet?.wallet_id && createdWallet?._password) {
+                  await unlockWallet(createdWallet.wallet_id, createdWallet._password);
+                  setWalletSessionReady(true);
+                }
+                setCreatedWallet(null);
+                router.push('/wallet');
+              }}
+              className="font-jostBold w-full flex items-center justify-center text-white bg-custom-marca-boton border border-transparent enabled:hover:bg-custom-marca-boton-variante rounded-lg focus:ring-2 px-4 py-3 text-base"
+              tabIndex={0}
+              aria-label="Continuar"
+            >
+              Continuar
+            </button>
           </div>
         </div>
       ) : (
@@ -657,7 +727,7 @@ const WelcomeCard2 = (props: WelcomeCard2Props) => {
             <button
               type="button"
               onClick={() => setViewMode('select')}
-              className="font-jostRegular text-sm text-custom-marca-boton hover:text-custom-marca-boton-variante mb-2"
+              className="font-jostBold text-base text-custom-marca-boton hover:text-custom-marca-boton-variante mb-3"
             >
               ← Volver a lista de billeteras
             </button>
@@ -666,9 +736,9 @@ const WelcomeCard2 = (props: WelcomeCard2Props) => {
             {viewMode === 'create' ? (
               /* Sección: Create New Wallet */
               <div className="rounded-lg p-5 border border-gray-200">
-                <div className="space-y-2.5">
+                <div className="space-y-3">
                   <div>
-                    <label className="block text-xs font-jostRegular mb-1 text-gray-700">
+                    <label className="block text-base font-jostBold mb-1.5 text-gray-800">
                       Nombre de la Billetera
                     </label>
                     <input
@@ -685,7 +755,7 @@ const WelcomeCard2 = (props: WelcomeCard2Props) => {
                         }
                       }}
                       placeholder="ej. Billetera del Tesoro"
-                      className={`w-full px-3 py-2 rounded-lg text-sm border ${
+                      className={`w-full px-3 py-2.5 rounded-lg text-base border ${
                         createValidationErrors.name
                           ? 'border-red-500'
                           : 'border-gray-300'
@@ -694,13 +764,13 @@ const WelcomeCard2 = (props: WelcomeCard2Props) => {
                       aria-label="Nombre de la billetera nueva"
                     />
                     {createValidationErrors.name && (
-                      <p className="text-red-500 text-xs mt-1">{createValidationErrors.name}</p>
+                      <p className="text-red-500 text-sm mt-1">{createValidationErrors.name}</p>
                     )}
                   </div>
 
-                  <div className="grid grid-cols-2 gap-2">
+                  <div className="grid grid-cols-2 gap-3">
                     <div>
-                      <label className="block text-xs font-jostRegular mb-1 text-gray-700">
+                      <label className="block text-base font-jostBold mb-1.5 text-gray-800">
                         Contraseña
                       </label>
                       <input
@@ -717,7 +787,7 @@ const WelcomeCard2 = (props: WelcomeCard2Props) => {
                           }
                         }}
                         placeholder="Contraseña"
-                        className={`w-full px-3 py-2 rounded-lg text-sm border ${
+                        className={`w-full px-3 py-2.5 rounded-lg text-base border ${
                           createValidationErrors.password
                             ? 'border-red-500'
                             : 'border-gray-300'
@@ -726,11 +796,11 @@ const WelcomeCard2 = (props: WelcomeCard2Props) => {
                         aria-label="Contraseña nueva"
                       />
                       {createValidationErrors.password && (
-                        <p className="text-red-500 text-xs mt-1">{createValidationErrors.password}</p>
+                        <p className="text-red-500 text-sm mt-1">{createValidationErrors.password}</p>
                       )}
                     </div>
                     <div>
-                      <label className="block text-xs font-jostRegular mb-1 text-gray-700">
+                      <label className="block text-base font-jostBold mb-1.5 text-gray-800">
                         Confirmar
                       </label>
                       <input
@@ -747,7 +817,7 @@ const WelcomeCard2 = (props: WelcomeCard2Props) => {
                           }
                         }}
                         placeholder="Confirmar"
-                        className={`w-full px-3 py-2 rounded-lg text-sm border ${
+                        className={`w-full px-3 py-2.5 rounded-lg text-base border ${
                           createValidationErrors.confirmPassword
                             ? 'border-red-500'
                             : 'border-gray-300'
@@ -756,7 +826,7 @@ const WelcomeCard2 = (props: WelcomeCard2Props) => {
                         aria-label="Confirmar contraseña nueva"
                       />
                       {createValidationErrors.confirmPassword && (
-                        <p className="text-red-500 text-xs mt-1">
+                        <p className="text-red-500 text-sm mt-1">
                           {createValidationErrors.confirmPassword}
                         </p>
                       )}
@@ -764,7 +834,7 @@ const WelcomeCard2 = (props: WelcomeCard2Props) => {
                   </div>
 
                   {createWalletError && (
-                    <div className="text-red-500 text-xs text-center mb-2">
+                    <div className="text-red-500 text-sm text-center mb-2">
                       {createWalletError}
                     </div>
                   )}
@@ -773,7 +843,7 @@ const WelcomeCard2 = (props: WelcomeCard2Props) => {
                     onClick={handleCreateWallet}
                     onKeyDown={(e) => handleKeyDown(e, handleCreateWallet)}
                     disabled={isCreatingWallet}
-                    className="font-jostBold w-full flex items-center justify-center text-white bg-custom-marca-boton border border-transparent enabled:hover:bg-custom-marca-boton-variante dark:bg-cyan-600 dark:enabled:hover:bg-cyan-700 rounded-lg focus:ring-2 px-4 py-2.5 text-sm mt-1 disabled:opacity-50 disabled:cursor-not-allowed"
+                    className="font-jostBold w-full flex items-center justify-center text-white bg-custom-marca-boton border border-transparent enabled:hover:bg-custom-marca-boton-variante dark:bg-cyan-600 dark:enabled:hover:bg-cyan-700 rounded-lg focus:ring-2 px-4 py-3 text-base mt-1 disabled:opacity-50 disabled:cursor-not-allowed"
                     tabIndex={0}
                     aria-label="Crear y revelar frase de recuperación"
                   >
@@ -784,9 +854,9 @@ const WelcomeCard2 = (props: WelcomeCard2Props) => {
             ) : (
               /* Sección: Import Existing Wallet */
               <div className="rounded-lg p-5 border border-gray-200">
-                <div className="space-y-2.5">
+                <div className="space-y-3">
                   <div>
-                    <label className="block text-xs font-jostRegular mb-1 text-gray-700">
+                    <label className="block text-base font-jostBold mb-1.5 text-gray-800">
                       Nombre de la Billetera
                     </label>
                     <input
@@ -803,7 +873,7 @@ const WelcomeCard2 = (props: WelcomeCard2Props) => {
                         }
                       }}
                       placeholder="ej. Mi Billetera Importada"
-                      className={`w-full px-3 py-2 rounded-lg text-sm border ${
+                      className={`w-full px-3 py-2.5 rounded-lg text-base border ${
                         importValidationErrors.name
                           ? 'border-red-500'
                           : 'border-gray-300'
@@ -812,12 +882,12 @@ const WelcomeCard2 = (props: WelcomeCard2Props) => {
                       aria-label="Nombre de la billetera importada"
                     />
                     {importValidationErrors.name && (
-                      <p className="text-red-500 text-xs mt-1">{importValidationErrors.name}</p>
+                      <p className="text-red-500 text-sm mt-1">{importValidationErrors.name}</p>
                     )}
                   </div>
 
                   <div>
-                    <label className="block text-xs font-jostRegular mb-1 text-gray-700">
+                    <label className="block text-base font-jostBold mb-1.5 text-gray-800">
                       Frase Mnemónica (24 palabras)
                     </label>
                     <textarea
@@ -834,7 +904,7 @@ const WelcomeCard2 = (props: WelcomeCard2Props) => {
                       }}
                       placeholder="Ingresa tu frase de recuperación de 24 palabras, separadas por espacios..."
                       rows={3}
-                      className={`w-full px-3 py-2 rounded-lg text-sm border ${
+                      className={`w-full px-3 py-2.5 rounded-lg text-base border ${
                         importValidationErrors.mnemonic
                           ? 'border-red-500'
                           : 'border-gray-300'
@@ -843,13 +913,13 @@ const WelcomeCard2 = (props: WelcomeCard2Props) => {
                       aria-label="Frase mnemónica de 24 palabras"
                     />
                     {importValidationErrors.mnemonic && (
-                      <p className="text-red-500 text-xs mt-1">{importValidationErrors.mnemonic}</p>
+                      <p className="text-red-500 text-sm mt-1">{importValidationErrors.mnemonic}</p>
                     )}
                   </div>
 
-                  <div className="grid grid-cols-2 gap-2">
+                  <div className="grid grid-cols-2 gap-3">
                     <div>
-                      <label className="block text-xs font-jostRegular mb-1 text-gray-700">
+                      <label className="block text-base font-jostBold mb-1.5 text-gray-800">
                         Nueva Contraseña
                       </label>
                       <input
@@ -866,7 +936,7 @@ const WelcomeCard2 = (props: WelcomeCard2Props) => {
                           }
                         }}
                         placeholder="Nueva contraseña"
-                        className={`w-full px-3 py-2 rounded-lg text-sm border ${
+                        className={`w-full px-3 py-2.5 rounded-lg text-base border ${
                           importValidationErrors.password
                             ? 'border-red-500'
                             : 'border-gray-300'
@@ -875,13 +945,13 @@ const WelcomeCard2 = (props: WelcomeCard2Props) => {
                         aria-label="Nueva contraseña para billetera importada"
                       />
                       {importValidationErrors.password && (
-                        <p className="text-red-500 text-xs mt-1">
+                        <p className="text-red-500 text-sm mt-1">
                           {importValidationErrors.password}
                         </p>
                       )}
                     </div>
                     <div>
-                      <label className="block text-xs font-jostRegular mb-1 text-gray-700">
+                      <label className="block text-base font-jostBold mb-1.5 text-gray-800">
                         Confirmar
                       </label>
                       <input
@@ -898,7 +968,7 @@ const WelcomeCard2 = (props: WelcomeCard2Props) => {
                           }
                         }}
                         placeholder="Confirmar"
-                        className={`w-full px-3 py-2 rounded-lg text-sm border ${
+                        className={`w-full px-3 py-2.5 rounded-lg text-base border ${
                           importValidationErrors.confirmPassword
                             ? 'border-red-500'
                             : 'border-gray-300'
@@ -907,7 +977,7 @@ const WelcomeCard2 = (props: WelcomeCard2Props) => {
                         aria-label="Confirmar nueva contraseña para billetera importada"
                       />
                       {importValidationErrors.confirmPassword && (
-                        <p className="text-red-500 text-xs mt-1">
+                        <p className="text-red-500 text-sm mt-1">
                           {importValidationErrors.confirmPassword}
                         </p>
                       )}
@@ -915,7 +985,7 @@ const WelcomeCard2 = (props: WelcomeCard2Props) => {
                   </div>
 
                   {importWalletError && (
-                    <div className="text-red-500 text-xs text-center mb-2">
+                    <div className="text-red-500 text-sm text-center mb-2">
                       {importWalletError}
                     </div>
                   )}
@@ -924,7 +994,7 @@ const WelcomeCard2 = (props: WelcomeCard2Props) => {
                     onClick={handleImportWallet}
                     onKeyDown={(e) => handleKeyDown(e, handleImportWallet)}
                     disabled={isImportingWallet}
-                    className="font-jostBold w-full flex items-center justify-center text-white bg-custom-marca-boton border border-transparent enabled:hover:bg-custom-marca-boton-variante dark:bg-cyan-600 dark:enabled:hover:bg-cyan-700 rounded-lg focus:ring-2 px-4 py-2.5 text-sm mt-1 disabled:opacity-50 disabled:cursor-not-allowed"
+                    className="font-jostBold w-full flex items-center justify-center text-white bg-custom-marca-boton border border-transparent enabled:hover:bg-custom-marca-boton-variante dark:bg-cyan-600 dark:enabled:hover:bg-cyan-700 rounded-lg focus:ring-2 px-4 py-3 text-base mt-1 disabled:opacity-50 disabled:cursor-not-allowed"
                     tabIndex={0}
                     aria-label="Importar billetera"
                   >
@@ -935,11 +1005,11 @@ const WelcomeCard2 = (props: WelcomeCard2Props) => {
             )}
 
             {/* Enlace para alternar entre vistas */}
-            <div className="text-center mt-3">
+            <div className="text-center mt-4">
               <button
                 onClick={handleToggleView}
                 onKeyDown={handleToggleViewKeyDown}
-                className="text-sm font-jostRegular text-custom-marca-boton hover:text-custom-marca-boton-variante underline focus:outline-none focus:ring-2 focus:ring-custom-marca-boton rounded px-2 py-1"
+                className="text-base font-jostBold text-custom-marca-boton hover:text-custom-marca-boton-variante underline focus:outline-none focus:ring-2 focus:ring-custom-marca-boton rounded px-2 py-1"
                 tabIndex={0}
                 aria-label={viewMode === 'create' ? 'Cambiar a importar billetera existente' : 'Cambiar a crear nueva billetera'}
               >
@@ -968,26 +1038,26 @@ const WelcomeCard2 = (props: WelcomeCard2Props) => {
       {showPasswordModalForContinue && selectedWalletId && (
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 p-4" role="dialog" aria-modal="true" aria-labelledby="unlock-modal-title">
           <div className="bg-white rounded-xl shadow-xl w-full max-w-md p-6">
-            <h3 id="unlock-modal-title" className="font-jostBold text-lg mb-2">Contraseña de la billetera</h3>
-            <p className="text-sm text-gray-600 mb-3">
+            <h3 id="unlock-modal-title" className="font-jostBold text-xl mb-2">Contraseña de la billetera</h3>
+            <p className="text-base text-gray-600 mb-3">
               {linkedWallets.find((w) => w.id === selectedWalletId)?.name || selectedWalletId}
             </p>
-            <p className="text-xs text-gray-500 mb-3">Ingresa la contraseña de esta billetera para continuar al marketplace.</p>
-            <label className="block text-xs font-jostRegular mb-1 text-gray-700">Contraseña</label>
+            <p className="text-base text-gray-600 mb-3 leading-relaxed">Ingresa la contraseña de esta billetera para continuar al marketplace.</p>
+            <label className="block text-base font-jostBold mb-1.5 text-gray-800">Contraseña</label>
             <input
               type="password"
               value={unlockPassword}
               onChange={(e) => { setUnlockPassword(e.target.value); setUnlockError(null); }}
               placeholder="Contraseña de la billetera"
-              className="w-full px-3 py-2 rounded-lg text-sm border border-gray-300 focus:ring-2 focus:ring-custom-marca-boton mb-2"
+              className="w-full px-3 py-2.5 rounded-lg text-base border border-gray-300 focus:ring-2 focus:ring-custom-marca-boton mb-2"
               aria-label="Contraseña"
             />
-            {unlockError && <p className="text-red-500 text-xs mb-2">{unlockError}</p>}
+            {unlockError && <p className="text-red-500 text-sm mb-2">{unlockError}</p>}
             <div className="flex gap-2 justify-end mt-4">
               <button
                 type="button"
                 onClick={() => { setShowPasswordModalForContinue(false); setUnlockPassword(''); setUnlockError(null); }}
-                className="font-jostRegular px-4 py-2 border border-gray-300 rounded-lg text-sm hover:bg-gray-50"
+                className="font-jostRegular px-4 py-2.5 border border-gray-300 rounded-lg text-base hover:bg-gray-50"
               >
                 Cancelar
               </button>
@@ -995,7 +1065,7 @@ const WelcomeCard2 = (props: WelcomeCard2Props) => {
                 type="button"
                 onClick={handleUnlockAndContinue}
                 disabled={isUnlocking || !unlockPassword.trim()}
-                className="font-jostBold px-4 py-2 text-white bg-custom-marca-boton hover:bg-custom-marca-boton-variante rounded-lg text-sm disabled:opacity-50"
+                className="font-jostBold px-4 py-2.5 text-white bg-custom-marca-boton hover:bg-custom-marca-boton-variante rounded-lg text-base disabled:opacity-50"
               >
                 {isUnlocking ? 'Verificando...' : 'Continuar'}
               </button>

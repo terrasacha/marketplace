@@ -75,9 +75,19 @@ const SignUpForm = (props: SignUpFormProps) => {
         label: 'New user created',
         value: signupForm.username
       });
+
+      if (typeof window !== 'undefined') {
+        sessionStorage.setItem('pendingConfirmUsername', signupForm.username);
+        sessionStorage.setItem('pendingConfirmEmail', signupForm.email);
+        sessionStorage.setItem('pendingConfirmPassword', signupForm.password);
+      }
+
       router.push({
         pathname: '/auth/confirm-code',
-        query: { email: signupForm.email}
+        query: {
+          email: signupForm.email,
+          username: signupForm.username,
+        },
       });
     } catch (error: any) {
       if (signupForm.password !== extraForm.confirmPassword) {

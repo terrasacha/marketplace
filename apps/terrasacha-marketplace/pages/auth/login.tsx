@@ -1,26 +1,17 @@
-import dynamic from 'next/dynamic';
 import { signInAuth } from '@terrasacha/backend';
-import Image from 'next/image';
 import Title from '@marketplaces/ui-lib/src/lib/auth/Title';
 import LoginForm from '@marketplaces/ui-lib/src/lib/auth/LoginForm';
 
-const Login = (props: any) => {
+const Login = () => {
   return (
-    <div className="relative w-full min-h-screen flex bg-slate-200 justify-center items-center">
-  <div className="absolute inset-0 z-0">
-    <Image
-      priority={true}
-              src="/v2/bg3.png"
-      alt="landing-suan-image"
-      layout="fill"
-      objectFit="cover"
-      objectPosition="center"
-      className="z-0"
-    />
-  </div>
- 
+    <div className="relative w-full min-h-screen flex bg-slate-200 justify-center items-center overflow-hidden">
+      <div
+        className="absolute inset-0 z-0 bg-cover bg-center bg-no-repeat"
+        style={{ backgroundImage: "url('/v2/bg3.png')" }}
+        aria-hidden="true"
+      />
 
-      <div className="h-auto w-[90%] lg:w-[90%] 2xl:w-[80%] 3xl:w-[70%] flex justify-center 2xl:justify-between z-10">
+      <div className="relative h-auto w-[90%] lg:w-[90%] 2xl:w-[80%] 3xl:w-[70%] flex justify-center 2xl:justify-between z-10">
         <Title />
         <LoginForm
           logo="/v2/logoterrasacha.svg"

@@ -16,6 +16,7 @@ import {
   resendSignUpCode,
   confirmSignIn,
   type ConfirmSignInInput,
+  autoSignIn,
 } from 'aws-amplify/auth';
 
 /* import { integer } from "aws-sdk/clients/cloudfront"; */
@@ -49,6 +50,7 @@ export async function signUpAuth({
           email,
           'custom:role': role,
         },
+        autoSignIn: true,
       },
     });
     const userPayload = {
@@ -71,10 +73,44 @@ export async function signUpAuth({
 export async function confirmSignUpAuth({
   username,
   confirmationCode,
-}: ConfirmSignUpInput) {
+  password,
+}: ConfirmSignUpInput & { password?: string }) {
   try {
-    let result = await confirmSignUp({ username, confirmationCode });
-    return result;
+    const result = await confirmSignUp({ username, confirmationCode });
+
+    let isSignedIn = false;
+    let signInResult: any = null;
+
+    // 1) Flujo nativo de Amplify tras signUp con autoSignIn: true
+    try {
+      if (result.nextStep?.signUpStep === 'COMPLETE_AUTO_SIGN_IN') {
+        signInResult = await autoSignIn();
+        isSignedIn = Boolean(signInResult?.isSignedIn);
+      }
+    } catch {
+      // Continuar con fallback por contraseña
+    }
+
+    // 2) Fallback: iniciar sesión con la contraseña del paso previo (signup/login)
+    if (!isSignedIn && password) {
+      try {
+        try {
+          await signOut();
+        } catch {
+          // Sin sesión previa
+        }
+        signInResult = await signIn({ username, password });
+        isSignedIn = Boolean(signInResult?.isSignedIn);
+      } catch {
+        // Cuenta confirmada pero no se pudo abrir sesión automáticamente
+      }
+    }
+
+    return {
+      ...result,
+      isSignedIn,
+      signInResult,
+    };
   } catch (error) {
     throw error;
   }

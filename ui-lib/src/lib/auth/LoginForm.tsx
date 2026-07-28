@@ -226,8 +226,17 @@ const LoginForm = (props: LoginFormProps) => {
 
       console.log("✅ Email final recuperado:", email || "No disponible");
 
-      // 🔄 Redirigir con el email obtenido
-      return router.push(`/auth/confirm-code?email=${encodeURIComponent(email)}`);
+      // 🔄 Redirigir con el email y username obtenidos
+      if (typeof window !== 'undefined') {
+        sessionStorage.setItem('pendingConfirmUsername', userName);
+        if (email) sessionStorage.setItem('pendingConfirmEmail', email);
+        if (loginForm.password) {
+          sessionStorage.setItem('pendingConfirmPassword', loginForm.password);
+        }
+      }
+      return router.push(
+        `/auth/confirm-code?email=${encodeURIComponent(email)}&username=${encodeURIComponent(userName)}`
+      );
 
     } catch (error: any) {
       console.error("❌ Error de autenticación:", error);
@@ -261,7 +270,16 @@ const LoginForm = (props: LoginFormProps) => {
 
       // Si obtenemos el email del error, redirigir a confirmación
       if (emailFromError) {
-        return router.push(`/auth/confirm-code?email=${encodeURIComponent(emailFromError)}`);
+        if (typeof window !== 'undefined' && loginForm.username) {
+          sessionStorage.setItem('pendingConfirmUsername', loginForm.username);
+          sessionStorage.setItem('pendingConfirmEmail', emailFromError);
+          if (loginForm.password) {
+            sessionStorage.setItem('pendingConfirmPassword', loginForm.password);
+          }
+        }
+        return router.push(
+          `/auth/confirm-code?email=${encodeURIComponent(emailFromError)}&username=${encodeURIComponent(loginForm.username)}`
+        );
       }
     } finally {
       setLoading(false);
